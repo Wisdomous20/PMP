@@ -1,14 +1,19 @@
 import LeftTab from "@/components/layouts/LeftTab"
 import ServiceRequestList from "@/components/view-service-request/ServiceRequestList"
+import { Card, CardHeader } from "@/components/ui/card"
+import { Separator } from "@/components/ui/separator"
 
 export default function Page() {
   return (
     <div className="w-screen h-screen flex">
       <LeftTab />
-      <div className="flex flex-col w-full">
-        <div className="w-full h-[80px] text-center text-3xl font-semibold p-4"> Service Requests </div>
+      <Card className="flex flex-col w-full px-4 ">
+        <CardHeader className="pb-4 items-center">
+          <h1 className="text-2xl font-semibold"> Service Requests </h1>
+        </CardHeader>
+        <Separator className="mb-4" />
         <ServiceRequestList />
-      </div>
+      </Card>
     </div>
   )
 }
