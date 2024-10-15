@@ -35,7 +35,7 @@ export default function CreateServiceRequest() {
     <div className="w-full max-w-2xl bg-white rounded-lg border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
       <div className="p-5 bg-primary text-primary-foreground flex items-center">
         <Button variant="ghost" size="icon" className="mr-2"
-          onClick={() => router.push("/")}
+          onClick={() => router.push("/service-request")}
         >
           <ArrowLeft className="h-6 w-6" />
         </Button>
