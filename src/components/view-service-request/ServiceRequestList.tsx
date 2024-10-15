@@ -30,7 +30,7 @@ const mockRequests: ServiceRequest[] = [
 
 export default function ServiceRequestList() {
   return (
-    <div className="w-full h-full overflow-y-scroll overflow-x-hidden">
+    <div className="w-full h-full flex flex-col overflow-y-scroll overflow-x-hidden space-y-2">
       {mockRequests.map((request, index) => (
         <ServiceRequestPreview key={index} {...request} />
       ))}

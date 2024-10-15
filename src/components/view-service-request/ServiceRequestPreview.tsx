@@ -13,7 +13,7 @@ export default function ServiceRequestPreview({ requesterName, title, details, c
 
   return (
     <Link href={"/service-request/1"}> {/* Replace with actual link to service request by its id */}
-      <Card className="w-full rounded-none p-2 px-8 hover:shadow-lg hover:bg-gray-100">
+      <Card className="w-full p-2 px-8 hover:shadow-lg hover:bg-gray-100">
         <CardContent className="p-0 flex flex-row">
           <p className="text-base font-semibold w-1/4">{requesterName}</p>
           <div className="w-8/12">
