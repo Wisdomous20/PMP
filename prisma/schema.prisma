@@ -13,6 +13,7 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
+
 enum user_type {
   ADMIN
   USER
@@ -145,4 +146,5 @@ model PersonnelAssignment {
   personnel Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
   implementationPlanId String
   implementationPlan ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
+
 }
