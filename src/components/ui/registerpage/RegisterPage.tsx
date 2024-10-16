@@ -25,7 +25,7 @@ const RegisterPage = () => {
       submit: "",
     };
     if (!validator.isEmail(email) || !email.endsWith("@cpu.edu.ph")) {
-      newErrors.email = "Please enter a valid @cpu.edu.ph email address";
+      newErrors.email = "Please enter a valid cpu email address";
       isValid = false;
     }
 
