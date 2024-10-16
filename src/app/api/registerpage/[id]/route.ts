@@ -1,20 +1,19 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import bcrypt from "bcrypt";
 
-export async function POST(
-  req: NextRequest
-): Promise<NextResponse> {
+export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
     const { username, email, password } = await req.json();
 
-    
+    const hashedPassword = await bcrypt.hash(password, 10);
 
     const newUser = await prisma.users.create({
       data: {
         name: username,
         email: email,
         isAdmin: false,
-        password: password,
+        password: hashedPassword,
       },
     });
 
@@ -28,5 +27,7 @@ export async function POST(
       { error: "An error occurred during registration" },
       { status: 500 }
     );
+  } finally {
+    await prisma.$disconnect();
   }
 }

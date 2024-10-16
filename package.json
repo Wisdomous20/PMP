@@ -15,8 +15,12 @@
     "@radix-ui/react-icons": "^1.3.0",
     "@radix-ui/react-separator": "^1.1.0",
     "@radix-ui/react-slot": "^1.1.0",
+
+    "bcrypt": "^5.1.1",
+
     "@radix-ui/react-toast": "^1.2.2",
     "@supabase/supabase-js": "^2.45.4",
+
     "chromedriver": "^129.0.4",
     "class-variance-authority": "^0.7.0",
     "clsx": "^2.1.1",
@@ -35,6 +39,7 @@
     "validator": "^13.12.0"
   },
   "devDependencies": {
+    "@types/bcrypt": "^5.0.2",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
