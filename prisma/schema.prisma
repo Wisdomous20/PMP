@@ -12,3 +12,137 @@ datasource db {
   provider = "postgresql"
   url      = env("DATABASE_URL")
 }
+
+enum user_type {
+  ADMIN
+  USER
+}
+
+model User {
+  id              String           @id @default(uuid()) @map("_id")
+  name            String
+  email           String           @unique
+  password        String?
+  user_type       user_type
+  accounts        Account[]
+  sessions        Session[]
+  supervisor      Supervisor?
+  serviceRequests ServiceRequest[]
+}
+
+model Session {
+  id           String   @id @default(uuid()) @map("_id")
+  sessionToken String   @unique
+  userId       String
+  expires      DateTime
+  user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  @@map("sessions")
+}
+
+model Account {
+  id                String  @id @default(uuid()) @map("_id")
+  userId            String
+  type              String
+  provider          String
+  providerAccountId String
+  refresh_token     String?
+  access_token      String?
+  expires_at        Int?
+  token_type        String?
+  scope             String?
+  id_token          String?
+  session_state     String?
+
+  createdAt DateTime @default(now())
+  updatedAt DateTime @updatedAt
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@unique([provider, providerAccountId])
+  @@map("accounts")
+}
+
+model Supervisor {
+  id         String @id @default(uuid()) @map("_id")
+  department String
+  user       User   @relation(fields: [id], references: [id], onDelete: Cascade)
+}
+
+model ServiceRequest {
+  id                   String                 @id @default(uuid()) @map("_id")
+  userId               String
+  title                String
+  details              String
+  ServiceRequestRating ServiceRequestRating?
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  status               ServiceRequestStatus[]
+  implementationPlan   ImplementationPlan?
+}
+
+model ServiceRequestStatus {
+  id               String         @id @default(uuid()) @map("_id")
+  serviceRequestId String
+  status           String
+  timestamp        DateTime
+  note             String?
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+}
+
+model ServiceRequestRating {
+  id             String         @id @default(uuid()) @map("_id")
+  serviceRequest ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
+  ratings        Rating[]
+}
+
+model Rating {
+  id                     String               @id @default(uuid()) @map("_id")
+  serviceRequestRatingId String
+  description            String
+  rating                 Int
+  serviceRequestRating   ServiceRequestRating @relation(fields: [serviceRequestRatingId], references: [id], onDelete: Cascade)
+}
+
+model ImplementationPlan {
+  id             String         @id @default(uuid()) @map("_id")
+  serviceRequest ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
+  description    String
+  status         String
+  tasks          Task[]
+  files          Files[]
+  personnelAssignments PersonnelAssignment[]
+}
+
+model Task {
+  id                   String             @id @default(uuid()) @map("_id")
+  implementationPlanId String
+  implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
+  name                 String
+  deadline             DateTime
+  checked              Boolean
+}
+
+model Files {
+  id                   String             @id @default(uuid()) @map("_id")
+  implementationPlanId String
+  implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
+  url                  String
+}
+
+model Personnel {
+  id         String @id @default(uuid()) @map("_id")
+  personnelAssignments PersonnelAssignment[]
+  name       String
+  department String
+}
+
+model PersonnelAssignment {
+  id String @id @default(uuid()) @map("_id")
+  personnelId String
+  personnel Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  implementationPlanId String
+  implementationPlan ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
+}
