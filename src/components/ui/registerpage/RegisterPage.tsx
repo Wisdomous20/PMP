@@ -12,6 +12,7 @@ const RegisterPage = () => {
     email: "",
     password: "",
     confirmPassword: "",
+    submit: "",
   });
 
   const validateForm = () => {
@@ -21,7 +22,12 @@ const RegisterPage = () => {
       email: "",
       password: "",
       confirmPassword: "",
+      submit: "",
     };
+    if (!validator.isEmail(email) || !email.endsWith("@cpu.edu.ph")) {
+      newErrors.email = "Please enter a valid @cpu.edu.ph email address";
+      isValid = false;
+    }
 
     if (username.length < 3) {
       newErrors.username = "Username must be at least 3 characters";
@@ -48,10 +54,32 @@ const RegisterPage = () => {
     return isValid;
   };
 
-  const submit = (e: React.FormEvent) => {
+  const submit = async (e: React.FormEvent) => {
     e.preventDefault();
     if (validateForm()) {
-      console.log("Registration submitted:", { username, email, password });
+      try {
+        const response = await fetch("/api/registerpage/[id]", {
+          method: "POST",
+          headers: {
+            "Content-Type": "application/json",
+          },
+          body: JSON.stringify({ username, email, password }),
+        });
+
+        const data = await response.json();
+
+        if (response.ok) {
+          console.log("Registration successful:", data.user);
+        } else {
+          setErrors({ ...errors, submit: data.error });
+        }
+      } catch (error) {
+        console.error("Registration error:", error);
+        setErrors({
+          ...errors,
+          submit: "An error occurred during registration",
+        });
+      }
     }
   };
 
