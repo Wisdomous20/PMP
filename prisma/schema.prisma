@@ -1,9 +1,3 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
 generator client {
   provider = "prisma-client-js"
 }
@@ -13,22 +7,16 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-
-enum user_type {
-  ADMIN
-  USER
-}
-
 model User {
   id              String           @id @default(uuid()) @map("_id")
   name            String
   email           String           @unique
   password        String?
   user_type       user_type
+  serviceRequests ServiceRequest[]
+  supervisor      Supervisor?
   accounts        Account[]
   sessions        Session[]
-  supervisor      Supervisor?
-  serviceRequests ServiceRequest[]
 }
 
 model Session {
@@ -36,16 +24,15 @@ model Session {
   sessionToken String   @unique
   userId       String
   expires      DateTime
+  createdAt    DateTime @default(now())
+  updatedAt    DateTime @updatedAt
   user         User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
 
   @@map("sessions")
 }
 
 model Account {
-  id                String  @id @default(uuid()) @map("_id")
+  id                String   @id @default(uuid()) @map("_id")
   userId            String
   type              String
   provider          String
@@ -57,11 +44,9 @@ model Account {
   scope             String?
   id_token          String?
   session_state     String?
-
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+  createdAt         DateTime @default(now())
+  updatedAt         DateTime @updatedAt
+  user              User     @relation(fields: [userId], references: [id], onDelete: Cascade)
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
@@ -78,10 +63,10 @@ model ServiceRequest {
   userId               String
   title                String
   details              String
-  ServiceRequestRating ServiceRequestRating?
-  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
-  status               ServiceRequestStatus[]
   implementationPlan   ImplementationPlan?
+  user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
+  ServiceRequestRating ServiceRequestRating?
+  status               ServiceRequestStatus[]
 }
 
 model ServiceRequestStatus {
@@ -95,8 +80,8 @@ model ServiceRequestStatus {
 
 model ServiceRequestRating {
   id             String         @id @default(uuid()) @map("_id")
-  serviceRequest ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
   ratings        Rating[]
+  serviceRequest ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
 }
 
 model Rating {
@@ -108,43 +93,47 @@ model Rating {
 }
 
 model ImplementationPlan {
-  id             String         @id @default(uuid()) @map("_id")
-  serviceRequest ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
-  description    String
-  status         String
-  tasks          Task[]
-  files          Files[]
+  id                   String                @id @default(uuid()) @map("_id")
+  description          String
+  status               String
+  files                Files[]
+  serviceRequest       ServiceRequest        @relation(fields: [id], references: [id], onDelete: Cascade)
   personnelAssignments PersonnelAssignment[]
+  tasks                Task[]
 }
 
 model Task {
   id                   String             @id @default(uuid()) @map("_id")
   implementationPlanId String
-  implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
   name                 String
   deadline             DateTime
   checked              Boolean
+  implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
 }
 
 model Files {
   id                   String             @id @default(uuid()) @map("_id")
   implementationPlanId String
-  implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
   url                  String
+  implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
 }
 
 model Personnel {
-  id         String @id @default(uuid()) @map("_id")
+  id                   String                @id @default(uuid()) @map("_id")
+  name                 String
+  department           String
   personnelAssignments PersonnelAssignment[]
-  name       String
-  department String
 }
 
 model PersonnelAssignment {
-  id String @id @default(uuid()) @map("_id")
-  personnelId String
-  personnel Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  id                   String             @id @default(uuid()) @map("_id")
+  personnelId          String
   implementationPlanId String
-  implementationPlan ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
+  implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
+  personnel            Personnel          @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+}
 
+enum user_type {
+  ADMIN
+  USER
 }
