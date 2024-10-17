@@ -7,29 +7,47 @@ import { Input } from "@/components/ui/input"
 import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
 import { toast } from "@/hooks/use-toast"
+import createServiceRequestFetch from "@/utils/service-request/createServiceRequestFetch"
 
 export default function CreateServiceRequest() {
   const [title, setTitle] = useState("")
   const [details, setDetails] = useState("")
   const router = useRouter()
 
-  const handleSubmit = (e: React.FormEvent) => {
-    e.preventDefault()
+  const handleSubmit = async (e: React.FormEvent) => {
+    e.preventDefault();
+
     if (title.trim() === "" || details.trim() === "") {
       toast({
         title: "Error",
         description: "Please fill in all fields",
         variant: "destructive",
-      })
-      return
+      });
+      return;
     }
-    toast({
-      title: "Success",
-      description: "Your service request has been sent!",
-    })
-    setTitle("")
-    setDetails("")
-  }
+
+    try {
+      const userId = "user-123"; // Temporary user ID
+      await createServiceRequestFetch(userId, title, details);
+
+      toast({
+        title: "Success",
+        description: "Your service request has been sent!",
+      });
+
+      setTitle("");
+      setDetails("");
+
+      router.push("/service-request");
+    } catch (error) {
+      console.error("Failed to create service request:", error);
+      toast({
+        title: "Error",
+        description: "Failed to create service request. Please try again.",
+        variant: "destructive",
+      });
+    }
+  };
 
   return (
     <div className="w-full max-w-2xl bg-white rounded-lg border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
