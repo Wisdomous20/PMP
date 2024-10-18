@@ -1,8 +1,8 @@
-import LoginPage from "@/components/auth/LoginPage";
-export default function Login() {
+import Login from "@/components/auth/Login";
+export default function Page() {
   return (
     <div className="">
-      <LoginPage />
+      <Login />
     </div>
   );
 }
