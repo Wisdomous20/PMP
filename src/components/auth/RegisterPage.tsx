@@ -58,7 +58,7 @@ const RegisterPage = () => {
     e.preventDefault();
     if (validateForm()) {
       try {
-        const response = await fetch("/api/registerpage/[id]", {
+        const response = await fetch("/api/registerpage", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",

@@ -41,7 +41,7 @@ const LoginPage = () => {
 
     if (validateForm()) {
       try {
-        const response = await fetch("/api/loginpage/[id]", {
+        const response = await fetch("/api/loginpage", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
