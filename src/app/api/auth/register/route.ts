@@ -1,7 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import bcrypt from "bcrypt";
-import { user_type } from "@prisma/client";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
@@ -17,6 +16,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
         password: hashedPassword,
       },
     });
+
+    console.log(newUser)
 
     return NextResponse.json(
       { message: "User registered successfully" },
