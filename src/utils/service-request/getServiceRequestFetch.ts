@@ -1,17 +1,8 @@
-export default async function getServiceRequestFetch(
-  inputs: GetServiceRequestInputs
-) {
-  const { userType, userId, department } = inputs;
+export default async function getServiceRequestFetch(userId : string) {
+  const queryParams = new URLSearchParams();
+  queryParams.append("userId", userId)
 
-  const queryParams = new URLSearchParams({ userType });
-  if (userId) {
-    queryParams.append("userId", userId);
-  }
-  if (department) {
-    queryParams.append("department", department);
-  }
-
-  const endpoint = `/api/service-requests?${queryParams.toString()}`;
+  const endpoint = `/api/service-request?${queryParams.toString()}`;
 
   try {
     const response = await fetch(endpoint, {
