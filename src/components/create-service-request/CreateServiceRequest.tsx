@@ -8,11 +8,13 @@ import { Textarea } from "@/components/ui/textarea"
 import { useRouter } from "next/navigation"
 import { toast } from "@/hooks/use-toast"
 import createServiceRequestFetch from "@/utils/service-request/createServiceRequestFetch"
+import { useSession } from 'next-auth/react'; // Import useSession
 
 export default function CreateServiceRequest() {
   const [title, setTitle] = useState("")
   const [details, setDetails] = useState("")
   const router = useRouter()
+  const { data: session } = useSession(); // Access the session
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -27,7 +29,12 @@ export default function CreateServiceRequest() {
     }
 
     try {
-      const userId = "user-123"; // Temporary user ID
+      const userId = session?.user.id;
+
+      if (!userId) {
+        throw new Error("User not logged in");
+      }
+
       await createServiceRequestFetch(userId, title, details);
 
       toast({

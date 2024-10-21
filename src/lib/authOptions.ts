@@ -41,6 +41,7 @@ export const authOptions: NextAuthOptions = {
             id: user.id,
             name: user.name || 'Anonymous',
             email: user.email,
+            role: user.user_type,
           } as User;
         } catch (error) {
           console.error(error);

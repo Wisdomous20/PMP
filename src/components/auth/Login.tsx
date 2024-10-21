@@ -120,6 +120,14 @@ export default function Login() {
             Log In
           </Button>
         </form>
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-400">
+            Don&lsquo;t have an account?{' '}
+            <a href="/auth/register" className="text-yellow-400 hover:underline">
+              Register here
+            </a>
+          </p>
+        </div>
         <div className="mt-6 text-center text-xs text-gray-400">
           <a href="#" className="hover:underline">Help</a> ·
           <a href="#" className="ml-2 hover:underline">Privacy Policy</a> ·

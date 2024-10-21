@@ -28,7 +28,7 @@ const mockRequests: ServiceRequest[] = [
   { requesterName: 'Charlie Wilson', title: 'Travel Approval', details: 'Business trip to New York for client meeting', createdOn: '2023-10-11' },
 ]
 
-export default function ServiceRequestList() {
+export default async function ServiceRequestList() {
   return (
     <div className="w-full h-full flex flex-col overflow-y-scroll overflow-x-hidden space-y-2">
       {mockRequests.map((request, index) => (
