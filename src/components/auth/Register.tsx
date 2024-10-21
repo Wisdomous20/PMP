@@ -2,10 +2,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
+import { signIn } from 'next-auth/react';
 import Image from "next/image";
 import validator from "validator";
 
 export default function Register() {
+  const callbackUrl = "/"
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -58,7 +62,7 @@ export default function Register() {
 
     if (validateForm()) {
       try {
-        const response = await fetch("/api/registerpage", {
+        const response = await fetch("/api/auth/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -69,7 +73,17 @@ export default function Register() {
         const data = await response.json();
 
         if (response.ok) {
-          console.log("Registration successful:", data.user);
+          const signInResult = await signIn('credentials', {
+            redirect: false,
+            email,
+            password,
+          });
+    
+          if (signInResult?.error) {
+            alert(signInResult.error);
+          } else {
+            router.push(callbackUrl);
+          }
         } else {
           setErrors({ ...errors, submit: data.error || "Registration failed." });
         }

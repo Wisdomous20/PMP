@@ -5,8 +5,11 @@ import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import validator from "validator"
+import { signIn } from "next-auth/react";
 
 export default function Login() {
+  const callbackUrl = "/"
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [errors, setErrors] = useState({
@@ -14,8 +17,6 @@ export default function Login() {
     password: "",
     submit: "",
   })
-
-  const router = useRouter()
 
   const validateForm = () => {
     let isValid = true
@@ -44,21 +45,19 @@ export default function Login() {
 
     if (validateForm()) {
       try {
-        const response = await fetch("/api/loginpage", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
+        const result = await signIn("credentials", {
+          redirect: false,
+          email: email,
+          password: password,
         });
 
-        const data = await response.json()
+        console.log("SignIn Result:", result);
 
-        if (response.ok) {
-          console.log("Login successful:", data.user)
-          router.push("/") // Redirect after login
+        if (result?.error) {
+          console.error(result.error);
+          alert("Invalid credentials, please try again.");
         } else {
-          setErrors({ ...errors, submit: data.error || "Login failed" })
+          router.push(callbackUrl)
         }
       } catch (error) {
         console.error("Login error:", error)
