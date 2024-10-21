@@ -2,7 +2,6 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { Checkbox } from "@/components/ui/checkbox";
 import Image from "next/image";
 import validator from "validator";
 
@@ -11,7 +10,6 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
-  const [staySignedIn, setStaySignedIn] = useState(false);
   const [errors, setErrors] = useState({
     username: "",
     email: "",
@@ -72,7 +70,6 @@ export default function Register() {
 
         if (response.ok) {
           console.log("Registration successful:", data.user);
-          // Handle successful registration (e.g., redirect or show a success message)
         } else {
           setErrors({ ...errors, submit: data.error || "Registration failed." });
         }
@@ -89,8 +86,8 @@ export default function Register() {
       style={{ backgroundImage: "url('/images/cpu-bg.jpg')" }}
     >
       <div className="absolute inset-0 bg-black opacity-50"></div>
-      <div className="z-10 w-full max-w-md p-8 rounded-lg bg-black bg-opacity-70">
-        <div className="flex flex-col items-center mb-8">
+      <div className="z-10 w-full max-w-md p-6 rounded-lg bg-black bg-opacity-70">
+        <div className="flex flex-col items-center mb-4">
           <Image
             src="/images/cpu-logo.png"
             width={80}
@@ -104,7 +101,7 @@ export default function Register() {
           <p className="text-sm text-yellow-200">Central Philippines University</p>
         </div>
 
-        <form className="space-y-6" onSubmit={handleSubmit}>
+        <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
             <label htmlFor="username" className="block text-sm font-medium text-gray-200 mb-1">
               Username
@@ -165,20 +162,6 @@ export default function Register() {
             {errors.confirmPassword && (
               <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
             )}
-          </div>
-
-          <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Checkbox
-                id="stay-signed-in"
-                checked={staySignedIn}
-                onCheckedChange={(checked) => setStaySignedIn(checked as boolean)}
-                className="border-gray-400"
-              />
-              <label htmlFor="stay-signed-in" className="ml-2 text-sm text-gray-200">
-                Stay signed in
-              </label>
-            </div>
           </div>
 
           <Button type="submit" className="w-full bg-yellow-400 text-black hover:bg-yellow-500">

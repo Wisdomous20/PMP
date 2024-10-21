@@ -2,7 +2,6 @@
 import { useState } from "react"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import validator from "validator"
@@ -10,7 +9,6 @@ import validator from "validator"
 export default function Login() {
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
-  const [staySignedIn, setStaySignedIn] = useState(false)
   const [errors, setErrors] = useState({
     email: "",
     password: "",
@@ -51,8 +49,8 @@ export default function Login() {
           headers: {
             "Content-Type": "application/json",
           },
-          body: JSON.stringify({ email, password, staySignedIn }),
-        })
+          body: JSON.stringify({ email, password }),
+        });
 
         const data = await response.json()
 
@@ -72,8 +70,8 @@ export default function Login() {
   return (
     <div className="min-h-screen flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: "url('/images/cpu-bg.jpg')" }}>
       <div className="absolute inset-0 bg-black opacity-50"></div>
-      <div className="z-10 w-full max-w-md p-8 rounded-lg bg-black bg-opacity-70">
-        <div className="flex flex-col items-center mb-8">
+      <div className="z-10 w-full max-w-md p-6 rounded-lg bg-black bg-opacity-70">
+        <div className="flex flex-col items-center mb-4">
           <Image
             src="/images/cpu-logo.png"
             width={80}
@@ -114,17 +112,6 @@ export default function Login() {
             {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
           </div>
           <div className="flex items-center justify-between">
-            <div className="flex items-center">
-              <Checkbox
-                id="stay-signed-in"
-                checked={staySignedIn}
-                onCheckedChange={(checked) => setStaySignedIn(checked as boolean)}
-                className="border-gray-400"
-              />
-              <label htmlFor="stay-signed-in" className="ml-2 text-sm text-gray-200">
-                Stay signed in
-              </label>
-            </div>
             <a href="#" className="text-sm text-yellow-400 hover:underline">
               Forgot Password?
             </a>
@@ -135,8 +122,8 @@ export default function Login() {
           </Button>
         </form>
         <div className="mt-6 text-center text-xs text-gray-400">
-          <a href="#" className="hover:underline">Help</a> · 
-          <a href="#" className="ml-2 hover:underline">Privacy Policy</a> · 
+          <a href="#" className="hover:underline">Help</a> ·
+          <a href="#" className="ml-2 hover:underline">Privacy Policy</a> ·
           <a href="#" className="ml-2 hover:underline">Terms of Use</a>
         </div>
       </div>
