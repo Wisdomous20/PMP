@@ -7,10 +7,16 @@ import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { signOut } from "next-auth/react";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 
 export default function LeftTab() {
   const router = useRouter();
+  const { data: session } = useSession();
   const [isOpen, setIsOpen] = useState(true);
+
+  if (!session) {
+    router.push("/auth/login");
+  }
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
@@ -31,12 +37,12 @@ export default function LeftTab() {
                 <AvatarFallback>UN</AvatarFallback>
               </Avatar>
               <div className="text-center">
-                <h2 className="text-xl font-semibold">Name</h2>
+                <h2 className="text-xl font-semibold">{session?.user.name}</h2>
                 <p className="text-sm text-muted-foreground">Department</p>
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button className="w-full justify-start" variant="outline" onClick={() => router.push("/service-request/create")}>
+              <Button className="w-full justify-start" variant="outline" onClick={() => router.push("/")}>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Create SR
               </Button>
@@ -48,7 +54,6 @@ export default function LeftTab() {
                 <Archive className="mr-2 h-4 w-4" />
                 Archive
               </Button>
-              {/* Logout Button */}
               <Button className="w-full justify-start" variant="outline" onClick={handleLogout}>
                 <span className="mr-2">🚪</span>
                 Logout

@@ -19,29 +19,29 @@ export default async function getServiceRequests(userId: string) {
     serviceRequests = await prisma.serviceRequest.findMany({
       include: {
         user: true,
-        status: true,
-        implementationPlan: true,
-        ServiceRequestRating: true,
+        status: {
+          orderBy: {
+            timestamp: 'asc',
+          },
+        },
       },
     });
   } else if (user.user_type === "SUPERVISOR" && user.department) {
-    if (user.department) {
-      serviceRequests = await prisma.serviceRequest.findMany({
-        where: {
-          user: {
-            department: user.department, // Check department if needed
+    serviceRequests = await prisma.serviceRequest.findMany({
+      where: {
+        user: {
+          department: user.department,
+        },
+      },
+      include: {
+        user: true,
+        status: {
+          orderBy: {
+            timestamp: 'asc',
           },
         },
-        include: {
-          user: true,
-          status: true,
-          implementationPlan: true,
-          ServiceRequestRating: true,
-        },
-      });
-    } else {
-      throw new Error("Supervisor does not have a department assigned");
-    }
+      },
+    });
   } else if (user.user_type === "USER") {
     serviceRequests = await prisma.serviceRequest.findMany({
       where: {
@@ -49,14 +49,29 @@ export default async function getServiceRequests(userId: string) {
       },
       include: {
         user: true,
-        status: true,
-        implementationPlan: true,
-        ServiceRequestRating: true,
+        status: {
+          orderBy: {
+            timestamp: 'asc',
+          },
+        },
       },
     });
   } else {
     throw new Error("Invalid user type");
   }
 
-  return serviceRequests;
+  const formattedRequests = serviceRequests.map((request) => {
+    const { user, title, details, status } = request;
+    const requesterName = user.name;
+    const createdOn = status.length > 0 ? status[0].timestamp : null;
+
+    return {
+      requesterName,
+      title,
+      details,
+      createdOn,
+    };
+  });
+
+  return formattedRequests;
 }
