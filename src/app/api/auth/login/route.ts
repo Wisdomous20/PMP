@@ -40,6 +40,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       { status: 200 }
     );
   } catch (error) {
+    console.log(error)
     return NextResponse.json(
       { error: "An error occurred during login" },
       { status: 500 }
