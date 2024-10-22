@@ -39,13 +39,14 @@
     "validator": "^13.12.0"
   },
   "devDependencies": {
-    "@testing-library/jest-dom": "^6.6.1",
+    "@testing-library/jest-dom": "^6.6.2",
     "@testing-library/react": "^16.0.1",
     "@types/bcrypt": "^5.0.2",
     "@types/jest": "^29.5.13",
     "@types/node": "^20",
     "@types/react": "^18",
     "@types/react-dom": "^18",
+    "@types/testing-library__jest-dom": "^5.14.9",
     "@types/validator": "^13.12.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.15",
