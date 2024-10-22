@@ -39,8 +39,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       { message: "Login successful", user: { id: user.id, name: user.name, email: user.email } },
       { status: 200 }
     );
-  } catch (error) {
-    console.log(error)
+  } catch (err) {
+    console.error("Login error:", err);
     return NextResponse.json(
       { error: "An error occurred during login" },
       { status: 500 }
