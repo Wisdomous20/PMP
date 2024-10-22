@@ -60,12 +60,14 @@ export default async function getServiceRequests(userId: string) {
     throw new Error("Invalid user type");
   }
 
+  // Format the service requests with the new id field
   const formattedRequests = serviceRequests.map((request) => {
-    const { user, title, details, status } = request;
+    const { id, user, title, details, status } = request;
     const requesterName = user.name;
     const createdOn = status.length > 0 ? status[0].timestamp : null;
 
     return {
+      id,
       requesterName,
       title,
       details,
