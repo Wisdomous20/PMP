@@ -5,6 +5,7 @@ import bcrypt from 'bcrypt';
 import {PrismaAdapter} from '@next-auth/prisma-adapter';
 
 export const authOptions: NextAuthOptions = {
+  debug: true,
   adapter: PrismaAdapter(prisma),
   session: {
     strategy: 'jwt'
@@ -40,6 +41,7 @@ export const authOptions: NextAuthOptions = {
             id: user.id,
             name: user.name || 'Anonymous',
             email: user.email,
+            role: user.user_type,
           } as User;
         } catch (error) {
           console.error(error);
@@ -52,15 +54,15 @@ export const authOptions: NextAuthOptions = {
     signIn: '/auth/login',
   },
   callbacks: {
-    async jwt({ token, account }) {
-      if (account) {
-        token.accessToken = account.access_token;
+    async jwt({ token, user }) {
+      if (user) {
+        token.id = user.id;
       }
       return token;
     },
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
-      session.user.id = token.sub as string;
+      session.user.id = token.id as string;
       return session;
     },
   },

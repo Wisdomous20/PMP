@@ -5,8 +5,11 @@ import { Input } from "@/components/ui/input"
 import Image from "next/image"
 import { useRouter } from "next/navigation"
 import validator from "validator"
+import { signIn } from "next-auth/react";
 
 export default function Login() {
+  const callbackUrl = "/"
+  const router = useRouter()
   const [email, setEmail] = useState("")
   const [password, setPassword] = useState("")
   const [errors, setErrors] = useState({
@@ -14,8 +17,6 @@ export default function Login() {
     password: "",
     submit: "",
   })
-
-  const router = useRouter()
 
   const validateForm = () => {
     let isValid = true
@@ -40,32 +41,38 @@ export default function Login() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+    e.preventDefault();
+  
     if (validateForm()) {
       try {
-        const response = await fetch("/api/loginpage", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ email, password }),
+        const result = await signIn("credentials", {
+          redirect: false,
+          email: email,
+          password: password,
         });
+  
+  
+        if (result?.error) {
+          console.error("Login error:", result.error);
 
-        const data = await response.json()
-
-        if (response.ok) {
-          console.log("Login successful:", data.user)
-          router.push("/") // Redirect after login
+          if (result.error.includes("Email not found")) {
+            setErrors({ ...errors, submit: "Email not found. Please register first" });
+          } else if (result.error.includes("Invalid email or password")) {
+            setErrors({ ...errors, submit: "Invalid email or password" });
+          } else {
+            setErrors({ ...errors, submit: "Invalid email or password" });
+          }
         } else {
-          setErrors({ ...errors, submit: data.error || "Login failed" })
+          router.push(callbackUrl);
         }
       } catch (error) {
-        console.error("Login error:", error)
-        setErrors({ ...errors, submit: "An error occurred during login" })
+        console.error("Login error:", error);
+        setErrors({ ...errors, submit: "An error occurred during login" });
       }
     }
-  }
+  };
+  
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: "url('/images/cpu-bg.jpg')" }}>
@@ -121,6 +128,14 @@ export default function Login() {
             Log In
           </Button>
         </form>
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-400">
+            Don&lsquo;t have an account?{' '}
+            <a href="/auth/register" className="text-yellow-400 hover:underline">
+              Register here
+            </a>
+          </p>
+        </div>
         <div className="mt-6 text-center text-xs text-gray-400">
           <a href="#" className="hover:underline">Help</a> ·
           <a href="#" className="ml-2 hover:underline">Privacy Policy</a> ·

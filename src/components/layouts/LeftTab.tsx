@@ -5,12 +5,19 @@ import { Archive, FileText, PlusCircle, ChevronLeft, ChevronRight } from "lucide
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { signOut } from "next-auth/react";
+import { useRouter } from "next/navigation";
 
 export default function LeftTab() {
+  const router = useRouter();
   const [isOpen, setIsOpen] = useState(true);
 
   const toggleSidebar = () => {
     setIsOpen(!isOpen);
+  };
+
+  const handleLogout = () => {
+    signOut();
   };
 
   return (
@@ -29,17 +36,22 @@ export default function LeftTab() {
               </div>
             </CardHeader>
             <CardContent className="space-y-4">
-              <Button className="w-full justify-start" variant="outline">
+              <Button className="w-full justify-start" variant="outline" onClick={() => router.push("/service-request/create")}>
                 <PlusCircle className="mr-2 h-4 w-4" />
                 Create SR
               </Button>
-              <Button className="w-full justify-start" variant="outline">
+              <Button className="w-full justify-start" variant="outline" onClick={() => router.push("/service-request")}>
                 <FileText className="mr-2 h-4 w-4" />
                 Requests
               </Button>
               <Button className="w-full justify-start" variant="outline">
                 <Archive className="mr-2 h-4 w-4" />
                 Archive
+              </Button>
+              {/* Logout Button */}
+              <Button className="w-full justify-start" variant="outline" onClick={handleLogout}>
+                <span className="mr-2">🚪</span>
+                Logout
               </Button>
             </CardContent>
           </>

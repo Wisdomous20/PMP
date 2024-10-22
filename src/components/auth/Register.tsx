@@ -2,10 +2,14 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { useRouter } from "next/navigation";
+import { signIn } from 'next-auth/react';
 import Image from "next/image";
 import validator from "validator";
 
 export default function Register() {
+  const callbackUrl = "/";
+  const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -58,7 +62,7 @@ export default function Register() {
 
     if (validateForm()) {
       try {
-        const response = await fetch("/api/registerpage", {
+        const response = await fetch("/api/auth/register", {
           method: "POST",
           headers: {
             "Content-Type": "application/json",
@@ -68,11 +72,29 @@ export default function Register() {
 
         const data = await response.json();
 
-        if (response.ok) {
-          console.log("Registration successful:", data.user);
-        } else {
-          setErrors({ ...errors, submit: data.error || "Registration failed." });
+        if (!response.ok) {
+          if (data.error === 'Email already exists') {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              email: 'Email already exists.',
+            }));
+          } else {
+            setErrors(data.error || 'An error occurred during registration.');
+          }
+          return;
         }
+
+          const signInResult = await signIn('credentials', {
+            redirect: false,
+            email,
+            password,
+          });
+    
+          if (signInResult?.error) {
+            alert(signInResult.error);
+          } else {
+            router.push(callbackUrl);
+          }
       } catch (error) {
         console.error("Registration error:", error);
         setErrors({ ...errors, submit: "An error occurred during registration." });
@@ -170,6 +192,15 @@ export default function Register() {
         </form>
 
         {errors.submit && <p className="text-red-500 text-center mt-4">{errors.submit}</p>}
+
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-400">
+            Already have an account?{' '}
+            <a href="/auth/login" className="text-yellow-400 hover:underline">
+              Log in here
+            </a>
+          </p>
+        </div>
 
         <div className="mt-6 text-center text-xs text-gray-400">
           <a href="#" className="hover:underline">
