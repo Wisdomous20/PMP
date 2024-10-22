@@ -14,7 +14,7 @@ model User {
   password        String?
   user_type       user_type
   serviceRequests ServiceRequest[]
-  supervisor      Supervisor?
+  department      String?
   accounts        Account[]
   sessions        Session[]
 }
@@ -50,12 +50,6 @@ model Account {
 
   @@unique([provider, providerAccountId])
   @@map("accounts")
-}
-
-model Supervisor {
-  id         String @id @default(uuid()) @map("_id")
-  department String
-  user       User   @relation(fields: [id], references: [id], onDelete: Cascade)
 }
 
 model ServiceRequest {
@@ -136,4 +130,5 @@ model PersonnelAssignment {
 enum user_type {
   ADMIN
   USER
+  SUPERVISOR
 }

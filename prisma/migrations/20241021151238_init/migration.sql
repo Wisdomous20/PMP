@@ -1,5 +1,5 @@
 -- CreateEnum
-CREATE TYPE "user_type" AS ENUM ('ADMIN', 'USER');
+CREATE TYPE "user_type" AS ENUM ('ADMIN', 'USER', 'SUPERVISOR');
 
 -- CreateTable
 CREATE TABLE "User" (
@@ -8,6 +8,7 @@ CREATE TABLE "User" (
     "email" TEXT NOT NULL,
     "password" TEXT,
     "user_type" "user_type" NOT NULL,
+    "department" TEXT,
 
     CONSTRAINT "User_pkey" PRIMARY KEY ("_id")
 );
@@ -42,14 +43,6 @@ CREATE TABLE "accounts" (
     "updatedAt" TIMESTAMP(3) NOT NULL,
 
     CONSTRAINT "accounts_pkey" PRIMARY KEY ("_id")
-);
-
--- CreateTable
-CREATE TABLE "Supervisor" (
-    "_id" TEXT NOT NULL,
-    "department" TEXT NOT NULL,
-
-    CONSTRAINT "Supervisor_pkey" PRIMARY KEY ("_id")
 );
 
 -- CreateTable
@@ -153,9 +146,6 @@ ALTER TABLE "sessions" ADD CONSTRAINT "sessions_userId_fkey" FOREIGN KEY ("userI
 ALTER TABLE "accounts" ADD CONSTRAINT "accounts_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "Supervisor" ADD CONSTRAINT "Supervisor__id_fkey" FOREIGN KEY ("_id") REFERENCES "User"("_id") ON DELETE CASCADE ON UPDATE CASCADE;
-
--- AddForeignKey
 ALTER TABLE "ServiceRequest" ADD CONSTRAINT "ServiceRequest_userId_fkey" FOREIGN KEY ("userId") REFERENCES "User"("_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
@@ -177,7 +167,7 @@ ALTER TABLE "Task" ADD CONSTRAINT "Task_implementationPlanId_fkey" FOREIGN KEY (
 ALTER TABLE "Files" ADD CONSTRAINT "Files_implementationPlanId_fkey" FOREIGN KEY ("implementationPlanId") REFERENCES "ImplementationPlan"("_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PersonnelAssignment" ADD CONSTRAINT "PersonnelAssignment_personnelId_fkey" FOREIGN KEY ("personnelId") REFERENCES "Personnel"("_id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "PersonnelAssignment" ADD CONSTRAINT "PersonnelAssignment_implementationPlanId_fkey" FOREIGN KEY ("implementationPlanId") REFERENCES "ImplementationPlan"("_id") ON DELETE CASCADE ON UPDATE CASCADE;
 
 -- AddForeignKey
-ALTER TABLE "PersonnelAssignment" ADD CONSTRAINT "PersonnelAssignment_implementationPlanId_fkey" FOREIGN KEY ("implementationPlanId") REFERENCES "ImplementationPlan"("_id") ON DELETE CASCADE ON UPDATE CASCADE;
+ALTER TABLE "PersonnelAssignment" ADD CONSTRAINT "PersonnelAssignment_personnelId_fkey" FOREIGN KEY ("personnelId") REFERENCES "Personnel"("_id") ON DELETE CASCADE ON UPDATE CASCADE;

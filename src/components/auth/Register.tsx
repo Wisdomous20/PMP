@@ -8,7 +8,7 @@ import Image from "next/image";
 import validator from "validator";
 
 export default function Register() {
-  const callbackUrl = "/"
+  const callbackUrl = "/";
   const router = useRouter();
   const [username, setUsername] = useState("");
   const [email, setEmail] = useState("");
@@ -184,6 +184,15 @@ export default function Register() {
         </form>
 
         {errors.submit && <p className="text-red-500 text-center mt-4">{errors.submit}</p>}
+
+        <div className="mt-4 text-center">
+          <p className="text-sm text-gray-400">
+            Already have an account?{' '}
+            <a href="/auth/login" className="text-yellow-400 hover:underline">
+              Log in here
+            </a>
+          </p>
+        </div>
 
         <div className="mt-6 text-center text-xs text-gray-400">
           <a href="#" className="hover:underline">
