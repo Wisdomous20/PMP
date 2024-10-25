@@ -10,10 +10,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       where: { email },
     });
 
-    if (!user || !user.password) {
+    console.log(user)
+
+    if (!user) {
       return NextResponse.json(
-        { error: "ples register first" },
+        { error: "Email not found. Please register first" },
         { status: 404 }
+      );
+    }
+
+    if (!user.password) {
+      return NextResponse.json(
+        { error: "Invalid email or password" },
+        { status: 401 }
       );
     }
 
@@ -30,8 +39,8 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       { message: "Login successful", user: { id: user.id, name: user.name, email: user.email } },
       { status: 200 }
     );
-  } catch (error) {
-    console.error("Login error:", error);
+  } catch (err) {
+    console.error("Login error:", err);
     return NextResponse.json(
       { error: "An error occurred during login" },
       { status: 500 }
