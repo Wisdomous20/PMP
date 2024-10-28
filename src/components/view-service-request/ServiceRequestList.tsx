@@ -4,6 +4,7 @@ import getServiceRequestFetch from "@/utils/service-request/getServiceRequestFet
 import { useSession } from "next-auth/react"
 import { redirect } from "next/navigation";
 import { useState, useEffect } from "react";
+import ServiceRequestPreviewShe from "./ServiceRequestPreviewShe";
 
 // const mockRequests: ServiceRequest[] = [
 //   { requesterName: 'John Doe', title: 'New Equipment', details: 'Requesting a new laptop for development work', createdOn: '2023-10-15' },
@@ -57,7 +58,7 @@ export default function ServiceRequestList() {
   return (
     <div className="w-full h-full flex flex-col overflow-y-scroll overflow-x-hidden space-y-2">
       {ServiceRequests.map((request, index) => (
-        <ServiceRequestPreview key={index} {...request} />
+        <ServiceRequestPreviewShe key={index} {...request} />
       ))}
     </div>
   )
