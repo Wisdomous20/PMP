@@ -1,4 +1,5 @@
 type ServiceRequest = {
+  id: string
   requesterName: string;
   title: string;
   details: string;

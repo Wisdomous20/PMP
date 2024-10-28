@@ -41,8 +41,8 @@ export default function Login() {
   }
 
   const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault()
-
+    e.preventDefault();
+  
     if (validateForm()) {
       try {
         const result = await signIn("credentials", {
@@ -50,21 +50,29 @@ export default function Login() {
           email: email,
           password: password,
         });
-
-        console.log("SignIn Result:", result);
-
+  
+  
         if (result?.error) {
-          console.error(result.error);
-          alert("Invalid credentials, please try again.");
+          console.error("Login error:", result.error);
+
+          if (result.error.includes("Email not found")) {
+            setErrors({ ...errors, submit: "Email not found. Please register first" });
+          } else if (result.error.includes("Invalid email or password")) {
+            setErrors({ ...errors, submit: "Invalid email or password" });
+          } else {
+            setErrors({ ...errors, submit: "Invalid email or password" });
+          }
         } else {
-          router.push(callbackUrl)
+          router.push(callbackUrl);
         }
       } catch (error) {
-        console.error("Login error:", error)
-        setErrors({ ...errors, submit: "An error occurred during login" })
+        console.error("Login error:", error);
+        setErrors({ ...errors, submit: "An error occurred during login" });
       }
     }
-  }
+  };
+  
+
 
   return (
     <div className="min-h-screen flex items-center justify-center bg-cover bg-center" style={{ backgroundImage: "url('/images/cpu-bg.jpg')" }}>

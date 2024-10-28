@@ -1,19 +1,18 @@
 import { NextRequest, NextResponse } from "next/server";
-import getServiceRequests from "@/utils/service-request/getServiceRequest";
+import getServiceRequestById from "@/utils/service-request/getServiceRequestById";
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
-  const url = new URL(req.url);
-  const userId = url.searchParams.get("userId") || null;
+export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+  const { id } = params;
 
-  if (!userId) {
-    return NextResponse.json({ error: "Missing required fields" }, { status: 400 });
+  if (!id) {
+    return NextResponse.json({ error: "Service request ID is required" }, { status: 400 });
   }
 
   try {
-    const serviceRequests = await getServiceRequests(userId);
-    return NextResponse.json(serviceRequests, { status: 200 });
+    const serviceRequest = await getServiceRequestById(id);
+    return NextResponse.json(serviceRequest, { status: 200 });
   } catch (error) {
-    console.error("Error fetching service requests:", error);
-    return NextResponse.json({ error: "Failed to retrieve service requests" }, { status: 500 });
+    console.error("Error fetching service request:", error);
+    return NextResponse.json({ error: "Failed to retrieve service request" }, { status: 500 });
   }
 }
