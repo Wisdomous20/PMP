@@ -1,14 +1,10 @@
-'use client'
-
-import { useState, useRef, useEffect } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Textarea } from "@/components/ui/textarea";
-import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
-import { Label } from "@/components/ui/label";
-import { ArrowLeftIcon, CheckIcon, XIcon, ArrowRightIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import RejectServiceRequest from "./RejectServiceRequest";
+import ApproveServiceRequest from "./ApproveServiceRequest";
 import Link from "next/link";
 
 interface ServiceRequestDetailsProps {
@@ -24,12 +20,6 @@ export default function ServiceRequestDetails({
   details,
   createdOn
 }: ServiceRequestDetailsProps) {
-  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
-  const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
-  const [rejectionReason, setRejectionReason] = useState("");
-  const [reason, setReason] = useState("");
-  const [rows, setRows] = useState(1);
-  const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const formattedDate = new Date(createdOn).toLocaleString('en-US', {
     weekday: 'short',
@@ -39,40 +29,6 @@ export default function ServiceRequestDetails({
     hour: 'numeric',
     minute: 'numeric'
   });
-
-  const handleReject = () => {
-    console.log("Request rejected with reason:", rejectionReason);
-    setIsRejectDialogOpen(false);
-    setRejectionReason("");
-  };
-
-  const handleApprove = () => {
-    console.log("Request approved");
-    setIsApproveDialogOpen(false);
-  };
-
-  function handleInputChange(event: React.ChangeEvent<HTMLTextAreaElement>) {
-    setReason(event.target.value)
-  }
-
-  useEffect(() => {
-    if (textareaRef.current) {
-      textareaRef.current.style.height = 'auto'
-      textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`
-      setRows(textareaRef.current.rows)
-    }
-  }, [reason])
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault()
-      handleSubmit(e)
-    }
-  }
-
-  function handleSubmit(e: React.FormEvent) {
-    console.log(e)
-  }
 
   return (
     <Card className="w-full h-screen flex flex-col">
@@ -85,60 +41,8 @@ export default function ServiceRequestDetails({
           </Link>
           <h1 className="text-2xl font-semibold">{title}</h1>
           <div className="flex space-x-2">
-            <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="destructive" size="sm">
-                  <XIcon className="h-4 w-4 mr-2" />
-                  Reject
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Reject Service Request</DialogTitle>
-                  <DialogDescription>
-                    Please provide a reason for rejecting this service request.
-                  </DialogDescription>
-                </DialogHeader>
-                <div className="grid gap-4 py-4">
-                  <div className="flex flex-col gap-4">
-                    <Label htmlFor="reason" className="text-left">
-                      Reason
-                    </Label>
-                    <Textarea
-                      ref={textareaRef}
-                      value={reason}
-                      onChange={handleInputChange}
-                      onKeyDown={handleKeyDown}
-                      placeholder="Type Reason..."
-                      rows={rows}
-                      className="min-h-[40px] max-h-[200px] resize-none"
-                    />
-                  </div>
-                </div>
-                <DialogFooter>
-                  <Button type="submit" onClick={handleReject}>Confirm Rejection</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
-            <Dialog open={isApproveDialogOpen} onOpenChange={setIsApproveDialogOpen}>
-              <DialogTrigger asChild>
-                <Button variant="outline" size="sm">
-                  <CheckIcon className="h-4 w-4 mr-2" />
-                  Approve
-                </Button>
-              </DialogTrigger>
-              <DialogContent>
-                <DialogHeader>
-                  <DialogTitle>Approve Service Request</DialogTitle>
-                  <DialogDescription>
-                    Are you sure you want to approve this service request?
-                  </DialogDescription>
-                </DialogHeader>
-                <DialogFooter>
-                  <Button type="submit" onClick={handleApprove}>Confirm Approval</Button>
-                </DialogFooter>
-              </DialogContent>
-            </Dialog>
+            <RejectServiceRequest />
+            <ApproveServiceRequest />
           </div>
         </div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">
