@@ -1,8 +1,7 @@
 "use client"
-import { useEffect, useState } from "react";
 import LeftTab from "@/components/layouts/LeftTab";
 import ServiceRequestDetails from "@/components/view-service-request/ServiceRequestDetails";
-import getServiceRequestDetailsFetch from "@/utils/service-request/getServiceRequestByIdFetch";
+import useGetServiceRequestDetails from "@/hooks/useGetServiceRequestDetails";
 
 interface PageProps {
   params: {
@@ -12,24 +11,7 @@ interface PageProps {
 
 export default function Page({ params }: PageProps) {
   const { id } = params;
-  const [serviceRequest, setServiceRequest] = useState<ServiceRequest | null>(null);
-  const [error, setError] = useState<string | null>(null);
-  const [loading, setLoading] = useState(true);
-
-  useEffect(() => {
-    async function fetchDetails() {
-      try {
-        const data = await getServiceRequestDetailsFetch(id);
-        setServiceRequest(data);
-      } catch (err) {
-        setError("Failed to load service request details.");
-        console.error(err);
-      } finally {
-        setLoading(false);
-      }
-    }
-    fetchDetails();
-  }, [id]);
+  const { serviceRequestDetails, error, loading } = useGetServiceRequestDetails(id);
 
   if (loading) {
     return <div>Loading...</div>;
@@ -39,7 +21,7 @@ export default function Page({ params }: PageProps) {
     return <div>{error}</div>;
   }
 
-  if (!serviceRequest) {
+  if (!serviceRequestDetails) {
     return <div>No service request details found.</div>;
   }
 
@@ -48,10 +30,10 @@ export default function Page({ params }: PageProps) {
       <LeftTab />
       <div className="flex flex-col w-full">
         <ServiceRequestDetails
-          requestorName={serviceRequest.requesterName}
-          title={serviceRequest.title}
-          details={serviceRequest.details}
-          createdOn={serviceRequest.createdOn}
+          requestorName={serviceRequestDetails.requesterName}
+          title={serviceRequestDetails.title}
+          details={serviceRequestDetails.details}
+          createdOn={serviceRequestDetails.createdOn}
         />
       </div>
     </div>
