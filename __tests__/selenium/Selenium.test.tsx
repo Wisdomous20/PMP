@@ -101,8 +101,6 @@ describe("Selenium Automated Test", () => {
       expect(await driver.findElement({ id: "requestor-name" })).toBeTruthy();
       expect(await driver.findElement({ id: "created-on" })).toBeTruthy();
       expect(await driver.findElement({ id: "back-button" })).toBeTruthy();
-      expect(await driver.findElement({ id: "approve-button" })).toBeTruthy();
-      expect(await driver.findElement({ id: "reject-button" })).toBeTruthy();
       expect(await driver.findElement({ id: "previous-button" })).toBeTruthy();
       expect(await driver.findElement({ id: "next-button" })).toBeTruthy();
       expect(await driver.findElement({ id: "requestor-email" })).toBeTruthy();

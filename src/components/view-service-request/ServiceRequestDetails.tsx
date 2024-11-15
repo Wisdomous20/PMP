@@ -20,7 +20,6 @@ export default function ServiceRequestDetails({
   details,
   createdOn,
 }: ServiceRequestDetailsProps) {
-
   const formattedDate = new Date(createdOn).toLocaleString("en-US", {
     weekday: "short",
     year: "numeric",
@@ -43,7 +42,6 @@ export default function ServiceRequestDetails({
             {title}
           </h1>
           <div className="flex space-x-2">
-
             <RejectServiceRequest />
             <ApproveServiceRequest />
           </div>
