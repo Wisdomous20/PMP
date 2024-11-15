@@ -8,12 +8,23 @@ interface ServiceRequestPreviewProps {
   createdOn: string;
 }
 
-export default function ServiceRequestPreview({ requesterName, title, details, createdOn }: ServiceRequestPreviewProps) {
-  const detailsPreview = details.length > 50 ? details.slice(0, 50) + '...' : details;
+export default function ServiceRequestPreview({
+  requesterName,
+  title,
+  details,
+  createdOn,
+}: ServiceRequestPreviewProps) {
+  const detailsPreview =
+    details.length > 50 ? details.slice(0, 50) + "..." : details;
 
   return (
-    <Link href={"/service-request/1"}> {/* Replace with actual link to service request by its id */}
-      <Card className="w-full p-2 px-8 hover:shadow-lg hover:bg-gray-100">
+    <Link href={"/service-request/1"}>
+      {" "}
+      {/* Replace with actual link to service request by its id */}
+      <Card
+        id="view-request-card-preview"
+        className="w-full p-2 px-8 hover:shadow-lg hover:bg-gray-100"
+      >
         <CardContent className="p-0 flex flex-row">
           <p className="text-base font-semibold w-1/4">{requesterName}</p>
           <div className="w-8/12">

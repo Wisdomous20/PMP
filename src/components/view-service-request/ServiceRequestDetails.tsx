@@ -33,16 +33,18 @@ export default function ServiceRequestDetails({
         <div className="flex justify-between items-center mb-4">
           <Link href={"/service-request"}>
             <Button variant="ghost" size="icon">
-              <ArrowLeftIcon className="h-4 w-4" />
+              <ArrowLeftIcon id="back-button" className="h-4 w-4" />
             </Button>
           </Link>
-          <h1 className="text-2xl font-semibold">{title}</h1>
+          <h1 id="title-of-request" className="text-2xl font-semibold">
+            {title}
+          </h1>
           <div className="flex space-x-2">
-            <Button variant="destructive" size="sm">
+            <Button id="reject-button" variant="destructive" size="sm">
               <XIcon className="h-4 w-4 mr-2" />
               Reject
             </Button>
-            <Button variant="outline" size="sm">
+            <Button id="approve-button" variant="outline" size="sm">
               <CheckIcon className="h-4 w-4 mr-2" />
               Approve
             </Button>
@@ -63,18 +65,22 @@ export default function ServiceRequestDetails({
                   .toUpperCase()}
               </AvatarFallback>
             </Avatar>
-            <span data-testid="requestor-name">{requestorName}</span>
-            <span>
+            <span id="requestor-name" data-testid="requestor-name">
+              {requestorName}
+            </span>
+            <span id="requestor-email">
               &lt;{requestorName.toLowerCase().replace(" ", ".")}
               @example.com&gt;
             </span>
           </div>
-          <time dateTime={createdOn}>{formattedDate}</time>
+          <time id="created-on" dateTime={createdOn}>
+            {formattedDate}
+          </time>
         </div>
       </CardHeader>
       <Separator />
       <CardContent className="pt-6 flex-grow">
-        <div className="prose max-w-none">
+        <div id="request-details" className="prose max-w-none">
           <p>{details}</p>
         </div>
       </CardContent>
@@ -82,6 +88,7 @@ export default function ServiceRequestDetails({
       <div className="px-6 pb-4 flex justify-between">
         <Button variant="outline" size="sm">
           <ArrowLeftIcon
+            id="previous-button"
             data-testid="arrow-left-icon"
             className="h-4 w-4 mr-2"
           />
@@ -90,6 +97,7 @@ export default function ServiceRequestDetails({
         <Button variant="outline" size="sm">
           Next
           <ArrowRightIcon
+            id="next-button"
             data-testid="arrow-right-icon"
             className="h-4 w-4 ml-2"
           />
