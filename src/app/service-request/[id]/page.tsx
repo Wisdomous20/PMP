@@ -1,5 +1,7 @@
-import LeftTab from "@/components/layouts/LeftTab"
+"use client"
+import LeftTab from "@/components/layouts/LeftTab";
 import ServiceRequestDetails from "@/components/view-service-request/ServiceRequestDetails";
+import useGetServiceRequestDetails from "@/hooks/useGetServiceRequestDetails";
 
 interface PageProps {
   params: {
@@ -8,15 +10,32 @@ interface PageProps {
 }
 
 export default function Page({ params }: PageProps) {
-  const id = params.id
-  console.log(id)
+  const { id } = params;
+  const { serviceRequestDetails, error, loading } = useGetServiceRequestDetails(id);
+
+  if (loading) {
+    return <div>Loading...</div>;
+  }
+
+  if (error) {
+    return <div>{error}</div>;
+  }
+
+  if (!serviceRequestDetails) {
+    return <div>No service request details found.</div>;
+  }
 
   return (
     <div className="w-screen h-screen flex">
       <LeftTab />
       <div className="flex flex-col w-full">
-        <ServiceRequestDetails requestorName="John Doe" title = "IT Support Request" details = "My computer is not turning on. I've checked all the cables and power supply." createdOn = "2023-10-15T14:30:00Z"/>
+        <ServiceRequestDetails
+          requestorName={serviceRequestDetails.requesterName}
+          title={serviceRequestDetails.title}
+          details={serviceRequestDetails.details}
+          createdOn={serviceRequestDetails.createdOn}
+        />
       </div>
     </div>
-  )
+  );
 }

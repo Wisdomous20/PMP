@@ -2,7 +2,9 @@ import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
 import { Button } from "@/components/ui/button";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { ArrowLeftIcon, CheckIcon, XIcon, ArrowRightIcon } from "lucide-react";
+import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
+import RejectServiceRequest from "./RejectServiceRequest";
+import ApproveServiceRequest from "./ApproveServiceRequest";
 import Link from "next/link";
 
 interface ServiceRequestDetailsProps {
@@ -18,6 +20,7 @@ export default function ServiceRequestDetails({
   details,
   createdOn,
 }: ServiceRequestDetailsProps) {
+
   const formattedDate = new Date(createdOn).toLocaleString("en-US", {
     weekday: "short",
     year: "numeric",
@@ -40,14 +43,9 @@ export default function ServiceRequestDetails({
             {title}
           </h1>
           <div className="flex space-x-2">
-            <Button id="reject-button" variant="destructive" size="sm">
-              <XIcon className="h-4 w-4 mr-2" />
-              Reject
-            </Button>
-            <Button id="approve-button" variant="outline" size="sm">
-              <CheckIcon className="h-4 w-4 mr-2" />
-              Approve
-            </Button>
+
+            <RejectServiceRequest />
+            <ApproveServiceRequest />
           </div>
         </div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">

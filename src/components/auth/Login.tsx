@@ -42,7 +42,7 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-
+  
     if (validateForm()) {
       try {
         const result = await signIn("credentials", {
@@ -50,12 +50,18 @@ export default function Login() {
           email: email,
           password: password,
         });
-
-        console.log("SignIn Result:", result);
-
+  
+  
         if (result?.error) {
-          console.error(result.error);
-          alert("Invalid credentials, please try again.");
+          console.error("Login error:", result.error);
+
+          if (result.error.includes("Email not found")) {
+            setErrors({ ...errors, submit: "Email not found. Please register first" });
+          } else if (result.error.includes("Invalid email or password")) {
+            setErrors({ ...errors, submit: "Invalid email or password" });
+          } else {
+            setErrors({ ...errors, submit: "Invalid email or password" });
+          }
         } else {
           router.push(callbackUrl);
         }

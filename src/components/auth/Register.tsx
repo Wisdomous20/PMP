@@ -72,7 +72,18 @@ export default function Register() {
 
         const data = await response.json();
 
-        if (response.ok) {
+        if (!response.ok) {
+          if (data.error === 'Email already exists') {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              email: 'Email already exists.',
+            }));
+          } else {
+            setErrors(data.error || 'An error occurred during registration.');
+          }
+          return;
+        }
+
           const signInResult = await signIn('credentials', {
             redirect: false,
             email,
@@ -84,9 +95,6 @@ export default function Register() {
           } else {
             router.push(callbackUrl);
           }
-        } else {
-          setErrors({ ...errors, submit: data.error || "Registration failed." });
-        }
       } catch (error) {
         console.error("Registration error:", error);
         setErrors({ ...errors, submit: "An error occurred during registration." });

@@ -15,7 +15,7 @@ jest.mock("../../src/hooks/use-toast", () => ({
 
 const mockCreateServiceRequestFetch = jest.fn();
 jest.mock("../../src/utils/service-request/createServiceRequestFetch", () => ({
-  createServiceRequestFetch: (userId: string, title: string, details: string) => 
+  createServiceRequestFetch: (userId: string, title: string, details: string) =>
     mockCreateServiceRequestFetch(userId, title, details),
 }));
 
