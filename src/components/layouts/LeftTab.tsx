@@ -1,5 +1,7 @@
 "use client";
 
+import { useRouter } from "next/navigation";
+import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Circle, Plus, FileText, Archive, ArrowLeft } from "lucide-react";
 import Link from "next/link";
@@ -8,6 +10,10 @@ import useGetUserRole from "@/hooks/useGetUserRole";
 export default function LeftTab() {
   const { userRole, loading } = useGetUserRole();
   console.log(userRole);
+
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
+  };
 
   if (loading) {
     return <div> Loading </div>;
@@ -40,8 +46,7 @@ export default function LeftTab() {
           <span className="sr-only">Archive</span>
         </Button>
       </Link>
-      <Link href="/{handleLogout}">
-        <Button variant="ghost" size="icon" className="w-8 h-8">
+      <Link href="/auth/login" onClick={handleLogout}>        <Button variant="ghost" size="icon" className="w-8 h-8">
           <ArrowLeft className="w-4 h-4" />
           <span className="sr-only">Back</span>
         </Button>
