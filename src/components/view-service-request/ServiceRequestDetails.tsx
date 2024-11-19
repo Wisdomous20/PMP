@@ -6,6 +6,7 @@ import { ArrowLeftIcon, ArrowRightIcon } from "lucide-react";
 import RejectServiceRequest from "./RejectServiceRequest";
 import ApproveServiceRequest from "./ApproveServiceRequest";
 import Link from "next/link";
+import useGetUserRole from "@/hooks/useGetUserRole";
 
 interface ServiceRequestDetailsProps {
   requestorName: string;
@@ -20,7 +21,7 @@ export default function ServiceRequestDetails({
   details,
   createdOn,
 }: ServiceRequestDetailsProps) {
-
+  const { userRole, loading } = useGetUserRole();
   const formattedDate = new Date(createdOn).toLocaleString("en-US", {
     weekday: "short",
     year: "numeric",
@@ -41,8 +42,12 @@ export default function ServiceRequestDetails({
           </Link>
           <h1 className="text-2xl font-semibold">{title}</h1>
           <div className="flex space-x-2">
+          {userRole === "ADMIN" && (
+            <div>
             <RejectServiceRequest />
             <ApproveServiceRequest />
+            </div>
+          )}
           </div>
         </div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">
