@@ -2,8 +2,10 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { Eye, EyeOff } from "lucide-react";
 import { useRouter } from "next/navigation";
-import { signIn } from 'next-auth/react';
+import { signIn } from "next-auth/react";
 import Image from "next/image";
 import validator from "validator";
 
@@ -14,6 +16,9 @@ export default function Register() {
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [confirmPassword, setConfirmPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
+  const [showConfirmPassword, setShowConfirmPassword] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
   const [errors, setErrors] = useState({
     username: "",
     email: "",
@@ -59,6 +64,7 @@ export default function Register() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+    setIsLoading(true);
 
     if (validateForm()) {
       try {
@@ -73,32 +79,48 @@ export default function Register() {
         const data = await response.json();
 
         if (!response.ok) {
-          if (data.error === 'Email already exists') {
+          if (data.error === "Email already exists") {
             setErrors((prevErrors) => ({
               ...prevErrors,
-              email: 'Email already exists.',
+              email: "Email already exists.",
             }));
           } else {
-            setErrors(data.error || 'An error occurred during registration.');
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              submit: data.error || "An error occurred during registration.",
+            }));
           }
+          setIsLoading(false);
           return;
         }
 
-          const signInResult = await signIn('credentials', {
-            redirect: false,
-            email,
-            password,
-          });
-    
-          if (signInResult?.error) {
-            alert(signInResult.error);
-          } else {
+        const signInResult = await signIn("credentials", {
+          redirect: false,
+          email,
+          password,
+        });
+
+        if (signInResult?.error) {
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            submit: signInResult.error || "An error occurred during sign in.",
+          }));
+          setIsLoading(false);
+        } else {
+          setTimeout(() => {
             router.push(callbackUrl);
-          }
+          }, 3000);
+        }
       } catch (error) {
         console.error("Registration error:", error);
-        setErrors({ ...errors, submit: "An error occurred during registration." });
+        setErrors((prevErrors) => ({
+          ...prevErrors,
+          submit: "An error occurred during registration.",
+        }));
+        setIsLoading(false);
       }
+    } else {
+      setIsLoading(false);
     }
   };
 
@@ -120,12 +142,17 @@ export default function Register() {
           <h1 className="text-2xl font-bold text-yellow-400">
             Project Management System
           </h1>
-          <p className="text-sm text-yellow-200">Central Philippines University</p>
+          <p className="text-sm text-yellow-200">
+            Central Philippines University
+          </p>
         </div>
 
         <form className="space-y-4" onSubmit={handleSubmit}>
           <div>
-            <label htmlFor="username" className="block text-sm font-medium text-gray-200 mb-1">
+            <label
+              htmlFor="username"
+              className="block text-sm font-medium text-gray-200 mb-1"
+            >
               Username
             </label>
             <Input
@@ -136,11 +163,16 @@ export default function Register() {
               className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
               placeholder="Enter your username"
             />
-            {errors.username && <p className="text-red-500 text-xs mt-1">{errors.username}</p>}
+            {errors.username && (
+              <p className="text-red-500 text-xs mt-1">{errors.username}</p>
+            )}
           </div>
 
           <div>
-            <label htmlFor="email" className="block text-sm font-medium text-gray-200 mb-1">
+            <label
+              htmlFor="email"
+              className="block text-sm font-medium text-gray-200 mb-1"
+            >
               Email
             </label>
             <Input
@@ -151,51 +183,98 @@ export default function Register() {
               className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
               placeholder="Enter your CPU email"
             />
-            {errors.email && <p className="text-red-500 text-xs mt-1">{errors.email}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="password" className="block text-sm font-medium text-gray-200 mb-1">
-              Password
-            </label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
-              placeholder="Enter your password"
-            />
-            {errors.password && <p className="text-red-500 text-xs mt-1">{errors.password}</p>}
-          </div>
-
-          <div>
-            <label htmlFor="confirmPassword" className="block text-sm font-medium text-gray-200 mb-1">
-              Confirm Password
-            </label>
-            <Input
-              id="confirmPassword"
-              type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
-              className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
-              placeholder="Confirm your password"
-            />
-            {errors.confirmPassword && (
-              <p className="text-red-500 text-xs mt-1">{errors.confirmPassword}</p>
+            {errors.email && (
+              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
             )}
           </div>
 
-          <Button type="submit" className="w-full bg-yellow-400 text-black hover:bg-yellow-500">
-            Register
+          <div>
+            <label
+              htmlFor="password"
+              className="block text-sm font-medium text-gray-200 mb-1"
+            >
+              Password
+            </label>
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400 pr-10"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 focus:outline-none"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            {errors.password && (
+              <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+            )}
+          </div>
+
+          <div>
+            <label
+              htmlFor="confirmPassword"
+              className="block text-sm font-medium text-gray-200 mb-1"
+            >
+              Confirm Password
+            </label>
+            <div className="relative">
+              <Input
+                id="confirmPassword"
+                type={showConfirmPassword ? "text" : "password"}
+                value={confirmPassword}
+                onChange={(e) => setConfirmPassword(e.target.value)}
+                className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400 pr-10"
+                placeholder="Confirm your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowConfirmPassword(!showConfirmPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 focus:outline-none"
+              >
+                {showConfirmPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
+            {errors.confirmPassword && (
+              <p className="text-red-500 text-xs mt-1">
+                {errors.confirmPassword}
+              </p>
+            )}
+          </div>
+
+          <Button
+            type="submit"
+            className="w-full bg-yellow-400 text-black hover:bg-yellow-500"
+            disabled={isLoading}
+          >
+            <div className="flex items-center justify-center gap-2">
+              {isLoading && <Spinner size="small" />}
+              {!isLoading && "Register"}
+            </div>
           </Button>
         </form>
 
-        {errors.submit && <p className="text-red-500 text-center mt-4">{errors.submit}</p>}
+        {errors.submit && (
+          <p className="text-red-500 text-center mt-4">{errors.submit}</p>
+        )}
 
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-400">
-            Already have an account?{' '}
+            Already have an account?{" "}
             <a href="/auth/login" className="text-yellow-400 hover:underline">
               Log in here
             </a>
