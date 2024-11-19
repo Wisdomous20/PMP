@@ -1,19 +1,19 @@
-"use client"
+"use client";
 
-import { useState } from "react"
-import { ArrowLeft, Send } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Textarea } from "@/components/ui/textarea"
-import { useRouter } from "next/navigation"
-import { toast } from "@/hooks/use-toast"
-import createServiceRequestFetch from "@/utils/service-request/createServiceRequestFetch"
-import { useSession } from 'next-auth/react';
+import { useState } from "react";
+import { ArrowLeft, Send } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Input } from "@/components/ui/input";
+import { Textarea } from "@/components/ui/textarea";
+import { useRouter } from "next/navigation";
+import { toast } from "@/hooks/use-toast";
+import createServiceRequestFetch from "@/utils/service-request/createServiceRequestFetch";
+import { useSession } from "next-auth/react";
 
 export default function CreateServiceRequest() {
-  const [title, setTitle] = useState("")
-  const [details, setDetails] = useState("")
-  const router = useRouter()
+  const [title, setTitle] = useState("");
+  const [details, setDetails] = useState("");
+  const router = useRouter();
   const { data: session } = useSession();
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -59,12 +59,18 @@ export default function CreateServiceRequest() {
   return (
     <div className="w-full max-w-2xl bg-white rounded-lg border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
       <div className="p-5 bg-primary text-primary-foreground flex items-center">
-        <Button variant="ghost" size="icon" className="mr-2"
+        <Button
+          id="create-service-request-back-button"
+          variant="ghost"
+          size="icon"
+          className="mr-2"
           onClick={() => router.push("/service-request")}
         >
           <ArrowLeft className="h-6 w-6" />
         </Button>
-        <h1 className="text-xl font-semibold">Create Service Request</h1>
+        <h1 id="create-service-request-title" className="text-xl font-semibold">
+          Create Service Request
+        </h1>
       </div>
       <form onSubmit={handleSubmit} className="p-6 space-y-6 flex flex-col">
         <div className="space-y-2 flex-shrink-0">
@@ -80,7 +86,10 @@ export default function CreateServiceRequest() {
           />
         </div>
         <div className="space-y-2 flex-grow">
-          <label htmlFor="details" className="text-sm font-medium text-gray-700">
+          <label
+            htmlFor="details"
+            className="text-sm font-medium text-gray-700"
+          >
             Details
           </label>
           <Textarea
@@ -93,11 +102,11 @@ export default function CreateServiceRequest() {
         </div>
         <div className="flex justify-end flex-shrink-0">
           <Button type="submit" className="w-full sm:w-auto">
-            <Send className="w-4 h-4 mr-2" />
+            <Send id="send-service-request-button" className="w-4 h-4 mr-2" />
             Send
           </Button>
         </div>
       </form>
     </div>
-  )
+  );
 }

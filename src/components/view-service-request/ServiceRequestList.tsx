@@ -47,31 +47,13 @@ const serviceRequests = [
 ];
 
 export default function ServiceRequestList() {
-  const [ServiceRequests, setServiceRequests] = useState<ServiceRequest[]>([])
-  const { data: session } = useSession()
-
-  useEffect(() => {
-    const fetchServiceRequests = async () => {
-      console.log(session)
-      if (session?.user.id) {
-        const ServiceRequestsInitial = await getServiceRequestFetch(session.user.id)
-        setServiceRequests(ServiceRequestsInitial)
-        console.log(ServiceRequestsInitial)
-      }
-    }
-
-    fetchServiceRequests()
-  }, [])
-
-  if (!session) {
-    return redirect("/auth/login");
-  }
+  const { serviceRequests } = useGetServiceRequestList();
 
   return (
     <div className="w-full h-full flex flex-col overflow-y-scroll overflow-x-hidden space-y-2">
-      {ServiceRequests.map((request, index) => (
-        <ServiceRequestPreviewShe key={index} {...request} />
+      {serviceRequests.map((request, index) => (
+        <ServiceRequestPreview key={index} {...request} />
       ))}
     </div>
-  )
+  );
 }
