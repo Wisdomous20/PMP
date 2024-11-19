@@ -31,8 +31,20 @@ import ServiceRequestPreviewShe from "./ServiceRequestPreviewShe";
 //   { requesterName: 'Jane Smith', title: 'Software License', details: 'Need a license for Adobe Creative Suite', createdOn: '2023-10-14' },
 //   { requesterName: 'Bob Johnson', title: 'Training Course', details: 'Approval for attending a React conference', createdOn: '2023-10-13' },
 //   { requesterName: 'Alice Brown', title: 'Office Supplies', details: 'Ordering new ergonomic chairs for the team', createdOn: '2023-10-12' },
-//   { requesterName: 'Charlie Wilson', title: 'Travel Approval', details: 'Business trip to New York for client meeting', createdOn: '2023-10-11' },
+  // {id:"2", requesterName: 'Charlie Wilson', title: 'Travel Approval', details: 'Business trip to New York for client meeting', createdOn: '2023-10-11' },
 // ]
+
+const serviceRequests = [
+  {
+    id: 1,
+    requester: 'John Doe',
+    title: 'Request for Additional Resources',
+    details: 'Details of the Service Request...',
+    date: '2024-11-15',
+    status: 'approved',
+  },
+  // Add more mock data
+];
 
 export default function ServiceRequestList() {
   const [ServiceRequests, setServiceRequests] = useState<ServiceRequest[]>([])

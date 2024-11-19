@@ -8,7 +8,6 @@ interface ServiceRequestPreviewProps {
   title: string;
   details: string;
   createdOn: string;
-  //status: 'urgent' | 'normal';
 }
 
 export default function ServiceRequestPreview({ id, requesterName, title, details, createdOn }: ServiceRequestPreviewProps) {

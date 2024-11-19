@@ -1,5 +1,6 @@
 import { Card, CardContent } from "@/components/ui/card";
 import formatTimestamp from "@/utils/formatTimestamp";
+import { useState,} from "react";
 import Link from "next/link";
 
 interface ServiceRequestPreviewProps {
@@ -8,11 +9,11 @@ interface ServiceRequestPreviewProps {
   title: string;
   details: string;
   createdOn: string;
-  status: 'urgent' | 'normal';
 }
 
-export default function ServiceRequestPreviewShe({ id, requesterName, title, details, createdOn }: ServiceRequestPreviewProps) {
-  const status = "urgent"
+export default function ServiceRequestPreviewShe({ id, requesterName, title, details, createdOn}: ServiceRequestPreviewProps) {
+  const detailsPreview = details.length > 100? details.slice(0, 100) + '...' : details;
+  const [search, setSearch] = useState('');
   return (
 
     // <Button 
@@ -35,22 +36,32 @@ export default function ServiceRequestPreviewShe({ id, requesterName, title, det
     //     </Button>
 
     <Link href={`/service-request/${id}`}>
-      <Card key={id}>
-        <CardContent className="flex justify-between items-center p-4">
-          <div>
-            <h2 className="text-lg font-semibold">{title}</h2>
-            <p className="text-sm text-gray-500">{requesterName}</p>
-          </div>
-          <div className="flex items-center space-x-2">
-            <span className={`px-3 py-1.5 text-sm font-semibold rounded-full ${
-              status === 'urgent' ? 'bg-red-100 text-red-800' : 'bg-blue-100 text-blue-800'
-            }`}>
-              {status === 'urgent' ? 'Urgent' : 'Normal'}
-            </span>
-            <span className="text-sm text-gray-500">{formatTimestamp(createdOn)}</span>
-          </div>
-        </CardContent>
-      </Card>
-    </Link>
-  );
+    <Card key={id}>
+      <CardContent className="flex justify-between items-center p-4">
+      <div className="mb-4">
+          <input
+            type="text"
+            className="w-full p-2 border rounded-md"
+            placeholder="Search"
+            value={search}
+            onChange={(e) => setSearch(e.target.value)}
+          />
+        </div>
+        <div>
+          <h2 className="text-lg font-semibold">{requesterName}</h2>
+          <p className="text-sm text-gray-500">{title}</p>
+        </div>
+        <span className="text-sm text-gray-500">{formatTimestamp(createdOn)}</span>
+      </CardContent>
+      <div className="mt-4 flex justify-end space-x-4">
+          <button className="px-4 py-2 bg-red-500 text-white rounded-md">
+            Reject Request
+          </button>
+          <button className="px-4 py-2 bg-green-500 text-white rounded-md">
+            Approve Request
+          </button>
+        </div>
+    </Card>
+  </Link>
+);
 }
