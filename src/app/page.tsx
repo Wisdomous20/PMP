@@ -1,5 +1,7 @@
+
 import LeftTab from "@/components/layouts/LeftTab"
 import CreateServiceRequest from "@/components/create-service-request/CreateServiceRequest"
+
 
 export default async function Page() {
   return (
@@ -7,5 +9,5 @@ export default async function Page() {
       <LeftTab />
       <CreateServiceRequest />
     </div>
-  )
+  );
 }
