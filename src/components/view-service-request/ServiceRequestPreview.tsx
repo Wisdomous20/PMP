@@ -1,4 +1,5 @@
 import { Card, CardContent } from "@/components/ui/card";
+import {Input} from "@/components/ui/input";
 import formatTimestamp from "@/utils/formatTimestamp";
 import Link from "next/link";
 
@@ -8,7 +9,6 @@ interface ServiceRequestPreviewProps {
   title: string;
   details: string;
   createdOn: string;
-  //status: 'urgent' | 'normal';
 }
 
 export default function ServiceRequestPreview({
@@ -31,9 +31,11 @@ export default function ServiceRequestPreview({
           <p className="text-base font-semibold w-1/4 ">{requesterName}</p>
           <div className="w-8/12">
             <h3 className="text-base font-semibold">{title}</h3>
-            <p className="text-sm text-muted-foreground">{detailsPreview}</p>
           </div>
           <p className="text-sm text-muted-foreground">{formattedDate}</p>
+          <div className="pt-4">
+          <p className="text-sm text-muted-foreground">{detailsPreview}</p>
+          </div>
         </CardContent>
       </Card>
     </Link>

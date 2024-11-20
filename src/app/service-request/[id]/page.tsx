@@ -1,5 +1,6 @@
 "use client"
 import LeftTab from "@/components/layouts/LeftTab";
+import ServiceRequestList from "@/components/view-service-request/ServiceRequestList";
 import ServiceRequestDetails from "@/components/view-service-request/ServiceRequestDetails";
 import useGetServiceRequestDetails from "@/hooks/useGetServiceRequestDetails";
 
@@ -28,6 +29,7 @@ export default function Page({ params }: PageProps) {
   return (
     <div className="w-screen h-screen flex">
       <LeftTab />
+      <ServiceRequestList/>
       <div className="flex flex-col w-full">
         <ServiceRequestDetails
           requestorName={serviceRequestDetails.requesterName}
