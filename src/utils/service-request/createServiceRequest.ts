@@ -9,7 +9,7 @@ export default async function createServiceRequest(userId: string, title: string
         details,
         status: {
           create: {
-            status: "Pending",
+            status: "pending",
             timestamp: new Date(),
           },
         },
