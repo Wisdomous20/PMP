@@ -25,7 +25,7 @@ export default function ApproveServiceRequest() {
   const handleApprove = () => {
     console.log("Request approved for supervisor:", selectedSupervisor);
     setIsApproveDialogOpen(false);
-    setSelectedSupervisor(""); // Reset selection after approval
+    setSelectedSupervisor("");
   };
 
   return (
@@ -44,7 +44,6 @@ export default function ApproveServiceRequest() {
           </DialogDescription>
         </DialogHeader>
         
-        {/* Dropdown for supervisor selection */}
         <Select value={selectedSupervisor} onValueChange={setSelectedSupervisor}>
           <SelectTrigger>
             <SelectValue placeholder="Select a Supervisor" />
