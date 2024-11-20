@@ -134,8 +134,8 @@ enum user_type {
 }
 
 enum status {
-  Pending
-  Accepted
-  Rejected
-  In_Progress
+  pending
+  approved
+  rejected
+  in_progress
 }
