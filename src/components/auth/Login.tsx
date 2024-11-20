@@ -10,7 +10,7 @@ import validator from "validator";
 import { signIn } from "next-auth/react";
 
 export default function Login() {
-  const callbackUrl = "/";
+  const callbackUrl = "/service-request";
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
