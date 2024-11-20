@@ -31,7 +31,7 @@ export default function ApproveServiceRequest() {
   return (
     <Dialog open={isApproveDialogOpen} onOpenChange={setIsApproveDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">
+        <Button variant="outline" size="sm" className="bg-green-500 text-white hover:bg-green-400 hover:text-white">
           <CheckIcon className="h-4 w-4 mr-2" />
           Approve
         </Button>
