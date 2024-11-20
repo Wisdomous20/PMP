@@ -21,7 +21,7 @@ export default function ServiceRequestDetails({
   details,
   createdOn,
 }: ServiceRequestDetailsProps) {
-  const { userRole, loading } = useGetUserRole();
+  const { userRole } = useGetUserRole();
   const formattedDate = new Date(createdOn).toLocaleString("en-US", {
     weekday: "short",
     year: "numeric",
