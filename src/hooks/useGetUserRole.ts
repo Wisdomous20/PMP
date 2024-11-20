@@ -29,5 +29,5 @@ export default function useGetUserRole() {
     }
   }, [session]);
 
-  return { userRole, loading };
+  return { userRole, loading, error };
 }

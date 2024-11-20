@@ -1,8 +1,6 @@
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { Card, CardContent } from "@/components/ui/card";
 import formatTimestamp from "@/utils/formatTimestamp";
-import { useState,} from "react";
 import Link from "next/link";
-import { Input } from "../ui/input";
 
 
 interface ServiceRequestPreviewProps {
