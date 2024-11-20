@@ -1,64 +1,32 @@
 "use client"
 import ServiceRequestPreview from "./ServiceRequestPreview"
-import getServiceRequestFetch from "@/utils/service-request/getServiceRequestFetch"
-import { useSession } from "next-auth/react"
-import { redirect } from "next/navigation";
-import { useState, useEffect } from "react";
-
-// const mockRequests: ServiceRequest[] = [
-//   { requesterName: 'John Doe', title: 'New Equipment', details: 'Requesting a new laptop for development work', createdOn: '2023-10-15' },
-//   { requesterName: 'Jane Smith', title: 'Software License', details: 'Need a license for Adobe Creative Suite', createdOn: '2023-10-14' },
-//   { requesterName: 'Bob Johnson', title: 'Training Course', details: 'Approval for attending a React conference', createdOn: '2023-10-13' },
-//   { requesterName: 'Alice Brown', title: 'Office Supplies', details: 'Ordering new ergonomic chairs for the team', createdOn: '2023-10-12' },
-//   { requesterName: 'Charlie Wilson', title: 'Travel Approval', details: 'Business trip to New York for client meeting', createdOn: '2023-10-11' },
-//   { requesterName: 'John Doe', title: 'New Equipment', details: 'Requesting a new laptop for development work', createdOn: '2023-10-15' },
-//   { requesterName: 'Jane Smith', title: 'Software License', details: 'Need a license for Adobe Creative Suite', createdOn: '2023-10-14' },
-//   { requesterName: 'Bob Johnson', title: 'Training Course', details: 'Approval for attending a React conference', createdOn: '2023-10-13' },
-//   { requesterName: 'Alice Brown', title: 'Office Supplies', details: 'Ordering new ergonomic chairs for the team', createdOn: '2023-10-12' },
-//   { requesterName: 'Charlie Wilson', title: 'Travel Approval', details: 'Business trip to New York for client meeting', createdOn: '2023-10-11' },
-//   { requesterName: 'John Doe', title: 'New Equipment', details: 'Requesting a new laptop for development work', createdOn: '2023-10-15' },
-//   { requesterName: 'Jane Smith', title: 'Software License', details: 'Need a license for Adobe Creative Suite', createdOn: '2023-10-14' },
-//   { requesterName: 'Bob Johnson', title: 'Training Course', details: 'Approval for attending a React conference', createdOn: '2023-10-13' },
-//   { requesterName: 'Alice Brown', title: 'Office Supplies', details: 'Ordering new ergonomic chairs for the team', createdOn: '2023-10-12' },
-//   { requesterName: 'Charlie Wilson', title: 'Travel Approval', details: 'Business trip to New York for client meeting', createdOn: '2023-10-11' },
-//   { requesterName: 'John Doe', title: 'New Equipment', details: 'Requesting a new laptop for development work', createdOn: '2023-10-15' },
-//   { requesterName: 'Jane Smith', title: 'Software License', details: 'Need a license for Adobe Creative Suite', createdOn: '2023-10-14' },
-//   { requesterName: 'Bob Johnson', title: 'Training Course', details: 'Approval for attending a React conference', createdOn: '2023-10-13' },
-//   { requesterName: 'Alice Brown', title: 'Office Supplies', details: 'Ordering new ergonomic chairs for the team', createdOn: '2023-10-12' },
-//   { requesterName: 'Charlie Wilson', title: 'Travel Approval', details: 'Business trip to New York for client meeting', createdOn: '2023-10-11' },
-//   { requesterName: 'John Doe', title: 'New Equipment', details: 'Requesting a new laptop for development work', createdOn: '2023-10-15' },
-//   { requesterName: 'Jane Smith', title: 'Software License', details: 'Need a license for Adobe Creative Suite', createdOn: '2023-10-14' },
-//   { requesterName: 'Bob Johnson', title: 'Training Course', details: 'Approval for attending a React conference', createdOn: '2023-10-13' },
-//   { requesterName: 'Alice Brown', title: 'Office Supplies', details: 'Ordering new ergonomic chairs for the team', createdOn: '2023-10-12' },
-//   { requesterName: 'Charlie Wilson', title: 'Travel Approval', details: 'Business trip to New York for client meeting', createdOn: '2023-10-11' },
-// ]
+import useGetServiceRequestList from "@/hooks/useGetServiceRequestList";
+import ServiceRequestPreviewShe from "./ServiceRequestPreviewShe";
+import ServiceRequestDetails from "@/components/view-service-request/ServiceRequestDetails";
+import { useState } from "react";
+import {Input} from "@/components/ui/input";
 
 export default function ServiceRequestList() {
-  const [ServiceRequests, setServiceRequests] = useState<ServiceRequest[]>([])
-  const { data: session } = useSession()
-
-  useEffect(() => {
-    const fetchServiceRequests = async () => {
-      console.log(session)
-      if (session?.user.id) {
-        const ServiceRequestsInitial = await getServiceRequestFetch(session.user.id)
-        setServiceRequests(ServiceRequestsInitial)
-        console.log(ServiceRequestsInitial)
-      }
-    }
-
-    fetchServiceRequests()
-  }, [])
-
-  if (!session) {
-    return redirect("/auth/login");
-  }
+  const { serviceRequests } = useGetServiceRequestList();
+  const [search, setSearch] = useState('');
 
   return (
-    <div className="w-full h-full flex flex-col overflow-y-scroll overflow-x-hidden space-y-2">
-      {ServiceRequests.map((request, index) => (
-        <ServiceRequestPreview key={index} {...request} />
+    <div className="w-3/6 h-full flex flex-col overflow-y-scroll overflow-x-hidden space-y-2">
+      <div className="pt-3 pl-3 items-center">
+      <h1 className="text-2xl font-semibold"> Service Requests </h1>
+      </div>
+      <div className="pl-3 items-center">
+        <Input
+          type="text"
+          placeholder="Search by title or requester..."
+          value={search}
+          onChange={(e) => setSearch(e.target.value)}
+          className="p-4 border border-gray-300 rounded-md w-2/3"
+        />
+      </div>
+      {serviceRequests.map((request, index) => (
+        <ServiceRequestPreviewShe key={index} {...request} />
       ))}
     </div>
-  )
+  );
 }

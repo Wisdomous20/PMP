@@ -1,73 +1,60 @@
-"use client"
+"use client";
 
-import { useState } from "react";
-import { Archive, FileText, PlusCircle, ChevronLeft, ChevronRight } from "lucide-react";
-import { Avatar, AvatarFallback, AvatarImage } from "@/components/ui/avatar";
-import { Button } from "@/components/ui/button";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { signOut } from "next-auth/react";
-import { useRouter } from "next/navigation";
-import { useSession } from "next-auth/react";
+import { Button } from "@/components/ui/button";
+import { Plus, FileText, Archive, ArrowLeft } from "lucide-react";
+import Link from "next/link";
+import useGetUserRole from "@/hooks/useGetUserRole";
 
 export default function LeftTab() {
-  const router = useRouter();
-  const { data: session } = useSession();
-  const [isOpen, setIsOpen] = useState(true);
+  const { userRole, loading } = useGetUserRole();
+  console.log(userRole);
 
-  if (!session) {
-    router.push("/auth/login");
+  const handleLogout = async () => {
+    await signOut({ redirect: false });
+  };
+
+  if (loading) {
+    return <div>Loading</div>;
   }
 
-  const toggleSidebar = () => {
-    setIsOpen(!isOpen);
-  };
-
-  const handleLogout = () => {
-    signOut();
-  };
-
   return (
-    <div className={`relative h-screen transition-all duration-300 ${isOpen ? "w-64" : "w-8"}`}>
-      <Card className={`h-full rounded-l-none ${isOpen ? "w-64" : "w-8"}`}>
-        {isOpen && (
-          <>
-            <CardHeader className="flex flex-col items-center space-y-2 pb-6">
-              <Avatar className="h-20 w-20">
-                <AvatarImage src="/placeholder.svg?height=80&width=80" alt="User avatar" />
-                <AvatarFallback>UN</AvatarFallback>
-              </Avatar>
-              <div className="text-center">
-                <h2 className="text-xl font-semibold">{session?.user.name}</h2>
-                <p className="text-sm text-muted-foreground">Department</p>
-              </div>
-            </CardHeader>
-            <CardContent className="space-y-4">
-              <Button className="w-full justify-start" variant="outline" onClick={() => router.push("/")}>
-                <PlusCircle className="mr-2 h-4 w-4" />
-                Create SR
-              </Button>
-              <Button className="w-full justify-start" variant="outline" onClick={() => router.push("/service-request")}>
-                <FileText className="mr-2 h-4 w-4" />
-                Requests
-              </Button>
-              <Button className="w-full justify-start" variant="outline">
-                <Archive className="mr-2 h-4 w-4" />
-                Archive
-              </Button>
-              <Button className="w-full justify-start" variant="outline" onClick={handleLogout}>
-                <span className="mr-2">🚪</span>
-                Logout
-              </Button>
-            </CardContent>
-          </>
-        )}
-        <Button
-          className="absolute top-1/2 right-[-12px] transform -translate-y-1/2 p-1 rounded-full bg-white border border-gray-300 hover:bg-gray-200 shadow-md"
-          onClick={toggleSidebar}
-        >
-          {isOpen ? <ChevronLeft size={16} className="text-black"/> : <ChevronRight size={16} className="text-black"/>}
+    <div className="w-16 border-r bg-background flex flex-col items-center py-4 space-y-6">
+      <Button variant="ghost" size="icon" className="w-12 h-12">
+      <img 
+          src="/images/cpu-logo.png" 
+          alt="CPU Logo" 
+          className="w-8 h-8" 
+        />
+        <span className="sr-only">CPU Logo</span>
+      </Button>
+      {userRole === "USER" && (
+        <Link href="/">
+          <Button variant="ghost" size="icon" className="w-12 h-12">
+            <Plus className="w-6 h-6" />
+            <span className="sr-only">Create Service Request</span>
+          </Button>
+        </Link>
+      )}
+
+      <Link href="/service-request">
+        <Button variant="ghost" size="icon" className="w-12 h-12">
+          <FileText className="w-6 h-6" />
+          <span className="sr-only">Service Request List</span>
         </Button>
-      </Card>
+      </Link>
+      <Link href="/service-request/archive">
+        <Button variant="ghost" size="icon" className="w-12 h-12">
+          <Archive className="w-6 h-6" />
+          <span className="sr-only">Archive</span>
+        </Button>
+      </Link>
+      <Link href="/auth/login" onClick={handleLogout}>
+        <Button variant="ghost" size="icon" className="w-12 h-12">
+          <ArrowLeft className="w-6 h-6" />
+          <span className="sr-only">Back</span>
+        </Button>
+      </Link>
     </div>
   );
 }
