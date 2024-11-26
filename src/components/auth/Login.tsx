@@ -2,21 +2,25 @@
 import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
+import { Spinner } from "@/components/ui/spinner";
+import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
 import validator from "validator";
 import { signIn } from "next-auth/react";
 
 export default function Login() {
-  const callbackUrl = "/";
+  const callbackUrl = "/service-request";
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
+  const [showPassword, setShowPassword] = useState(false);
   const [errors, setErrors] = useState({
     email: "",
     password: "",
     submit: "",
   });
+  const [isLoading, setIsLoading] = useState(false);
 
   const validateForm = () => {
     let isValid = true;
@@ -42,7 +46,8 @@ export default function Login() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-  
+    setIsLoading(true);
+
     if (validateForm()) {
       try {
         const result = await signIn("credentials", {
@@ -50,25 +55,33 @@ export default function Login() {
           email: email,
           password: password,
         });
-  
-  
+
         if (result?.error) {
           console.error("Login error:", result.error);
+          setIsLoading(false);
 
           if (result.error.includes("Email not found")) {
-            setErrors({ ...errors, submit: "Email not found. Please register first" });
+            setErrors({
+              ...errors,
+              submit: "Email not found. Please register first",
+            });
           } else if (result.error.includes("Invalid email or password")) {
             setErrors({ ...errors, submit: "Invalid email or password" });
           } else {
             setErrors({ ...errors, submit: "Invalid email or password" });
           }
         } else {
-          router.push(callbackUrl);
+          setTimeout(() => {
+            router.push(callbackUrl);
+          }, 2000);
         }
       } catch (error) {
         console.error("Login error:", error);
         setErrors({ ...errors, submit: "An error occurred during login" });
+        setIsLoading(false);
       }
+    } else {
+      setIsLoading(false);
     }
   };
 
@@ -121,14 +134,27 @@ export default function Login() {
             >
               Password
             </label>
-            <Input
-              id="password"
-              type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
-              className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
-              placeholder="Enter your password"
-            />
+            <div className="relative">
+              <Input
+                id="password"
+                type={showPassword ? "text" : "password"}
+                value={password}
+                onChange={(e) => setPassword(e.target.value)}
+                className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400 pr-10"
+                placeholder="Enter your password"
+              />
+              <button
+                type="button"
+                onClick={() => setShowPassword(!showPassword)}
+                className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 focus:outline-none"
+              >
+                {showPassword ? (
+                  <EyeOff className="h-4 w-4" />
+                ) : (
+                  <Eye className="h-4 w-4" />
+                )}
+              </button>
+            </div>
             {errors.password && (
               <p className="text-red-500 text-xs mt-1">{errors.password}</p>
             )}
@@ -145,8 +171,12 @@ export default function Login() {
             id="login-button"
             className="w-full bg-yellow-400 text-black hover:bg-yellow-500"
             type="submit"
+            disabled={isLoading}
           >
-            Log In
+            <div className="flex items-center justify-center gap-2">
+              {isLoading && <Spinner size="small" />}
+              {!isLoading && "Log In"}
+            </div>
           </Button>
         </form>
         <div className="mt-4 text-center">

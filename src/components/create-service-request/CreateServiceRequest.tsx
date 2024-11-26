@@ -9,10 +9,12 @@ import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import createServiceRequestFetch from "@/utils/service-request/createServiceRequestFetch";
 import { useSession } from "next-auth/react";
+import { Spinner } from "@/components/ui/spinner";
 
 export default function CreateServiceRequest() {
   const [title, setTitle] = useState("");
   const [details, setDetails] = useState("");
+  const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { data: session } = useSession();
 
@@ -29,6 +31,8 @@ export default function CreateServiceRequest() {
     }
 
     try {
+      setIsLoading(true);
+
       const userId = session?.user.id;
 
       if (!userId) {
@@ -44,7 +48,6 @@ export default function CreateServiceRequest() {
 
       setTitle("");
       setDetails("");
-
       router.push("/");
     } catch (error) {
       console.error("Failed to create service request:", error);
@@ -53,6 +56,8 @@ export default function CreateServiceRequest() {
         description: "Failed to create service request. Please try again.",
         variant: "destructive",
       });
+    } finally {
+      setIsLoading(false);
     }
   };
 
@@ -101,9 +106,13 @@ export default function CreateServiceRequest() {
           />
         </div>
         <div className="flex justify-end flex-shrink-0">
-          <Button type="submit" className="w-full sm:w-auto">
-            <Send id="send-service-request-button" className="w-4 h-4 mr-2" />
-            Send
+          <Button type="submit" className="w-full sm:w-auto" disabled={isLoading}>
+            {isLoading ? (
+              <Spinner className="w-4 h-4 mr-2" />
+            ) : (
+              <Send id="send-service-request-button" className="w-4 h-4 mr-2" />
+            )}
+            {isLoading ? "Sending..." : "Send"}
           </Button>
         </div>
       </form>
