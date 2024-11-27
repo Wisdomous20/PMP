@@ -1,6 +1,6 @@
 "use client"
 import useGetServiceRequestList from "@/hooks/useGetServiceRequestList";
-import ServiceRequestPreviewShe from "./ServiceRequestPreviewShe";
+import ServiceRequestPreview from "./ServiceRequestPreview";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
 
@@ -23,7 +23,7 @@ export default function ServiceRequestList() {
         />
       </div>
       {serviceRequests.map((request, index) => (
-        <ServiceRequestPreviewShe key={index} {...request} />
+        <ServiceRequestPreview key={index} {...request} />
       ))}
     </div>
   );
