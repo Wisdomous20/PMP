@@ -1,8 +1,8 @@
-'use-client'
+"use-client";
 
 import { useState, useEffect } from "react";
-import useGetSessionData from "./useGetSessionData";
-import getServiceRequestFetch from "@/utils/service-request/getServiceRequestFetch";
+import useGetSessionData from "../../user-management/hooks/useGetSessionData";
+import fetchGetServiceRequest from "@/domains/service-request/services/fetchGetServiceRequest";
 
 export default function useGetServiceRequestList() {
   const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
@@ -13,9 +13,11 @@ export default function useGetServiceRequestList() {
   const fetchServiceRequests = async () => {
     if (session?.user.id) {
       try {
-        const serviceRequestsInitial = await getServiceRequestFetch(session.user.id);
+        const serviceRequestsInitial = await fetchGetServiceRequest(
+          session.user.id
+        );
         setServiceRequests(serviceRequestsInitial);
-        setLoading(false)
+        setLoading(false);
       } catch (err) {
         setError("Failed to load service requests.");
         console.error(err);

@@ -1,5 +1,5 @@
 // createServiceRequestFetch.test.ts
-import createServiceRequestFetch from "../../src/utils/service-request/createServiceRequestFetch"; // Replace with the actual path
+import createServiceRequestFetch from "../../src/domains/service-request/services/fetchCreateServiceRequest"; // Replace with the actual path
 
 global.fetch = jest.fn(); // Mock the fetch API
 
@@ -55,7 +55,9 @@ describe("createServiceRequestFetch", () => {
       json: jest.fn().mockResolvedValueOnce({ error: "Internal Server Error" }),
     });
 
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     await expect(
       createServiceRequestFetch(
@@ -85,7 +87,9 @@ describe("createServiceRequestFetch", () => {
     // Mock a network error (fetch throws an error)
     global.fetch.mockRejectedValueOnce(new Error("Network Error"));
 
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     await expect(
       createServiceRequestFetch(

@@ -11,9 +11,3 @@ type GetServiceRequestInputs = {
   userId?: string;
   department?: string;
 }
-
-type Supervisor = {
-  id: string;
-  name: string;
-  department: string | null;
-}

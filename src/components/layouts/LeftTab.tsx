@@ -2,9 +2,9 @@
 
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
-import { Plus, FileText, Archive,LogOut } from "lucide-react";
+import { Plus, FileText, Archive, LogOut } from "lucide-react";
 import Link from "next/link";
-import useGetUserRole from "@/hooks/useGetUserRole";
+import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 export default function LeftTab() {
   const { userRole, loading } = useGetUserRole();
@@ -21,10 +21,10 @@ export default function LeftTab() {
   return (
     <div className="w-13 border-r bg-indigo-800 flex flex-col items-center py-4 space-y-3">
       <Button variant="gold" size="icon" className="w-11 h-12">
-      <img 
-          src="/images/cpu-logo.png" 
-          alt="CPU Logo" 
-          className="w-8 h-8" 
+        <img
+          src="/images/cpu-logo.png"
+          alt="CPU Logo"
+          className="w-8 h-8"
         />
         <span className="sr-only">CPU Logo</span>
       </Button>

@@ -1,4 +1,4 @@
-export default async function getServiceRequestDetailsFetch(serviceRequestId: string) : Promise<ServiceRequest | null> {
+export default async function fetchGetServiceRequestDetails(serviceRequestId: string) : Promise<ServiceRequest | null> {
   const endpoint = `/api/service-request/${serviceRequestId}`;
 
   try {

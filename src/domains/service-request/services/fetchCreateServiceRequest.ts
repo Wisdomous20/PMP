@@ -1,4 +1,4 @@
-export default async function createServiceRequestFetch(userId : string, title : string, details : string) {
+export default async function fetchCreateServiceRequest(userId : string, title : string, details : string) {
   const endpoint = "/api/service-request";
 
   try {

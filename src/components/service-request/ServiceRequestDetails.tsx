@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import RejectServiceRequest from "./RejectServiceRequest";
 import ApproveServiceRequest from "./ApproveServiceRequest";
-import useGetUserRole from "@/hooks/useGetUserRole";
+import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 interface ServiceRequestDetailsProps {
   requestorName: string;

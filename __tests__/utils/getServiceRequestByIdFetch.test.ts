@@ -1,5 +1,5 @@
 // getServiceRequestDetailsFetch.test.ts
-import getServiceRequestDetailsFetch from "../../src/utils/service-request/getServiceRequestByIdFetch";
+import getServiceRequestDetailsFetch from "../../src/domains/service-request/services/fetchGetServiceRequestById";
 
 global.fetch = jest.fn();
 
@@ -42,7 +42,9 @@ describe("getServiceRequestDetailsFetch", () => {
       json: jest.fn().mockResolvedValueOnce({ error: "Internal Server Error" }),
     });
 
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     const result = await getServiceRequestDetailsFetch("req-2");
 
@@ -66,7 +68,9 @@ describe("getServiceRequestDetailsFetch", () => {
     // Mock a network error (fetch throws an error)
     global.fetch.mockRejectedValueOnce(new Error("Network Error"));
 
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     const result = await getServiceRequestDetailsFetch("req-3");
 
