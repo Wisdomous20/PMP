@@ -1,19 +1,19 @@
-import { NextRequest } from 'next/server';
+import { NextRequest } from "next/server";
 import { GET } from "../../src/app/api/service-request/[id]/route";
-import getServiceRequests from "@/utils/service-request/getServiceRequest";
+import getServiceRequests from "@/domains/service-request/services/getServiceRequest";
 import { prisma } from "@/lib/prisma";
 
 jest.mock("../../src/utils/service-request/getServiceRequest", () => {
   return jest.fn();
 });
 
-jest.mock('../../src/lib/prisma', () => ({
+jest.mock("../../src/lib/prisma", () => ({
   prisma: {
     $disconnect: jest.fn(),
-  }
+  },
 }));
 
-jest.mock('next/server', () => ({
+jest.mock("next/server", () => ({
   NextRequest: class {
     constructor(url: string) {
       this.url = url;
@@ -42,8 +42,9 @@ describe("View Service Request", () => {
   });
 
   it("handles 400 error when userId is missing", async () => {
-   
-    const mockRequest = new NextRequest('http://localhost:3000/api/service-request');
+    const mockRequest = new NextRequest(
+      "http://localhost:3000/api/service-request"
+    );
 
     const response = await GET(mockRequest);
     const error = await response.json();
@@ -58,14 +59,14 @@ describe("View Service Request", () => {
         id: "1",
         title: "This is title",
         details: "this is detail",
-        userId: "user-id"
-      }
+        userId: "user-id",
+      },
     ];
 
     (getServiceRequests as jest.Mock).mockResolvedValue(mockServiceRequests);
 
     const mockRequest = new NextRequest(
-      'http://localhost:3000/api/service-request?userId=user-id'
+      "http://localhost:3000/api/service-request?userId=user-id"
     );
 
     const response = await GET(mockRequest);
@@ -77,11 +78,12 @@ describe("View Service Request", () => {
   });
 
   it("handles errors when fetching service requests fails", async () => {
-
-    (getServiceRequests as jest.Mock).mockRejectedValue(new Error("Database error"));
+    (getServiceRequests as jest.Mock).mockRejectedValue(
+      new Error("Database error")
+    );
 
     const mockRequest = new NextRequest(
-      'http://localhost:3000/api/service-request?userId=user-id'
+      "http://localhost:3000/api/service-request?userId=user-id"
     );
 
     const response = await GET(mockRequest);
@@ -91,5 +93,3 @@ describe("View Service Request", () => {
     expect(error).toEqual({ error: "Failed to retrieve service requests" });
   });
 });
-
-

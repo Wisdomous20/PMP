@@ -1,5 +1,5 @@
 import LeftTab from "@/components/layouts/LeftTab";
-import ServiceRequestList from "@/components/view-service-request/ServiceRequestList";
+import ServiceRequestList from "@/components/service-request/ServiceRequestList";
 import { Card, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 export default function Page() {

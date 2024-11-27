@@ -1,6 +1,6 @@
 // getServiceRequests.test.ts
 import { prisma } from "@/lib/prisma"; // Mocked import
-import getServiceRequests from "../../src/utils/service-request/getServiceRequest";
+import getServiceRequests from "../../src/domains/service-request/services/getServiceRequest";
 
 // Mock prisma methods
 jest.mock("@/lib/prisma", () => ({
@@ -45,12 +45,17 @@ describe("getServiceRequests", () => {
   it("should throw an error if user is not found", async () => {
     prisma.user.findUnique.mockResolvedValue(null); // User not found
 
-    await expect(getServiceRequests("user-1")).rejects.toThrow("User not found");
+    await expect(getServiceRequests("user-1")).rejects.toThrow(
+      "User not found"
+    );
   });
 
   it("should return service requests for an ADMIN user", async () => {
     // Mock user as ADMIN
-    prisma.user.findUnique.mockResolvedValue({ ...mockUser, user_type: "ADMIN" });
+    prisma.user.findUnique.mockResolvedValue({
+      ...mockUser,
+      user_type: "ADMIN",
+    });
     // Mock service requests
     prisma.serviceRequest.findMany.mockResolvedValue(mockServiceRequests);
 
@@ -64,7 +69,7 @@ describe("getServiceRequests", () => {
     expect(prisma.serviceRequest.findMany).toHaveBeenCalledWith({
       include: {
         user: true,
-        status: { orderBy: { timestamp: 'asc' } },
+        status: { orderBy: { timestamp: "asc" } },
       },
     });
 
@@ -88,7 +93,10 @@ describe("getServiceRequests", () => {
 
   it("should return service requests for a SUPERVISOR user with department", async () => {
     // Mock user as SUPERVISOR with department
-    prisma.user.findUnique.mockResolvedValue({ ...mockUser, user_type: "SUPERVISOR" });
+    prisma.user.findUnique.mockResolvedValue({
+      ...mockUser,
+      user_type: "SUPERVISOR",
+    });
     prisma.serviceRequest.findMany.mockResolvedValue(mockServiceRequests);
 
     const result = await getServiceRequests("supervisor-user");
@@ -102,7 +110,7 @@ describe("getServiceRequests", () => {
       where: { user: { department: "IT" } },
       include: {
         user: true,
-        status: { orderBy: { timestamp: 'asc' } },
+        status: { orderBy: { timestamp: "asc" } },
       },
     });
 
@@ -126,7 +134,10 @@ describe("getServiceRequests", () => {
 
   it("should return service requests for a USER", async () => {
     // Mock user as USER
-    prisma.user.findUnique.mockResolvedValue({ ...mockUser, user_type: "USER" });
+    prisma.user.findUnique.mockResolvedValue({
+      ...mockUser,
+      user_type: "USER",
+    });
     prisma.serviceRequest.findMany.mockResolvedValue(mockServiceRequests);
 
     const result = await getServiceRequests("user-1");
@@ -140,7 +151,7 @@ describe("getServiceRequests", () => {
       where: { userId: "user-1" },
       include: {
         user: true,
-        status: { orderBy: { timestamp: 'asc' } },
+        status: { orderBy: { timestamp: "asc" } },
       },
     });
 
@@ -164,8 +175,13 @@ describe("getServiceRequests", () => {
 
   it("should throw an error for an invalid user type", async () => {
     // Mock user with invalid user_type
-    prisma.user.findUnique.mockResolvedValue({ ...mockUser, user_type: "UNKNOWN" });
+    prisma.user.findUnique.mockResolvedValue({
+      ...mockUser,
+      user_type: "UNKNOWN",
+    });
 
-    await expect(getServiceRequests("invalid-user")).rejects.toThrow("Invalid user type");
+    await expect(getServiceRequests("invalid-user")).rejects.toThrow(
+      "Invalid user type"
+    );
   });
 });

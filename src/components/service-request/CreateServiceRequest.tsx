@@ -7,7 +7,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import createServiceRequestFetch from "@/utils/service-request/createServiceRequestFetch";
+import fetchCreateServiceRequest from "@/domains/service-request/services/fetchCreateServiceRequest";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@/components/ui/spinner";
 
@@ -39,7 +39,7 @@ export default function CreateServiceRequest() {
         throw new Error("User not logged in");
       }
 
-      await createServiceRequestFetch(userId, title, details);
+      await fetchCreateServiceRequest(userId, title, details);
 
       toast({
         title: "Success",

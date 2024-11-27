@@ -1,6 +1,6 @@
 // createServiceRequest.test.ts
 import { prisma } from "@/lib/prisma"; // Mocked import
-import createServiceRequest from "../../src/utils/service-request/createServiceRequest";
+import createServiceRequest from "../../src/domains/service-request/services/createServiceRequest";
 
 // Mock prisma serviceRequest.create
 jest.mock("@/lib/prisma", () => ({

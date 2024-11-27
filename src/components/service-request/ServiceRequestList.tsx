@@ -1,5 +1,5 @@
 "use client"
-import useGetServiceRequestList from "@/hooks/useGetServiceRequestList";
+import useGetServiceRequestList from "@/domains/service-request/hooks/useGetServiceRequestList";
 import ServiceRequestPreview from "./ServiceRequestPreview";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
