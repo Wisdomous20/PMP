@@ -4,9 +4,9 @@ import getServiceRequests from "@/domains/service-request/services/getServiceReq
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const { userId, title, details } = await req.json();
+    const { userId, concern, details } = await req.json();
 
-    if (!userId || !title || !details) {
+    if (!userId || !concern || !details) {
       return NextResponse.json(
         { error: "Missing required fields" },
         { status: 400 }
@@ -15,7 +15,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
 
     const newServiceRequest = await createServiceRequest(
       userId,
-      title,
+      concern,
       details
     );
 

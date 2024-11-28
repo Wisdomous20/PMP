@@ -1,7 +1,7 @@
 type ServiceRequest = {
   id: string
   requesterName: string;
-  title: string;
+  concern: string;
   details: string;
   createdOn: string;
 }

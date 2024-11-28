@@ -17,13 +17,13 @@ export default async function getServiceRequestById(serviceRequestId: string) {
     throw new Error("Service request not found");
   }
 
-  const { user, title, details, status } = serviceRequest;
-  const requesterName = user.name;
+  const { user, concern, details, status } = serviceRequest;
+  const requesterName = `${user.firstName} ${user.lastName}`;
   const createdOn = status.length > 0 ? status[0].timestamp : null;
 
   return {
     requesterName,
-    title,
+    concern,
     details,
     createdOn,
   };

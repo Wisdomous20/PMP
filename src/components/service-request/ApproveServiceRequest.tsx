@@ -51,7 +51,7 @@ export default function ApproveServiceRequest() {
           <SelectContent>
             {supervisors.map((supervisor) => (
               <SelectItem key={supervisor.id} value={supervisor.id}>
-                {supervisor.name}
+                {supervisor.firstName} {supervisor.lastName}
               </SelectItem>
             ))}
           </SelectContent>
