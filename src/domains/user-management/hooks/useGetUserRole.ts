@@ -1,8 +1,8 @@
-"use client"
+"use client";
 
 import { useState, useEffect } from "react";
 import useGetSessionData from "./useGetSessionData";
-import getUserRoleFetch from "@/utils/authorization/getUserRoleFetch";
+import getUserRoleFetch from "@/domains/user-management/services/getUserRoleFetch";
 
 export default function useGetUserRole() {
   const [userRole, setUserRole] = useState<string>("");
@@ -15,7 +15,7 @@ export default function useGetUserRole() {
       try {
         const serviceRequestsInitial = await getUserRoleFetch(session.user.id);
         setUserRole(serviceRequestsInitial.userRole);
-        setLoading(false)
+        setLoading(false);
       } catch (err) {
         setError("Failed to load service requests.");
         console.error(err);

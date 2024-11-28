@@ -15,24 +15,6 @@ export default function ServiceRequestPreviewShe({ id, requesterName, title, det
   const detailsPreview = details.length > 50 ? details.slice(0, 50) + '...' : details;
   return (
 
-    // <Button 
-    //       variant={filter === 'all' ? 'default' : 'outline'}
-    //       onClick={() => setFilter('all')}
-    //     >
-    //       All
-    //     </Button> 
-    //     <Button 
-    //       variant={filter === 'urgent' ? 'default' : 'outline'}
-    //       onClick={() => setFilter('urgent')}
-    //     >
-    //       Urgent
-    //     </Button>
-    //     <Button 
-    //       variant={filter === 'normal' ? 'default' : 'outline'}
-    //       onClick={() => setFilter('normal')}
-    //     >
-    //       Normal
-    //     </Button>
     <Link href={`/service-request/${id}`}>
       <Card key={id} className="rounded-md">
         <CardContent className="flex justify-between items-center p-4">
@@ -46,14 +28,6 @@ export default function ServiceRequestPreviewShe({ id, requesterName, title, det
             <p className="text-sm text-muted-foreground">{detailsPreview}</p>
           </div>
         </CardContent>
-        {/* <div className="m-3 flex justify-start space-x-4">
-          <button className="px-3 py-3 bg-gray-500 text-white text-xs rounded-md">
-            Reject Request
-          </button>
-          <button className="px-3 py-3 bg-gray-500 text-white text-xs rounded-md">
-            Approve Request
-          </button>
-        </div> */}
       </Card>
     </Link>
   );

@@ -1,6 +1,6 @@
 // getServiceRequestById.test.ts
 import { prisma } from "@/lib/prisma"; // Mocked import
-import getServiceRequestById from "../../src/utils/service-request/getServiceRequestById";
+import getServiceRequestById from "../../src/domains/service-request/services/getServiceRequestById";
 
 // Mock prisma methods
 jest.mock("@/lib/prisma", () => ({
@@ -66,7 +66,9 @@ describe("getServiceRequestById", () => {
       status: [],
     };
 
-    prisma.serviceRequest.findUnique.mockResolvedValue(serviceRequestWithoutStatus);
+    prisma.serviceRequest.findUnique.mockResolvedValue(
+      serviceRequestWithoutStatus
+    );
 
     const result = await getServiceRequestById("req-2");
 

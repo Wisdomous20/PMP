@@ -2,7 +2,7 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import RejectServiceRequest from "./RejectServiceRequest";
 import ApproveServiceRequest from "./ApproveServiceRequest";
-import useGetUserRole from "@/hooks/useGetUserRole";
+import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 interface ServiceRequestDetailsProps {
   requestorName: string;
@@ -51,10 +51,6 @@ export default function ServiceRequestDetails({
             <span id="requestor-name" data-testid="requestor-name">
               {requestorName}
             </span>
-            <span id="requestor-email">
-              {/* &lt;{requestorName.toLowerCase().replace(" ", ".")}
-              @example.com&gt; */}
-            </span>
           </div>
           <time id="created-on" dateTime={createdOn}>
             {formattedDate}
@@ -67,25 +63,6 @@ export default function ServiceRequestDetails({
           <p>{details}</p>
         </div>
       </CardContent>
-      {/* <Separator className="my-4" />
-      <div className="px-6 pb-4 flex justify-between">
-        <Button variant="outline" size="sm">
-          <ArrowLeftIcon
-            id="previous-button"
-            data-testid="arrow-left-icon"
-            className="h-4 w-4 mr-2"
-          />
-          Previous
-        </Button>
-        <Button variant="outline" size="sm">
-          Next
-          <ArrowRightIcon
-            id="next-button"
-            data-testid="arrow-right-icon"
-            className="h-4 w-4 ml-2"
-          />
-        </Button>
-      </div> */}
     </Card>
   );
 }

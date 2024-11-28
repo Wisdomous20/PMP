@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CheckIcon } from "lucide-react";
-import fetchGetSupervisors from "@/utils/supervisor/fetchGetSupervisors"; 
+import fetchGetSupervisors from "@/domains/user-management/services/fetchGetSupervisors";
 
 export default function ApproveServiceRequest() {
   const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
@@ -43,7 +43,7 @@ export default function ApproveServiceRequest() {
             Are you sure you want to approve this service request?
           </DialogDescription>
         </DialogHeader>
-        
+
         <Select value={selectedSupervisor} onValueChange={setSelectedSupervisor}>
           <SelectTrigger>
             <SelectValue placeholder="Select a Supervisor" />
