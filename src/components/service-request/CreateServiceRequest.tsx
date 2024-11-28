@@ -12,7 +12,7 @@ import { useSession } from "next-auth/react";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function CreateServiceRequest() {
-  const [title, setTitle] = useState("");
+  const [concern, setConcern] = useState("");
   const [details, setDetails] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function CreateServiceRequest() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (title.trim() === "" || details.trim() === "") {
+    if (concern.trim() === "" || details.trim() === "") {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -39,14 +39,14 @@ export default function CreateServiceRequest() {
         throw new Error("User not logged in");
       }
 
-      await fetchCreateServiceRequest(userId, title, details);
+      await fetchCreateServiceRequest(userId, concern, details);
 
       toast({
         title: "Success",
         description: "Your service request has been sent!",
       });
 
-      setTitle("");
+      setConcern("");
       setDetails("");
       router.push("/");
     } catch (error) {
@@ -80,12 +80,12 @@ export default function CreateServiceRequest() {
       <form onSubmit={handleSubmit} className="p-6 space-y-6 flex flex-col">
         <div className="space-y-2 flex-shrink-0">
           <label htmlFor="title" className="text-sm font-medium text-gray-700">
-            Title of Service Request
+            Concern/Work to be done
           </label>
           <Input
             id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={concern}
+            onChange={(e) => setConcern(e.target.value)}
             placeholder="Enter the title of your service request"
             className="w-full"
           />

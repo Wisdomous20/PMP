@@ -33,7 +33,7 @@ export default function Page({ params }: PageProps) {
       <div className="flex flex-col w-full">
         <ServiceRequestDetails
           requestorName={serviceRequestDetails.requesterName}
-          title={serviceRequestDetails.title}
+          concern={serviceRequestDetails.concern}
           details={serviceRequestDetails.details}
           createdOn={serviceRequestDetails.createdOn}
         />
