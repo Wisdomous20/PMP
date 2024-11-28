@@ -6,14 +6,14 @@ import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 interface ServiceRequestDetailsProps {
   requestorName: string;
-  title: string;
+  concern: string;
   details: string;
   createdOn: string;
 }
 
 export default function ServiceRequestDetails({
   requestorName,
-  title,
+  concern,
   details,
   createdOn,
 }: ServiceRequestDetailsProps) {
@@ -31,13 +31,8 @@ export default function ServiceRequestDetails({
     <Card className="w-full h-screen flex flex-col">
       <CardHeader className="pb-4">
         <div className="flex justify-between items-center mb-4">
-          {/* <Link href={"/service-request"}>
-            <Button variant="ghost" size="icon">
-              <ArrowLeftIcon id="back-button" className="h-4 w-4" />
-            </Button>
-          </Link> */}
           <h1 id="title-of-request" className="text-2xl font-semibold">
-            {title}
+            {concern}
           </h1>
           {userRole === "ADMIN" &&
             <div className="flex space-x-2">

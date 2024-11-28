@@ -10,7 +10,8 @@ async function getSupervisors() : Promise<Supervisor[]> {
       },
       select: {
         id: true,
-        name: true,
+        firstName: true,
+        lastName: true,
         department: true,
       },
     })

@@ -1,5 +1,6 @@
 type Supervisor = {
   id: string;
-  name: string;
+  firstName: string;
+  lastName: string;
   department: string | null;
 }
