@@ -9,12 +9,15 @@ datasource db {
 
 model User {
   id              String           @id @default(uuid()) @map("_id")
-  name            String
+  firstName       String
+  lastName        String
   email           String           @unique
   password        String?
+  localNumber     String?
+  cellphoneNumber String
   user_type       user_type
   serviceRequests ServiceRequest[]
-  department      String?
+  department      String
   accounts        Account[]
   sessions        Session[]
 }
@@ -55,7 +58,7 @@ model Account {
 model ServiceRequest {
   id                   String                 @id @default(uuid()) @map("_id")
   userId               String
-  title                String
+  concern              String
   details              String
   implementationPlan   ImplementationPlan?
   user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
