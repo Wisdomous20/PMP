@@ -64,7 +64,7 @@ export default function CreateServiceRequest() {
   return (
     <div className="w-full max-w-2xl bg-white rounded-lg border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
       <div className="p-5 bg-primary text-primary-foreground flex items-center">
-        <Button
+        {/* <Button
           id="create-service-request-back-button"
           variant="ghost"
           size="icon"
@@ -72,7 +72,7 @@ export default function CreateServiceRequest() {
           onClick={() => router.push("/service-request")}
         >
           <ArrowLeft className="h-6 w-6" />
-        </Button>
+        </Button> */}
         <h1 id="create-service-request-title" className="text-xl font-semibold">
           Create Service Request
         </h1>

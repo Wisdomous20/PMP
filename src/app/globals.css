@@ -19,6 +19,24 @@ body {
   }
 }
 
+.subtle-scrollbar {
+  scrollbar-width: thin; /* For Firefox */
+  scrollbar-color: rgba(255, 255, 255, 0.5) transparent; /* Thumb and track colors */
+}
+
+/* WebKit Browsers (Chrome, Edge, Safari) */
+.subtle-scrollbar::-webkit-scrollbar {
+  width: 8px; /* Thickness */
+}
+
+.subtle-scrollbar::-webkit-scrollbar-thumb {
+  background-color: rgba(255, 255, 255, 0.5); /* Thumb color */
+  border-radius: 4px; /* Rounded corners */
+}
+
+.subtle-scrollbar::-webkit-scrollbar-track {
+  background: transparent; /* Track color */
+}
 
 @layer base {
   :root {
