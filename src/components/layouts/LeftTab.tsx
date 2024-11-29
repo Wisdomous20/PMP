@@ -3,6 +3,7 @@
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Archive, LogOut } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
 import Link from "next/link";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
@@ -15,7 +16,7 @@ export default function LeftTab() {
   };
 
   if (loading) {
-    return <div>Loading</div>;
+    return <Skeleton className="w-13"/>
   }
 
   return (

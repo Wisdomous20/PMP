@@ -3,6 +3,7 @@ import LeftTab from "@/components/layouts/LeftTab";
 import ServiceRequestList from "@/components/service-request/ServiceRequestList";
 import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
 import useGetServiceRequestDetails from "@/domains/service-request/hooks/useGetServiceRequestDetails";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface PageProps {
   params: {
@@ -15,7 +16,7 @@ export default function Page({ params }: PageProps) {
   const { serviceRequestDetails, error, loading } = useGetServiceRequestDetails(id);
 
   if (loading) {
-    return <div>Loading...</div>;
+    return <Skeleton className="w-screen h-screen"/>;
   }
 
   if (error) {
