@@ -1,5 +1,5 @@
 // getServiceRequestFetch.test.ts
-import getServiceRequestFetch from "../../src/utils/service-request/getServiceRequestFetch"; // Replace with the actual path
+import getServiceRequestFetch from "../../src/domains/service-request/services/fetchGetServiceRequest"; // Replace with the actual path
 
 global.fetch = jest.fn(); // Mock the fetch API
 
@@ -32,12 +32,15 @@ describe("getServiceRequestFetch", () => {
 
     const result = await getServiceRequestFetch("user-1");
 
-    expect(global.fetch).toHaveBeenCalledWith("/api/service-request?userId=user-1", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    expect(global.fetch).toHaveBeenCalledWith(
+      "/api/service-request?userId=user-1",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     expect(result).toEqual(mockServiceRequests);
   });
@@ -50,18 +53,23 @@ describe("getServiceRequestFetch", () => {
       json: jest.fn().mockResolvedValueOnce({ error: "Internal Server Error" }),
     });
 
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
     await expect(getServiceRequestFetch("user-2")).rejects.toThrow(
       "Error 500: Internal Server Error"
     );
 
-    expect(global.fetch).toHaveBeenCalledWith("/api/service-request?userId=user-2", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    expect(global.fetch).toHaveBeenCalledWith(
+      "/api/service-request?userId=user-2",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     expect(consoleSpy).toHaveBeenCalledWith(
       "Failed to fetch service requests:",
@@ -75,16 +83,23 @@ describe("getServiceRequestFetch", () => {
     // Mock a network error (fetch throws an error)
     global.fetch.mockRejectedValueOnce(new Error("Network Error"));
 
-    const consoleSpy = jest.spyOn(console, "error").mockImplementation(() => {});
+    const consoleSpy = jest
+      .spyOn(console, "error")
+      .mockImplementation(() => {});
 
-    await expect(getServiceRequestFetch("user-3")).rejects.toThrow("Network Error");
+    await expect(getServiceRequestFetch("user-3")).rejects.toThrow(
+      "Network Error"
+    );
 
-    expect(global.fetch).toHaveBeenCalledWith("/api/service-request?userId=user-3", {
-      method: "GET",
-      headers: {
-        "Content-Type": "application/json",
-      },
-    });
+    expect(global.fetch).toHaveBeenCalledWith(
+      "/api/service-request?userId=user-3",
+      {
+        method: "GET",
+        headers: {
+          "Content-Type": "application/json",
+        },
+      }
+    );
 
     expect(consoleSpy).toHaveBeenCalledWith(
       "Failed to fetch service requests:",

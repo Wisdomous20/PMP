@@ -1,18 +1,18 @@
 "use client";
 
 import { useState } from "react";
-import { ArrowLeft, Send } from "lucide-react";
+import { Send } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import createServiceRequestFetch from "@/utils/service-request/createServiceRequestFetch";
+import fetchCreateServiceRequest from "@/domains/service-request/services/fetchCreateServiceRequest";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@/components/ui/spinner";
 
 export default function CreateServiceRequest() {
-  const [title, setTitle] = useState("");
+  const [concern, setConcern] = useState("");
   const [details, setDetails] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
@@ -21,7 +21,7 @@ export default function CreateServiceRequest() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (title.trim() === "" || details.trim() === "") {
+    if (concern.trim() === "" || details.trim() === "") {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -39,14 +39,14 @@ export default function CreateServiceRequest() {
         throw new Error("User not logged in");
       }
 
-      await createServiceRequestFetch(userId, title, details);
+      await fetchCreateServiceRequest(userId, concern, details);
 
       toast({
         title: "Success",
         description: "Your service request has been sent!",
       });
 
-      setTitle("");
+      setConcern("");
       setDetails("");
       router.push("/");
     } catch (error) {
@@ -64,7 +64,7 @@ export default function CreateServiceRequest() {
   return (
     <div className="w-full max-w-2xl bg-white rounded-lg border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
       <div className="p-5 bg-primary text-primary-foreground flex items-center">
-        <Button
+        {/* <Button
           id="create-service-request-back-button"
           variant="ghost"
           size="icon"
@@ -72,7 +72,7 @@ export default function CreateServiceRequest() {
           onClick={() => router.push("/service-request")}
         >
           <ArrowLeft className="h-6 w-6" />
-        </Button>
+        </Button> */}
         <h1 id="create-service-request-title" className="text-xl font-semibold">
           Create Service Request
         </h1>
@@ -80,12 +80,12 @@ export default function CreateServiceRequest() {
       <form onSubmit={handleSubmit} className="p-6 space-y-6 flex flex-col">
         <div className="space-y-2 flex-shrink-0">
           <label htmlFor="title" className="text-sm font-medium text-gray-700">
-            Title of Service Request
+            Concern/Work to be done
           </label>
           <Input
             id="title"
-            value={title}
-            onChange={(e) => setTitle(e.target.value)}
+            value={concern}
+            onChange={(e) => setConcern(e.target.value)}
             placeholder="Enter the title of your service request"
             className="w-full"
           />

@@ -36,7 +36,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     }
 
     return NextResponse.json(
-      { message: "Login successful", user: { id: user.id, name: user.name, email: user.email } },
+      { message: "Login successful", user: { id: user.id, firstName: user.firstName, lastName: user.lastName, email: user.email } },
       { status: 200 }
     );
   } catch (err) {

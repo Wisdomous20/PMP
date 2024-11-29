@@ -1,9 +1,10 @@
 type ServiceRequest = {
   id: string
   requesterName: string;
-  title: string;
+  concern: string;
   details: string;
-  createdOn: string;
+  createdOn: Date | null;
+  status: Status[]
 }
 
 type GetServiceRequestInputs = {
@@ -12,8 +13,9 @@ type GetServiceRequestInputs = {
   department?: string;
 }
 
-type Supervisor = {
-  id: string;
-  name: string;
-  department: string | null;
+type Status = {
+  id: string
+  status: "pending" | "approved" | "rejected" | "in_progress";
+  timestamp: Date;
+  note: string | null
 }

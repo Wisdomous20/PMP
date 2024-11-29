@@ -1,4 +1,4 @@
-export default async function createServiceRequestFetch(userId : string, title : string, details : string) {
+export default async function fetchCreateServiceRequest(userId : string, concern : string, details : string) {
   const endpoint = "/api/service-request";
 
   try {
@@ -7,7 +7,7 @@ export default async function createServiceRequestFetch(userId : string, title :
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ userId, title, details }),
+      body: JSON.stringify({ userId, concern, details }),
     });
 
     if (!response.ok) {

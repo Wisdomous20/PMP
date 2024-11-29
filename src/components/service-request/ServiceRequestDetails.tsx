@@ -2,23 +2,23 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import RejectServiceRequest from "./RejectServiceRequest";
 import ApproveServiceRequest from "./ApproveServiceRequest";
-import useGetUserRole from "@/hooks/useGetUserRole";
+import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 interface ServiceRequestDetailsProps {
   requestorName: string;
-  title: string;
+  concern: string;
   details: string;
-  createdOn: string;
+  createdOn: Date;
 }
 
 export default function ServiceRequestDetails({
   requestorName,
-  title,
+  concern,
   details,
   createdOn,
 }: ServiceRequestDetailsProps) {
   const { userRole } = useGetUserRole();
-  const formattedDate = new Date(createdOn).toLocaleString("en-US", {
+  const formattedDate = createdOn.toLocaleString("en-US", {
     weekday: "short",
     year: "numeric",
     month: "short",
@@ -31,13 +31,8 @@ export default function ServiceRequestDetails({
     <Card className="w-full h-screen flex flex-col">
       <CardHeader className="pb-4">
         <div className="flex justify-between items-center mb-4">
-          {/* <Link href={"/service-request"}>
-            <Button variant="ghost" size="icon">
-              <ArrowLeftIcon id="back-button" className="h-4 w-4" />
-            </Button>
-          </Link> */}
           <h1 id="title-of-request" className="text-2xl font-semibold">
-            {title}
+            {concern}
           </h1>
           {userRole === "ADMIN" &&
             <div className="flex space-x-2">
@@ -51,12 +46,8 @@ export default function ServiceRequestDetails({
             <span id="requestor-name" data-testid="requestor-name">
               {requestorName}
             </span>
-            <span id="requestor-email">
-              {/* &lt;{requestorName.toLowerCase().replace(" ", ".")}
-              @example.com&gt; */}
-            </span>
           </div>
-          <time id="created-on" dateTime={createdOn}>
+          <time id="created-on" dateTime={formattedDate}>
             {formattedDate}
           </time>
         </div>
@@ -67,25 +58,6 @@ export default function ServiceRequestDetails({
           <p>{details}</p>
         </div>
       </CardContent>
-      {/* <Separator className="my-4" />
-      <div className="px-6 pb-4 flex justify-between">
-        <Button variant="outline" size="sm">
-          <ArrowLeftIcon
-            id="previous-button"
-            data-testid="arrow-left-icon"
-            className="h-4 w-4 mr-2"
-          />
-          Previous
-        </Button>
-        <Button variant="outline" size="sm">
-          Next
-          <ArrowRightIcon
-            id="next-button"
-            data-testid="arrow-right-icon"
-            className="h-4 w-4 ml-2"
-          />
-        </Button>
-      </div> */}
     </Card>
   );
 }

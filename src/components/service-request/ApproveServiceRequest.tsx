@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CheckIcon } from "lucide-react";
-import fetchGetSupervisors from "@/utils/supervisor/fetchGetSupervisors"; 
+import fetchGetSupervisors from "@/domains/user-management/services/fetchGetSupervisors";
 
 export default function ApproveServiceRequest() {
   const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
@@ -25,7 +25,7 @@ export default function ApproveServiceRequest() {
   const handleApprove = () => {
     console.log("Request approved for supervisor:", selectedSupervisor);
     setIsApproveDialogOpen(false);
-    setSelectedSupervisor(""); // Reset selection after approval
+    setSelectedSupervisor("");
   };
 
   return (
@@ -43,8 +43,7 @@ export default function ApproveServiceRequest() {
             Are you sure you want to approve this service request?
           </DialogDescription>
         </DialogHeader>
-        
-        {/* Dropdown for supervisor selection */}
+
         <Select value={selectedSupervisor} onValueChange={setSelectedSupervisor}>
           <SelectTrigger>
             <SelectValue placeholder="Select a Supervisor" />
@@ -52,7 +51,7 @@ export default function ApproveServiceRequest() {
           <SelectContent>
             {supervisors.map((supervisor) => (
               <SelectItem key={supervisor.id} value={supervisor.id}>
-                {supervisor.name}
+                {supervisor.firstName} {supervisor.lastName}
               </SelectItem>
             ))}
           </SelectContent>

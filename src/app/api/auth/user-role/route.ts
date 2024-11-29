@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import getUserRole from "@/utils/authorization/getUserRole";
+import getUserRole from "@/domains/user-management/services/getUserRole";
 
 export async function POST(req: NextRequest) {
   const { userId } = await req.json();
@@ -9,11 +9,14 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const userRole = await getUserRole(userId)
+    const userRole = await getUserRole(userId);
 
     return NextResponse.json({ userRole }, { status: 200 });
   } catch (error) {
     console.error(`Error getting user role:`, error);
-    return NextResponse.json({ error: `Failed to get user role` }, { status: 500 });
+    return NextResponse.json(
+      { error: `Failed to get user role` },
+      { status: 500 }
+    );
   }
 }

@@ -1,6 +1,6 @@
 import { format } from "date-fns";
 
-export default function formatTimestamp(timestamp: string) {
+export default function formatTimestamp(timestamp: Date) {
   const date = new Date(timestamp);
   const today = new Date();
 
