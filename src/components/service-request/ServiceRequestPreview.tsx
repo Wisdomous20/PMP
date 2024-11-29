@@ -7,7 +7,7 @@ interface ServiceRequestPreviewProps {
   requesterName: string;
   concern: string;
   details: string;
-  createdOn: string;
+  createdOn: Date | null;
 }
 
 export default function ServiceRequestPreview({ id, requesterName, concern, details, createdOn }: ServiceRequestPreviewProps) {
@@ -20,7 +20,9 @@ export default function ServiceRequestPreview({ id, requesterName, concern, deta
           <div className="w-full">
             <div className="flex flex-row justify-between items-center">
               <h2 className="pb-1 font-semibold">{requesterName}</h2>
-              <span className="text-sm text-gray-500">{formatTimestamp(createdOn)}</span>
+              {createdOn &&
+                <span className="text-sm text-gray-500">{formatTimestamp(createdOn)}</span>
+              }
             </div>
 
             <p className="text-sm text-gray-semibold">{concern}</p>
