@@ -15,18 +15,22 @@ export default function ServiceRequestPreview({ id, requesterName, concern, deta
   return (
 
     <Link href={`/service-request/${id}`}>
-      <Card key={id} className="rounded-md">
+      <Card key={id} className="rounded-md transition duration-200 ease-in-out hover:bg-gray-200 dark:hover:bg-gray-700 ">
         <CardContent className="flex justify-between items-center p-4">
           <div className="w-full">
             <div className="flex flex-row justify-between items-center">
+<<<<<<< HEAD
               <h2 className="pb-1 font-semibold">{requesterName}</h2>
               {createdOn &&
                 <span className="text-sm text-gray-500">{formatTimestamp(createdOn)}</span>
               }
+=======
+              <h2 className="pb-1 font-semibold text-indigo-text">{requesterName}</h2>
+              <span className="hidden sm:block text-sm text-gray-text">{formatTimestamp(createdOn)}</span>
+>>>>>>> 7b237d6 ([Thel][Stlye] Improved UI/UX)
             </div>
-
-            <p className="text-sm text-gray-semibold">{concern}</p>
-            <p className="text-sm text-muted-foreground">{detailsPreview}</p>
+            <p className="text-sm  text-gray-text3">{concern}</p>
+            <p className="text-sm text-gray-text2">{detailsPreview}</p>
           </div>
         </CardContent>
       </Card>

@@ -4,8 +4,12 @@ import ServiceRequestList from "@/components/service-request/ServiceRequestList"
 import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
 import ServiceRequestStatus from "@/components/service-request/ServiceRequestStatus";
 import useGetServiceRequestDetails from "@/domains/service-request/hooks/useGetServiceRequestDetails";
+<<<<<<< HEAD
 import { Skeleton } from "@/components/ui/skeleton";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+=======
+import LoadingSpinner from "@/components/ui/loadingDots"
+>>>>>>> 7b237d6 ([Thel][Stlye] Improved UI/UX)
 
 interface PageProps {
   params: {
@@ -18,8 +22,13 @@ export default function Page({ params }: PageProps) {
   const { serviceRequestDetails, error, loading } = useGetServiceRequestDetails(id);
   const { userRole, loading: loadingUserRole } = useGetUserRole();
 
+<<<<<<< HEAD
   if (loading || loadingUserRole) {
     return <Skeleton className="w-screen h-screen"/>;
+=======
+  if (loading) {
+    return <LoadingSpinner />;
+>>>>>>> 7b237d6 ([Thel][Stlye] Improved UI/UX)
   }
 
   if (error) {
