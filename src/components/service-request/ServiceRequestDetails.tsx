@@ -8,7 +8,7 @@ interface ServiceRequestDetailsProps {
   requestorName: string;
   concern: string;
   details: string;
-  createdOn: string;
+  createdOn: Date;
 }
 
 export default function ServiceRequestDetails({
@@ -18,7 +18,7 @@ export default function ServiceRequestDetails({
   createdOn,
 }: ServiceRequestDetailsProps) {
   const { userRole } = useGetUserRole();
-  const formattedDate = new Date(createdOn).toLocaleString("en-US", {
+  const formattedDate = createdOn.toLocaleString("en-US", {
     weekday: "short",
     year: "numeric",
     month: "short",
@@ -47,7 +47,7 @@ export default function ServiceRequestDetails({
               {requestorName}
             </span>
           </div>
-          <time id="created-on" dateTime={createdOn}>
+          <time id="created-on" dateTime={formattedDate}>
             {formattedDate}
           </time>
         </div>

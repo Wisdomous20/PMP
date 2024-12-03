@@ -3,6 +3,7 @@ import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Archive, LogOut } from "lucide-react";
+import { Skeleton } from "../ui/skeleton";
 import Link from "next/link";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import LoadingSpinner from "@/components/ui/loadingDots"
@@ -27,7 +28,7 @@ export default function LeftTab() {
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return <Skeleton className="w-13"/>
   }
 
   return (

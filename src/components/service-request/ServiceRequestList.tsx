@@ -16,7 +16,10 @@ export default function ServiceRequestList() {
   };
 
   const sortedRequests = [...serviceRequests].sort((a, b) => {
-    return new Date(a.createdOn).getTime() - new Date(b.createdOn).getTime();
+    if (a.createdOn && b.createdOn) {
+      return a.createdOn.getTime() - b.createdOn.getTime();
+    }
+    return 0
   });
 
 
