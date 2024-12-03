@@ -1,25 +1,37 @@
 "use client";
-
+import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Archive, LogOut } from "lucide-react";
 import Link from "next/link";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+import LoadingSpinner from "@/components/ui/loadingDots"
 
 export default function LeftTab() {
-  const { userRole, loading } = useGetUserRole();
+  const { userRole, loading:roleLoading } = useGetUserRole();
+  const [loading, setLoading] = useState(true);
   console.log(userRole);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      // Simulate a delay for loading
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
   };
 
   if (loading) {
-    return <div>Loading</div>;
+    return <LoadingSpinner />;
   }
 
   return (
-    <div className="w-13 border-r bg-indigo-800 flex flex-col items-center py-4 space-y-3">
+    <div className="w-13 border-r bg-indigo-Background flex flex-col items-center py-4 space-y-3">
       <Button variant="gold" size="icon" className="w-11 h-12">
         <img
           src="/images/cpu-logo.png"

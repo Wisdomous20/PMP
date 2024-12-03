@@ -31,7 +31,7 @@ export default function ServiceRequestDetails({
     <Card className="w-full h-screen flex flex-col">
       <CardHeader className="pb-4">
         <div className="flex justify-between items-center mb-4">
-          <h1 id="title-of-request" className="text-2xl font-semibold">
+          <h1 id="title-of-request" className="text-2xl font-semibold text-indigo-text">
             {concern}
           </h1>
           {userRole === "ADMIN" &&
