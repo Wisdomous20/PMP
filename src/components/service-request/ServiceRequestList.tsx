@@ -1,6 +1,7 @@
 "use client"
 import useGetServiceRequestList from "@/domains/service-request/hooks/useGetServiceRequestList";
 import ServiceRequestPreview from "./ServiceRequestPreview";
+import Empty from "../ui/empty";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -16,20 +17,17 @@ export default function ServiceRequestList() {
   };
 
   const sortedRequests = [...serviceRequests].sort((a, b) => {
+<<<<<<< HEAD
     return new Date(a.createdOn).getTime() - new Date(b.createdOn).getTime();
+=======
+    const dateA = a.createdOn ? new Date(a.createdOn) : null;
+    const dateB = b.createdOn ? new Date(b.createdOn) : null;
+    if (dateA === null && dateB === null) return 0; 
+    if (dateA === null) return 1; 
+    if (dateB === null) return -1; 
+    return dateB.getTime() - dateA.getTime(); 
+>>>>>>> 12d169e ([Thel][Fix] Fixed Order of sr list)
   });
-
-
-  const highlightText = (text: string, searchTerm: string) => {
-    if (!searchTerm) return text; 
-
-    const regex = new RegExp(`(${searchTerm})`, 'gi'); 
-    const parts = text.split(regex); 
-    return parts.map((part, index) => 
-      part.toLowerCase() === searchTerm.toLowerCase() ? 
-        <span key={index} className="bg-yellow-300">{part}</span> : part
-    );
-  };
 
   const filteredRequests = sortedRequests.filter(request => 
     request.concern.toLowerCase().includes(search.toLowerCase()) || 
@@ -59,7 +57,7 @@ export default function ServiceRequestList() {
           <ServiceRequestPreview key={index} {...request} />
         ))
       ) : (
-        <div className="text-gray-500">No service requests found.</div>
+       <Empty/>
       )}
       {isSearchOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">

@@ -28,11 +28,7 @@ export default function LeftTab() {
   };
 
   if (loading) {
-<<<<<<< HEAD
-    return <Skeleton className="w-13"/>
-=======
     return <LoadingSpinner />;
->>>>>>> 7b237d6 ([Thel][Stlye] Improved UI/UX)
   }
 
   return (

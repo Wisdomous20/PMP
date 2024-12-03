@@ -9,7 +9,11 @@ import { Skeleton } from "@/components/ui/skeleton";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 =======
 import LoadingSpinner from "@/components/ui/loadingDots"
+<<<<<<< HEAD
 >>>>>>> 7b237d6 ([Thel][Stlye] Improved UI/UX)
+=======
+import Empty from "@/components/ui/empty";
+>>>>>>> 12d169e ([Thel][Fix] Fixed Order of sr list)
 
 interface PageProps {
   params: {
@@ -36,7 +40,7 @@ export default function Page({ params }: PageProps) {
   }
 
   if (!serviceRequestDetails) {
-    return <div>No service request details found.</div>;
+    return <Empty/>;
   }
 
   return (
