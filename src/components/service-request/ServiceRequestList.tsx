@@ -15,16 +15,26 @@ export default function ServiceRequestList() {
     setIsSearchOpen(!isSearchOpen);
   };
 
-  const highlightText = (text: string, searchTerm: string) => {
-    if (!searchTerm) return text; // Return original text if no search term
+  const sortedRequests = [...serviceRequests].sort((a, b) => {
+    return new Date(a.createdOn).getTime() - new Date(b.createdOn).getTime();
+  });
 
-    const regex = new RegExp(`(${searchTerm})`, 'gi'); // Create a case-insensitive regex
-    const parts = text.split(regex); // Split text by search term
+
+  const highlightText = (text: string, searchTerm: string) => {
+    if (!searchTerm) return text; 
+
+    const regex = new RegExp(`(${searchTerm})`, 'gi'); 
+    const parts = text.split(regex); 
     return parts.map((part, index) => 
       part.toLowerCase() === searchTerm.toLowerCase() ? 
-        <span key={index} className="bg-yellow-300">{part}</span> : part // Highlight matching part
+        <span key={index} className="bg-yellow-300">{part}</span> : part
     );
   };
+
+  const filteredRequests = sortedRequests.filter(request => 
+    request.concern.toLowerCase().includes(search.toLowerCase()) || 
+    request.requesterName.toLowerCase().includes(search.toLowerCase())
+  );
   return (
     <div className="w-3/6 h-full flex flex-col overflow-y-auto scrollbar-hide overflow-x-hidden space-y-2 p-2 relative">
       <div className="items-center px-3">
@@ -44,9 +54,13 @@ export default function ServiceRequestList() {
           <Search className="h-6 w-6 text-gray-500" />
         </button>
       </div>
-      {serviceRequests.map((request, index) => (
-        <ServiceRequestPreview key={index} {...request} />
-      ))}
+      {filteredRequests.length > 0 ? (
+        filteredRequests.map((request, index) => (
+          <ServiceRequestPreview key={index} {...request} />
+        ))
+      ) : (
+        <div className="text-gray-500">No service requests found.</div>
+      )}
       {isSearchOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg p-6 shadow-lg w-11/12 sm:w-2/3">
