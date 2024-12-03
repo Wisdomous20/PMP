@@ -7,6 +7,7 @@ import useGetServiceRequestDetails from "@/domains/service-request/hooks/useGetS
 import { Skeleton } from "@/components/ui/skeleton";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import LoadingSpinner from "@/components/ui/loadingDots"
+import Empty from "@/components/ui/empty";
 
 interface PageProps {
   params: {
@@ -28,7 +29,7 @@ export default function Page({ params }: PageProps) {
   }
 
   if (!serviceRequestDetails) {
-    return <div>No service request details found.</div>;
+    return <Empty/>;
   }
 
   return (
