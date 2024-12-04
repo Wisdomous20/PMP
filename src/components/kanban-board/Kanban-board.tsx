@@ -88,7 +88,7 @@ export default function ServiceRequestKanban() {
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 10, // Allows slight movement before drag starts
+        distance: 10,
       },
     }),
     useSensor(KeyboardSensor, {
@@ -172,7 +172,7 @@ export default function ServiceRequestKanban() {
       );
     } catch (error) {
       console.error("Failed to update status:", error);
-      // Revert the columns state if the PATCH fails
+
       setColumns((prev) =>
         prev.map((col) => {
           if (col.id === targetColumn.id) {
@@ -201,7 +201,7 @@ export default function ServiceRequestKanban() {
       <h1 className="text-2xl font-bold mb-4">Service Requests</h1>
       <DndContext
         sensors={sensors}
-        collisionDetection={closestCenter} // Changed from closestCorners
+        collisionDetection={closestCenter}
         onDragStart={handleDragStart}
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
@@ -209,7 +209,6 @@ export default function ServiceRequestKanban() {
         <SortableContext items={serviceRequests.map((req) => req.id)}>
           <div className="flex space-x-6 overflow-x-auto p-4">
             {" "}
-            {/* Added more spacing */}
             {columns.map((column) => (
               <Column
                 key={column.id}

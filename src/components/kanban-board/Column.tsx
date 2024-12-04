@@ -48,7 +48,6 @@ export default function Column({ column, tasks }: ColumnProps) {
         >
           {tasks.length > 0 ? (
             <div className="space-y-3 min-h-full">
-              {/* Drop indicator when hovering at the top */}
               {isOver && (
                 <div className="h-2 bg-blue-200 rounded mb-2 transition-all" />
               )}
