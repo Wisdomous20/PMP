@@ -14,7 +14,7 @@ export default function AdditionalDetails() {
         <Label htmlFor="budget">Equipment / Budget</Label>
         <Textarea id="budget" className="min-h-[100px]" />
       </div>
-      <button className="w-full bg-green-500 hover:bg-green-600 py-2 text-white rounded-md">
+      <button className="w-full bg-indigo-600 hover:bg-indigo-600 py-2 text-white rounded-md">
         Confirm
       </button>
     </>

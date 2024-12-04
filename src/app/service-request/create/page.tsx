@@ -2,7 +2,7 @@ import CreateServiceRequest from "@/components/service-request/CreateServiceRequ
 import LeftTab from "@/components/layouts/LeftTab";
 export default function Page() {
   return (
-    <div className="w-screen h-screen flex p-12">
+    <div className="w-screen h-screen flex">
       <LeftTab />
       <CreateServiceRequest />
     </div>

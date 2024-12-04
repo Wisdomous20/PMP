@@ -17,16 +17,12 @@ export default function ServiceRequestList() {
   };
 
   const sortedRequests = [...serviceRequests].sort((a, b) => {
-<<<<<<< HEAD
-    return new Date(a.createdOn).getTime() - new Date(b.createdOn).getTime();
-=======
     const dateA = a.createdOn ? new Date(a.createdOn) : null;
     const dateB = b.createdOn ? new Date(b.createdOn) : null;
     if (dateA === null && dateB === null) return 0; 
     if (dateA === null) return 1; 
     if (dateB === null) return -1; 
     return dateB.getTime() - dateA.getTime(); 
->>>>>>> 12d169e ([Thel][Fix] Fixed Order of sr list)
   });
 
   const filteredRequests = sortedRequests.filter(request => 

@@ -23,6 +23,8 @@ export default function LeftTab() {
     fetchData();
   }, []);
 
+console.log(userRole)
+
   const handleLogout = async () => {
     await signOut({ redirect: false });
   };
@@ -42,7 +44,7 @@ export default function LeftTab() {
         <span className="sr-only">CPU Logo</span>
       </Button>
       {userRole === "USER" && (
-        <Link href="/">
+        <Link href="/service-request/create">
           <Button variant="gold" size="icon" className="w-11 h-12">
             <Plus className="w-7 h-7" />
             <span className="sr-only">Create Service Request</span>
