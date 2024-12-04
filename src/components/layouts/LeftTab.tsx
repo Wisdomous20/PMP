@@ -6,16 +6,14 @@ import { Plus, FileText, Archive, LogOut } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import Link from "next/link";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
-import LoadingSpinner from "@/components/ui/loadingDots"
 
 export default function LeftTab() {
-  const { userRole, loading:roleLoading } = useGetUserRole();
+  const { userRole} = useGetUserRole();
   const [loading, setLoading] = useState(true);
   console.log(userRole);
 
   useEffect(() => {
     const fetchData = async () => {
-      // Simulate a delay for loading
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setLoading(false);
     };
