@@ -34,7 +34,7 @@ export default function ServiceRequestList() {
       <div className="items-center px-3">
         <h1 className="text-md sm:text-2xl font-semibold text-indigo-text py-3"> Service Requests </h1>
       </div>
-      <div className="flex items-center px-3 pb-5">
+      <div className="flex items-center px-3 pb-10">
         <Input
           type="text"
           placeholder="Search by title or requester..."
@@ -53,7 +53,7 @@ export default function ServiceRequestList() {
           <ServiceRequestPreview key={index} {...request} />
         ))
       ) : (
-       <Empty/>
+       <div> <Empty/></div>
       )}
       {isSearchOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
