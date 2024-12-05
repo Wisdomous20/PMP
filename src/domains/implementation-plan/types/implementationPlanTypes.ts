@@ -2,14 +2,14 @@ type ImplementationPlan = {
     id: string;
     description: string;
     status: string;
-    tasks: Tasks[];
-    file: Files[];
-    ServiceRequest: ServiceRequest[];
-
+    files: Files[];
+    serviceRequest: ServiceRequest[];
+    tasks: Task[];
 }
 
-type Tasks = {
+type Task = {
     id: string;
+    implementationPlanId: string;
     name: string;
     deadline: Date;
     checked: boolean;
@@ -17,6 +17,7 @@ type Tasks = {
 
 type Files = {
     id: string;
+    implementationPlanId: string;
     url: string;
 }
 

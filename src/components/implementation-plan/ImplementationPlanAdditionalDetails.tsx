@@ -1,22 +1,37 @@
-'use client'
+'use client';
 
-import { Textarea } from '@/components/ui/textarea'
-import { Label } from '@/components/ui/label'
+import { useState, useEffect } from 'react';
+import { Textarea } from '@/components/ui/textarea';
+import { Label } from '@/components/ui/label';
 
-export default function AdditionalDetails() {
-  return (
-    <>
-      <div>
-        <Label htmlFor="people">People Assigned</Label>
-        <Textarea id="people" className="min-h-[100px]" />
-      </div>
-      <div>
-        <Label htmlFor="budget">Equipment / Budget</Label>
-        <Textarea id="budget" className="min-h-[100px]" />
-      </div>
-      <button className="w-full bg-indigo-600 hover:bg-indigo-600 py-2 text-white rounded-md">
-        Confirm
-      </button>
-    </>
-  )
+interface AdditionalDetailsProps {
+  setAdditionalDetails: React.Dispatch<React.SetStateAction<string>>; // Prop to update additional details in the parent
 }
+
+const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ setAdditionalDetails }) => {
+  const [details, setDetails] = useState<string>(''); // Local state for additional details
+
+  // Update the parent component whenever the local details state changes
+  useEffect(() => {
+    setAdditionalDetails(details);
+  }, [details, setAdditionalDetails]);
+
+  const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
+    setDetails(event.target.value); // Update local state with the textarea value
+  };
+
+  return (
+    <div>
+      <Label htmlFor="additional-details">Additional Details</Label>
+      <Textarea
+        id="additional-details"
+        className="min-h-[100px]"
+        value={details} // Controlled input
+        onChange={handleChange} // Handle input changes
+        placeholder="Enter any additional details here..."
+      />
+    </div>
+  );
+};
+
+export default AdditionalDetails;

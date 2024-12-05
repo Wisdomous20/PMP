@@ -1,47 +1,69 @@
-'use client'
+'use client';
 
-import { useState } from 'react'
-import { Plus } from 'lucide-react'
-import { Button } from '@/components/ui/button'
-import { Input } from '@/components/ui/input'
-import { Label } from '@/components/ui/label'
+import { useState } from 'react';
+import { Dispatch, SetStateAction } from 'react';
+import { Input } from '@/components/ui/input';
+import { Button } from '@/components/ui/button';
 
-interface Task {
-  id: number
-  text: string
+type Task = {
+  id: string;
+  implementationPlanId: string; // This will be set when creating a task
+  name: string;
+  deadline: Date;
+  checked: boolean;
+};
+
+interface TaskListProps {
+  setTasks: Dispatch<SetStateAction<Task[]>>; // Accepts an array of Task
 }
 
-export default function TaskList() {
-  const [tasks, setTasks] = useState<Task[]>([])
+const TaskList: React.FC<TaskListProps> = ({ setTasks }) => {
+  const [localTasks, setLocalTasks] = useState<Task[]>([]); // Local state for tasks
 
   const addTask = () => {
-    setTasks([...tasks, { id: tasks.length + 1, text: '' }])
-  }
+    const newTask: Task = {
+      id: (localTasks.length + 1).toString(), 
+      implementationPlanId: '', 
+      name: '',
+      deadline: new Date(), // Default to now, or you can set it to a specific date
+      checked: false,
+    };
+    setLocalTasks([...localTasks, newTask]);
+    setTasks([...localTasks, newTask]); // Update parent state
+  };
 
-  const updateTask = (id: number, text: string) => {
-    setTasks(tasks.map(task => (task.id === id ? { ...task, text } : task)))
-  }
+  const updateTask = (id: string, name: string, deadline: Date, checked: boolean) => {
+    const updatedTasks = localTasks.map(task => 
+      task.id === id ? { ...task, name, deadline, checked } : task
+    );
+    setLocalTasks(updatedTasks);
+    setTasks(updatedTasks); // Update parent state
+  };
 
   return (
-    <div className="space-y-2">
-      <Label>Tasks</Label>
-      {tasks.map((task) => (
-        <Input
-          key={task.id}
-          value={task.text}
-          onChange={(e) => updateTask(task.id, e.target.value)}
-          placeholder="Enter task"
-        />
+    <div>
+      {localTasks.map(task => (
+        <div key={task.id} className="flex items-center space-x-2">
+          <Input
+            value={task.name}
+            onChange={(e) => updateTask(task.id, e.target.value, task.deadline, task.checked)}
+            placeholder="Enter task name"
+          />
+          <Input
+            type="date"
+            value={task.deadline.toISOString().split('T')[0]} // Format date for input
+            onChange={(e) => updateTask(task.id, task.name, new Date(e.target.value), task.checked)}
+          />
+          <Input
+            type="checkbox"
+            checked={task.checked}
+            onChange={(e) => updateTask(task.id, task.name, task.deadline, e.target.checked)}
+          />
+        </div>
       ))}
-      <Button
-        type="button"
-        variant="outline"
-        className="w-full"
-        onClick={addTask}
-      >
-        <Plus className="w-4 h-4 mr-2" />
-        Add task
-      </Button>
+      <Button onClick={addTask}>Add Task</Button>
     </div>
-  )
-}
+  );
+};
+
+export default TaskList;

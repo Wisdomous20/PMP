@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-export default async function CreateImplementationPlan(id: string, description: string, status: string, tasks:Tasks[], files:Files[]){
+export default async function CreateImplementationPlan(id: string, description: string, status: string, tasks:Task[], files:Files[]){
     try {
         const ImplementationPlan = await prisma.implementationPlan.create({
           data: {
