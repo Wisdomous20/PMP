@@ -1,5 +1,3 @@
-// src/domains/implementation-plan/hooks/useGetImplementationPlan.ts
-
 import { useState, useEffect } from "react";
 import fetchGetImplementationPlanById from "@/domains/implementation-plan/services/fetchGetImplementationPlanById";
 

@@ -5,20 +5,20 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 
 interface FileUploadProps {
-  setFile: React.Dispatch<React.SetStateAction<File | null>>; // Adjust the type as needed
+  setFile: React.Dispatch<React.SetStateAction<File | null>>; 
 }
 
 const FileUpload: React.FC<FileUploadProps> = ({ setFile }) => {
-  const [fileName, setFileName] = useState<string>(''); // To display the name of the selected file
+  const [fileName, setFileName] = useState<string>(''); 
 
   const handleFileChange = (event: React.ChangeEvent<HTMLInputElement>) => {
-    const file = event.target.files?.[0]; // Get the first selected file
+    const file = event.target.files?.[0]; 
     if (file) {
-      setFile(file); // Update the parent component with the selected file
-      setFileName(file.name); // Update the local state to display the file name
+      setFile(file); 
+      setFileName(file.name); 
     } else {
-      setFile(null); // Reset if no file is selected
-      setFileName(''); // Reset the file name
+      setFile(null); 
+      setFileName('');
     }
   };
 
@@ -30,7 +30,7 @@ const FileUpload: React.FC<FileUploadProps> = ({ setFile }) => {
           id="file"
           type="file"
           className="hidden"
-          onChange={handleFileChange} // Handle file selection
+          onChange={handleFileChange} 
         />
         <Label
           htmlFor="file"

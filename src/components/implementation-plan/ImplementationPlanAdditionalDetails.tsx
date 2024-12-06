@@ -5,19 +5,19 @@ import { Textarea } from '@/components/ui/textarea';
 import { Label } from '@/components/ui/label';
 
 interface AdditionalDetailsProps {
-  setAdditionalDetails: React.Dispatch<React.SetStateAction<string>>; // Prop to update additional details in the parent
+  setAdditionalDetails: React.Dispatch<React.SetStateAction<string>>; 
 }
 
 const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ setAdditionalDetails }) => {
-  const [details, setDetails] = useState<string>(''); // Local state for additional details
+  const [details, setDetails] = useState<string>(''); 
 
-  // Update the parent component whenever the local details state changes
+
   useEffect(() => {
     setAdditionalDetails(details);
   }, [details, setAdditionalDetails]);
 
   const handleChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setDetails(event.target.value); // Update local state with the textarea value
+    setDetails(event.target.value);
   };
 
   return (
@@ -26,8 +26,8 @@ const AdditionalDetails: React.FC<AdditionalDetailsProps> = ({ setAdditionalDeta
       <Textarea
         id="additional-details"
         className="min-h-[100px]"
-        value={details} // Controlled input
-        onChange={handleChange} // Handle input changes
+        value={details} 
+        onChange={handleChange}
         placeholder="Enter any additional details here..."
       />
     </div>

@@ -1,5 +1,3 @@
-// src/domains/implementation-plan/hooks/useCreateImplementationPlan.ts
-
 import { useState } from "react";
 import fetchCreateImplementationPlan from "@/domains/implementation-plan/services/fetchCreateImplementationPlan";
 
