@@ -6,9 +6,9 @@ import {
   DragEndEvent,
   DragOverEvent,
   DragOverlay,
-  closestCenter,
   KeyboardSensor,
   MouseSensor,
+  closestCenter,
   useSensor,
   useSensors,
 } from "@dnd-kit/core";
@@ -18,7 +18,6 @@ import {
 } from "@dnd-kit/sortable";
 import Column from "./Column";
 import Task from "./Task";
-import { arrayMove } from "@dnd-kit/sortable";
 
 type ColumnType = {
   id: string;
