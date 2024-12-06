@@ -1,5 +1,5 @@
 "use client";
-
+import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Archive, LogOut } from "lucide-react";
@@ -8,8 +8,18 @@ import Link from "next/link";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 export default function LeftTab() {
-  const { userRole, loading } = useGetUserRole();
+  const { userRole} = useGetUserRole();
+  const [loading, setLoading] = useState(true);
   console.log(userRole);
+
+  useEffect(() => {
+    const fetchData = async () => {
+      await new Promise((resolve) => setTimeout(resolve, 1000));
+      setLoading(false);
+    };
+
+    fetchData();
+  }, []);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -20,7 +30,7 @@ export default function LeftTab() {
   }
 
   return (
-    <div className="w-13 border-r bg-indigo-800 flex flex-col items-center py-4 space-y-3">
+    <div className="w-13 border-r bg-indigo-Background flex flex-col items-center py-4 space-y-3">
       <Button variant="gold" size="icon" className="w-11 h-12">
         <img
           src="/images/cpu-logo.png"

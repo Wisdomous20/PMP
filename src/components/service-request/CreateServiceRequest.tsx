@@ -62,8 +62,8 @@ export default function CreateServiceRequest() {
   };
 
   return (
-    <div className="w-full max-w-2xl bg-white rounded-lg border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
-      <div className="p-5 bg-primary text-primary-foreground flex items-center">
+    <div className="w-full max-w-2xl bg-white rounded-lg sm:rounded-md xsm:rounded-xsm border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
+      <div className="p-5 bg-indigo-dark text-primary-foreground flex items-center">
         {/* <Button
           id="create-service-request-back-button"
           variant="ghost"
@@ -73,13 +73,15 @@ export default function CreateServiceRequest() {
         >
           <ArrowLeft className="h-6 w-6" />
         </Button> */}
-        <h1 id="create-service-request-title" className="text-xl font-semibold">
+        <h1 
+        id="create-service-request-title" 
+        className="text-lg sm:text-xl font-semibold text-center xsm:text-left w-full">
           Create Service Request
         </h1>
       </div>
       <form onSubmit={handleSubmit} className="p-6 space-y-6 flex flex-col">
         <div className="space-y-2 flex-shrink-0">
-          <label htmlFor="title" className="text-sm font-medium text-gray-700">
+          <label htmlFor="title" className="text-sm font-medium text-indigo-text">
             Concern/Work to be done
           </label>
           <Input
@@ -93,7 +95,7 @@ export default function CreateServiceRequest() {
         <div className="space-y-2 flex-grow">
           <label
             htmlFor="details"
-            className="text-sm font-medium text-gray-700"
+            className="text-sm font-medium text-indigo-text"
           >
             Details
           </label>
@@ -106,7 +108,7 @@ export default function CreateServiceRequest() {
           />
         </div>
         <div className="flex justify-end flex-shrink-0">
-          <Button type="submit" className="w-full sm:w-auto" disabled={isLoading}>
+          <Button type="submit" className="w-full sm:w-auto bg-indigo-Background" variant="gold"disabled={isLoading}>
             {isLoading ? (
               <Spinner className="w-4 h-4 mr-2" />
             ) : (

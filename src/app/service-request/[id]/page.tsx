@@ -6,6 +6,7 @@ import ServiceRequestStatus from "@/components/service-request/ServiceRequestSta
 import useGetServiceRequestDetails from "@/domains/service-request/hooks/useGetServiceRequestDetails";
 import { Skeleton } from "@/components/ui/skeleton";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+import Empty from "@/components/ui/empty";
 
 interface PageProps {
   params: {
@@ -27,7 +28,7 @@ export default function Page({ params }: PageProps) {
   }
 
   if (!serviceRequestDetails) {
-    return <div>No service request details found.</div>;
+    return <Empty/>;
   }
 
   return (
