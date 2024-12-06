@@ -18,11 +18,18 @@ export default async function getServiceRequests(userId: string) {
   if (user.user_type === "ADMIN") {
     serviceRequests = await prisma.serviceRequest.findMany({
       include: {
-        user: true,
+        user: {
+          select: {
+            department:true,
+            firstName: true,
+            lastName:true
+          }
+        },
         status: {
           orderBy: {
-            timestamp: 'asc',
+            timestamp: 'desc',
           },
+          take: 1,
         },
       },
     });
@@ -39,6 +46,7 @@ export default async function getServiceRequests(userId: string) {
           orderBy: {
             timestamp: 'asc',
           },
+          take: 1,
         },
       },
     });
@@ -64,6 +72,7 @@ export default async function getServiceRequests(userId: string) {
     const { id, user, concern, details, status } = request;
     const requesterName = `${user.firstName} ${user.lastName}`;
     const createdOn = status.length > 0 ? status[0].timestamp : null;
+    const requestStatus = status.length > 0 ? status[0].status : 'pending';
 
     return {
       id,
@@ -71,6 +80,11 @@ export default async function getServiceRequests(userId: string) {
       concern,
       details,
       createdOn,
+      status: requestStatus,
+      department: user.department,
+      user: {
+        department: user.department,
+      }
     };
   });
 
