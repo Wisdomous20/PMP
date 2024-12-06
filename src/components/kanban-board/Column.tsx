@@ -25,7 +25,7 @@ type ColumnProps = {
 };
 
 export default function Column({ column, tasks }: ColumnProps) {
-  const { setNodeRef, isOver } = useDroppable({
+  const { setNodeRef } = useDroppable({
     id: column.id,
   });
 

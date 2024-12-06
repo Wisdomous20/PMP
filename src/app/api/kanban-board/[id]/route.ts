@@ -5,7 +5,7 @@ import { prisma } from '@/lib/prisma';
 import getServiceRequests from '@/domains/service-request/services/getServiceRequest';
 import { status as StatusEnum } from '@prisma/client';
 
-export async function GET(req: NextRequest) {
+export async function GET() {
   const session = await getServerSession(authOptions);
 
   if (!session) {
@@ -53,6 +53,8 @@ export async function PATCH(
         timestamp: new Date(),
       }
     });
+
+    console.log(newStatus)
 
     const updatedServiceRequest = await prisma.serviceRequest.findUnique({
       where: { id: serviceRequestId },
