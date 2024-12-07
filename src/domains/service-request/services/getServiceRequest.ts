@@ -64,7 +64,6 @@ export default async function getServiceRequests(userId: string) {
     const { id, user, concern, details, status } = request;
     const requesterName = `${user.firstName} ${user.lastName}`;
     const createdOn = status.length > 0 ? status[0].timestamp : null;
-
     return {
       id,
       requesterName,

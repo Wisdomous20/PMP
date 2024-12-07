@@ -9,7 +9,6 @@ import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import LoadingSpinner from "@/components/ui/loadingDots"
 import Empty from "@/components/ui/empty";
 
-
 interface PageProps {
   params: {
     id: string;
@@ -20,11 +19,8 @@ export default function Page({ params }: PageProps) {
   const { id } = params;
   const { serviceRequestDetails, error, loading } = useGetServiceRequestDetails(id);
   const { userRole, loading: loadingUserRole } = useGetUserRole();
-
-
   if (loading) {
     return <LoadingSpinner />;
-
   }
 
   if (error) {

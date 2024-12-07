@@ -24,7 +24,6 @@ export default function LeftTab() {
   }, []);
 
 console.log(userRole)
-
   const handleLogout = async () => {
     await signOut({ redirect: false });
   };
