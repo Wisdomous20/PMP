@@ -6,14 +6,16 @@ import { Plus, FileText, Archive, LogOut } from "lucide-react";
 import { Skeleton } from "../ui/skeleton";
 import Link from "next/link";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+import LoadingSpinner from "@/components/ui/loadingDots"
 
 export default function LeftTab() {
-  const { userRole} = useGetUserRole();
+  const { userRole, loading:roleLoading } = useGetUserRole();
   const [loading, setLoading] = useState(true);
   console.log(userRole);
 
   useEffect(() => {
     const fetchData = async () => {
+      // Simulate a delay for loading
       await new Promise((resolve) => setTimeout(resolve, 1000));
       setLoading(false);
     };
@@ -21,12 +23,13 @@ export default function LeftTab() {
     fetchData();
   }, []);
 
+console.log(userRole)
   const handleLogout = async () => {
     await signOut({ redirect: false });
   };
 
   if (loading) {
-    return <Skeleton className="w-13"/>
+    return <LoadingSpinner />;
   }
 
   return (
@@ -40,7 +43,7 @@ export default function LeftTab() {
         <span className="sr-only">CPU Logo</span>
       </Button>
       {userRole === "USER" && (
-        <Link href="/">
+        <Link href="/service-request/create">
           <Button variant="gold" size="icon" className="w-11 h-12">
             <Plus className="w-7 h-7" />
             <span className="sr-only">Create Service Request</span>

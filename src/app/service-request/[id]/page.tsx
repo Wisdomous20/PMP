@@ -6,6 +6,7 @@ import ServiceRequestStatus from "@/components/service-request/ServiceRequestSta
 import useGetServiceRequestDetails from "@/domains/service-request/hooks/useGetServiceRequestDetails";
 import { Skeleton } from "@/components/ui/skeleton";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+import LoadingSpinner from "@/components/ui/loadingDots"
 import Empty from "@/components/ui/empty";
 
 interface PageProps {
@@ -18,9 +19,8 @@ export default function Page({ params }: PageProps) {
   const { id } = params;
   const { serviceRequestDetails, error, loading } = useGetServiceRequestDetails(id);
   const { userRole, loading: loadingUserRole } = useGetUserRole();
-
-  if (loading || loadingUserRole) {
-    return <Skeleton className="w-screen h-screen"/>;
+  if (loading) {
+    return <LoadingSpinner />;
   }
 
   if (error) {
