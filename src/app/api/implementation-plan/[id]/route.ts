@@ -1,6 +1,6 @@
 
 import { NextRequest, NextResponse } from "next/server";
-import getImplementationPlanById from "@/domains/implementation-plan/services/getImplementationPlanById"; // Import the service to get an implementation plan by ID
+import getImplementationPlanById from "@/domains/implementation-plan/services/getImplementationPlanById"
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }): Promise<NextResponse> {
     const { id } = params;

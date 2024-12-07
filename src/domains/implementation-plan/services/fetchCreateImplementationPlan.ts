@@ -1,9 +1,5 @@
 export default async function fetchCreateImplementationPlan(
-    id: string,
-    description: string,
-    status: string,
     tasks: { id: string; name: string; deadline: Date; checked: boolean }[],
-    files: { id: string; url: string }[]
   ): Promise<ImplementationPlan> { 
     const endpoint = '/api/implementation-plan';
   
@@ -14,11 +10,7 @@ export default async function fetchCreateImplementationPlan(
           'Content-Type': 'application/json',
         },
         body: JSON.stringify({
-          id,
-          description,
-          status,
-          tasks,
-          files,
+          tasks
         }),
       });
   

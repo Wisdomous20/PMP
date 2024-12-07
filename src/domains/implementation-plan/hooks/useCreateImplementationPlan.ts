@@ -7,18 +7,18 @@ export default function useCreateImplementationPlan() {
     const [success, setSuccess] = useState<boolean>(false);
 
     const createImplementationPlan = async (
-        id: string,
-        description: string,
-        status: string,
+        // id: string,
+        // description: string,
+        // status: string,
         tasks: { id: string; name: string; deadline: Date; checked: boolean }[],
-        files: { id: string; url: string }[]
+        // files: { id: string; url: string }[]
     ) => {
         setLoading(true);
         setError(null);
         setSuccess(false);
 
         try {
-            await fetchCreateImplementationPlan(id, description, status, tasks, files);
+            await fetchCreateImplementationPlan(tasks);
             setSuccess(true);
         } catch (err) {
             setError("Failed to create implementation plan.");
