@@ -1,7 +1,7 @@
 import React from "react";
 import { render, screen } from "@testing-library/react";
 import "@testing-library/jest-dom";
-import ServiceRequestDetails from "@/components/view-service-request/ServiceRequestDetails";
+import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
 
 jest.mock("next/navigation", () => ({
   useRouter: () => ({

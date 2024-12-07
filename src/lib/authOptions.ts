@@ -39,7 +39,9 @@ export const authOptions: NextAuthOptions = {
       
           return {
             id: user.id,
-            name: user.name || 'Anonymous',
+            name: `${user.firstName} ${user.lastName}`,
+            firstName: user.firstName,
+            lastName: user.lastName,
             email: user.email,
             role: user.user_type,
           } as User;
