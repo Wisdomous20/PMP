@@ -19,7 +19,7 @@ import {
   sortableKeyboardCoordinates,
 } from "@dnd-kit/sortable";
 import Column from "./Column";
-import Task from "./Task";
+import Task from "../kanban-board/Task";
 
 type ColumnType = {
   id: string;

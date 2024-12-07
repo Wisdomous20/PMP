@@ -5,27 +5,20 @@ import ApproveServiceRequest from "./ApproveServiceRequest";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 interface ServiceRequestDetailsProps {
-  requestorName: string;
-  concern: string;
-  details: string;
-  createdOn: Date;
+  serviceRequest: ServiceRequest
 }
 
-export default function ServiceRequestDetails({
-  requestorName,
-  concern,
-  details,
-  createdOn,
-}: ServiceRequestDetailsProps) {
+export default function ServiceRequestDetails({ serviceRequest }: ServiceRequestDetailsProps) {
+  const {  concern, details, createdOn, requesterName } = serviceRequest;
   const { userRole } = useGetUserRole();
-  const formattedDate = createdOn.toLocaleString("en-US", {
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-  });
+  const formattedDate = createdOn ? createdOn.toLocaleString('en-US', {
+    weekday: 'short',
+    year: 'numeric',
+    month: 'short',
+    day: 'numeric',
+    hour: 'numeric',
+    minute: 'numeric',
+  }) : 'Date not available';
 
   return (
     <Card className="w-full h-screen flex flex-col">
@@ -44,7 +37,7 @@ export default function ServiceRequestDetails({
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center space-x-2">
             <span id="requestor-name" data-testid="requestor-name">
-              {requestorName}
+              {requesterName}
             </span>
           </div>
           <time id="created-on" dateTime={formattedDate}>

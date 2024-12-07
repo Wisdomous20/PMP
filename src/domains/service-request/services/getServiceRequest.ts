@@ -69,6 +69,7 @@ export default async function getServiceRequests(userId: string) {
       requesterName,
       concern,
       details,
+      status,
       createdOn,
     };
   });

@@ -1,5 +1,5 @@
 import React from "react";
-import Task from "./Task";
+import Task from "../kanban-board/Task";
 import { useDroppable } from "@dnd-kit/core";
 import {
   SortableContext,
