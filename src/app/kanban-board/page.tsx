@@ -1,4 +1,4 @@
-import ServiceRequestKanban from "@/components/kanban-board/Kanban-board";
+import ServiceRequestKanban from "@/components/implementation-plan/Kanban-board";
 import LeftTab from "@/components/layouts/LeftTab";
 export default function Page() {
   return (
