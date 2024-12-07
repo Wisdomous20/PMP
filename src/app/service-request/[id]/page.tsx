@@ -4,7 +4,6 @@ import ServiceRequestList from "@/components/service-request/ServiceRequestList"
 import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
 import ServiceRequestStatus from "@/components/service-request/ServiceRequestStatus";
 import useGetServiceRequestDetails from "@/domains/service-request/hooks/useGetServiceRequestDetails";
-import { Skeleton } from "@/components/ui/skeleton";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import LoadingSpinner from "@/components/ui/loadingDots"
 import Empty from "@/components/ui/empty";
@@ -18,7 +17,7 @@ interface PageProps {
 export default function Page({ params }: PageProps) {
   const { id } = params;
   const { serviceRequestDetails, error, loading } = useGetServiceRequestDetails(id);
-  const { userRole, loading: loadingUserRole } = useGetUserRole();
+  const { userRole } = useGetUserRole();
   if (loading) {
     return <LoadingSpinner />;
   }

@@ -1,29 +1,14 @@
 "use client";
-import { useEffect, useState } from "react";
 import { signOut } from "next-auth/react";
 import { Button } from "@/components/ui/button";
 import { Plus, FileText, Archive, LogOut } from "lucide-react";
-import { Skeleton } from "../ui/skeleton";
 import Link from "next/link";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import LoadingSpinner from "@/components/ui/loadingDots"
 
 export default function LeftTab() {
-  const { userRole, loading:roleLoading } = useGetUserRole();
-  const [loading, setLoading] = useState(true);
-  console.log(userRole);
+  const { userRole, loading } = useGetUserRole();
 
-  useEffect(() => {
-    const fetchData = async () => {
-      // Simulate a delay for loading
-      await new Promise((resolve) => setTimeout(resolve, 1000));
-      setLoading(false);
-    };
-
-    fetchData();
-  }, []);
-
-console.log(userRole)
   const handleLogout = async () => {
     await signOut({ redirect: false });
   };

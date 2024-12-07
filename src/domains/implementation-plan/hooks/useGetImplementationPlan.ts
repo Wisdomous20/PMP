@@ -2,7 +2,7 @@ import { useState, useEffect } from "react";
 import fetchGetImplementationPlanById from "@/domains/implementation-plan/services/fetchGetImplementationPlanById";
 
 export default function useGetImplementationPlan(planId: string) {
-    const [implementationPlan, setImplementationPlan] = useState<any>(null);
+    const [implementationPlan, setImplementationPlan] = useState<ImplementationPlan>();
     const [loading, setLoading] = useState(true);
     const [error, setError] = useState<string | null>(null);
 

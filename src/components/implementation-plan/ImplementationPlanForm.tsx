@@ -42,7 +42,7 @@ const ImplementationPlanForm: React.FC<ImplementationPlanFormProps> = ({ service
         setError('Failed to load service request details.');
         toast({
           title: "Error",
-          description: "Failed to load service request details.",
+          description:`Failed to load service request details. ${err}`,
           variant: "destructive",
         });
       } finally {
