@@ -10,7 +10,7 @@ interface ServiceRequestDetailsProps {
 }
 
 export default function ServiceRequestDetails({ serviceRequest }: ServiceRequestDetailsProps) {
-  const {  concern, details, createdOn, requesterName } = serviceRequest;
+  const {  id, concern, details, createdOn, requesterName } = serviceRequest;
   const { userRole } = useGetUserRole();
   const formattedDate = createdOn ? createdOn.toLocaleString('en-US', {
     weekday: 'short',
@@ -30,8 +30,8 @@ export default function ServiceRequestDetails({ serviceRequest }: ServiceRequest
           </h1>
           {userRole === "ADMIN" &&
             <div className="flex space-x-2">
-              <RejectServiceRequest />
-              <ApproveServiceRequest />
+              <RejectServiceRequest serviceRequestId={id}/>
+              <ApproveServiceRequest serviceRequestId={id}/>
             </div>
           }
           {userRole === "SUPERVISOR" &&

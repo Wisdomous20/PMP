@@ -1,8 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
-import addApprovedStatus from "@/domains/service-request/services/status/addApprovedStatus";
+import assignSupervisor from "@/domains/service-request/services/assignSupervisor";
 
 export async function POST(req: NextRequest) {
-  const { serviceRequestId, note } = await req.json();
+  const { serviceRequestId, supervisorId } = await req.json();
 
   if (!serviceRequestId) {
     return NextResponse.json(
@@ -12,16 +12,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const status = await addApprovedStatus(serviceRequestId, note);
+    const status = await assignSupervisor(serviceRequestId, supervisorId);
 
     return NextResponse.json(
-      { message: `Approved status added successfully`, status },
+      { message: `Assigned supervisor successfully`, status },
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error adding approved status:`, error);
+    console.error(`Error assigning supervisor:`, error);
     return NextResponse.json(
-      { error: `Failed to add approved status` },
+      { error: `Failed to assign supervisor` },
       { status: 500 }
     );
   }

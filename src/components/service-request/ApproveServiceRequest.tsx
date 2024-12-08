@@ -1,32 +1,55 @@
-'use client'
+'use client';
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CheckIcon } from "lucide-react";
+import { Textarea } from "@/components/ui/textarea";
 import fetchGetSupervisors from "@/domains/user-management/services/fetchGetSupervisors";
+import fetchAssignSupervisor from "@/domains/service-request/services/fetchAssignSupervisor";
+import { fetchAddApprovedStatus } from "@/domains/service-request/services/status/fetchAddSatus";
 
-export default function ApproveServiceRequest() {
+interface ApproveServiceRequestProps {
+  serviceRequestId: string;
+}
+
+export default function ApproveServiceRequest({ serviceRequestId }: ApproveServiceRequestProps) {
   const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
   const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
-  const [selectedSupervisor, setSelectedSupervisor] = useState("");
+  const [selectedSupervisor, setSelectedSupervisor] = useState<Supervisor | null>(null);
+  const [note, setNote] = useState<string>("");
 
   useEffect(() => {
     const loadSupervisors = async () => {
-      const fetchedSupervisors = await fetchGetSupervisors();
-      if (fetchedSupervisors) {
-        setSupervisors(fetchedSupervisors);
+      try {
+        const fetchedSupervisors = await fetchGetSupervisors();
+        if (fetchedSupervisors) {
+          setSupervisors(fetchedSupervisors);
+        }
+      } catch (error) {
+        console.error("Failed to load supervisors:", error);
       }
     };
 
     loadSupervisors();
   }, []);
 
-  const handleApprove = () => {
-    console.log("Request approved for supervisor:", selectedSupervisor);
-    setIsApproveDialogOpen(false);
-    setSelectedSupervisor("");
-  };
+  async function handleApprove() {
+    if (selectedSupervisor) {
+      console.log("Request approved for supervisor:", selectedSupervisor, "with note:", note);
+
+      try {
+        await fetchAssignSupervisor(serviceRequestId, selectedSupervisor.id);
+        await fetchAddApprovedStatus(serviceRequestId, note);
+
+        setIsApproveDialogOpen(false);
+        setSelectedSupervisor(null);
+        setNote("");
+      } catch (error) {
+        console.error("Failed to approve service request:", error);
+      }
+    }
+  }
 
   return (
     <Dialog open={isApproveDialogOpen} onOpenChange={setIsApproveDialogOpen}>
@@ -36,6 +59,7 @@ export default function ApproveServiceRequest() {
           Approve
         </Button>
       </DialogTrigger>
+
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Approve Service Request</DialogTitle>
@@ -44,10 +68,17 @@ export default function ApproveServiceRequest() {
           </DialogDescription>
         </DialogHeader>
 
-        <Select value={selectedSupervisor} onValueChange={setSelectedSupervisor}>
+        <Select
+          value={selectedSupervisor?.id}
+          onValueChange={(value) => {
+            const supervisor = supervisors.find((sup) => sup.id === value);
+            setSelectedSupervisor(supervisor || null);
+          }}
+        >
           <SelectTrigger>
             <SelectValue placeholder="Select a Supervisor" />
           </SelectTrigger>
+
           <SelectContent>
             {supervisors.map((supervisor) => (
               <SelectItem key={supervisor.id} value={supervisor.id}>
@@ -56,6 +87,20 @@ export default function ApproveServiceRequest() {
             ))}
           </SelectContent>
         </Select>
+
+        <div className="mt-4">
+          <label htmlFor="note" className="block font-medium">
+            Note (Optional)
+          </label>
+          <Textarea
+            id="note"
+            placeholder="Add any extra information..."
+            rows={3}
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            className="mt-2 w-full resize-none"
+          />
+        </div>
 
         <DialogFooter>
           <Button type="button" onClick={handleApprove} disabled={!selectedSupervisor}>
