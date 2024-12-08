@@ -2,9 +2,7 @@ import { prisma } from "@/lib/prisma";
 
 //Add files in the future and description
 
-export default async function CreateImplementationPlan(
-  tasks: Task[]
-) {
+export default async function CreateImplementationPlan(tasks: Task[]) {
   try {
     const ImplementationPlan = await prisma.implementationPlan.create({
       data: {

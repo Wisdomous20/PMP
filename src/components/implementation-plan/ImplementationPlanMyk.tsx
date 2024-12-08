@@ -1,47 +1,97 @@
-'use client'
+/* eslint-disable @typescript-eslint/no-explicit-any */
+'use client';
 
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { PlusCircle, Upload } from 'lucide-react'
+import { useEffect, useState } from 'react';
+import { motion } from 'framer-motion';
+import { Button } from '@/components/ui/button';
+import { Input } from '@/components/ui/input';
+import { Checkbox } from '@/components/ui/checkbox';
+import { Card, CardContent } from '@/components/ui/card';
+import { Separator } from '@/components/ui/separator';
+import { PlusCircle } from 'lucide-react';
+import fetchGetImplementationPlanById from '@/domains/implementation-plan/services/fetchGetImplementationPlanById';
+import fetchUpdateImplementationPlan from '@/domains/implementation-plan/services/fetchUpdateImplementationPlan';
+import formatTimestamp from '@/utils/formatTimestamp';
 
 interface Task {
-  id: string
-  name: string
-  confirmed: boolean
-  isEditing: boolean
+  id: string;
+  name: string;
+  deadline: Date;
+  confirmed: boolean;
+  isEditing: boolean;
 }
 
-export default function CreateImplementationPlan() {
-  const [tasks, setTasks] = useState<Task[]>([
-    { id: '1', name: "Task 1", confirmed: false, isEditing: false },
-  ])
+interface EditImplementationPlanProps {
+  serviceRequest: ServiceRequest;
+}
+
+export default function EditImplementationPlan({ serviceRequest }: EditImplementationPlanProps) {
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [loading, setLoading] = useState(false);
+
+  useEffect(() => {
+    async function loadTasks() {
+      try {
+        setLoading(true);
+        const implementationPlan = await fetchGetImplementationPlanById(serviceRequest.id);
+        const loadedTasks = implementationPlan.tasks.map((task: any) => ({
+          id: task.id,
+          name: task.name,
+          deadline: new Date(task.deadline),
+          confirmed: task.checked,
+          isEditing: false,
+        }));
+        setTasks(loadedTasks);
+      } catch (error) {
+        console.error('Failed to load implementation plan:', error);
+      } finally {
+        setLoading(false);
+      }
+    }
+    loadTasks();
+  }, [serviceRequest.id]);
 
   const addTask = () => {
-    const newTask = { id: Date.now().toString(), name: "New Task", confirmed: false, isEditing: false }
-    setTasks([...tasks, newTask])
-  }
+    const newTask: Task = {
+      id: Date.now().toString(),
+      name: 'New Task',
+      deadline: new Date(),
+      confirmed: false,
+      isEditing: false,
+    };
+    setTasks([...tasks, newTask]);
+  };
 
   const updateTask = (id: string, value: string) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, name: value } : task
-    ))
-  }
+    setTasks(tasks.map(task => (task.id === id ? { ...task, name: value } : task)));
+  };
 
-  const toggleConfirm = (id: string) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, confirmed: !task.confirmed } : task
-    ))
-  }
+  const toggleConfirm = async (id: string) => {
+    setTasks(tasks.map(task => (task.id === id ? { ...task, confirmed: !task.confirmed } : task)));
+  };
 
   const toggleEditing = (id: string) => {
-    setTasks(tasks.map(task => 
-      task.id === id ? { ...task, isEditing: !task.isEditing } : task
-    ))
+    setTasks(tasks.map(task => (task.id === id ? { ...task, isEditing: !task.isEditing } : task)));
+  };
+
+  async function handleUpdateImplementationPlan() {
+    try {
+      const formattedTasks = tasks.map(task => ({
+        id: task.id,
+        name: task.name,
+        deadline: task.deadline,
+        checked: task.confirmed,
+      }));
+
+      await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks);
+      console.log('Implementation Plan updated successfully');
+    } catch (error) {
+      console.error('Failed to update implementation plan:', error);
+    }
+  }
+
+  if (loading) {
+    return <div>loading</div>
   }
 
   return (
@@ -51,24 +101,25 @@ export default function CreateImplementationPlan() {
           <div className="space-y-6 md:col-span-2">
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Name of requester</p>
-              <p className="font-medium">John Doe</p>
+              <p className="font-medium">{serviceRequest.requesterName}</p>
             </div>
 
             <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Title of Request</p>
-              <p className="font-medium">CCTV concern</p>
+              <p className="text-sm text-muted-foreground">Concern</p>
+              <p className="font-medium">{serviceRequest.concern}</p>
             </div>
 
             <div className="space-y-1">
               <p className="text-sm text-muted-foreground">Details of the Request</p>
-              <p className="font-medium">Engineering theft</p>
+              <p className="font-medium">{serviceRequest.details}</p>
             </div>
 
             <Separator />
 
             <div className="space-y-4">
               <p className="font-semibold">Tasks</p>
-              {tasks.map((task) => (
+
+              {tasks.map(task => (
                 <motion.div
                   key={task.id}
                   initial={{ opacity: 0, y: -10 }}
@@ -76,7 +127,7 @@ export default function CreateImplementationPlan() {
                   transition={{ duration: 0.3 }}
                   className="flex items-center space-x-2"
                 >
-                  <div 
+                  <div
                     className="flex-grow p-2 rounded hover:bg-gray-100 cursor-pointer"
                     onClick={() => toggleEditing(task.id)}
                   >
@@ -93,6 +144,7 @@ export default function CreateImplementationPlan() {
                       </span>
                     )}
                   </div>
+
                   <Checkbox
                     checked={task.confirmed}
                     onCheckedChange={() => toggleConfirm(task.id)}
@@ -100,6 +152,7 @@ export default function CreateImplementationPlan() {
                   />
                 </motion.div>
               ))}
+
               <Button
                 type="button"
                 variant="outline"
@@ -107,39 +160,26 @@ export default function CreateImplementationPlan() {
                 onClick={addTask}
               >
                 <PlusCircle className="w-4 h-4 mr-2" />
-                Add task
+                Add Task
               </Button>
             </div>
           </div>
-
           <div className="space-y-6">
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Request Date</p>
-              <p className="font-medium">15 Dec 2023</p>
-            </div>
-
-            <div className="space-y-4">
-              <Button variant="outline" className="w-full h-24 flex flex-col items-center justify-center">
-                <Upload className="w-6 h-6 mb-2" />
-                <span>Upload File</span>
-              </Button>
-
-              <Button variant="outline" className="w-full h-24 flex items-center justify-center">
-                <span>People Assigned</span>
-              </Button>
-
-              <Button variant="outline" className="w-full h-24 flex items-center justify-center">
-                <span>Equipment / Budget</span>
-              </Button>
-            </div>
-
-            <Button className="w-full bg-yellow-500 hover:bg-yellow-600 text-black">
-              Update
+            {serviceRequest.createdOn && (
+              <div className="space-y-1">
+                <p className="text-sm text-muted-foreground">Request Date</p>
+                <p className="font-medium">{formatTimestamp(serviceRequest.createdOn)}</p>
+              </div>
+            )}
+            <Button
+              onClick={handleUpdateImplementationPlan}
+              className="w-full mt-4 bg-green-500 hover:bg-green-600 text-white"
+            >
+              Update Implementation Plan
             </Button>
           </div>
         </div>
       </CardContent>
     </Card>
-  )
+  );
 }
-
