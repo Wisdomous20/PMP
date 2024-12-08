@@ -1,4 +1,9 @@
-export default async function fetchCreateServiceRequest(userId : string, concern : string, details : string) {
+export default async function fetchCreateServiceRequest(userId : string, concern : string, details : string) : Promise<{
+  id: string;
+  userId: string;
+  concern: string;
+  details: string;
+}> {
   const endpoint = "/api/service-request";
 
   try {

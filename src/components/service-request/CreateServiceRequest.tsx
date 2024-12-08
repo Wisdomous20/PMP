@@ -39,7 +39,8 @@ export default function CreateServiceRequest() {
         throw new Error("User not logged in");
       }
 
-      await fetchCreateServiceRequest(userId, concern, details);
+      const serviceRequest = await fetchCreateServiceRequest(userId, concern, details);
+      console.log(serviceRequest)
 
       toast({
         title: "Success",
@@ -48,7 +49,7 @@ export default function CreateServiceRequest() {
 
       setConcern("");
       setDetails("");
-      router.push("/");
+      router.push("/service-request");
     } catch (error) {
       console.error("Failed to create service request:", error);
       toast({
