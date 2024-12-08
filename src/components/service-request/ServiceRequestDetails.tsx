@@ -3,6 +3,7 @@ import { Separator } from "@/components/ui/separator";
 import RejectServiceRequest from "./RejectServiceRequest";
 import ApproveServiceRequest from "./ApproveServiceRequest";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+import CreateImplementationPlan from "../implementation-plan/CreateImplementationPlanMyk";
 
 interface ServiceRequestDetailsProps {
   serviceRequest: ServiceRequest
@@ -31,6 +32,11 @@ export default function ServiceRequestDetails({ serviceRequest }: ServiceRequest
             <div className="flex space-x-2">
               <RejectServiceRequest />
               <ApproveServiceRequest />
+            </div>
+          }
+          {userRole === "SUPERVISOR" &&
+            <div className="flex space-x-2">
+              <CreateImplementationPlan serviceRequest={serviceRequest}/>
             </div>
           }
         </div>

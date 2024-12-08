@@ -9,6 +9,7 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { PlusCircle } from 'lucide-react';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
 import fetchGetImplementationPlanById from '@/domains/implementation-plan/services/fetchGetImplementationPlanById';
 import fetchUpdateImplementationPlan from '@/domains/implementation-plan/services/fetchUpdateImplementationPlan';
 import formatTimestamp from '@/utils/formatTimestamp';
@@ -28,6 +29,7 @@ interface EditImplementationPlanProps {
 export default function EditImplementationPlan({ serviceRequest }: EditImplementationPlanProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [loading, setLoading] = useState(false);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   useEffect(() => {
     async function loadTasks() {
@@ -90,96 +92,108 @@ export default function EditImplementationPlan({ serviceRequest }: EditImplement
     }
   }
 
-  if (loading) {
-    return <div>loading</div>
-  }
-
   return (
-    <Card className="w-full max-w-4xl mx-auto shadow-lg">
-      <CardContent className="p-6">
-        <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-          <div className="space-y-6 md:col-span-2">
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Name of requester</p>
-              <p className="font-medium">{serviceRequest.requesterName}</p>
-            </div>
-
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Concern</p>
-              <p className="font-medium">{serviceRequest.concern}</p>
-            </div>
-
-            <div className="space-y-1">
-              <p className="text-sm text-muted-foreground">Details of the Request</p>
-              <p className="font-medium">{serviceRequest.details}</p>
-            </div>
-
-            <Separator />
-
-            <div className="space-y-4">
-              <p className="font-semibold">Tasks</p>
-
-              {tasks.map(task => (
-                <motion.div
-                  key={task.id}
-                  initial={{ opacity: 0, y: -10 }}
-                  animate={{ opacity: 1, y: 0 }}
-                  transition={{ duration: 0.3 }}
-                  className="flex items-center space-x-2"
-                >
-                  <div
-                    className="flex-grow p-2 rounded hover:bg-gray-100 cursor-pointer"
-                    onClick={() => toggleEditing(task.id)}
-                  >
-                    {task.isEditing ? (
-                      <Input
-                        value={task.name}
-                        onChange={(e) => updateTask(task.id, e.target.value)}
-                        onBlur={() => toggleEditing(task.id)}
-                        autoFocus
-                      />
-                    ) : (
-                      <span className={task.confirmed ? 'line-through text-gray-500' : ''}>
-                        {task.name}
-                      </span>
-                    )}
+    <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+      <DialogTrigger asChild>
+        <Button variant="outline" className="bg-green-500 hover:bg-green-600 text-white">
+          Edit Implementation Plan
+        </Button>
+      </DialogTrigger>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Edit Implementation Plan</DialogTitle>
+        </DialogHeader>
+        {loading ? (
+          <div>loading</div>
+        ) : (
+          <Card className="w-full max-w-4xl mx-auto shadow-lg">
+            <CardContent className="p-6">
+              <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+                <div className="space-y-6 md:col-span-2">
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Name of requester</p>
+                    <p className="font-medium">{serviceRequest.requesterName}</p>
                   </div>
 
-                  <Checkbox
-                    checked={task.confirmed}
-                    onCheckedChange={() => toggleConfirm(task.id)}
-                    aria-label="Confirm task"
-                  />
-                </motion.div>
-              ))}
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Concern</p>
+                    <p className="font-medium">{serviceRequest.concern}</p>
+                  </div>
 
-              <Button
-                type="button"
-                variant="outline"
-                className="w-full"
-                onClick={addTask}
-              >
-                <PlusCircle className="w-4 h-4 mr-2" />
-                Add Task
-              </Button>
-            </div>
-          </div>
-          <div className="space-y-6">
-            {serviceRequest.createdOn && (
-              <div className="space-y-1">
-                <p className="text-sm text-muted-foreground">Request Date</p>
-                <p className="font-medium">{formatTimestamp(serviceRequest.createdOn)}</p>
+                  <div className="space-y-1">
+                    <p className="text-sm text-muted-foreground">Details of the Request</p>
+                    <p className="font-medium">{serviceRequest.details}</p>
+                  </div>
+
+                  <Separator />
+
+                  <div className="space-y-4">
+                    <p className="font-semibold">Tasks</p>
+
+                    {tasks.map(task => (
+                      <motion.div
+                        key={task.id}
+                        initial={{ opacity: 0, y: -10 }}
+                        animate={{ opacity: 1, y: 0 }}
+                        transition={{ duration: 0.3 }}
+                        className="flex items-center space-x-2"
+                      >
+                        <div
+                          className="flex-grow p-2 rounded hover:bg-gray-100 cursor-pointer"
+                          onClick={() => toggleEditing(task.id)}
+                        >
+                          {task.isEditing ? (
+                            <Input
+                              value={task.name}
+                              onChange={(e) => updateTask(task.id, e.target.value)}
+                              onBlur={() => toggleEditing(task.id)}
+                              autoFocus
+                            />
+                          ) : (
+                            <span className={task.confirmed ? 'line-through text-gray-500' : ''}>
+                              {task.name}
+                            </span>
+                          )}
+                        </div>
+
+                        <Checkbox
+                          checked={task.confirmed}
+                          onCheckedChange={() => toggleConfirm(task.id)}
+                          aria-label="Confirm task"
+                        />
+                      </motion.div>
+                    ))}
+
+                    <Button
+                      type="button"
+                      variant="outline"
+                      className="w-full"
+                      onClick={addTask}
+                    >
+                      <PlusCircle className="w-4 h-4 mr-2" />
+                      Add Task
+                    </Button>
+                  </div>
+                </div>
+                <div className="space-y-6">
+                  {serviceRequest.createdOn && (
+                    <div className="space-y-1">
+                      <p className="text-sm text-muted-foreground">Request Date</p>
+                      <p className="font-medium">{formatTimestamp(serviceRequest.createdOn)}</p>
+                    </div>
+                  )}
+                  <Button
+                    onClick={handleUpdateImplementationPlan}
+                    className="w-full mt-4 bg-green-500 hover:bg-green-600 text-white"
+                  >
+                    Update Implementation Plan
+                  </Button>
+                </div>
               </div>
-            )}
-            <Button
-              onClick={handleUpdateImplementationPlan}
-              className="w-full mt-4 bg-green-500 hover:bg-green-600 text-white"
-            >
-              Update Implementation Plan
-            </Button>
-          </div>
-        </div>
-      </CardContent>
-    </Card>
+            </CardContent>
+          </Card>
+        )}
+      </DialogContent>
+    </Dialog>
   );
 }
