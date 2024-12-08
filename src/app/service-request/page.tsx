@@ -8,6 +8,7 @@ import ServiceRequestStatus from "@/components/service-request/ServiceRequestSta
 import useGetServiceRequestList from "@/domains/service-request/hooks/useGetServiceRequestList";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import LoadingSpinner from "@/components/ui/loadingDots"
+import { Card } from "@/components/ui/card";
 
 export default function Page() {
   const [ serviceRequestIndex, setServiceRequestIndex ] = useState(0);
@@ -25,11 +26,15 @@ export default function Page() {
       <LeftTab />
       <ServiceRequestList serviceRequests={serviceRequests} setServiceRequestIndex={setServiceRequestIndex}/>
       <div className="flex flex-col w-full">
-        {userRole === "USER" ?
-          <ServiceRequestStatus serviceRequest={serviceRequests[serviceRequestIndex]}/>
+        {serviceRequests.length === 0 ?
+          <Card className="w-full h-screen flex flex-col"></Card>
           :
-          <ServiceRequestDetails serviceRequest={serviceRequests[serviceRequestIndex]}/>
-      }
+          userRole === "USER" ?
+            <ServiceRequestStatus serviceRequest={serviceRequests[serviceRequestIndex]}/>
+            :
+            <ServiceRequestDetails serviceRequest={serviceRequests[serviceRequestIndex]}/>
+          
+        }
       </div>
     </div>
   );

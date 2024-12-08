@@ -1,6 +1,6 @@
 "use client"
 import ServiceRequestPreview from "./ServiceRequestPreview";
-import Empty from "../ui/empty";
+// import Empty from "../ui/empty";
 import { Button } from "@/components/ui/button";
 import React, { useState } from "react";
 import { Input } from "@/components/ui/input";
@@ -11,7 +11,7 @@ interface ServiceRequestProps {
   setServiceRequestIndex: React.Dispatch<React.SetStateAction<number>>
 }
 
-export default function ServiceRequestList({serviceRequests, setServiceRequestIndex}: ServiceRequestProps) {
+export default function ServiceRequestList({ serviceRequests, setServiceRequestIndex }: ServiceRequestProps) {
   const [search, setSearch] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
 
@@ -42,13 +42,18 @@ export default function ServiceRequestList({serviceRequests, setServiceRequestIn
           <Search className="h-6 w-6 text-gray-500" />
         </button>
       </div>
-      {filteredRequests.length > 0 ? (
+      {/* {filteredRequests.length > 0 ? (
         filteredRequests.map((request, index) => (
           <ServiceRequestPreview key={index} index={index} serviceRequest={request} setServiceRequestIndex={setServiceRequestIndex}/>
         ))
       ) : (
         <Empty />
-      )}
+      )} */}
+      {
+        filteredRequests.map((request, index) => (
+          <ServiceRequestPreview key={index} index={index} serviceRequest={request} setServiceRequestIndex={setServiceRequestIndex} />
+        ))
+      }
       {isSearchOpen && (
         <div className="fixed inset-0 flex items-center justify-center bg-black bg-opacity-50 z-50">
           <div className="bg-white rounded-lg p-6 shadow-lg w-11/12 sm:w-2/3">
