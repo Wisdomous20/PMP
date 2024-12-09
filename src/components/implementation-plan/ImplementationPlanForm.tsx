@@ -2,11 +2,11 @@
 
 import { useEffect, useState } from 'react';
 import RequesterDetails from './ImplementationPlanRequesterDetails';
-import TaskList from './ImplementationPlanTaskList';
-import FileUpload from './ImplementationPlanFileUpload';
-import AdditionalDetails from './ImplementationPlanAdditionalDetails';
+// import TaskList from './ImplementationPlanTaskList';
+// import FileUpload from './ImplementationPlanFileUpload';
+// import AdditionalDetails from './ImplementationPlanAdditionalDetails';
 import fetchGetServiceRequestDetails from '@/domains/service-request/services/fetchGetServiceRequestById';
-import fetchCreateImplementationPlan from '@/domains/implementation-plan/services/fetchCreateImplementationPlan';
+// import fetchCreateImplementationPlan from '@/domains/implementation-plan/services/fetchCreateImplementationPlan';
 import { toast } from "@/hooks/use-toast";
 
 interface ImplementationPlanFormProps {
@@ -22,9 +22,9 @@ const ImplementationPlanForm: React.FC<ImplementationPlanFormProps> = ({ service
   });
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const [tasks, setTasks] = useState<Task[]>([]); 
-  const [file, setFile] = useState<File | null>(null); 
-  const [additionalDetails, setAdditionalDetails] = useState<string>(''); 
+  // const [tasks, setTasks] = useState<Task[]>([]); 
+  // const [file, setFile] = useState<File | null>(null); 
+  // const [additionalDetails, setAdditionalDetails] = useState<string>(''); 
 
   useEffect(() => {
     const fetchDetails = async () => {
@@ -55,21 +55,21 @@ const ImplementationPlanForm: React.FC<ImplementationPlanFormProps> = ({ service
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
-    const implementationPlanData = {
-      id: serviceRequestId, 
-      description: additionalDetails,
-      status: 'pending', 
-      tasks,
-      files: file ? [{ id: file.name, url: URL.createObjectURL(file) }] : [], // Handle file upload
-    };
+    // const implementationPlanData = {
+    //   id: serviceRequestId, 
+    //   description: additionalDetails,
+    //   status: 'pending', 
+    //   tasks,
+    //   files: file ? [{ id: file.name, url: URL.createObjectURL(file) }] : [], // Handle file upload
+    // };
     try {
-      await fetchCreateImplementationPlan(
-        implementationPlanData.id,
-        implementationPlanData.description,
-        implementationPlanData.status,
-        implementationPlanData.tasks,
-        implementationPlanData.files
-      );
+      // await fetchCreateImplementationPlan(
+      //   implementationPlanData.id,
+      //   implementationPlanData.description,
+      //   implementationPlanData.status,
+      //   implementationPlanData.tasks,
+      //   implementationPlanData.files
+      // );
       toast({
         title: "Success",
         description: "Implementation plan created successfully!",
@@ -103,7 +103,7 @@ const ImplementationPlanForm: React.FC<ImplementationPlanFormProps> = ({ service
             details={requesterDetails.details}
           />
         </div>
-        <div className="space-y-4">
+        {/* <div className="space-y-4">
           <TaskList setTasks={setTasks} />
         </div>
         <div className="space-y-4">
@@ -111,7 +111,7 @@ const ImplementationPlanForm: React.FC<ImplementationPlanFormProps> = ({ service
         </div>
         <div className="space-y-4">
           <AdditionalDetails setAdditionalDetails={setAdditionalDetails} />
-        </div>
+        </div> */}
         <button type="submit" className="mt-4 bg-indigo-600 text-white rounded px-4 py-2">
           Submit Implementation Plan
         </button>

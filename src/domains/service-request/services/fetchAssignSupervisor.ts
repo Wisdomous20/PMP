@@ -1,7 +1,5 @@
-export default async function fetchCreateImplementationPlan(
-  serviceRequestId: string, tasks: Task[]
-): Promise<ImplementationPlan> {
-  const endpoint = "/api/implementation-plan";
+export default async function fetchAssignSupervisor(serviceRequestId: string, supervisorId: string) {
+  const endpoint = "/api/service-request/assign-supervisor";
 
   try {
     const response = await fetch(endpoint, {
@@ -9,9 +7,7 @@ export default async function fetchCreateImplementationPlan(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        serviceRequestId, tasks,
-      }),
+      body: JSON.stringify({ serviceRequestId, supervisorId }),
     });
 
     if (!response.ok) {
@@ -22,7 +18,7 @@ export default async function fetchCreateImplementationPlan(
     const responseData = await response.json();
     return responseData;
   } catch (error) {
-    console.error("Failed to create implementation plan:", error);
+    console.error("Failed to assign supervisor to service request:", error);
     throw error;
   }
 }

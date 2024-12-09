@@ -20,6 +20,7 @@ model User {
   department      String
   accounts        Account[]
   sessions        Session[]
+  supervisorAssignments SupervisorAssignment[]
 }
 
 model Session {
@@ -64,6 +65,16 @@ model ServiceRequest {
   user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   ServiceRequestRating ServiceRequestRating?
   status               ServiceRequestStatus[]
+  supervisorAssignment SupervisorAssignment[]
+}
+
+model SupervisorAssignment {
+  id               String         @id @default(uuid()) @map("_id")
+  serviceRequestId String         @unique
+  supervisorId     String
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  supervisor       User           @relation(fields: [supervisorId], references: [id], onDelete: Cascade)
+  assignedAt       DateTime       @default(now())
 }
 
 model ServiceRequestStatus {
@@ -91,10 +102,11 @@ model Rating {
 
 model ImplementationPlan {
   id                   String                @id @default(uuid()) @map("_id")
+  serviceRequestId     String                @unique
   description          String
   status               String
   files                Files[]
-  serviceRequest       ServiceRequest        @relation(fields: [id], references: [id], onDelete: Cascade)
+  serviceRequest       ServiceRequest        @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
   personnelAssignments PersonnelAssignment[]
   tasks                Task[]
 }

@@ -1,17 +1,14 @@
-export default async function fetchCreateImplementationPlan(
-  serviceRequestId: string, tasks: Task[]
-): Promise<ImplementationPlan> {
-  const endpoint = "/api/implementation-plan";
+export default async function fetchGetImplementationPlans(
+  userId: string
+): Promise<ImplementationPlan[]> {
+  const endpoint = `/api/implementation-plan/${userId}`;
 
   try {
     const response = await fetch(endpoint, {
-      method: "POST",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        serviceRequestId, tasks,
-      }),
     });
 
     if (!response.ok) {
@@ -22,7 +19,7 @@ export default async function fetchCreateImplementationPlan(
     const responseData = await response.json();
     return responseData;
   } catch (error) {
-    console.error("Failed to create implementation plan:", error);
+    console.error("Failed to retrieve implementation plan by ID:", error);
     throw error;
   }
 }

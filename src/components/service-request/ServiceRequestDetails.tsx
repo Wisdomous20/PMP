@@ -3,29 +3,30 @@ import { Separator } from "@/components/ui/separator";
 import RejectServiceRequest from "./RejectServiceRequest";
 import ApproveServiceRequest from "./ApproveServiceRequest";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+import CreateImplementationPlan from "../implementation-plan/CreateImplementationPlanMyk";
 
 interface ServiceRequestDetailsProps {
-  requestorName: string;
-  concern: string;
-  details: string;
-  createdOn: Date;
+  serviceRequest: ServiceRequest;
 }
 
-export default function ServiceRequestDetails({
-  requestorName,
-  concern,
-  details,
-  createdOn,
-}: ServiceRequestDetailsProps) {
+export default function ServiceRequestDetails({ serviceRequest }: ServiceRequestDetailsProps) {
+  const { id, concern, details, createdOn, requesterName, status } = serviceRequest;
   const { userRole } = useGetUserRole();
-  const formattedDate = createdOn.toLocaleString("en-US", {
-    weekday: "short",
-    year: "numeric",
-    month: "short",
-    day: "numeric",
-    hour: "numeric",
-    minute: "numeric",
-  });
+
+  const formattedDate = createdOn
+    ? createdOn.toLocaleString("en-US", {
+        weekday: "short",
+        year: "numeric",
+        month: "short",
+        day: "numeric",
+        hour: "numeric",
+        minute: "numeric",
+      })
+    : "Date not available";
+
+  const currentStatus = status
+    .slice()
+    .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0]?.status;
 
   return (
     <Card className="w-full h-screen flex flex-col">
@@ -34,17 +35,44 @@ export default function ServiceRequestDetails({
           <h1 id="title-of-request" className="text-2xl font-semibold text-indigo-text">
             {concern}
           </h1>
-          {userRole === "ADMIN" &&
+          {userRole === "ADMIN" && (
+            (currentStatus === "pending" ? 
+              <div className="flex space-x-2">
+                <RejectServiceRequest serviceRequestId={id} />
+                <ApproveServiceRequest serviceRequestId={id} />
+              </div>
+              :
+              currentStatus === "approved" && (
+                <div className="flex space-x-2">
+                <CreateImplementationPlan serviceRequest={serviceRequest} />
+              </div>
+              )
+            )
+          )}
+          {(userRole === "SUPERVISOR" && currentStatus === "approved") && (
             <div className="flex space-x-2">
-              <RejectServiceRequest />
-              <ApproveServiceRequest />
+              <CreateImplementationPlan serviceRequest={serviceRequest} />
             </div>
-          }
+          )}
         </div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center space-x-2">
             <span id="requestor-name" data-testid="requestor-name">
-              {requestorName}
+              {requesterName}
+            </span>
+            <span
+              id="status-badge"
+              className={`px-3 py-1 text-xs font-medium rounded-full ${
+                currentStatus === "pending"
+                  ? "bg-yellow-100 text-yellow-800"
+                  : currentStatus === "approved"
+                  ? "bg-green-100 text-green-800"
+                  : currentStatus === "rejected"
+                  ? "bg-red-100 text-red-800"
+                  : "bg-blue-100 text-blue-800"
+              }`}
+            >
+              {currentStatus}
             </span>
           </div>
           <time id="created-on" dateTime={formattedDate}>

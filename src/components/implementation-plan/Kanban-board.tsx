@@ -1,8 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React, { useState, useEffect } from "react";
-import { useSession } from "next-auth/react";
+import React, { useState } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -20,6 +19,7 @@ import {
 } from "@dnd-kit/sortable";
 import Column from "./Column";
 import Task from "./Task";
+import useGetImplementationPlans from "@/domains/implementation-plan/hooks/useGetImplementationPlans";
 
 type ColumnType = {
   id: string;
@@ -27,64 +27,19 @@ type ColumnType = {
   taskIds: string[];
 };
 
-type ServiceRequestType = {
-  id: string;
-  requesterName: string;
-  user: {
-    department: string;
-  };
-  concern: string;
-  details: string;
-  createdOn: Date | null;
-  status: string;
-};
-
 const initialColumns: ColumnType[] = [
   { id: "pending", title: "Pending", taskIds: [] },
-  { id: "approved", title: "Approved", taskIds: [] },
   { id: "in_progress", title: "In Progress", taskIds: [] },
-  { id: "rejected", title: "Rejected", taskIds: [] },
+  { id: "done", title: "Done", taskIds: [] },
 ];
 
 export default function ServiceRequestKanban() {
   const [columns, setColumns] = useState(initialColumns);
-  const [serviceRequests, setServiceRequests] = useState<ServiceRequestType[]>(
-    []
-  );
+  const { implementationPlans, loading } = useGetImplementationPlans();
   const [activeId, setActiveId] = useState<string | null>(null);
-  const [activeTask, setActiveTask] = useState<ServiceRequestType | null>(null);
+  const [activeTask, setActiveTask] = useState<ImplementationPlan | null>(null);
 
-  const { data: session } = useSession();
-  const userId = session?.user?.id;
-
-  useEffect(() => {
-    if (userId) {
-      const fetchServiceRequests = async () => {
-        try {
-          const response = await fetch("/api/kanban-board/[id]");
-          const requestsWithStatus = await response.json();
-
-          setServiceRequests(requestsWithStatus);
-
-          const updatedColumns = initialColumns.map((column) => ({
-            ...column,
-            taskIds: requestsWithStatus
-              .filter(
-                (req: ServiceRequestType) =>
-                  req.status.toLowerCase() === column.id
-              )
-              .map((req: ServiceRequestType) => req.id),
-          }));
-
-          setColumns(updatedColumns);
-        } catch (error) {
-          console.error("Failed to fetch service requests", error);
-        }
-      };
-
-      fetchServiceRequests();
-    }
-  }, [userId]);
+  console.log(implementationPlans)
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -99,7 +54,7 @@ export default function ServiceRequestKanban() {
 
   const handleDragStart = (event: any) => {
     const { active } = event;
-    const task = serviceRequests.find((req) => req.id === active.id);
+    const task = implementationPlans.find((req) => req.id === active.id);
     setActiveTask(task || null);
   };
 
@@ -151,50 +106,44 @@ export default function ServiceRequestKanban() {
 
     if (!sourceColumn || !targetColumn) return;
 
-    try {
-      const targetColumnId = targetColumn.id;
+    // try {
+    //   const targetColumnId = targetColumn.id;
 
-      const response = await fetch(`/api/kanban-board/${activeId}`, {
-        method: "PATCH",
-        headers: {
-          "Content-Type": "application/json",
-        },
-        body: JSON.stringify({ status: targetColumnId }),
-      });
+    //   const response = await fetch(`/api/kanban-board/${activeId}`, {
+    //     method: "PATCH",
+    //     headers: {
+    //       "Content-Type": "application/json",
+    //     },
+    //     body: JSON.stringify({ status: targetColumnId }),
+    //   });
 
-      if (!response.ok) {
-        throw new Error("Failed to update status");
-      }
+    //   if (!response.ok) {
+    //     throw new Error("Failed to update status");
+    //   }
+    // } catch (error) {
+    //   console.error("Failed to update status:", error);
 
-      setServiceRequests((prev) =>
-        prev.map((req) =>
-          req.id === activeId ? { ...req, status: targetColumnId } : req
-        )
-      );
-    } catch (error) {
-      console.error("Failed to update status:", error);
-
-      setColumns((prev) =>
-        prev.map((col) => {
-          if (col.id === targetColumn.id) {
-            return {
-              ...col,
-              taskIds: col.taskIds.filter((id) => id !== activeId),
-            };
-          }
-          if (col.id === sourceColumn.id) {
-            return {
-              ...col,
-              taskIds: [...col.taskIds, activeId],
-            };
-          }
-          return col;
-        })
-      );
-    } finally {
-      setActiveId(null);
-      setActiveTask(null);
-    }
+    //   setColumns((prev) =>
+    //     prev.map((col) => {
+    //       if (col.id === targetColumn.id) {
+    //         return {
+    //           ...col,
+    //           taskIds: col.taskIds.filter((id) => id !== activeId),
+    //         };
+    //       }
+    //       if (col.id === sourceColumn.id) {
+    //         return {
+    //           ...col,
+    //           taskIds: [...col.taskIds, activeId],
+    //         };
+    //       }
+    //       return col;
+    //     })
+    //   );
+    // } finally {
+    //   setActiveId(null);
+    //   setActiveTask(null);
+    // }
   };
 
   return (
@@ -207,16 +156,13 @@ export default function ServiceRequestKanban() {
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
       >
-        <SortableContext items={serviceRequests.map((req) => req.id)}>
+        <SortableContext items={implementationPlans.map((req) => req.status)}>
           <div className="flex space-x-6 overflow-x-auto p-4">
-            {" "}
             {columns.map((column) => (
               <Column
                 key={column.id}
                 column={column}
-                tasks={serviceRequests.filter((req) =>
-                  column.taskIds.includes(req.id)
-                )}
+                tasks={implementationPlans.filter((req) => req.status === column.id)}
               />
             ))}
           </div>

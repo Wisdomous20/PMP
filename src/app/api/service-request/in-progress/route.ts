@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import addApprovedStatus from "@/domains/service-request/services/status/addApprovedStatus";
+import addInProgressStatus from "@/domains/service-request/services/status/addInProgressStatus";
 
 export async function POST(req: NextRequest) {
   const { serviceRequestId, note } = await req.json();
@@ -12,16 +12,16 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const status = await addApprovedStatus(serviceRequestId, note);
+    const status = await addInProgressStatus(serviceRequestId, note);
 
     return NextResponse.json(
-      { message: `Approved status added successfully`, status },
+      { message: `In progress status added successfully`, status },
       { status: 200 }
     );
   } catch (error) {
-    console.error(`Error adding approved status:`, error);
+    console.error(`Error adding in progress status:`, error);
     return NextResponse.json(
-      { error: `Failed to add approved status` },
+      { error: `Failed to add in progress status` },
       { status: 500 }
     );
   }

@@ -10,16 +10,49 @@ import { toast } from "@/hooks/use-toast";
 import fetchCreateServiceRequest from "@/domains/service-request/services/fetchCreateServiceRequest";
 import { useSession } from "next-auth/react";
 import { Spinner } from "@/components/ui/spinner";
+import Concerns from "./Concerns";
+
+const predefinedConcerns = [
+  { value: "Aircon", label: "Aircon" },
+  { value: "Building & Toilets", label: "Building & Toilets" },
+  { value: "Building Plans", label: "Building Plans" },
+  { value: "Carpentry/Repainting/Building Repair", label: "Carpentry/Repainting/Building Repair" },
+  { value: "CCTV Network", label: "CCTV Network" },
+  { value: "Computer & Preipherals Specifications", label: "Computer & Preipherals Specifications" },
+  { value: "Computer Equipment Repair", label: "Computer Equipment Repair" },
+  { value: "Electrical", label: "Electrical" },
+  { value: "Elevator", label: "Elevator" },
+  { value: "Grounds/Hauling", label: "Grounds/Hauling" },
+  { value: "MIS", label: "MIS" },
+  { value: "Internet Connectivity", label: "Internet Connectivity" },
+  { value: "Pest Control", label: "Pest Control" },
+  { value: "Plumbing", label: "Plumbing" },
+  { value: "Telephone Line", label: "Telephone Line" },
+  { value: "Security & Safety", label: "Security & Safety" },
+  { value: "Others", label: "Others" }
+];
 
 export default function CreateServiceRequest() {
-  const [concern, setConcern] = useState("");
+  const [selectedConcern, setSelectedConcern] = useState("");
+  const [customConcern, setCustomConcern] = useState("");
   const [details, setDetails] = useState("");
   const [isLoading, setIsLoading] = useState(false);
   const router = useRouter();
   const { data: session } = useSession();
 
+  const handleConcernSelect = (value: string) => {
+    if (value === "Others") {
+      setSelectedConcern("")
+    } else {
+      setCustomConcern("")
+    }
+    setSelectedConcern(value);
+  };
+
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
+
+    const concern = selectedConcern === "Others" ? customConcern : selectedConcern;
 
     if (concern.trim() === "" || details.trim() === "") {
       toast({
@@ -39,16 +72,18 @@ export default function CreateServiceRequest() {
         throw new Error("User not logged in");
       }
 
-      await fetchCreateServiceRequest(userId, concern, details);
+      const serviceRequest = await fetchCreateServiceRequest(userId, concern, details);
+      console.log("Service request created:", serviceRequest);
 
       toast({
         title: "Success",
-        description: "Your service request has been sent!",
+        description: "Your service request has been created!",
       });
 
-      setConcern("");
+      setSelectedConcern("");
+      setCustomConcern("");
       setDetails("");
-      router.push("/");
+      router.push("/service-request");
     } catch (error) {
       console.error("Failed to create service request:", error);
       toast({
@@ -62,41 +97,33 @@ export default function CreateServiceRequest() {
   };
 
   return (
-    <div className="w-full max-w-2xl bg-white rounded-lg sm:rounded-md xsm:rounded-xsm border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
+    <div className="w-full max-w-2xl bg-white rounded-lg sm:rounded-md border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
       <div className="p-5 bg-indigo-dark text-primary-foreground flex items-center">
-        {/* <Button
-          id="create-service-request-back-button"
-          variant="ghost"
-          size="icon"
-          className="mr-2"
-          onClick={() => router.push("/service-request")}
-        >
-          <ArrowLeft className="h-6 w-6" />
-        </Button> */}
-        <h1 
-        id="create-service-request-title" 
-        className="text-lg sm:text-xl font-semibold text-center xsm:text-left w-full">
+        <h1 id="create-service-request-title" className="text-lg sm:text-xl font-semibold text-center xsm:text-left w-full">
           Create Service Request
         </h1>
       </div>
       <form onSubmit={handleSubmit} className="p-6 space-y-6 flex flex-col">
-        <div className="space-y-2 flex-shrink-0">
-          <label htmlFor="title" className="text-sm font-medium text-indigo-text">
+        <div className="space-y-2">
+          <label htmlFor="concern" className="text-sm font-medium text-indigo-text">
             Concern/Work to be done
           </label>
-          <Input
-            id="title"
-            value={concern}
-            onChange={(e) => setConcern(e.target.value)}
-            placeholder="Enter the title of your service request"
-            className="w-full"
+          <Concerns
+            concerns={predefinedConcerns}
+            onSelect={handleConcernSelect}
           />
+          {selectedConcern === "Others" && (
+            <Input
+              id="custom-concern"
+              value={customConcern}
+              onChange={(e) => setCustomConcern(e.target.value)}
+              placeholder="Enter your custom concern..."
+              className="w-full mt-2"
+            />
+          )}
         </div>
-        <div className="space-y-2 flex-grow">
-          <label
-            htmlFor="details"
-            className="text-sm font-medium text-indigo-text"
-          >
+        <div className="space-y-2">
+          <label htmlFor="details" className="text-sm font-medium text-indigo-text">
             Details
           </label>
           <Textarea
@@ -107,14 +134,14 @@ export default function CreateServiceRequest() {
             className="w-full h-full max-h-[300px] min-h-[150px] resize-none overflow-auto"
           />
         </div>
-        <div className="flex justify-end flex-shrink-0">
-          <Button type="submit" className="w-full sm:w-auto bg-indigo-Background" variant="gold"disabled={isLoading}>
+        <div className="flex justify-end">
+          <Button type="submit" className="w-full sm:w-auto bg-indigo-Background" disabled={isLoading}>
             {isLoading ? (
               <Spinner className="w-4 h-4 mr-2" />
             ) : (
               <Send id="send-service-request-button" className="w-4 h-4 mr-2" />
             )}
-            {isLoading ? "Sending..." : "Send"}
+            {isLoading ? "Creating..." : "Create"}
           </Button>
         </div>
       </form>
