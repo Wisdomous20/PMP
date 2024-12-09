@@ -5,7 +5,7 @@ export default async function fetchUpdateImplementationPlan(
 
   try {
     const response = await fetch(endpoint, {
-      method: "POST",
+      method: "PUT",
       headers: {
         "Content-Type": "application/json",
       },

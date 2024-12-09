@@ -4,6 +4,7 @@ import RejectServiceRequest from "./RejectServiceRequest";
 import ApproveServiceRequest from "./ApproveServiceRequest";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import CreateImplementationPlan from "../implementation-plan/CreateImplementationPlanMyk";
+import formatTimestamp from "@/utils/formatTimestamp";
 
 interface ServiceRequestDetailsProps {
   serviceRequest: ServiceRequest;
@@ -12,17 +13,6 @@ interface ServiceRequestDetailsProps {
 export default function ServiceRequestDetails({ serviceRequest }: ServiceRequestDetailsProps) {
   const { id, concern, details, createdOn, requesterName, status } = serviceRequest;
   const { userRole } = useGetUserRole();
-
-  const formattedDate = createdOn
-    ? createdOn.toLocaleString("en-US", {
-        weekday: "short",
-        year: "numeric",
-        month: "short",
-        day: "numeric",
-        hour: "numeric",
-        minute: "numeric",
-      })
-    : "Date not available";
 
   const currentStatus = status
     .slice()
@@ -75,8 +65,8 @@ export default function ServiceRequestDetails({ serviceRequest }: ServiceRequest
               {currentStatus}
             </span>
           </div>
-          <time id="created-on" dateTime={formattedDate}>
-            {formattedDate}
+          <time id="created-on" dateTime={formatTimestamp(createdOn as Date)}>
+            {formatTimestamp(createdOn as Date)}
           </time>
         </div>
       </CardHeader>

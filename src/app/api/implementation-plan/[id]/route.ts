@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import getImplementationPlans from "@/domains/implementation-plan/services/getImplementationPlans";
-import fetchUpdateImplementationPlan from "@/domains/implementation-plan/services/fetchUpdateImplementationPlan";
+import updateImplementationPlan from "@/domains/implementation-plan/services/updateImplementationPlan";
 
 export async function GET(
   req: NextRequest,
@@ -33,12 +33,15 @@ export async function GET(
   }
 }
 
-export async function PATCH(
+export async function PUT(
   req: NextRequest,
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
   const { tasks } = await req.json();
+
+  console.log("tasks", tasks);
+  console.log("ok")
 
   if (!id) {
     return NextResponse.json(
@@ -55,7 +58,7 @@ export async function PATCH(
   }
 
   try {
-    fetchUpdateImplementationPlan(id, tasks);
+    updateImplementationPlan(id, tasks);
     return NextResponse.json({ message: "Implementation plan updated" });
   } catch (error) {
     console.error("Error updating implementation plan:", error);
