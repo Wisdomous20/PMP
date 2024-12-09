@@ -1,6 +1,7 @@
 import React from "react";
 import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
+import EditImplementationPlan from "./EditImplementationPlanMyk";
 
 type TaskProps = {
   task: ImplementationPlan
@@ -15,6 +16,14 @@ export default function Task({ task, isDragging }: TaskProps) {
     transform: CSS.Transform.toString(transform),
     transition,
   };
+
+  const tasksInitial = task.tasks.map((task) => ({
+    id: task.id,
+    name: task.name,
+    deadline: new Date(task.deadline),
+    confirmed: task.checked,
+    isEditing: false,
+  }))
 
   return (
     <div
@@ -31,6 +40,7 @@ export default function Task({ task, isDragging }: TaskProps) {
       <div className="text-xs text-gray-500 mt-2">
         <div>Requester: {task.serviceRequest[0]?.requesterName}</div>
       </div>
+      <EditImplementationPlan serviceRequest={task.serviceRequest[0]} tasksInitial={tasksInitial}/>
     </div>
   );
 }
