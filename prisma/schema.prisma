@@ -8,19 +8,19 @@ datasource db {
 }
 
 model User {
-  id              String           @id @default(uuid()) @map("_id")
-  firstName       String
-  lastName        String
-  email           String           @unique
-  password        String?
-  localNumber     String?
-  cellphoneNumber String
-  user_type       user_type
-  serviceRequests ServiceRequest[]
-  department      String
-  accounts        Account[]
-  sessions        Session[]
+  id                    String                 @id @default(uuid()) @map("_id")
+  email                 String                 @unique
+  password              String?
+  user_type             user_type
+  department            String
+  cellphoneNumber       String
+  firstName             String
+  lastName              String
+  localNumber           String?
+  serviceRequests       ServiceRequest[]
   supervisorAssignments SupervisorAssignment[]
+  accounts              Account[]
+  sessions              Session[]
 }
 
 model Session {
@@ -59,30 +59,30 @@ model Account {
 model ServiceRequest {
   id                   String                 @id @default(uuid()) @map("_id")
   userId               String
-  concern              String
   details              String
+  concern              String
   implementationPlan   ImplementationPlan?
   user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   ServiceRequestRating ServiceRequestRating?
   status               ServiceRequestStatus[]
-  supervisorAssignment SupervisorAssignment[]
+  supervisorAssignment SupervisorAssignment?
 }
 
 model SupervisorAssignment {
   id               String         @id @default(uuid()) @map("_id")
   serviceRequestId String         @unique
   supervisorId     String
+  assignedAt       DateTime       @default(now())
   serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
   supervisor       User           @relation(fields: [supervisorId], references: [id], onDelete: Cascade)
-  assignedAt       DateTime       @default(now())
 }
 
 model ServiceRequestStatus {
   id               String         @id @default(uuid()) @map("_id")
   serviceRequestId String
-  status           status
   timestamp        DateTime
   note             String?
+  status           status
   serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
 }
 
@@ -102,9 +102,9 @@ model Rating {
 
 model ImplementationPlan {
   id                   String                @id @default(uuid()) @map("_id")
-  serviceRequestId     String                @unique
   description          String
   status               String
+  serviceRequestId     String                @unique
   files                Files[]
   serviceRequest       ServiceRequest        @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
   personnelAssignments PersonnelAssignment[]
