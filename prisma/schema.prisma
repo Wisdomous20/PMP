@@ -102,10 +102,11 @@ model Rating {
 
 model ImplementationPlan {
   id                   String                @id @default(uuid()) @map("_id")
+  serviceRequestId     String                @unique
   description          String
   status               String
   files                Files[]
-  serviceRequest       ServiceRequest        @relation(fields: [id], references: [id], onDelete: Cascade)
+  serviceRequest       ServiceRequest        @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
   personnelAssignments PersonnelAssignment[]
   tasks                Task[]
 }

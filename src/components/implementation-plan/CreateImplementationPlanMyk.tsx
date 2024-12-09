@@ -75,7 +75,7 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
         checked: task.confirmed
       }))
 
-      const response = await fetchCreateImplementationPlan(formattedTasks)
+      const response = await fetchCreateImplementationPlan(serviceRequest.id, formattedTasks)
       console.log('Plan creation response:', response)
       await fetchInProgressStatus(serviceRequest.id, 'Implementation plan created')
 
