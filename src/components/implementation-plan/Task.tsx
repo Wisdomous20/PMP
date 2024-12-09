@@ -3,16 +3,7 @@ import { useSortable } from "@dnd-kit/sortable";
 import { CSS } from "@dnd-kit/utilities";
 
 type TaskProps = {
-  task: {
-    id: string;
-    requesterName: string;
-    user: {
-      department: string;
-    };
-    concern: string;
-    details: string;
-    status?: string;
-  };
+  task: ImplementationPlan
   isDragging?: boolean;
 };
 
@@ -35,11 +26,10 @@ export default function Task({ task, isDragging }: TaskProps) {
         isDragging ? "opacity-50" : ""
       }`}
     >
-      <div className="font-semibold">{task.concern}</div>
-      <div className="text-sm text-gray-600 mt-1">{task.details}</div>
+      <div className="font-semibold">{task.serviceRequest[0]?.concern}</div>
+      <div className="text-sm text-gray-600 mt-1">{task.serviceRequest[0]?.details}</div>
       <div className="text-xs text-gray-500 mt-2">
-        <div>Requester: {task.requesterName}</div>
-        <div>Department: {task.user.department} </div>
+        <div>Requester: {task.serviceRequest[0]?.requesterName}</div>
       </div>
     </div>
   );

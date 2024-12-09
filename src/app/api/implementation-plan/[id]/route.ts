@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import getImplementationPlanById from "@/domains/implementation-plan/services/getImplementationPlanById";
+import getImplementationPlans from "@/domains/implementation-plan/services/getImplementationPlans";
 import fetchUpdateImplementationPlan from "@/domains/implementation-plan/services/fetchUpdateImplementationPlan";
 
 export async function GET(
@@ -16,7 +16,7 @@ export async function GET(
   }
 
   try {
-    const implementationPlan = await getImplementationPlanById(id);
+    const implementationPlan = await getImplementationPlans(id);
     if (!implementationPlan) {
       return NextResponse.json(
         { error: "Implementation plan not found" },

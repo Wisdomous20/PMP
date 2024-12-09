@@ -12,16 +12,7 @@ type ColumnProps = {
     title: string;
     taskIds: string[];
   };
-  tasks: {
-    id: string;
-    requesterName: string;
-    user: {
-      department: string;
-    };
-    concern: string;
-    details: string;
-    status: string;
-  }[];
+  tasks: ImplementationPlan[];
 };
 
 export default function Column({ column, tasks }: ColumnProps) {
