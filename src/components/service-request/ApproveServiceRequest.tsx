@@ -54,7 +54,7 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
   return (
     <Dialog open={isApproveDialogOpen} onOpenChange={setIsApproveDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="gold" size="sm" className="bg-indigo-Background">
+        <Button size="sm" className="bg-indigo-Background hover:bg-indigo-Background/90">
           <CheckIcon className="h-4 w-4 mr-2" />
           Approve
         </Button>

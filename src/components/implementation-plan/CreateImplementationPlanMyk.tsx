@@ -85,7 +85,7 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" className="bg-green-500 hover:bg-green-600 text-white">
+        <Button variant="outline" size="sm" className="bg-green-500 hover:bg-green-600 text-white hover:text-white">
           Create Implementation Plan
         </Button>
       </DialogTrigger>
