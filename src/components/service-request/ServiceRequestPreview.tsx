@@ -22,7 +22,7 @@ export default function ServiceRequestPreview({
 
   return (
     <Card
-      className="rounded-md transition duration-200 ease-in-out hover:bg-gray-200 dark:hover:bg-gray-700"
+      className="rounded-md transition duration-200 ease-in-out hover:cursor-pointer hover:bg-gray-200 dark:hover:bg-gray-700"
       onClick={() => setServiceRequestIndex(index)}
     >
       <CardContent className="flex justify-between items-center p-4">
@@ -36,7 +36,6 @@ export default function ServiceRequestPreview({
           <p className="text-sm text-gray-text3">{concern}</p>
           <p className="text-sm text-gray-text2">{detailsPreview}</p>
           <div className="mt-2">
-            {/* Display the current status */}
             <span
               className={`inline-block px-3 py-1 text-xs font-medium rounded-full ${
                 currentStatus === "pending"

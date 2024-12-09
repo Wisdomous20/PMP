@@ -1,6 +1,7 @@
 import { Separator } from "@/components/ui/separator"
 import { Progress } from "@/components/ui/progress"
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import formatTimestamp from "@/utils/formatTimestamp";
 
 interface ServiceRequestStatusProps {
   serviceRequest: ServiceRequest
@@ -36,14 +37,6 @@ function getStatusInfo(status: Status[]): { message: string; progress: number[] 
 export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestStatusProps) {
   const {  concern, details, createdOn, status } = serviceRequest;
   const { message, progress } = getStatusInfo(status);
-  const formattedDate = createdOn ? createdOn.toLocaleString('en-US', {
-    weekday: 'short',
-    year: 'numeric',
-    month: 'short',
-    day: 'numeric',
-    hour: 'numeric',
-    minute: 'numeric',
-  }) : 'Date not available';
 
   return (
     <Card className="w-full h-screen flex flex-col p-6">
@@ -73,7 +66,7 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
           <Separator />
           <div className="flex items-center justify-between w-full">
           <h2 className="text-2xl font-medium mb-2">{concern}</h2>
-            <p className="text-sm text-muted-foreground ml-auto">Created on: {formattedDate}</p>
+            <p className="text-sm text-muted-foreground ml-auto">Created: {formatTimestamp(createdOn as Date)}</p>
           </div>
           <Separator />
           <div className="prose max-w-none">
