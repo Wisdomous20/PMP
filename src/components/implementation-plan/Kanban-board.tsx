@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -34,12 +34,23 @@ const initialColumns: ColumnType[] = [
 ];
 
 export default function ServiceRequestKanban() {
-  const [columns, setColumns] = useState(initialColumns);
   const { implementationPlans, loading } = useGetImplementationPlans();
+  const [columns, setColumns] = useState(initialColumns);
   const [activeId, setActiveId] = useState<string | null>(null);
   const [activeTask, setActiveTask] = useState<ImplementationPlan | null>(null);
 
-  console.log(implementationPlans)
+  useEffect(() => {
+    if (implementationPlans.length > 0) {
+      setColumns(
+        initialColumns.map((col) => ({
+          ...col,
+          taskIds: implementationPlans
+            .filter((plan) => plan.status === col.id)
+            .map((plan) => plan.id),
+        }))
+      );
+    }
+  }, [implementationPlans]);
 
   const sensors = useSensors(
     useSensor(MouseSensor, {
@@ -147,8 +158,8 @@ export default function ServiceRequestKanban() {
   };
 
   return (
-    <div className="p-4">
-      <h1 className="text-2xl font-bold mb-4">Service Requests</h1>
+    <div className="p-4 w-full max-w-[1600px] mx-auto">
+      <h1 className="text-2xl font-bold mb-4 text-center">Service Requests</h1>
       <DndContext
         sensors={sensors}
         collisionDetection={closestCenter}
@@ -156,13 +167,15 @@ export default function ServiceRequestKanban() {
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
       >
-        <SortableContext items={implementationPlans.map((req) => req.status)}>
-          <div className="flex space-x-6 overflow-x-auto p-4">
+        <SortableContext items={columns.map((col) => col.id)}>
+          <div className="flex justify-evenly space-x-8 overflow-x-auto p-4 min-w-full">
             {columns.map((column) => (
               <Column
                 key={column.id}
                 column={column}
-                tasks={implementationPlans.filter((req) => req.status === column.id)}
+                tasks={implementationPlans.filter((req) =>
+                  column.taskIds.includes(req.id)
+                )}
               />
             ))}
           </div>
