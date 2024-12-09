@@ -89,7 +89,7 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
           Create Implementation Plan
         </Button>
       </DialogTrigger>
-      <DialogContent>
+      <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-scroll">
         <DialogHeader>
           <DialogTitle>Create Implementation Plan</DialogTitle>
         </DialogHeader>
@@ -115,7 +115,7 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
 
                 <Separator />
 
-                <div className="space-y-4">
+                <div className="space-y-2">
                   <p className="font-semibold">Tasks</p>
 
                   {tasks.map(task => (
