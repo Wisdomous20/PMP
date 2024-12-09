@@ -71,9 +71,9 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
             />
           </div>
           <Separator />
-          <div>
-            <h2 className="text-2xl font-medium mb-2">{concern}</h2>
-            <p className="text-sm text-muted-foreground">Created on: {formattedDate}</p>
+          <div className="flex items-center justify-between w-full">
+          <h2 className="text-2xl font-medium mb-2">{concern}</h2>
+            <p className="text-sm text-muted-foreground ml-auto">Created on: {formattedDate}</p>
           </div>
           <Separator />
           <div className="prose max-w-none">

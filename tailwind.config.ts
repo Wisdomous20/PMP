@@ -63,7 +63,9 @@ const config: Config = {
   				'4': 'hsl(var(--chart-4))',
   				'5': 'hsl(var(--chart-5))'
   			}
-  		},
+  		},backgroundImage: {
+			'radial-gradient': 'radial-gradient(circle, #a0b9f8, #646fd4)',
+		  },
   		borderRadius: {
   			lg: 'var(--radius)',
   			md: 'calc(var(--radius) - 2px)',

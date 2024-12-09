@@ -111,7 +111,6 @@ export default function Login() {
           </p>
       </div>
       <form className="space-y-6" onSubmit={handleSubmit}>
-      {!resetpassword &&<div>
           <div>
             <label
               htmlFor="email"
@@ -163,8 +162,7 @@ export default function Login() {
               <p className="text-red-500 text-xs mt-1">{errors.password}</p>
             )}
           </div>
-      </div>
-       }
+
        <p onClick={() => setResetPassword(!resetpassword)} className="text-yellow-400 hover:underline cursor-pointer">
         {resetpassword ? 'Login' : 'Forgot Password'}</p>
           {errors.submit && (
