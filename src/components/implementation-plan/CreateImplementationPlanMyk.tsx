@@ -11,6 +11,7 @@ import { PlusCircle, Upload } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import fetchCreateImplementationPlan from "@/domains/implementation-plan/services/fetchCreateImplementationPlan"
 import formatTimestamp from "@/utils/formatTimestamp"
+import { fetchInProgressStatus } from "@/domains/service-request/services/status/fetchAddSatus"
 
 interface Task {
   id: string
@@ -76,6 +77,7 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
 
       const response = await fetchCreateImplementationPlan(formattedTasks)
       console.log('Plan creation response:', response)
+      await fetchInProgressStatus(serviceRequest.id, 'Implementation plan created')
 
     } catch (error) {
       console.error('Failed to create implementation plan:', error)

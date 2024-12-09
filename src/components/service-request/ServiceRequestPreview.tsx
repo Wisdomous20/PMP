@@ -8,7 +8,7 @@ interface ServiceRequestPreviewProps {
 }
 
 export default function ServiceRequestPreview({ serviceRequest, setServiceRequestIndex, index }: ServiceRequestPreviewProps) {
-  const { concern, details, createdOn, requesterName } = serviceRequest;
+  const { concern, details, createdOn, requesterName, status } = serviceRequest;
 
   const detailsPreview = details.length > 50 ? details.slice(0, 50) + '...' : details;
   return (
