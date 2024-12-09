@@ -1,23 +1,20 @@
-'use client'
-
 import { useState } from "react"
 import { motion } from "framer-motion"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
-import { Checkbox } from "@/components/ui/checkbox"
 import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
-import { PlusCircle, Upload } from 'lucide-react'
+import { PlusCircle, Trash } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
 import fetchCreateImplementationPlan from "@/domains/implementation-plan/services/fetchCreateImplementationPlan"
 import formatTimestamp from "@/utils/formatTimestamp"
 import { fetchInProgressStatus } from "@/domains/service-request/services/status/fetchAddSatus"
+import refreshPage from "@/utils/refreshPage"
 
 interface Task {
   id: string
   name: string
   deadline: Date
-  confirmed: boolean
   isEditing: boolean
 }
 
@@ -31,18 +28,17 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
       id: '1',
       name: "Initial Task",
       deadline: new Date('2023-12-20'),
-      confirmed: false,
       isEditing: false
-    }
+    } 
   ])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
+  const [isLoading, setIsLoading] = useState(false)
 
   const addTask = () => {
     const newTask: Task = {
       id: Date.now().toString(),
       name: "New Task",
       deadline: new Date(),
-      confirmed: false,
       isEditing: false
     }
     setTasks([...tasks, newTask])
@@ -54,33 +50,35 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
     ))
   }
 
-  const toggleConfirm = (id: string) => {
-    setTasks(tasks.map(task =>
-      task.id === id ? { ...task, confirmed: !task.confirmed } : task
-    ))
-  }
-
   const toggleEditing = (id: string) => {
     setTasks(tasks.map(task =>
       task.id === id ? { ...task, isEditing: !task.isEditing } : task
     ))
   }
 
+  const removeTask = (id: string) => {
+    setTasks(tasks.filter(task => task.id !== id))
+  }
+
   async function handleCreateImplementationPlan() {
+    setIsLoading(true) // Start loading
     try {
       const formattedTasks = tasks.map(task => ({
         id: task.id,
         name: task.name,
         deadline: task.deadline,
-        checked: task.confirmed
+        checked: false
       }))
 
       const response = await fetchCreateImplementationPlan(serviceRequest.id, formattedTasks)
-      console.log('Plan creation response:', response)
       await fetchInProgressStatus(serviceRequest.id, 'Implementation plan created')
+      console.log('Plan creation response:', response)
+      refreshPage()
 
     } catch (error) {
       console.error('Failed to create implementation plan:', error)
+    } finally {
+      setIsLoading(false)
     }
   }
 
@@ -140,17 +138,19 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
                             autoFocus
                           />
                         ) : (
-                          <span className={task.confirmed ? 'line-through text-gray-500' : ''}>
+                          <span>
                             {task.name}
                           </span>
                         )}
                       </div>
-
-                      <Checkbox
-                        checked={task.confirmed}
-                        onCheckedChange={() => toggleConfirm(task.id)}
-                        aria-label="Confirm task"
-                      />
+                      <Button
+                        variant="ghost"
+                        size="sm"
+                        className="text-red-500 hover:text-red-600"
+                        onClick={() => removeTask(task.id)}
+                      >
+                        <Trash className="w-4 h-4" />
+                      </Button>
                     </motion.div>
                   ))}
 
@@ -174,11 +174,6 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
                 }
                 <div className="space-y-4">
                   <Button variant="outline" className="w-full h-24 flex flex-col items-center justify-center">
-                    <Upload className="w-6 h-6 mb-2" />
-                    <span>Upload File</span>
-                  </Button>
-
-                  <Button variant="outline" className="w-full h-24 flex items-center justify-center">
                     <span>People Assigned</span>
                   </Button>
 
@@ -188,9 +183,10 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
 
                   <Button
                     onClick={handleCreateImplementationPlan}
-                    className="w-full mt-4 bg-green-500 hover:bg-green-600 text-white"
+                    className={`w-full mt-4 ${isLoading ? 'bg-green-300 cursor-not-allowed' : 'bg-green-500 hover:bg-green-600 text-white'}`}
+                    disabled={isLoading}
                   >
-                    Confirm
+                    {isLoading ? 'Creating...' : 'Confirm'}
                   </Button>
                 </div>
               </div>

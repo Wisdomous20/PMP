@@ -8,6 +8,7 @@ import { Textarea } from "@/components/ui/textarea";
 import fetchGetSupervisors from "@/domains/user-management/services/fetchGetSupervisors";
 import fetchAssignSupervisor from "@/domains/service-request/services/fetchAssignSupervisor";
 import { fetchAddApprovedStatus } from "@/domains/service-request/services/status/fetchAddSatus";
+import refreshPage from "@/utils/refreshPage";
 
 interface ApproveServiceRequestProps {
   serviceRequestId: string;
@@ -18,6 +19,7 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
   const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
   const [selectedSupervisor, setSelectedSupervisor] = useState<Supervisor | null>(null);
   const [note, setNote] = useState<string>("");
+  const [isLoading, setIsLoading] = useState(false);
 
   useEffect(() => {
     const loadSupervisors = async () => {
@@ -39,14 +41,20 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
       console.log("Request approved for supervisor:", selectedSupervisor, "with note:", note);
 
       try {
+        setIsLoading(true);
+
         await fetchAssignSupervisor(serviceRequestId, selectedSupervisor.id);
         await fetchAddApprovedStatus(serviceRequestId, note);
 
         setIsApproveDialogOpen(false);
         setSelectedSupervisor(null);
         setNote("");
+
+        refreshPage()
       } catch (error) {
         console.error("Failed to approve service request:", error);
+      } finally {
+        setIsLoading(false)
       }
     }
   }
@@ -103,8 +111,8 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
         </div>
 
         <DialogFooter>
-          <Button type="button" onClick={handleApprove} disabled={!selectedSupervisor}>
-            Confirm Approval
+          <Button type="button" onClick={handleApprove} disabled={!selectedSupervisor || isLoading}>
+            {isLoading ? "Approving..." : "Confirm Approval"}
           </Button>
         </DialogFooter>
       </DialogContent>
