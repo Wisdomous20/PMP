@@ -107,7 +107,7 @@ export default function Login() {
             Project Management System
           </h1>
           <p className="text-sm text-yellow-200">
-            Central Philippines University
+            Central Philippine University
           </p>
       </div>
       <form className="space-y-6" onSubmit={handleSubmit}>
