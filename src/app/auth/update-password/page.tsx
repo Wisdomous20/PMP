@@ -1,7 +1,10 @@
-import ResetPassword from '@/components/auth/UpdatePassword';
+import UpdatePassword from '@/components/auth/UpdatePassword';
 
-const ResetPasswordPage: React.FC = () => {
-  return <ResetPassword />;
-};
+export default function Page() {
+  return (
+    <div className="">
+        <UpdatePassword />
+    </div>
+  );
+}
 
-export default ResetPasswordPage;
