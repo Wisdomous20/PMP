@@ -34,9 +34,8 @@ const initialColumns: ColumnType[] = [
 ];
 
 export default function ServiceRequestKanban() {
-  const { implementationPlans, loading } = useGetImplementationPlans();
+  const { implementationPlans } = useGetImplementationPlans();
   const [columns, setColumns] = useState(initialColumns);
-  const [activeId, setActiveId] = useState<string | null>(null);
   const [activeTask, setActiveTask] = useState<ImplementationPlan | null>(null);
 
   useEffect(() => {
@@ -103,59 +102,58 @@ export default function ServiceRequestKanban() {
     );
   };
 
-  const handleDragEnd = async (event: DragEndEvent) => {
+  const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
-
+  
     const activeId = String(active.id);
     const overId = String(over.id);
-
+  
+    // Find source and target columns
     const sourceColumn = columns.find((col) => col.taskIds.includes(activeId));
-    const targetColumn = columns.find(
-      (col) => col.id === overId || col.taskIds.includes(overId)
-    );
-
+    const targetColumn = columns.find((col) => col.taskIds.includes(overId) || col.id === overId);
+  
     if (!sourceColumn || !targetColumn) return;
-
-    // try {
-    //   const targetColumnId = targetColumn.id;
-
-    //   const response = await fetch(`/api/kanban-board/${activeId}`, {
-    //     method: "PATCH",
-    //     headers: {
-    //       "Content-Type": "application/json",
-    //     },
-    //     body: JSON.stringify({ status: targetColumnId }),
-    //   });
-
-    //   if (!response.ok) {
-    //     throw new Error("Failed to update status");
-    //   }
-    // } catch (error) {
-    //   console.error("Failed to update status:", error);
-
-    //   setColumns((prev) =>
-    //     prev.map((col) => {
-    //       if (col.id === targetColumn.id) {
-    //         return {
-    //           ...col,
-    //           taskIds: col.taskIds.filter((id) => id !== activeId),
-    //         };
-    //       }
-    //       if (col.id === sourceColumn.id) {
-    //         return {
-    //           ...col,
-    //           taskIds: [...col.taskIds, activeId],
-    //         };
-    //       }
-    //       return col;
-    //     })
-    //   );
-    // } finally {
-    //   setActiveId(null);
-    //   setActiveTask(null);
-    // }
-  };
+  
+    if (sourceColumn.id === targetColumn.id) {
+      const reorderedTaskIds = [...sourceColumn.taskIds];
+      const oldIndex = reorderedTaskIds.indexOf(activeId);
+      const newIndex = reorderedTaskIds.indexOf(overId);
+  
+      reorderedTaskIds.splice(oldIndex, 1);
+      reorderedTaskIds.splice(newIndex, 0, activeId);
+  
+      setColumns((prev) =>
+        prev.map((col) =>
+          col.id === sourceColumn.id
+            ? { ...col, taskIds: reorderedTaskIds }
+            : col
+        )
+      );
+    } else {
+      const sourceTaskIds = sourceColumn.taskIds.filter((id) => id !== activeId);
+      const targetTaskIds = [...targetColumn.taskIds];
+      const insertIndex = targetTaskIds.indexOf(overId);
+  
+      if (insertIndex === -1) {
+        targetTaskIds.push(activeId);
+      } else {
+        targetTaskIds.splice(insertIndex, 0, activeId);
+      }
+  
+      setColumns((prev) =>
+        prev.map((col) => {
+          if (col.id === sourceColumn.id) {
+            return { ...col, taskIds: sourceTaskIds };
+          }
+          if (col.id === targetColumn.id) {
+            return { ...col, taskIds: targetTaskIds };
+          }
+          return col;
+        })
+      );
+    }
+  };  
 
   return (
     <div className="p-4 w-full max-w-[1600px] mx-auto">
@@ -169,15 +167,18 @@ export default function ServiceRequestKanban() {
       >
         <SortableContext items={columns.map((col) => col.id)}>
           <div className="flex justify-evenly space-x-8 overflow-x-auto p-4 min-w-full">
-            {columns.map((column) => (
-              <Column
-                key={column.id}
-                column={column}
-                tasks={implementationPlans.filter((req) =>
-                  column.taskIds.includes(req.id)
-                )}
-              />
-            ))}
+            {columns.map((column) => {
+              return (
+                <Column
+                  key={column.id}
+                  column={column}
+                  tasks={implementationPlans.filter((req) =>
+                    column.taskIds.includes(req.id)
+                  )}
+                />
+              );
+            })}
+
           </div>
         </SortableContext>
         <DragOverlay>

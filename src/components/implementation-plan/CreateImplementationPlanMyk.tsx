@@ -62,7 +62,7 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
   }
 
   async function handleCreateImplementationPlan() {
-    setIsLoading(true) // Start loading
+    setIsLoading(true)
     try {
       const formattedTasks = tasks.map(task => ({
         id: task.id,
