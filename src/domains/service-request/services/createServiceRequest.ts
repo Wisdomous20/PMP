@@ -1,6 +1,11 @@
 import { prisma } from "@/lib/prisma";
 
-export default async function createServiceRequest(userId: string, concern: string, details: string) {
+export default async function createServiceRequest(userId: string, concern: string, details: string) : Promise<{
+  id: string;
+  userId: string;
+  concern: string;
+  details: string;
+}> {
   try {
     const serviceRequest = await prisma.serviceRequest.create({
       data: {

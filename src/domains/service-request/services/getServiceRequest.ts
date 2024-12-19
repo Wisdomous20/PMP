@@ -5,7 +5,6 @@ export default async function getServiceRequests(userId: string) {
     where: { id: userId },
     select: {
       user_type: true,
-      department: true,
     },
   });
 
@@ -21,23 +20,23 @@ export default async function getServiceRequests(userId: string) {
         user: true,
         status: {
           orderBy: {
-            timestamp: 'asc',
+            timestamp: "asc",
           },
         },
       },
     });
-  } else if (user.user_type === "SUPERVISOR" && user.department) {
+  } else if (user.user_type === "SUPERVISOR") {
     serviceRequests = await prisma.serviceRequest.findMany({
       where: {
-        user: {
-          department: user.department,
+        supervisorAssignment: {
+          supervisorId: userId
         },
       },
       include: {
         user: true,
         status: {
           orderBy: {
-            timestamp: 'asc',
+            timestamp: "asc",
           },
         },
       },
@@ -51,7 +50,7 @@ export default async function getServiceRequests(userId: string) {
         user: true,
         status: {
           orderBy: {
-            timestamp: 'asc',
+            timestamp: "asc",
           },
         },
       },
@@ -69,6 +68,7 @@ export default async function getServiceRequests(userId: string) {
       requesterName,
       concern,
       details,
+      status,
       createdOn,
     };
   });

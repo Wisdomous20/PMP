@@ -16,7 +16,6 @@ const ImplementationPlanTaskList: React.FC<TaskListProps> = ({ setTasks }) => {
     if (taskName && taskDeadline) {
       const newTask: Task = {
         id: '',
-        implementationPlanId: '',
         name: taskName,
         deadline: taskDeadline,
         checked: false,
