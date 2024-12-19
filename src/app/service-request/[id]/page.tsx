@@ -20,7 +20,9 @@ export default function Page({ params }: PageProps) {
   const { serviceRequestDetails, error, loading } = useGetServiceRequestDetails(id);
   const { userRole, loading: loadingUserRole } = useGetUserRole();
   if (loading) {
-    return <LoadingSpinner />;
+    return <Skeleton>
+      
+    </Skeleton>;
   }
 
   if (error) {

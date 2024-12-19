@@ -3,6 +3,8 @@ import { Separator } from "@/components/ui/separator";
 import RejectServiceRequest from "./RejectServiceRequest";
 import ApproveServiceRequest from "./ApproveServiceRequest";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+import { Skeleton } from "../ui/skeleton";
+import { useState, useEffect } from "react";
 
 interface ServiceRequestDetailsProps {
   requestorName: string;
@@ -17,7 +19,8 @@ export default function ServiceRequestDetails({
   details,
   createdOn,
 }: ServiceRequestDetailsProps) {
-  const { userRole } = useGetUserRole();
+  const { userRole, loading: roleLoading } = useGetUserRole();
+  const [loading, setLoading] = useState(true); // Initialize your loading state
   const formattedDate = createdOn.toLocaleString("en-US", {
     weekday: "short",
     year: "numeric",
@@ -27,6 +30,17 @@ export default function ServiceRequestDetails({
     minute: "numeric",
   });
 
+  
+  useEffect(() => {
+    if (!roleLoading) {
+      setLoading(false);
+    }
+  }, [roleLoading]);
+
+  if (loading) {
+    return <Skeleton className="flex-grow" />;
+  }
+
   return (
     <Card className="w-full h-screen flex flex-col">
       <CardHeader className="pb-4">
@@ -34,12 +48,12 @@ export default function ServiceRequestDetails({
           <h1 id="title-of-request" className="text-2xl font-semibold text-indigo-text">
             {concern}
           </h1>
-          {userRole === "ADMIN" &&
+          {userRole === "ADMIN" && (
             <div className="flex space-x-2">
               <RejectServiceRequest />
               <ApproveServiceRequest />
             </div>
-          }
+          )}
         </div>
         <div className="flex items-center justify-between text-sm text-muted-foreground">
           <div className="flex items-center space-x-2">

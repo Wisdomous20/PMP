@@ -1,6 +1,10 @@
+import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import formatTimestamp from "@/utils/formatTimestamp";
 import Link from "next/link";
+import { Skeleton } from "../ui/skeleton"
+import useGetServiceRequestDetails from "@/domains/service-request/hooks/useGetServiceRequestDetails";
+import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 interface ServiceRequestPreviewProps {
   id: string;
@@ -12,6 +16,13 @@ interface ServiceRequestPreviewProps {
 
 export default function ServiceRequestPreview({ id, requesterName, concern, details, createdOn }: ServiceRequestPreviewProps) {
   const detailsPreview = details.length > 50 ? details.slice(0, 50) + '...' : details;
+  const [loading, setLoading] = useState(true);
+  const { userRole, loading:roleLoading } = useGetUserRole();
+
+  if (loading) {
+    
+  }
+  
   return (
 
     <Link href={`/service-request/${id}`}>
