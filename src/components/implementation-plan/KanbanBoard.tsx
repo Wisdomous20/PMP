@@ -20,6 +20,7 @@ import {
 import Column from "./Column";
 import Task from "./Task";
 import useGetImplementationPlans from "@/domains/implementation-plan/hooks/useGetImplementationPlans";
+import { Skeleton } from "../ui/skeleton";
 
 type ColumnType = {
   id: string;
@@ -34,7 +35,7 @@ const initialColumns: ColumnType[] = [
 ];
 
 export default function ServiceRequestKanban() {
-  const { implementationPlans } = useGetImplementationPlans();
+  const { implementationPlans, loading } = useGetImplementationPlans();
   const [columns, setColumns] = useState(initialColumns);
   const [activeTask, setActiveTask] = useState<ImplementationPlan | null>(null);
 
@@ -154,6 +155,16 @@ export default function ServiceRequestKanban() {
       );
     }
   };  
+
+  if (loading) {
+    return (
+      <div className="w-full h-full p-20 flex justify-center">
+        <Skeleton className="w-1/4 h-full mx-12"> </Skeleton>
+        <Skeleton className="w-1/4 h-full mx-12"> </Skeleton>
+        <Skeleton className="w-1/4 h-full mx-12"> </Skeleton>
+      </div>
+    )
+  }
 
   return (
     <div className="p-4 w-full max-w-[1600px] mx-auto">
