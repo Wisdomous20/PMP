@@ -8,8 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import validator from "validator";
 import { signIn } from "next-auth/react";
-// import { useFormState } from "react-dom";
-// import { BlobOptions } from "buffer";
+
 
 export default function Login() {
   const callbackUrl = "/service-request";
@@ -23,7 +22,6 @@ export default function Login() {
     submit: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [resetpassword, setResetPassword] = useState<boolean>(false);
 
     const validateForm = () => {
     let isValid = true;
@@ -162,17 +160,17 @@ export default function Login() {
               <p className="text-red-500 text-xs mt-1">{errors.password}</p>
             )}
           </div>
+          <div className="mt-3">
+          <p className="text-sm text-gray-400">
+            <a
+              href="/auth/reset-password"
+              className="text-yellow-400 hover:underline"
+            >
+              Forgot Password?
+            </a>
+          </p>
+        </div>
 
-       <p onClick={() => setResetPassword(!resetpassword)} className="text-yellow-400 hover:underline cursor-pointer">
-        {resetpassword ? 'Login' : 'Forgot Password'}</p>
-          {errors.submit && (
-            <p className="text-red-500 text-sm">{errors.submit}</p>
-          )}
-          {!resetpassword &&
-          <div>
-            <div>
-
-            </div>
 
           <Button
             id="login-button"
@@ -185,42 +183,6 @@ export default function Login() {
               {!isLoading && "Log In"}
             </div>
           </Button>
-          </div>}
-          {resetpassword && <div>
-            <div>
-            <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-200 mb-1">
-              Email
-            </label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
-              placeholder="Enter your email"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
-            )}
-          </div>
-              
-            </div>
-            <br></br>
-            <Button
-            id="reset-button"
-            className="w-full bg-yellow-400 text-black hover:bg-yellow-500"
-            type="submit"
-            disabled={isLoading}
-          >
-            <div className="flex items-center justify-center gap-2">
-              {isLoading && <Spinner size="small" />}
-              {!isLoading && "Reset Password"}
-            </div>
-          </Button>
-          </div>}
 
         </form>
         <div className="mt-4 text-center">

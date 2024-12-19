@@ -21,6 +21,8 @@ model User {
   supervisorAssignments SupervisorAssignment[]
   accounts              Account[]
   sessions              Session[]
+  resetPasswordToken    String?
+  resetPasswordExpires  DateTime?
 }
 
 model Session {
