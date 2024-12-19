@@ -13,7 +13,7 @@ export default async function assignSupervisor(serviceRequestId: string, supervi
       throw new Error('Service Request not found');
     }
 
-    if (serviceRequest.supervisorAssignment.length > 0) {
+    if (!serviceRequest.supervisorAssignment) {
       throw new Error('Supervisor already assigned to this Service Request');
     }
 

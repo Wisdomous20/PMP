@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 import { useState } from "react";
 import axios from "axios";
@@ -19,12 +20,15 @@ const ForgetPassword: React.FC = () => {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setMessage('');
+    setIsLoading(true)
 
     try {
       const response = await axios.post('/api/auth/reset-password', { email });
       setMessage(response.data.message);
     } catch (err: any) {
       setErrors(err.response?.data?.message || 'Failed to send password reset email');
+    } finally {
+      setIsLoading(false);
     }
   };
 

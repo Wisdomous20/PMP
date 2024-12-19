@@ -29,9 +29,7 @@ export default async function getServiceRequests(userId: string) {
     serviceRequests = await prisma.serviceRequest.findMany({
       where: {
         supervisorAssignment: {
-          some: {
-            supervisorId: userId,
-          },
+          supervisorId: userId
         },
       },
       include: {

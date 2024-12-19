@@ -32,9 +32,7 @@ export default async function getImplementationPlans(userId: string): Promise<Im
       where: {
         serviceRequest: {
           supervisorAssignment: {
-            some: {
-              supervisorId: userId,
-            },
+            supervisorId: userId,
           },
         },
       },
