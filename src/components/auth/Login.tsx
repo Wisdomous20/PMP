@@ -23,7 +23,7 @@ export default function Login() {
   });
   const [isLoading, setIsLoading] = useState(false);
 
-    const validateForm = () => {
+  const validateForm = () => {
     let isValid = true;
     const newErrors = {
       email: "",
@@ -48,6 +48,13 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    const newErrors = {
+      email: "",
+      password: "",
+      submit: "",
+    };
+
+    setErrors(newErrors);
 
     if (validateForm()) {
       try {
@@ -61,7 +68,8 @@ export default function Login() {
           console.error("Login error:", result.error);
           setIsLoading(false);
 
-          if (result.error.includes("Email not found")) {
+          if (result.error.includes("Email not found") || result.error.includes("CredentialsSignin")) {
+            console.log("Email not found. Please register first");
             setErrors({
               ...errors,
               submit: "Email not found. Please register first",
@@ -107,8 +115,8 @@ export default function Login() {
           <p className="text-sm text-yellow-200">
             Central Philippine University
           </p>
-      </div>
-      <form className="space-y-6" onSubmit={handleSubmit}>
+        </div>
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label
               htmlFor="email"
@@ -161,28 +169,33 @@ export default function Login() {
             )}
           </div>
           <div className="mt-3">
-          <p className="text-sm text-gray-400">
-            <a
-              href="/auth/reset-password"
-              className="text-yellow-400 hover:underline"
+            <p className="text-sm text-gray-400">
+              <a
+                href="/auth/reset-password"
+                className="text-yellow-400 hover:underline"
+              >
+                Forgot Password?
+              </a>
+            </p>
+          </div>
+
+          <div>
+            <Button
+              id="login-button"
+              className="w-full bg-yellow-400 text-black hover:bg-yellow-500"
+              type="submit"
+              disabled={isLoading}
             >
-              Forgot Password?
-            </a>
-          </p>
-        </div>
+              <div className="flex items-center justify-center gap-2">
+                {isLoading && <Spinner size="small" />}
+                {!isLoading && "Log In"}
+              </div>
+            </Button>
 
-
-          <Button
-            id="login-button"
-            className="w-full bg-yellow-400 text-black hover:bg-yellow-500"
-            type="submit"
-            disabled={isLoading}
-          >
-            <div className="flex items-center justify-center gap-2">
-              {isLoading && <Spinner size="small" />}
-              {!isLoading && "Log In"}
-            </div>
-          </Button>
+            {errors.submit && (
+              <p className="text-red-500 text-xs mt-1">{errors.submit}</p>
+            )}
+          </div>
 
         </form>
         <div className="mt-4 text-center">
