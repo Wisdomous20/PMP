@@ -8,10 +8,10 @@ import { Textarea } from "@/components/ui/textarea";
 import { useRouter } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import fetchCreateServiceRequest from "@/domains/service-request/services/fetchCreateServiceRequest";
-import { useSession } from "next-auth/react";
 import { Spinner } from "@/components/ui/spinner";
-// import { Skeleton } from "../ui/skeleton";
+import { Skeleton } from "../ui/skeleton";
 import Concerns from "./Concerns";
+import useGetSessionData from "@/domains/user-management/hooks/useGetSessionData";
 
 const predefinedConcerns = [
   { value: "Aircon", label: "Aircon" },
@@ -40,7 +40,8 @@ export default function CreateServiceRequest() {
   const [isLoading, setIsLoading] = useState(false);
   // const [loading, setLoading] = useState(true);
   const router = useRouter();
-  const { data: session } = useSession();
+  const {sessionData, loading} = useGetSessionData();
+
 
   const handleConcernSelect = (value: string) => {
     if (value === "Others") {
@@ -68,7 +69,7 @@ export default function CreateServiceRequest() {
     try {
       setIsLoading(true);
 
-      const userId = session?.user.id;
+      const userId = sessionData?.user.id
 
       if (!userId) {
         throw new Error("User not logged in");
@@ -98,30 +99,29 @@ export default function CreateServiceRequest() {
     }
   };
 
-  // if (loading) {
-  //   return (
-  //     <Skeleton className="w-full max-w-2xl bg-white rounded-lg sm:rounded-md xsm:rounded-xsm border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
+  if (loading) {
+    return (
+      <Skeleton className="w-full max-w-2xl bg-white rounded-lg sm:rounded-md xsm:rounded-xsm border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
         
-  //       <div className="p-5 bg-gray-300 w-full flex items-center">
-  //         <div className="h-6 bg-gray-300 rounded w-1/3"></div>
-  //       </div>
+        <div className="p-5 bg-gray-300 w-full flex items-center">
+          <div className="h-6 bg-gray-300 rounded w-1/3"></div>
+        </div>
   
-  //       <div className="p-6 space-y-6 flex flex-col">
-  //         <div className="h-6 bg-gray-300 rounded w-1/2"></div>
-  //         <div className="h-10 bg-gray-300 rounded w-full"></div>
-  //       </div>
+        <div className="p-6 space-y-6 flex flex-col">
+          <div className="h-6 bg-gray-300 rounded w-1/2"></div>
+          <div className="h-10 bg-gray-300 rounded w-full"></div>
+        </div>
   
-  //       <div className="p-6 w-full h-full max-h-[300px] min-h-[150px] resize-none overflow-auto">
-  //         <div className="h-6 bg-gray -300 rounded w-1/2"></div>
-  //         <div className="h-32 bg-gray-300 rounded w-full"></div>
-  //       </div>
+        <div className="p-6 w-full h-full max-h-[300px] min-h-[150px] resize-none overflow-auto">
+          <div className="h-6 bg-gray -300 rounded w-1/2"></div>
+          <div className="h-32 bg-gray-300 rounded w-full"></div>
+        </div>
   
-  //       <div className="p-5 h-10 bg-gray-300 rounded w-1/4 ml-auto flex justify-end flex-shrink-0"></div>
-  //     </Skeleton>
-  //   );
-  // }
+        <div className="p-5 h-10 bg-gray-300 rounded w-1/4 ml-auto flex justify-end flex-shrink-0"></div>
+      </Skeleton>
+    );
+  }
   
-
   return (
     <div className="w-full max-w-2xl bg-white rounded-lg sm:rounded-md border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
       <div className="p-5 bg-indigo-dark text-primary-foreground flex items-center">
