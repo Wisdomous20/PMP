@@ -1,12 +1,13 @@
 import { prisma } from "@/lib/prisma";
 
-export default async function addApprovedStatus(serviceRequestId: string) {
+export default async function addApprovedStatus(serviceRequestId: string, note: string) {
   try {
     const status = await prisma.serviceRequestStatus.create({
       data: {
         serviceRequestId: serviceRequestId,
         status: "approved",
-        timestamp: new Date()
+        timestamp: new Date(),
+        note: note
       },
     });
     console.log("Approved status added:", status);

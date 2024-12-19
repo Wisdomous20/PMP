@@ -16,7 +16,16 @@ export default function useGetServiceRequestList() {
         const serviceRequestsInitial = await fetchGetServiceRequest(
           session.user.id
         );
-        setServiceRequests(serviceRequestsInitial);
+
+        const sortedRequests = [...serviceRequestsInitial].sort((a, b) => {
+          const dateA = a.createdOn ? new Date(a.createdOn) : null;
+          const dateB = b.createdOn ? new Date(b.createdOn) : null;
+          if (dateA === null && dateB === null) return 0;
+          if (dateA === null) return 1;
+          if (dateB === null) return -1;
+          return dateB.getTime() - dateA.getTime();
+        });
+        setServiceRequests(sortedRequests);
         setLoading(false);
       } catch (err) {
         setError("Failed to load service requests.");

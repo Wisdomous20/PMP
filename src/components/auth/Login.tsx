@@ -8,8 +8,7 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import validator from "validator";
 import { signIn } from "next-auth/react";
-// import { useFormState } from "react-dom";
-// import { BlobOptions } from "buffer";
+
 
 export default function Login() {
   const callbackUrl = "/service-request";
@@ -23,9 +22,8 @@ export default function Login() {
     submit: "",
   });
   const [isLoading, setIsLoading] = useState(false);
-  const [resetpassword, setResetPassword] = useState<boolean>(false);
 
-    const validateForm = () => {
+  const validateForm = () => {
     let isValid = true;
     const newErrors = {
       email: "",
@@ -50,6 +48,13 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
+    const newErrors = {
+      email: "",
+      password: "",
+      submit: "",
+    };
+
+    setErrors(newErrors);
 
     if (validateForm()) {
       try {
@@ -63,7 +68,8 @@ export default function Login() {
           console.error("Login error:", result.error);
           setIsLoading(false);
 
-          if (result.error.includes("Email not found")) {
+          if (result.error.includes("Email not found") || result.error.includes("CredentialsSignin")) {
+            console.log("Email not found. Please register first");
             setErrors({
               ...errors,
               submit: "Email not found. Please register first",
@@ -107,11 +113,10 @@ export default function Login() {
             Project Management System
           </h1>
           <p className="text-sm text-yellow-200">
-            Central Philippines University
+            Central Philippine University
           </p>
-      </div>
-      <form className="space-y-6" onSubmit={handleSubmit}>
-      {!resetpassword &&<div>
+        </div>
+        <form className="space-y-6" onSubmit={handleSubmit}>
           <div>
             <label
               htmlFor="email"
@@ -163,66 +168,34 @@ export default function Login() {
               <p className="text-red-500 text-xs mt-1">{errors.password}</p>
             )}
           </div>
-      </div>
-       }
-       <p onClick={() => setResetPassword(!resetpassword)} className="text-yellow-400 hover:underline cursor-pointer">
-        {resetpassword ? 'Login' : 'Forgot Password'}</p>
-          {errors.submit && (
-            <p className="text-red-500 text-sm">{errors.submit}</p>
-          )}
-          {!resetpassword &&
+          <div className="mt-3">
+            <p className="text-sm text-gray-400">
+              <a
+                href="/auth/reset-password"
+                className="text-yellow-400 hover:underline"
+              >
+                Forgot Password?
+              </a>
+            </p>
+          </div>
+
           <div>
-            <div>
+            <Button
+              id="login-button"
+              className="w-full bg-yellow-400 text-black hover:bg-yellow-500"
+              type="submit"
+              disabled={isLoading}
+            >
+              <div className="flex items-center justify-center gap-2">
+                {isLoading && <Spinner size="small" />}
+                {!isLoading && "Log In"}
+              </div>
+            </Button>
 
-            </div>
-
-          <Button
-            id="login-button"
-            className="w-full bg-yellow-400 text-black hover:bg-yellow-500"
-            type="submit"
-            disabled={isLoading}
-          >
-            <div className="flex items-center justify-center gap-2">
-              {isLoading && <Spinner size="small" />}
-              {!isLoading && "Log In"}
-            </div>
-          </Button>
-          </div>}
-          {resetpassword && <div>
-            <div>
-            <div>
-            <label
-              htmlFor="email"
-              className="block text-sm font-medium text-gray-200 mb-1">
-              Email
-            </label>
-            <Input
-              id="email"
-              type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
-              className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
-              placeholder="Enter your email"
-            />
-            {errors.email && (
-              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+            {errors.submit && (
+              <p className="text-red-500 text-xs mt-1">{errors.submit}</p>
             )}
           </div>
-              
-            </div>
-            <br></br>
-            <Button
-            id="reset-button"
-            className="w-full bg-yellow-400 text-black hover:bg-yellow-500"
-            type="submit"
-            disabled={isLoading}
-          >
-            <div className="flex items-center justify-center gap-2">
-              {isLoading && <Spinner size="small" />}
-              {!isLoading && "Reset Password"}
-            </div>
-          </Button>
-          </div>}
 
         </form>
         <div className="mt-4 text-center">

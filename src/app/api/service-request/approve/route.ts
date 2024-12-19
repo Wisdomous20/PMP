@@ -2,7 +2,7 @@ import { NextRequest, NextResponse } from "next/server";
 import addApprovedStatus from "@/domains/service-request/services/status/addApprovedStatus";
 
 export async function POST(req: NextRequest) {
-  const { serviceRequestId } = await req.json();
+  const { serviceRequestId, note } = await req.json();
 
   if (!serviceRequestId) {
     return NextResponse.json(
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
   }
 
   try {
-    const status = await addApprovedStatus(serviceRequestId);
+    const status = await addApprovedStatus(serviceRequestId, note);
 
     return NextResponse.json(
       { message: `Approved status added successfully`, status },

@@ -9,7 +9,6 @@ type ImplementationPlan = {
 
 type Task = {
     id: string;
-    implementationPlanId: string;
     name: string;
     deadline: Date;
     checked: boolean;
