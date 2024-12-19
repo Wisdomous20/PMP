@@ -4,7 +4,7 @@ import { Button } from "@/components/ui/button";
 import { Plus, FileText, Archive, LogOut, Folder } from "lucide-react";
 import Link from "next/link";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
-import LoadingSpinner from "@/components/ui/loadingDots";
+import { Skeleton } from "../ui/skeleton";
 
 export default function LeftTab() {
   const { userRole, loading } = useGetUserRole();

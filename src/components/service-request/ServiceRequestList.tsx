@@ -2,30 +2,20 @@
 import ServiceRequestPreview from "./ServiceRequestPreview";
 // import Empty from "../ui/empty";
 import { Button } from "@/components/ui/button";
-import { useState, useEffect } from "react";
+import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Skeleton } from "../ui/skeleton"
-import useGetServiceRequestDetails from "@/domains/service-request/hooks/useGetServiceRequestDetails";
-import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 interface ServiceRequestProps {
   serviceRequests: ServiceRequest[]
   setServiceRequestIndex: React.Dispatch<React.SetStateAction<number>>
+  loading: boolean
 }
 
-export default function ServiceRequestList({ serviceRequests, setServiceRequestIndex }: ServiceRequestProps) {
+export default function ServiceRequestList({ serviceRequests, setServiceRequestIndex, loading }: ServiceRequestProps) {
   const [search, setSearch] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
-  const [loading, setLoading] = useState(true);
-  const { userRole, loading:roleLoading } = useGetUserRole();
-
-  useEffect(() => {
-    if (!roleLoading && serviceRequests.length > 0) {
-      setLoading(false);
-    }
-  }, [roleLoading, serviceRequests]);
-
   const toggleSearch = () => {
     setIsSearchOpen(!isSearchOpen);
   };

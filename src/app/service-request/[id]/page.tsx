@@ -7,31 +7,26 @@ import ServiceRequestDetails from "@/components/service-request/ServiceRequestDe
 import ServiceRequestStatus from "@/components/service-request/ServiceRequestStatus";
 import useGetServiceRequestList from "@/domains/service-request/hooks/useGetServiceRequestList";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
-import LoadingSpinner from "@/components/ui/loadingDots"
+import { Card } from "@/components/ui/card";
 
 export default function Page() {
   const [ serviceRequestIndex, setServiceRequestIndex ] = useState(0);
   const { serviceRequests, loading } = useGetServiceRequestList();
   const { userRole, loading: userRoleLoading } = useGetUserRole()
 
-  if (loading || userRoleLoading) {
-    return <Skeleton>
-      
-    </Skeleton>;
-  }
-
-  console.log(serviceRequests)
-
   return (
     <div className="w-screen h-screen flex">
       <LeftTab />
-      <ServiceRequestList serviceRequests={serviceRequests} setServiceRequestIndex={setServiceRequestIndex}/>
+      <ServiceRequestList serviceRequests={serviceRequests} setServiceRequestIndex={setServiceRequestIndex} loading={loading || userRoleLoading}/>
       <div className="flex flex-col w-full">
-        {userRole === "USER" ?
-          <ServiceRequestStatus serviceRequest={serviceRequests[serviceRequestIndex]}/>
+        {serviceRequests.length === 0 ?
+          <Card className="w-full h-screen flex flex-col"></Card>
           :
-          <ServiceRequestDetails serviceRequest={serviceRequests[serviceRequestIndex]}/>
-      }
+          userRole === "USER" ?
+            <ServiceRequestStatus serviceRequest={serviceRequests[serviceRequestIndex]}/>
+            :
+            <ServiceRequestDetails serviceRequest={serviceRequests[serviceRequestIndex]}/>
+        }
       </div>
     </div>
   );

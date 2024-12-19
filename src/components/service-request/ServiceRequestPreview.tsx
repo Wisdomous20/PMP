@@ -1,10 +1,5 @@
-import { useEffect, useState } from "react";
 import { Card, CardContent } from "@/components/ui/card";
 import formatTimestamp from "@/utils/formatTimestamp";
-import Link from "next/link";
-import { Skeleton } from "../ui/skeleton"
-import useGetServiceRequestDetails from "@/domains/service-request/hooks/useGetServiceRequestDetails";
-import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 interface ServiceRequestPreviewProps {
   index: number;

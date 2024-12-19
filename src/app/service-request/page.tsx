@@ -7,7 +7,6 @@ import ServiceRequestDetails from "@/components/service-request/ServiceRequestDe
 import ServiceRequestStatus from "@/components/service-request/ServiceRequestStatus";
 import useGetServiceRequestList from "@/domains/service-request/hooks/useGetServiceRequestList";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
-import LoadingSpinner from "@/components/ui/loadingDots"
 import { Card } from "@/components/ui/card";
 
 export default function Page() {
@@ -15,16 +14,10 @@ export default function Page() {
   const { serviceRequests, loading } = useGetServiceRequestList();
   const { userRole, loading: userRoleLoading } = useGetUserRole()
 
-  if (loading || userRoleLoading) {
-    return <LoadingSpinner />;
-  }
-
-  console.log(serviceRequests)
-
   return (
     <div className="w-screen h-screen flex">
       <LeftTab />
-      <ServiceRequestList serviceRequests={serviceRequests} setServiceRequestIndex={setServiceRequestIndex}/>
+      <ServiceRequestList serviceRequests={serviceRequests} setServiceRequestIndex={setServiceRequestIndex} loading={loading || userRoleLoading}/>
       <div className="flex flex-col w-full">
         {serviceRequests.length === 0 ?
           <Card className="w-full h-screen flex flex-col"></Card>
