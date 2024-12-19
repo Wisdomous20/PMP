@@ -3,6 +3,8 @@ import { Separator } from "@/components/ui/separator";
 import RejectServiceRequest from "./RejectServiceRequest";
 import ApproveServiceRequest from "./ApproveServiceRequest";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+import { Skeleton } from "../ui/skeleton";
+import { useState, useEffect } from "react";
 import CreateImplementationPlan from "../implementation-plan/CreateImplementationPlanMyk";
 import formatTimestamp from "@/utils/formatTimestamp";
 
@@ -10,13 +12,26 @@ interface ServiceRequestDetailsProps {
   serviceRequest: ServiceRequest;
 }
 
+
 export default function ServiceRequestDetails({ serviceRequest }: ServiceRequestDetailsProps) {
   const { id, concern, details, createdOn, requesterName, status } = serviceRequest;
-  const { userRole } = useGetUserRole();
+  const { userRole, loading: roleLoading } = useGetUserRole();
+  const [loading, setLoading] = useState(true); // Initialize your loading state
 
   const currentStatus = status
     .slice()
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0]?.status;
+
+  
+  useEffect(() => {
+    if (!roleLoading) {
+      setLoading(false);
+    }
+  }, [roleLoading]);
+
+  if (loading) {
+    return <Skeleton className="flex-grow" />;
+  }
 
   return (
     <Card className="w-full h-screen flex flex-col">

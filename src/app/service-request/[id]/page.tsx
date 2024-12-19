@@ -15,7 +15,9 @@ export default function Page() {
   const { userRole, loading: userRoleLoading } = useGetUserRole()
 
   if (loading || userRoleLoading) {
-    return <LoadingSpinner />;
+    return <Skeleton>
+      
+    </Skeleton>;
   }
 
   console.log(serviceRequests)

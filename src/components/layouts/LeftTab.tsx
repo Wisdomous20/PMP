@@ -14,9 +14,33 @@ export default function LeftTab() {
   };
 
   if (loading) {
-    return <LoadingSpinner />;
+    return (
+      <div className="w-13 border-r bg-gray-300 flex flex-col items-center py-4 space-y-3">
+        <Skeleton className="w-11 h-12 bg-gray-300 rounded-md flex items-center justify-center">
+          <div className="w-8 h-8 bg-white rounded-full"></div>
+          <span className="sr-only">Loading CPU Logo</span>
+        </Skeleton>
+  
+        <Skeleton className="w-11 h-12 bg-gray-300 rounded-md flex items-center justify-center">
+          <div className="w-6 h-6 bg-white rounded-md"></div>
+          <span className="sr-only">Loading Create Service Request Button</span>
+        </Skeleton>
+  
+        <Skeleton className="w-11 h-12 bg-gray-300 rounded-md flex items-center justify-center">
+          <div className="w-6 h-6 bg-white rounded-md"></div>
+          <span className="sr-only">Loading Service Request List Button</span>
+        </Skeleton>
+  
+        <Skeleton className="w-11 h-12 bg-gray-300 rounded-md flex items-center justify-center">
+          <div className="w-6 h-6 bg-white rounded-md"></div>
+          <span className="sr-only">Loading Archive Button</span>
+        </Skeleton>
+  
+       
+      </div>
+    );
   }
-
+  
   return (
     <div className="w-13 border-r bg-indigo-Background flex flex-col items-center py-4 space-y-3">
       <Button variant="gold" size="icon" className="w-11 h-12">
