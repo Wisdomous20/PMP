@@ -16,11 +16,13 @@ export default function RejectServiceRequest({ serviceRequestId }: RejectService
   const [reason, setReason] = useState("");
   const [rows, setRows] = useState(1);
   const [error, setError] = useState<string | null>(null);
+  const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
 
   const handleReject = async () => {
     try {
       console.log("Request rejected with reason:", reason);
+      setIsLoading(true)
 
       await handleSubmit();
       setIsRejectDialogOpen(false);
@@ -28,6 +30,8 @@ export default function RejectServiceRequest({ serviceRequestId }: RejectService
     } catch (err) {
       console.error('Failed to reject service request:', err);
       setError('Failed to reject the request. Please try again.');
+    } finally {
+      setIsLoading(false)
     }
   };
 
@@ -93,8 +97,8 @@ export default function RejectServiceRequest({ serviceRequestId }: RejectService
         </div>
 
         <DialogFooter>
-          <Button type="button" onClick={handleReject}>
-            Confirm Rejection
+          <Button type="button" onClick={handleReject} disabled={isLoading}>
+            {isLoading ? "Rejecting..." : "Confirm Rejection"}
           </Button>
         </DialogFooter>
       </DialogContent>
