@@ -2,15 +2,9 @@ import { NextResponse } from 'next/server';
 import nodemailer from 'nodemailer';
 import { prisma } from '@/lib/prisma';
 import crypto from 'crypto';
-import resetPassword from '@/domains/user-management/services/resetPAssword';
+import resetPassword from '@/domains/user-management/services/resetPassword';
 
-const transporter = nodemailer.createTransport({
-  service: 'Gmail', // or any other email service
-  auth: {
-    user: process.env.EMAIL_USER,
-    pass: process.env.EMAIL_PASS,
-  },
-});
+
 
 export const POST = async (req: Request) => {
   try {
