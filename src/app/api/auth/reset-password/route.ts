@@ -1,7 +1,4 @@
 import { NextResponse } from 'next/server';
-import nodemailer from 'nodemailer';
-import { prisma } from '@/lib/prisma';
-import crypto from 'crypto';
 import resetPassword from '@/domains/user-management/services/resetPassword';
 
 
