@@ -1,5 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import createPersonel from "@/domains/manpower-management/services/createPersonel";
+import createPersonel from "@/domains/manpower-management/service/createPersonel";
+import getpersonnel from "@/domains/manpower-management/service/getPersonnel";
+
 
 export async function POST(req: NextRequest) {
   const { name, department } = await req.json();
@@ -22,9 +24,9 @@ try{
   }
 }
 
-export async function GET(req: NextRequest) {
+export async function GET(req: NextRequest): Promise<NextResponse>  {
     try {
-      const personnel = await prisma.personnel.findMany();
+      const personnel = await getpersonnel();
       return NextResponse.json(personnel, { status: 200 });
     } catch (error) {
       console.error("Error fetching personnel:", error);
