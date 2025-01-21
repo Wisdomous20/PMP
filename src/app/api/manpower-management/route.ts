@@ -1,8 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import createPersonel from "@/domains/manpower-management/service/createPersonel";
-import getpersonnel from "@/domains/manpower-management/service/getPersonnel";
-
-
+import getPersonnel from "@/domains/manpower-management/service/getPersonnel";
 export async function POST(req: NextRequest) {
   const { name, department } = await req.json();
 try{
@@ -26,7 +24,7 @@ try{
 
 export async function GET(req: NextRequest): Promise<NextResponse>  {
     try {
-      const personnel = await getpersonnel();
+      const personnel = await getPersonnel();
       return NextResponse.json(personnel, { status: 200 });
     } catch (error) {
       console.error("Error fetching personnel:", error);

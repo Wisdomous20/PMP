@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import getPersonnelByDepartment from "@/domains/manpower-management/services/getPersonnelByDepartment";
-
+import getPersonnelByDepartment from "@/domains/manpower-management/service/getPersonnelByDepartment";
 
 export async function GET(
     req: NextRequest,

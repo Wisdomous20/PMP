@@ -1,4 +1,4 @@
-import prisma from "@/lib/prisma";
+import { prisma } from "@/lib/prisma";
 
 export default async function getPersonnelByDepartment(department: string) {
   try {
@@ -10,7 +10,6 @@ export default async function getPersonnelByDepartment(department: string) {
     if (!personnel || personnel.length === 0) {
       throw new Error("No personnel found");
     }
-
     return personnel;
   } catch (error) {
     console.error("Error fetching personnel:", error);
