@@ -30,8 +30,8 @@ type ColumnType = {
 
 const initialColumns: ColumnType[] = [
   { id: "pending", title: "Pending", taskIds: [] },
-  { id: "in_progress", title: "In Progress", taskIds: [] },
-  { id: "done", title: "Done", taskIds: [] },
+  { id: "ongoing", title: "Ongoing", taskIds: [] },
+  { id: "completed", title: "Completed", taskIds: [] },
 ];
 
 export default function ServiceRequestKanban() {
