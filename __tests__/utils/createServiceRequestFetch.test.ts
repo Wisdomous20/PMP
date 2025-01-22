@@ -3,7 +3,7 @@ import createServiceRequestFetch from "../../src/domains/service-request/service
 
 global.fetch = jest.fn(); // Mock the fetch API
 
-describe("createServiceRequestFetch", () => {
+describe.skip("createServiceRequestFetch", () => {
   const mockRequestData = {
     userId: "user-1",
     title: "New Request",

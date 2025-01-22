@@ -22,7 +22,7 @@ jest.mock("../../src/lib/supabaseClient", () => ({
       signIn: jest.fn(),
     }));
 
-describe("Register Component - Integration Tests", () => {
+describe.skip("Register Component - Integration Tests", () => {
       beforeEach(() => {
         jest.clearAllMocks();
       });

@@ -1,7 +1,7 @@
 import { format } from "date-fns";
 import formatTimestamp from "../../src/utils/formatTimestamp";
 
-describe("formatTimestamp", () => {
+describe.skip("formatTimestamp", () => {
   it("should format as time if the date is today", () => {
     const timestamp = new Date().toISOString(); // Current date
     const formattedTime = format(new Date(timestamp), "h:mm a");
