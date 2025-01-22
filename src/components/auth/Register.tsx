@@ -156,9 +156,7 @@ export default function Register() {
           }));
           setIsLoading(false);
         } else {
-          setTimeout(() => {
-            router.push(callbackUrl);
-          }, 3000);
+          router.push(callbackUrl)
         }
       } catch (error) {
         console.error("Registration error:", error);

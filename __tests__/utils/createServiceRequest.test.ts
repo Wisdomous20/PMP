@@ -11,34 +11,33 @@ jest.mock("../../src/lib/prisma", () => ({
   },
 }));
 
-describe.skip("createServiceRequest", () => {
+describe("createServiceRequest", () => {
   const mockServiceRequest = {
     id: "123",
     userId: "user-1",
-    title: "Test Service Request",
+    concern: "Test Service Request",
     details: "Details about the service request",
-    status: [{ status: "Pending", timestamp: new Date() }],
+    status: [{ status: "pending", timestamp: new Date() }],
   };
 
   it("should create a service request successfully", async () => {
-    // Mock prisma response
-    prisma.serviceRequest.create.mockResolvedValue(mockServiceRequest);
+    (prisma.serviceRequest.create as jest.Mock).mockResolvedValue(mockServiceRequest);
 
     const userId = "user-1";
-    const title = "Test Service Request";
+    const concern = "Test Service Request";
     const details = "Details about the service request";
 
-    const result = await createServiceRequest(userId, title, details);
+    const result = await createServiceRequest(userId, concern, details);
 
     expect(prisma.serviceRequest.create).toHaveBeenCalledWith({
       data: {
         userId,
-        title,
+        concern,
         details,
         status: {
           create: {
-            status: "Pending",
-            timestamp: expect.any(Date), // Validate timestamp is a Date
+            status: "pending",
+            timestamp: expect.any(Date),
           },
         },
       },
@@ -48,7 +47,7 @@ describe.skip("createServiceRequest", () => {
   });
 
   it("should throw an error if prisma.create fails", async () => {
-    prisma.serviceRequest.create.mockRejectedValue(new Error("Database error"));
+    (prisma.serviceRequest.create as jest.Mock).mockRejectedValue(new Error("Database error"));
 
     const userId = "user-1";
     const title = "Test Service Request";

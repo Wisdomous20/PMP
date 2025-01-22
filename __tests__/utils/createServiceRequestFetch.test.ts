@@ -25,7 +25,7 @@ describe.skip("createServiceRequestFetch", () => {
 
   it("should create a new service request when the response is successful", async () => {
     // Mock a successful fetch response
-    global.fetch.mockResolvedValueOnce({
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: true,
       json: jest.fn().mockResolvedValueOnce(mockResponseData),
     });
@@ -49,7 +49,7 @@ describe.skip("createServiceRequestFetch", () => {
 
   it("should throw an error and log the error if the request fails with a server error", async () => {
     // Mock a failed fetch response with a 500 status
-    global.fetch.mockResolvedValueOnce({
+    (global.fetch as jest.Mock).mockResolvedValueOnce({
       ok: false,
       status: 500,
       json: jest.fn().mockResolvedValueOnce({ error: "Internal Server Error" }),
@@ -85,7 +85,7 @@ describe.skip("createServiceRequestFetch", () => {
 
   it("should throw an error and log the error if there is a network error", async () => {
     // Mock a network error (fetch throws an error)
-    global.fetch.mockRejectedValueOnce(new Error("Network Error"));
+    (global.fetch as jest.Mock).mockRejectedValueOnce(new Error("Network Error"));
 
     const consoleSpy = jest
       .spyOn(console, "error")
