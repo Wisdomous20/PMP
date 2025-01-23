@@ -3,8 +3,6 @@ import axios from 'axios';
 
 const rootURL = process.env.NEXT_PUBLIC_CLIENT_URL;
 
-jest.setTimeout(20000)
-
 async function deleteUserByEmail(email: string) {
   try {
     const response = await axios.delete(`${process.env.NEXT_PUBLIC_SERVER_URL}api/user`, {

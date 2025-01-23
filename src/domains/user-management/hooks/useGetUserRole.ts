@@ -11,9 +11,12 @@ export default function useGetUserRole() {
   const { sessionData: session } = useGetSessionData();
 
   const fetchUserRole = async () => {
+    console.log(session?.user)
     if (session?.user.id) {
       try {
+        console.log("fetching user role", session.user.id)
         const serviceRequestsInitial = await getUserRoleFetch(session.user.id);
+        console.log(serviceRequestsInitial)
         setUserRole(serviceRequestsInitial.userRole);
         setLoading(false);
       } catch (err) {
@@ -25,6 +28,7 @@ export default function useGetUserRole() {
 
   useEffect(() => {
     if (session) {
+      console.log("fetch!")
       fetchUserRole();
     }
   }, [session]);
