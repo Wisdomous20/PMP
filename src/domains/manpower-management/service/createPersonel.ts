@@ -1,10 +1,11 @@
 import { prisma } from "@/lib/prisma";
 
 
-export default async function createPersonel(name: string, department: string) : Promise<
+export default async function createPersonel(name: string, department: string, position: string) : Promise<
 { id: string; 
     name: string; 
     department: string;
+    position: string;
  }> {
 
   try {
@@ -12,6 +13,7 @@ export default async function createPersonel(name: string, department: string) :
       data: {
         name,
         department,
+        position
       },
     });
 
