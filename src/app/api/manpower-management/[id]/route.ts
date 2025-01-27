@@ -24,7 +24,7 @@ export async function GET(req: NextRequest,
         }
 }
 
-export async function Delete (req: NextRequest,
+export async function DELETE(req: NextRequest,
     { params }: { params: { id: string } }
 ) {
     const { id } = params;
