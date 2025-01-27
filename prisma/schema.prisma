@@ -17,12 +17,12 @@ model User {
   firstName             String
   lastName              String
   localNumber           String?
+  resetPasswordExpires  DateTime?
+  resetPasswordToken    String?
   serviceRequests       ServiceRequest[]
   supervisorAssignments SupervisorAssignment[]
   accounts              Account[]
   sessions              Session[]
-  resetPasswordToken    String?
-  resetPasswordExpires  DateTime?
 }
 
 model Session {
