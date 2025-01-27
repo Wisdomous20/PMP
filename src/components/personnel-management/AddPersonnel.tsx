@@ -1,15 +1,19 @@
+'use client';
 import { useState } from "react";
 import { Button } from "../ui/button"; 
 import { Input } from "../ui/input"; 
+import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from "../ui/dialog";
 
 interface AddPersonnelProps {
-  onAdd: () => void; 
+  onAdd: () => void;
+  isOpen: boolean;
+  onOpenChange: (isOpen: boolean) => void;
 }
 
-const AddPersonnel: React.FC<AddPersonnelProps> = ({ onAdd }) => {
+export default function AddPersonnel({ onAdd, isOpen, onOpenChange }: AddPersonnelProps) {
   const [name, setName] = useState("");
   const [department, setDepartment] = useState("");
-  const [position, setPosition] = useState(""); // Added state for position
+  const [position, setPosition] = useState("");
 
   const handleAddPersonnel = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
@@ -18,39 +22,51 @@ const AddPersonnel: React.FC<AddPersonnelProps> = ({ onAdd }) => {
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({ name, department, position }), // Included position in the request body
+      body: JSON.stringify({ name, department, position }),
     });
     if (response.ok) {
-      onAdd(); 
+      onAdd();
       setName("");
       setDepartment("");
-      setPosition(""); // Reset position state
+      setPosition("");
+      onOpenChange(false); // Close the dialog after adding personnel
     }
   };
 
   return (
-    <form onSubmit={handleAddPersonnel} className="mb-4">
-      <Input
-        value={name}
-        onChange={(e) => setName(e.target.value)}
-        placeholder="Name"
-        className="mb-2"
-      />
-      <Input
-        value={department}
-        onChange={(e) => setDepartment(e.target.value)}
-        placeholder="Department"
-        className="mb-2"
-      />
-      <Input
-        value={position}
-        onChange={(e) => setPosition(e.target.value)} // Added input for position
-        placeholder="please enter your position ex: secretary"
-        className="mb-2"
-      />
-      <Button type="submit">Add New</Button>
-    </form>
+    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+      <DialogContent>
+        <DialogHeader>
+          <DialogTitle>Add New Personnel</DialogTitle>
+          <DialogDescription>Please fill in the details below:</DialogDescription>
+        </DialogHeader>
+        <form onSubmit={handleAddPersonnel}>
+          <Input
+            value={name}
+            onChange={(e) => setName(e.target.value)}
+            placeholder="Name"
+            className="mb-2"
+          />
+          <Input
+            value={department}
+            onChange={(e) => setDepartment(e.target.value)}
+            placeholder="Department"
+            className="mb-2"
+          />
+          <Input
+            value={position}
+            onChange={(e) => setPosition(e.target.value)}
+            placeholder="Position"
+            className="mb-2"
+          />
+          <DialogFooter>
+            <Button type="submit">Add New</Button>
+            <DialogClose asChild>
+              <Button>Close</Button>
+            </DialogClose>
+          </DialogFooter>
+        </form>
+      </DialogContent>
+    </Dialog>
   );
-};
-
-export default AddPersonnel;
+}
