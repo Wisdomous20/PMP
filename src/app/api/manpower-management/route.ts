@@ -1,6 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import createPersonnel from "@/domains/manpower-management/service/createPersonel"; // Corrected import path
-import getPersonnel from "@/domains/manpower-management/service/getPersonnel"; // Corrected import path
+import createPersonnel from "@/domains/manpower-management/service/createPersonel"; 
+import getPersonnel from "@/domains/manpower-management/service/getPersonnel"; 
 
 export async function POST(req: NextRequest) {
   const { name, department, position } = await req.json();
