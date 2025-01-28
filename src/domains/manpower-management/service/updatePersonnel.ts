@@ -1,3 +1,5 @@
+'use server';
+
 import {prisma} from "@/lib/prisma";
 
 export default async function updatePersonnel(id: string, name: string, department: string, position: string) {

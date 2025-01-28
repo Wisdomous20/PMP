@@ -1,8 +1,8 @@
 export default async function fetchUpdatePersonnel(
-    id: string, name: string, department: string, position: string
+    personnelId: string, name: string, department: string, position: string
 ) {
-    const endpoint = `/api/manpower-management/update-personnel`;
-    const body = JSON.stringify({ id, name, department, position });
+  const endpoint = `/api/manpower-management/personnel/${personnelId}`;
+  const body = JSON.stringify({ personnelId, name, department, position });
   
     try {
       const response = await fetch(endpoint, {

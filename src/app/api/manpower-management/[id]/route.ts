@@ -1,6 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import getPersonnelById from "@/domains/manpower-management/service/getPersonnelById";
 import deletePersonnel from "@/domains/manpower-management/service/deletePersonnel";
+import updatePersonnel from "@/domains/manpower-management/service/updatePersonnel";
 
 export async function GET(req: NextRequest,
     { params }: { params: { id: string } }
@@ -44,4 +45,27 @@ export async function DELETE(req: NextRequest,
                 { status: 500 }
             );
         }
+}
+
+export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+    const { id } = params;
+
+    try {
+        const { name, department, position } = await req.json();
+
+        if (!id || !name || !department || !position) {
+            return NextResponse.json(
+                { error: "ID, name, and department are required" },
+                { status: 400 }
+            );
+        }
+        const updatedPersonnel = await updatePersonnel(id, name, department, position);
+        return NextResponse.json(updatedPersonnel, { status: 200 });
+    } catch (error) {
+        console.error("Error updating personnel:", error);
+        return NextResponse.json(
+            { error: "Failed to update personnel" },
+            { status: 500 }
+        );
+    }
 }
