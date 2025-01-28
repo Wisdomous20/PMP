@@ -110,6 +110,7 @@ model ImplementationPlan {
   files                Files[]
   serviceRequest       ServiceRequest        @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
   personnelAssignments PersonnelAssignment[]
+  equipmentAssignments EquipmentAssignment[]
   tasks                Task[]
 }
 
@@ -144,6 +145,23 @@ model PersonnelAssignment {
   personnel            Personnel          @relation(fields: [personnelId], references: [id], onDelete: Cascade)
 }
 
+model Equipment {
+  id                   String             @id @default(uuid()) @map("_id")
+  name                 String
+  status               equipment_status
+  lastChecked          DateTime
+  department           String
+  equipmentAssignments EquipmentAssignment[]
+}
+
+model EquipmentAssignment {
+  id                   String             @id @default(uuid()) @map("_id")
+  equipmentId          String
+  implementationPlanId String
+  implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
+  equipment            Equipment          @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+}
+
 enum user_type {
   ADMIN
   USER
@@ -155,4 +173,11 @@ enum status {
   approved
   rejected
   in_progress
+}
+
+enum equipment_status {
+  available
+  in_use
+  under_maintenance
+  replaced
 }
