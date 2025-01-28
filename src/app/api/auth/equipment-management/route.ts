@@ -1,4 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
+import createEquipment from "@/domains/equipment-management/createEquipment";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try{
