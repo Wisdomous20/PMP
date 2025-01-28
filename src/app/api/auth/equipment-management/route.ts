@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
-import createEquipment from "@/domains/equipment-management/createEquipment";
+import createEquipment from "@/domains/equipment-management/services/createEquipment";
+import getAllEquipment from "@/domains/equipment-management/services/getAllEquipment";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
@@ -55,6 +56,19 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     console.error("Error handling POST request:", error);
     return NextResponse.json(
       { error: "Failed to create equipment" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function GET(req: NextRequest): Promise<NextResponse> {
+  try {
+    const equipment = await getAllEquipment();
+    return NextResponse.json(equipment, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching equipment:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch equipment" },
       { status: 500 }
     );
   }

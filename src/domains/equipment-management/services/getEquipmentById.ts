@@ -3,11 +3,7 @@ import { prisma } from "@/lib/prisma";
 export default async function getEquipmentById(id: string) {
   try {
     const equipment = await prisma.equipment.findUnique({
-      where: { id },
-      include: {
-        status: true,
-        equipmentAssignments: true,
-      },
+      where: { id }
     });
 
     if (!equipment) {
