@@ -8,10 +8,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       brand,
       serialNumber,
       supplier,
-      unit_cost,
-      total_cost,
-      date_purchased,
-      date_recieved,
+      UnitCost,
+      TotalCost,
+      DatePurchased,
+      DateRecieved,
       location,
       department,
       serviceRequestId,
@@ -22,10 +22,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       !brand ||
       !serialNumber ||
       !supplier ||
-      !unit_cost ||
-      !total_cost ||
-      !date_purchased ||
-      !date_recieved ||
+      !UnitCost ||
+      !TotalCost ||
+      !DatePurchased ||
+      !DateRecieved ||
       !location ||
       !department ||
       !serviceRequestId
@@ -41,10 +41,10 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       brand,
       serialNumber,
       supplier,
-      unit_cost,
-      total_cost,
-      new Date(date_purchased),
-      new Date(date_recieved),
+      UnitCost,
+      TotalCost,
+      new Date(DatePurchased),
+      new Date(DateRecieved),
       location,
       department,
       serviceRequestId

@@ -5,10 +5,10 @@ type Equipment = {
     description: string,
     brand: string,
     serialNumber: string,
-    unit_cost: number,
-    total_cost: number,
+    UnitCost: number,
+    TotalCost: number,
     DatePurchased: Date,
-    date_recieved: Date,
+    DateRecieved: Date,
     status: EquipmentStatus
     location: string,
     department: string,

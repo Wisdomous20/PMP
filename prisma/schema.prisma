@@ -152,10 +152,10 @@ model Equipment {
   brand                String
   serialNumber         String
   supplier             String
-  unit_cost            Float
-  total_cost           Float
-  date_purchased       DateTime
-  date_recieved        DateTime
+  UnitCost            Float
+  TotalCost           Float
+  DatePurchased       DateTime
+  DateRecieved        DateTime
   status               equipment_status
   location             String
   department           String

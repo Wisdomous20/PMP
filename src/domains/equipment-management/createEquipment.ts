@@ -5,10 +5,10 @@ export default async function createEquipment(
   brand: string,
   serialNumber: string,
   supplier: string,
-  unit_cost: number,
-  total_cost: number,
-  date_purchased: Date,
-  date_recieved: Date,
+  UnitCost: number,
+  TotalCost: number,
+  DatePurchased: Date,
+  DateRecieved: Date,
   location: string,
   department: string,
   serviceRequestId: string
@@ -18,10 +18,10 @@ export default async function createEquipment(
   brand: string;
   serialNumber: string;
   supplier: string;
-  unit_cost: number;
-  total_cost: number;
-  date_purchased: Date;
-  date_recieved: Date;
+  UnitCost: number;
+  TotalCost: number;
+  DatePurchased: Date;
+  DateRecieved: Date;
   status: string;
   location: string;
   department: string;
@@ -34,10 +34,10 @@ export default async function createEquipment(
         brand,
         serialNumber,
         supplier,
-        unit_cost,
-        total_cost,
-        date_purchased,
-        date_recieved,
+        UnitCost,
+        TotalCost,
+        DatePurchased,
+        DateRecieved,
         status: "Operational", 
         location,
         department,
