@@ -146,11 +146,11 @@ model PersonnelAssignment {
 }
 
 model Equipment {
-  id                   String             @id @default(uuid()) @map("_id")
+  id                   String                @id @default(uuid()) @map("_id")
   name                 String
-  status               equipment_status
-  lastChecked          DateTime
   department           String
+  timestamp            DateTime              @default(now())
+  status               EquipmentStatus[]
   equipmentAssignments EquipmentAssignment[]
 }
 
@@ -160,6 +160,14 @@ model EquipmentAssignment {
   implementationPlanId String
   implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
   equipment            Equipment          @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
+}
+
+model EquipmentStatus {
+  id                   String    @id @default(uuid()) @map("_id")
+  equipmentId          String
+  status               equipment_status
+  timestamp            DateTime  @default(now())
+  equipment            Equipment @relation(fields: [equipmentId], references: [id], onDelete: Cascade)
 }
 
 enum user_type {
