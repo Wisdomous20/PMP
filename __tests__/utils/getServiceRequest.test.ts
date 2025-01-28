@@ -14,7 +14,7 @@ jest.mock("../../src/lib/prisma", () => ({
   },
 }));
 
-describe.skip("getServiceRequests", () => {
+describe("getServiceRequests", () => {
   const mockUser = {
     id: "user-1",
     user_type: "USER",
@@ -43,7 +43,7 @@ describe.skip("getServiceRequests", () => {
   });
 
   it("should throw an error if user is not found", async () => {
-    prisma.user.findUnique.mockResolvedValue(null); // User not found
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue(null); // User not found
 
     await expect(getServiceRequests("user-1")).rejects.toThrow(
       "User not found"
@@ -52,12 +52,12 @@ describe.skip("getServiceRequests", () => {
 
   it("should return service requests for an ADMIN user", async () => {
     // Mock user as ADMIN
-    prisma.user.findUnique.mockResolvedValue({
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
       ...mockUser,
       user_type: "ADMIN",
     });
     // Mock service requests
-    prisma.serviceRequest.findMany.mockResolvedValue(mockServiceRequests);
+    (prisma.serviceRequest.findMany as jest.Mock).mockResolvedValue(mockServiceRequests);
 
     const result = await getServiceRequests("admin-user");
 
@@ -93,11 +93,11 @@ describe.skip("getServiceRequests", () => {
 
   it("should return service requests for a SUPERVISOR user with department", async () => {
     // Mock user as SUPERVISOR with department
-    prisma.user.findUnique.mockResolvedValue({
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
       ...mockUser,
       user_type: "SUPERVISOR",
     });
-    prisma.serviceRequest.findMany.mockResolvedValue(mockServiceRequests);
+    (prisma.serviceRequest.findMany as jest.Mock).mockResolvedValue(mockServiceRequests);
 
     const result = await getServiceRequests("supervisor-user");
 
@@ -134,11 +134,11 @@ describe.skip("getServiceRequests", () => {
 
   it("should return service requests for a USER", async () => {
     // Mock user as USER
-    prisma.user.findUnique.mockResolvedValue({
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
       ...mockUser,
       user_type: "USER",
     });
-    prisma.serviceRequest.findMany.mockResolvedValue(mockServiceRequests);
+    (prisma.serviceRequest.findMany as jest.Mock).mockResolvedValue(mockServiceRequests);
 
     const result = await getServiceRequests("user-1");
 
@@ -175,7 +175,7 @@ describe.skip("getServiceRequests", () => {
 
   it("should throw an error for an invalid user type", async () => {
     // Mock user with invalid user_type
-    prisma.user.findUnique.mockResolvedValue({
+    (prisma.user.findUnique as jest.Mock).mockResolvedValue({
       ...mockUser,
       user_type: "UNKNOWN",
     });
