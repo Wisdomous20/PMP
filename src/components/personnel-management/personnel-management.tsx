@@ -1,11 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Button } from "../ui/button"; 
-import { Input } from "../ui/input"; 
-import { Plus, Trash, ListFilter, Pencil } from "lucide-react"; 
-import AddPersonnel from "./AddPersonnel"; 
+import { Button } from "../ui/button";
+import { Plus, Trash, ListFilter, Pencil } from "lucide-react";
+import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
-import { Checkbox } from "../ui/checkbox"; 
+import { Checkbox } from "../ui/checkbox";
 
 interface Personnel {
   id: string;
@@ -18,9 +17,10 @@ export default function PersonnelManagement() {
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedIds, setSelectedIds] = useState<string[]>([]);
-  const [isDialogOpen, setIsDialogOpen] = useState(false); // State for Add dialog
-  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false); // State for Update dialog
-  const [currentPersonnel, setCurrentPersonnel] = useState<Personnel | null>(null); // State for current personnel being updated
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
+  const [currentPersonnel, setCurrentPersonnel] = useState<Personnel | null>(null);
+  const [visibleCount, setVisibleCount] = useState(5); // Start with 5 items
 
   useEffect(() => {
     fetchPersonnel();
@@ -83,7 +83,7 @@ export default function PersonnelManagement() {
           <div className="flex justify-end space-x-2">
             <Button
               variant={"gold"}
-              onClick={() => setIsDialogOpen(true)} // Open Add dialog
+              onClick={() => setIsDialogOpen(true)}
               className="bg-indigo-Background text-primary-foreground px-4 py-2 rounded-md"
             >
               <Plus className="inline-block mr-2 w-4 h-4" /> Add Personnel
@@ -112,7 +112,8 @@ export default function PersonnelManagement() {
         currentPersonnel={currentPersonnel}
       />
 
-      <div className="rounded-md shadow-md overflow-hidden mx-auto w-full max-w-7xl mt-6">
+      {/* Scrollable Container */}
+      <div className="rounded-md shadow-md overflow-y-auto max-h-[400px] mx-auto w-full max-w-7xl mt-6">
         <div className="bg-transparent grid grid-cols-[30px_1fr_1fr_1fr_30px] items-center gap-4 px-4 py-2 font-semibold">
           <div className="text-center"></div>
           <div className="text-center">Name</div>
@@ -122,7 +123,7 @@ export default function PersonnelManagement() {
         </div>
 
         <div className="mt-4">
-          {personnel.map((person) => (
+          {personnel.slice(0, visibleCount).map((person) => (
             <div
               key={person.id}
               className="bg-gray-300 border border-gray-300 rounded-md shadow-md mb-4 p-4 grid grid-cols-[30px_1fr_1fr_1fr_30px] items-center gap-4"
@@ -156,9 +157,18 @@ export default function PersonnelManagement() {
         </div>
       </div>
 
-      <div className="flex justify-center mt-4">
-        <Button variant="gold" className="bg-indigo-Background text-white px-6 py-2 rounded-md">Load more...</Button>
-      </div>
+      {/* Load More Button */}
+      {visibleCount < personnel.length && (
+        <div className="flex justify-center mt-4">
+          <Button
+            variant="gold"
+            className="bg-indigo-Background text-white px-6 py-2 rounded-md"
+            onClick={() => setVisibleCount((prev) => prev + 5)}
+          >
+            Load more...
+          </Button>
+        </div>
+      )}
     </div>
   );
 }
