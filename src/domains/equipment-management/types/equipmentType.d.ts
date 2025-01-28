@@ -1,5 +1,5 @@
-type EquipmentStatus = "Operational" | "Repairable" | "Scrap"
-type Equipment = {
+export type EquipmentStatus = "Operational" | "Repairable" | "Scrap"
+export type Equipment = {
     id: string,
     quanty: number,
     description: string,
