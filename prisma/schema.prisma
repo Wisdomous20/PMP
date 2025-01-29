@@ -145,6 +145,24 @@ model PersonnelAssignment {
   personnel            Personnel          @relation(fields: [personnelId], references: [id], onDelete: Cascade)
 }
 
+model Equipment {
+  id                   String                @id @default(uuid()) @map("_id")
+  qunatity             Int
+  description          String
+  brand                String
+  serialNumber         String
+  supplier             String
+  UnitCost            Float
+  TotalCost           Float
+  DatePurchased       DateTime
+  DateRecieved        DateTime
+  status               equipment_status
+  location             String
+  department           String
+  serviceRequestId     String
+  serviceRequest       ServiceRequest        @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+}
+
 enum user_type {
   ADMIN
   USER
@@ -156,4 +174,10 @@ enum status {
   approved
   rejected
   in_progress
+}
+
+enum equipment_status {
+  Operational
+  Repairable
+  Scrap
 }
