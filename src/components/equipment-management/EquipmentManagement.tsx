@@ -1,41 +1,31 @@
 "use client";
 import { useEffect, useState } from "react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "./StatusBadge";
 import { PlusCircle } from "lucide-react";
 import fetchGetAllEquipment from "@/domains/equipment-management/services/fetchGetAllEquipment";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddEquipment from "@/components/equipment-management/addEquipment";
+import { EquipmentStatus } from "@/domains/equipment-management/types/equipmentType";
 
 interface Equipment {
   id: string;
+  qty: number;
   description: string;
   brand: string;
   serialNumber: string;
   supplier: string;
-  UnitCost: number;
-  TotalCost: number;
-  DatePurchased: Date;
-  DateRecieved: Date;
-  status: string;
+  unitCost: number;
+  totalCost: number;
+  datePurchased: Date;
+  dateRecieved: Date;
+  status: EquipmentStatus;
   location: string;
   department: string;
   serviceRequestId: string;
+  remarks: string;
 }
 
 export default function EquipmentTable() {
@@ -137,33 +127,36 @@ export default function EquipmentTable() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {practicelangni.map((item) => (
-              <TableRow key={item.id}>
-                <TableCell className="font-medium">
-                  {item.description}
-                </TableCell>
-                <TableCell>
-                  <StatusBadge
-                    status={
-                      item.status as "Operational" | "Repairable" | "Scrap"
-                    }
-                  />
-                </TableCell>
-                <TableCell>{item.location}</TableCell>
-                <TableCell>{item.department}</TableCell>
-                <TableCell>
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
-                      Edit
-                    </Button>
-                    <Button variant="outline" size="sm">
-                      Details
-                    </Button>
-                  </div>
-                </TableCell>
-              </TableRow>
-            ))}
-          </TableBody>
+          {equipment.map((item: Equipment, index: number) => (
+            <TableRow key={index}>
+              <TableCell>{item.qty}</TableCell>
+              <TableCell>{item.description}</TableCell>
+              <TableCell>{item.brand}</TableCell>
+              <TableCell>{item.serialNumber}</TableCell>
+              <TableCell>{item.supplier}</TableCell>
+              <TableCell>{item.unitCost}</TableCell>
+              <TableCell>{item.totalCost}</TableCell>
+              <TableCell>{item.datePurchased.toDateString()}</TableCell>
+              <TableCell>{item.dateRecieved.toDateString()}</TableCell>
+              <TableCell>
+                <StatusBadge status={item.status} />
+              </TableCell>
+              <TableCell>{item.location}</TableCell>
+              <TableCell>{item.department}</TableCell>
+              <TableCell>{item.remarks}</TableCell>
+              <TableCell>
+                <div className="flex space-x-2">
+                  <Button variant="outline" size="sm">
+                    Edit
+                  </Button>
+                  <Button variant="outline" size="sm">
+                    Details
+                  </Button>
+                </div>
+              </TableCell>
+            </TableRow>
+          ))}
+        </TableBody>
         </Table>
       </div>
     </div>
