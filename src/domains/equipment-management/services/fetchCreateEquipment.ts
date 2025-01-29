@@ -25,7 +25,7 @@ export default async function fetchCreateEquipment(
   department: string;
   serviceRequestId: string;
 }> {
-  const endpoint = "/api/equipment-management";
+  const endpoint = "/api/auth/equipment-management";
 
   try {
     const response = await fetch(endpoint, {
