@@ -31,7 +31,7 @@ export default async function resetPassword(email: string) {
       },
     });
 
-    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/reset-password?token=${token}`;
+    const resetUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/auth/update-password?token=${token}`;
 
     const mailOptions = {
       from: process.env.EMAIL_USER,
