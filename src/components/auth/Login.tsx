@@ -133,7 +133,7 @@ export default function Login() {
               placeholder="Enter your email"
             />
             {errors.email && (
-              <p className="text-red-500 text-xs mt-1">{errors.email}</p>
+              <p className="text-red-500 text-xs mt-1" id="email-error">{errors.email}</p>
             )}
           </div>
           <div>
@@ -165,7 +165,7 @@ export default function Login() {
               </button>
             </div>
             {errors.password && (
-              <p className="text-red-500 text-xs mt-1">{errors.password}</p>
+              <p className="text-red-500 text-xs mt-1" id="password-error">{errors.password}</p>
             )}
           </div>
           <div className="mt-3">
