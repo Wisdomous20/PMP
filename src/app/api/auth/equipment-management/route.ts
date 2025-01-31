@@ -37,16 +37,29 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const newEquipment = await createEquipment(
+    const createEquipmentData = {
       description,
       brand,
       serialNumber,
       supplier,
       UnitCost,
       TotalCost,
+      DatePurchased,
+      DateRecieved,
+      location,
+      department,
+      serviceRequestId,
+    }
+
+    const newEquipment = await createEquipment(
+      description,
+      brand,
+      supplier,
+      TotalCost,
       new Date(DatePurchased),
       new Date(DateRecieved),
       location,
+      UnitCost,
       department,
       serviceRequestId
     );

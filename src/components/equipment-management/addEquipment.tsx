@@ -43,7 +43,7 @@ export default function AddEquipment() {
   });
 
   const validateForm = (): boolean => {
-    let newErrors: FormErrors = {};
+    const newErrors: FormErrors = {};
 
     Object.keys(formData).forEach((key) => {
       const value = formData[key as keyof EquipmentFormData];
