@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useState } from "react";
 import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table";
@@ -8,25 +9,6 @@ import fetchGetAllEquipment from "@/domains/equipment-management/services/fetchG
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddEquipment from "@/components/equipment-management/addEquipment";
-import { EquipmentStatus } from "@/domains/equipment-management/types/equipmentType";
-
-interface Equipment {
-  id: string;
-  qty: number;
-  description: string;
-  brand: string;
-  serialNumber: string;
-  supplier: string;
-  unitCost: number;
-  totalCost: number;
-  datePurchased: Date;
-  dateRecieved: Date;
-  status: EquipmentStatus;
-  location: string;
-  department: string;
-  serviceRequestId: string;
-  remarks: string;
-}
 
 export default function EquipmentTable() {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
@@ -129,7 +111,7 @@ export default function EquipmentTable() {
           <TableBody>
           {equipment.map((item: Equipment, index: number) => (
             <TableRow key={index}>
-              <TableCell>{item.qty}</TableCell>
+              <TableCell>{item.quantity}</TableCell>
               <TableCell>{item.description}</TableCell>
               <TableCell>{item.brand}</TableCell>
               <TableCell>{item.serialNumber}</TableCell>
@@ -143,7 +125,7 @@ export default function EquipmentTable() {
               </TableCell>
               <TableCell>{item.location}</TableCell>
               <TableCell>{item.department}</TableCell>
-              <TableCell>{item.remarks}</TableCell>
+              {item.serviceRequest && <TableCell>{item.serviceRequest.serviceRequestName}</TableCell>}
               <TableCell>
                 <div className="flex space-x-2">
                   <Button variant="outline" size="sm">

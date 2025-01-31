@@ -156,7 +156,7 @@ model Equipment {
   unitCost            Float
   totalCost           Float
   datePurchased       DateTime
-  dateRecieved        DateTime
+  dateReceived        DateTime
   status               equipment_status
   location             String
   department           String

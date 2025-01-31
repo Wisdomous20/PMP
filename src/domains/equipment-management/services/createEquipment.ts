@@ -1,18 +1,7 @@
 import { prisma } from "@/lib/prisma";
 
 export default async function createEquipment(
-  description: string,
-  brand: string,
-  quantity: number,
-  serialNumber: string,
-  supplier: string,
-  unitCost: number,
-  totalCost: number,
-  datePurchased: Date,
-  dateRecieved: Date,
-  location: string,
-  department: string,
-  serviceRequestId: string | null
+  input: EquipmentInput
 ): Promise<{
   id: string;
   description: string;
@@ -23,7 +12,7 @@ export default async function createEquipment(
   unitCost: number;
   totalCost: number;
   datePurchased: Date;
-  dateRecieved: Date;
+  dateReceived: Date;
   status: string;
   location: string;
   department: string;
@@ -32,19 +21,8 @@ export default async function createEquipment(
   try {
     const equipment = await prisma.equipment.create({
       data: {
-        description,
-        brand,
-        quantity,
-        serialNumber,
-        supplier,
-        unitCost,
-        totalCost,
-        datePurchased,
-        dateRecieved,
-        status: "Operational", 
-        location,
-        department,
-        serviceRequestId,
+        ...input,
+        status: "Operational", // Default status
       },
     });
 

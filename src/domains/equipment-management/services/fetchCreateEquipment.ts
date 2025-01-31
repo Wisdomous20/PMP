@@ -1,31 +1,22 @@
 export default async function fetchCreateEquipment(
-  description: string,
-  brand: string,
-  serialNumber: string,
-  supplier: string,
-  unit_cost: number,
-  total_cost: number,
-  date_purchased: Date,
-  date_recieved: Date,
-  location: string,
-  department: string,
-  serviceRequestId: string
+  input: EquipmentInput
 ): Promise<{
   id: string;
   description: string;
   brand: string;
+  quantity: number;
   serialNumber: string;
   supplier: string;
-  unit_cost: number;
-  total_cost: number;
-  date_purchased: Date;
-  date_recieved: Date;
+  unitCost: number;
+  totalCost: number;
+  datePurchased: Date;
+  dateReceived: Date;
   status: string;
   location: string;
   department: string;
-  serviceRequestId: string;
+  serviceRequestId: string | null;
 }> {
-  const endpoint = "/api/auth/equipment-management";
+  const endpoint = "/api/equipment-management";
 
   try {
     const response = await fetch(endpoint, {
@@ -33,19 +24,7 @@ export default async function fetchCreateEquipment(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify({
-        description,
-        brand,
-        serialNumber,
-        supplier,
-        unit_cost,
-        total_cost,
-        date_purchased,
-        date_recieved,
-        location,
-        department,
-        serviceRequestId,
-      }),
+      body: JSON.stringify(input),
     });
 
     if (!response.ok) {

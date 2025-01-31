@@ -7,12 +7,13 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     const {
       description,
       brand,
+      quantity,
       serialNumber,
       supplier,
-      UnitCost,
-      TotalCost,
-      DatePurchased,
-      DateRecieved,
+      unitCost,
+      totalCost,
+      datePurchased,
+      dateReceived,
       location,
       department,
       serviceRequestId,
@@ -21,15 +22,15 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
     if (
       !description ||
       !brand ||
+      !quantity ||
       !serialNumber ||
       !supplier ||
-      !UnitCost ||
-      !TotalCost ||
-      !DatePurchased ||
-      !DateRecieved ||
+      !unitCost ||
+      !totalCost ||
+      !datePurchased ||
+      !dateReceived ||
       !location ||
-      !department ||
-      !serviceRequestId
+      !department
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -37,32 +38,20 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       );
     }
 
-    const createEquipmentData = {
+    const newEquipment = await createEquipment({
       description,
       brand,
+      quantity,
       serialNumber,
       supplier,
-      UnitCost,
-      TotalCost,
-      DatePurchased,
-      DateRecieved,
+      unitCost,
+      totalCost,
+      datePurchased: new Date(datePurchased),
+      dateReceived: new Date(dateReceived),
       location,
       department,
-      serviceRequestId,
-    }
-
-    const newEquipment = await createEquipment(
-      description,
-      brand,
-      supplier,
-      TotalCost,
-      new Date(DatePurchased),
-      new Date(DateRecieved),
-      location,
-      UnitCost,
-      department,
-      serviceRequestId
-    );
+      serviceRequestId: serviceRequestId || null,
+    });
 
     return NextResponse.json(newEquipment, { status: 201 });
   } catch (error) {
@@ -74,7 +63,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-export async function GET(req: NextRequest): Promise<NextResponse> {
+export async function GET(): Promise<NextResponse> {
   try {
     const equipment = await getAllEquipment();
     return NextResponse.json(equipment, { status: 200 });

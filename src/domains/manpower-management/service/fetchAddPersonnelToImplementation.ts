@@ -1,11 +1,12 @@
 export default async function fetchAddPersonnelToImplementation(implementationPlanId: string, personnelId: string) {
-    const endpoint = `/api/manpower-management`
+    const endpoint = `/api/manpower-management/assign-personnel`
     try {
         const response = await fetch(endpoint, {
             method: "POST",
             headers: {
                 "Content-Type": "application/json",
             },
+            body: JSON.stringify({ implementationPlanId, personnelId }),
         });
 
         if (!response.ok) {

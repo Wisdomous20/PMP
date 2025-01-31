@@ -8,7 +8,7 @@ import { Separator } from "@/components/ui/separator";
 import fetchCreateEquipment from "@/domains/equipment-management/services/fetchCreateEquipment";
 
 interface EquipmentFormData {
-  qty: number;
+  quantity: number;
   description: string;
   brand: string;
   serialNumber: string;
@@ -16,7 +16,7 @@ interface EquipmentFormData {
   unitCost: number;
   totalCost: number;
   datePurchased: string;
-  dateRecieved: string;
+  dateReceived: string;
   location: string;
   department: string;
   serviceRequestId: string;
@@ -28,7 +28,7 @@ export default function AddEquipment() {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState<EquipmentFormData>({
-    qty: 0,
+    quantity: 0,
     description: "",
     brand: "",
     serialNumber: "",
@@ -36,7 +36,7 @@ export default function AddEquipment() {
     unitCost: 0,
     totalCost: 0,
     datePurchased: "",
-    dateRecieved: "",
+    dateReceived: "",
     location: "",
     department: "",
     serviceRequestId: "",
@@ -48,11 +48,7 @@ export default function AddEquipment() {
     Object.keys(formData).forEach((key) => {
       const value = formData[key as keyof EquipmentFormData];
 
-      if (
-        !value &&
-        value !== 0 &&
-        !["qty", "unitCost", "totalCost"].includes(key)
-      ) {
+      if (!value && value !== 0 && !["quantity", "unitCost", "totalCost"].includes(key)) {
         newErrors[key as keyof EquipmentFormData] = "This field is required.";
       }
     });
@@ -66,19 +62,14 @@ export default function AddEquipment() {
 
     setIsLoading(true);
     try {
-      await fetchCreateEquipment(
-        formData.description,
-        formData.brand,
-        formData.serialNumber,
-        formData.supplier,
-        formData.unitCost,
-        formData.totalCost,
-        new Date(formData.datePurchased),
-        new Date(formData.dateRecieved),
-        formData.location,
-        formData.department,
-        formData.serviceRequestId
-      );
+      await fetchCreateEquipment({
+        ...formData,
+        quantity: Number(formData.quantity),
+        unitCost: Number(formData.unitCost),
+        totalCost: Number(formData.totalCost),
+        datePurchased: new Date(formData.datePurchased),
+        dateReceived: new Date(formData.dateReceived),
+      });
     } catch (error) {
       console.error("Failed to create equipment:", error);
     } finally {
@@ -93,13 +84,13 @@ export default function AddEquipment() {
           {[
             { id: "description", label: "Description", type: "text" },
             { id: "brand", label: "Brand", type: "text" },
-            { id: "qty", label: "Quantity", type: "number" },
+            { id: "quantity", label: "Quantity", type: "number" },
             { id: "serialNumber", label: "Serial Number", type: "text" },
             { id: "supplier", label: "Supplier", type: "text" },
             { id: "unitCost", label: "Unit Cost", type: "number" },
             { id: "totalCost", label: "Total Cost", type: "number" },
             { id: "datePurchased", label: "Date Purchased", type: "date" },
-            { id: "dateRecieved", label: "Date Received", type: "date" },
+            { id: "dateReceived", label: "Date Received", type: "date" },
             { id: "location", label: "Location", type: "text" },
             { id: "department", label: "Department", type: "text" },
           ].map(({ id, label, type }) => (
@@ -108,7 +99,7 @@ export default function AddEquipment() {
               <Input
                 id={id}
                 type={type}
-                value={formData[id as keyof EquipmentFormData].toString()}
+                value={formData[id as keyof EquipmentFormData]?.toString() || ""}
                 onChange={(e) =>
                   setFormData({
                     ...formData,
