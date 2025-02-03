@@ -55,7 +55,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       serviceRequestId: serviceRequestId || null,
     });
 
-    return NextResponse.json("hello", { status: 201 });
+    return NextResponse.json(newEquipment, { status: 201 });
   } catch (error) {
     console.error("Error handling POST request:", error);
     return NextResponse.json(
