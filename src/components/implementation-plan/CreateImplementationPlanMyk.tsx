@@ -56,7 +56,7 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
 
   const toggleEditing = (id: string) => {
     setTasks(tasks.map(task =>
-      task.id === id ? { ...task, isEditing: !task.isEditing } : task
+      task.id === id ? { ...task, isEditing: true } : { ...task, isEditing: false }
     ))
   }
 
