@@ -113,7 +113,7 @@ export default function PersonnelManagement() {
       />
 
       {/* Scrollable Container */}
-      <div className="rounded-md shadow-md overflow-y-auto max-h-[400px] mx-auto w-full max-w-7xl mt-6">
+      <div className="rounded-md shadow-md overflow-y-auto h-[500px] mx-auto w-full max-w-7xl mt-6 border p-4">
         <div className="bg-transparent grid grid-cols-[30px_1fr_1fr_1fr_30px] items-center gap-4 px-4 py-2 font-semibold">
           <div className="text-center"></div>
           <div className="text-center">Name</div>
