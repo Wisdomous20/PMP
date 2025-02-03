@@ -9,7 +9,7 @@ type Equipment = {
     totalCost: number,
     datePurchased: Date,
     supplier: string;
-    dateRecieved: Date,
+    dateReceived: Date,
     status: EquipmentStatus
     location: string,
     department: string,
