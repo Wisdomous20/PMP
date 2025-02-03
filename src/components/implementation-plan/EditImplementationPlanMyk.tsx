@@ -51,9 +51,10 @@ export default function EditImplementationPlan({ serviceRequest, tasksInitial }:
   };
 
   const toggleEditing = (id: string) => {
-    setTasks(tasks.map(task => (task.id === id ? { ...task, isEditing: !task.isEditing } : task)));
-  };
-
+    setTasks(tasks.map(task =>
+      task.id === id ? { ...task, isEditing: true } : { ...task, isEditing: false }
+    ))
+  }
   const handleDeleteTask = (id: string) => {
     setTasks(tasks.filter(task => task.id !== id));
   };

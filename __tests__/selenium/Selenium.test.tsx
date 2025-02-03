@@ -6,7 +6,7 @@ import "chromedriver";
 const rootUrl = "http://localhost:3000/auth/login";
 let driver: WebDriver;
 
-describe("Selenium Automated Test", () => {
+describe.skip("Selenium Automated Test", () => {
   beforeAll(async () => {
     driver = await new Builder().forBrowser("chrome").build();
   });

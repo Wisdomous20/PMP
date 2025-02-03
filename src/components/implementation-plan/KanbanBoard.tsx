@@ -1,7 +1,12 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import React, { useState, useEffect } from "react";
+import React, {
+  useState,
+  useEffect,
+  useOptimistic,
+  startTransition,
+} from "react";
 import {
   DndContext,
   DragEndEvent,
@@ -30,14 +35,15 @@ type ColumnType = {
 
 const initialColumns: ColumnType[] = [
   { id: "pending", title: "Pending", taskIds: [] },
-  { id: "in_progress", title: "In Progress", taskIds: [] },
-  { id: "done", title: "Done", taskIds: [] },
+  { id: "ongoing", title: "Ongoing", taskIds: [] },
+  { id: "completed", title: "Completed", taskIds: [] },
 ];
 
 export default function ServiceRequestKanban() {
   const { implementationPlans, loading } = useGetImplementationPlans();
   const [columns, setColumns] = useState(initialColumns);
   const [activeTask, setActiveTask] = useState<ImplementationPlan | null>(null);
+  const [optimisticColumns, setOptimisticColumns] = useOptimistic(columns);
 
   useEffect(() => {
     if (implementationPlans.length > 0) {
@@ -106,24 +112,25 @@ export default function ServiceRequestKanban() {
   const handleDragEnd = (event: DragEndEvent) => {
     const { active, over } = event;
     if (!over) return;
-  
+
     const activeId = String(active.id);
     const overId = String(over.id);
-  
-    // Find source and target columns
+
     const sourceColumn = columns.find((col) => col.taskIds.includes(activeId));
-    const targetColumn = columns.find((col) => col.taskIds.includes(overId) || col.id === overId);
-  
+    const targetColumn = columns.find(
+      (col) => col.taskIds.includes(overId) || col.id === overId
+    );
+
     if (!sourceColumn || !targetColumn) return;
-  
+
     if (sourceColumn.id === targetColumn.id) {
       const reorderedTaskIds = [...sourceColumn.taskIds];
       const oldIndex = reorderedTaskIds.indexOf(activeId);
       const newIndex = reorderedTaskIds.indexOf(overId);
-  
+
       reorderedTaskIds.splice(oldIndex, 1);
       reorderedTaskIds.splice(newIndex, 0, activeId);
-  
+
       setColumns((prev) =>
         prev.map((col) =>
           col.id === sourceColumn.id
@@ -132,16 +139,18 @@ export default function ServiceRequestKanban() {
         )
       );
     } else {
-      const sourceTaskIds = sourceColumn.taskIds.filter((id) => id !== activeId);
+      const sourceTaskIds = sourceColumn.taskIds.filter(
+        (id) => id !== activeId
+      );
       const targetTaskIds = [...targetColumn.taskIds];
       const insertIndex = targetTaskIds.indexOf(overId);
-  
+
       if (insertIndex === -1) {
         targetTaskIds.push(activeId);
       } else {
         targetTaskIds.splice(insertIndex, 0, activeId);
       }
-  
+
       setColumns((prev) =>
         prev.map((col) => {
           if (col.id === sourceColumn.id) {
@@ -154,7 +163,13 @@ export default function ServiceRequestKanban() {
         })
       );
     }
-  };  
+    startTransition(() => {
+      setOptimisticColumns((prevColumns) => {
+        const updatedColumns = [...prevColumns];
+        return updatedColumns;
+      });
+    });
+  };
 
   if (loading) {
     return (
@@ -163,7 +178,7 @@ export default function ServiceRequestKanban() {
         <Skeleton className="w-1/4 h-full mx-12"> </Skeleton>
         <Skeleton className="w-1/4 h-full mx-12"> </Skeleton>
       </div>
-    )
+    );
   }
 
   return (
@@ -176,9 +191,9 @@ export default function ServiceRequestKanban() {
         onDragEnd={handleDragEnd}
         onDragOver={handleDragOver}
       >
-        <SortableContext items={columns.map((col) => col.id)}>
+        <SortableContext items={optimisticColumns.map((col) => col.id)}>
           <div className="flex justify-evenly space-x-8 overflow-x-auto p-4 min-w-full">
-            {columns.map((column) => {
+            {optimisticColumns.map((column) => {
               return (
                 <Column
                   key={column.id}
@@ -189,7 +204,6 @@ export default function ServiceRequestKanban() {
                 />
               );
             })}
-
           </div>
         </SortableContext>
         <DragOverlay>

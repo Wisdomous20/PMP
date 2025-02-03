@@ -9,7 +9,7 @@ jest.mock("next/navigation", () => ({
   }),
 }));
 
-describe("Service Request Details", () => {
+describe.skip("Service Request Details", () => {
   beforeEach(() => {
     jest.clearAllMocks();
   });

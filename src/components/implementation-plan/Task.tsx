@@ -4,7 +4,7 @@ import { CSS } from "@dnd-kit/utilities";
 import EditImplementationPlan from "./EditImplementationPlanMyk";
 
 type TaskProps = {
-  task: ImplementationPlan
+  task: ImplementationPlan;
   isDragging?: boolean;
 };
 
@@ -23,7 +23,7 @@ export default function Task({ task, isDragging }: TaskProps) {
     deadline: new Date(task.deadline),
     confirmed: task.checked,
     isEditing: false,
-  }))
+  }));
 
   return (
     <div
@@ -35,12 +35,35 @@ export default function Task({ task, isDragging }: TaskProps) {
         isDragging ? "opacity-50" : ""
       }`}
     >
-      <div className="font-semibold">{task.serviceRequest[0]?.concern}</div>
-      <div className="text-sm text-gray-600 mt-1">{task.serviceRequest[0]?.details}</div>
+      {/* Title with text wrapping */}
+      <div
+        className="font-semibold break-words max-w-full"
+        style={{
+          wordWrap: "break-word",
+          wordBreak: "break-word",
+        }}
+      >
+        {task.serviceRequest[0]?.concern}
+      </div>
+
+      {/* Details with text wrapping */}
+      <div
+        className="text-sm text-gray-600 mt-1 break-words max-w-full"
+        style={{
+          wordWrap: "break-word",
+          wordBreak: "break-word",
+        }}
+      >
+        {task.serviceRequest[0]?.details}
+      </div>
+
       <div className="text-xs text-gray-500 mt-2">
         <div>Requester: {task.serviceRequest[0]?.requesterName}</div>
       </div>
-      <EditImplementationPlan serviceRequest={task.serviceRequest[0]} tasksInitial={tasksInitial}/>
+      <EditImplementationPlan
+        serviceRequest={task.serviceRequest[0]}
+        tasksInitial={tasksInitial}
+      />
     </div>
   );
 }

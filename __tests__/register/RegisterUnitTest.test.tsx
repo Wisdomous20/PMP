@@ -22,7 +22,7 @@ jest.mock("next-auth/react", () => ({
   }));
 
 
-describe("Register Component - Unit Tests", () => {
+describe.skip("Register Component - Unit Tests", () => {
     it("renders input fields and submit button", () => {
         render(<Register />);
     

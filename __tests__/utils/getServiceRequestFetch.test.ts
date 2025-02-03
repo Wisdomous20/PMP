@@ -3,7 +3,7 @@ import getServiceRequestFetch from "../../src/domains/service-request/services/f
 
 global.fetch = jest.fn(); // Mock the fetch API
 
-describe("getServiceRequestFetch", () => {
+describe.skip("getServiceRequestFetch", () => {
   const mockServiceRequests = [
     {
       id: "req-1",

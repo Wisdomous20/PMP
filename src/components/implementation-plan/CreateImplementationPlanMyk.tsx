@@ -7,6 +7,7 @@ import { Card, CardContent } from "@/components/ui/card"
 import { Separator } from "@/components/ui/separator"
 import { PlusCircle, Trash } from 'lucide-react'
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog"
+import EquipmentTable from "../equipment-management/EquipmentManagement"
 import fetchCreateImplementationPlan from "@/domains/implementation-plan/services/fetchCreateImplementationPlan"
 import formatTimestamp from "@/utils/formatTimestamp"
 import { fetchInProgressStatus } from "@/domains/service-request/services/status/fetchAddSatus"
@@ -34,6 +35,8 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
   ])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
+  const [isEquipmentDialogOpen, setIsEquipmentDialogOpen] = useState(false);
+
 
   const addTask = () => {
     const newTask: Task = {
@@ -53,7 +56,7 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
 
   const toggleEditing = (id: string) => {
     setTasks(tasks.map(task =>
-      task.id === id ? { ...task, isEditing: !task.isEditing } : task
+      task.id === id ? { ...task, isEditing: true } : { ...task, isEditing: false }
     ))
   }
 
@@ -178,9 +181,26 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
                     <span>People Assigned</span>
                   </Button>
 
-                  <Button variant="outline" className="w-full h-24 flex items-center justify-center">
-                    <span>Equipment / Budget</span>
-                  </Button>
+                 {/* Equipment / Budget Button */}
+                 <Dialog
+                    open={isEquipmentDialogOpen}
+                    onOpenChange={setIsEquipmentDialogOpen}
+                  >
+                    <DialogTrigger asChild>
+                      <Button
+                        variant="outline"
+                        className="w-full h-24 flex items-center justify-center"
+                      >
+                        <span>Equipment / Budget</span>
+                      </Button>
+                    </DialogTrigger>
+                    <DialogContent className="min-w-[80vw] max-h-[80vh] overflow-y-scroll">
+                      <DialogHeader>
+                        <DialogTitle>Manage Equipment</DialogTitle>
+                      </DialogHeader>
+                      <EquipmentTable serviceRequestId={serviceRequest.id}/>
+                    </DialogContent>
+                  </Dialog>
 
                   <Button
                     onClick={handleCreateImplementationPlan}
