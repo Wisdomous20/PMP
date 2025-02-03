@@ -198,7 +198,7 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
                       <DialogHeader>
                         <DialogTitle>Manage Equipment</DialogTitle>
                       </DialogHeader>
-                      <EquipmentTable />
+                      <EquipmentTable serviceRequestId={serviceRequest.id}/>
                     </DialogContent>
                   </Dialog>
 

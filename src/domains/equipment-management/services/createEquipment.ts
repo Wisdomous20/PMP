@@ -22,9 +22,11 @@ export default async function createEquipment(
     const equipment = await prisma.equipment.create({
       data: {
         ...input,
-        status: "Operational", // Default status
+        status: "Operational",
       },
     });
+
+    console.log("Waa?")
 
     return equipment;
   } catch (error) {

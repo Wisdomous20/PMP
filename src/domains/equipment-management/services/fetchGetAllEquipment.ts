@@ -1,5 +1,5 @@
 export default async function fetchGetAllEquipment(): Promise<Equipment[] | null> {
-  const endpoint = `${process.env.NEXT_PUBLIC_API_URL}/api/equipment-management`;
+  const endpoint = `/api/equipment-management`;
 
   try {
     const response = await fetch(endpoint, {

@@ -22,9 +22,13 @@ interface EquipmentFormData {
   serviceRequestId: string;
 }
 
+interface AddEquipmentProps {
+  serviceRequestId: string
+}
+
 type FormErrors = Partial<Record<keyof EquipmentFormData, string>>;
 
-export default function AddEquipment() {
+export default function AddEquipment({serviceRequestId}: AddEquipmentProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<FormErrors>({});
   const [formData, setFormData] = useState<EquipmentFormData>({
@@ -39,7 +43,7 @@ export default function AddEquipment() {
     dateReceived: "",
     location: "",
     department: "",
-    serviceRequestId: "",
+    serviceRequestId: serviceRequestId,
   });
 
   const validateForm = (): boolean => {
@@ -53,20 +57,21 @@ export default function AddEquipment() {
       }
     });
 
+    console.log(errors)
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
 
   const handleSubmit = async () => {
+    console.log("hello")
     if (!validateForm()) return;
+    console.log("hello2")
 
     setIsLoading(true);
     try {
       await fetchCreateEquipment({
         ...formData,
-        quantity: Number(formData.quantity),
-        unitCost: Number(formData.unitCost),
-        totalCost: Number(formData.totalCost),
         datePurchased: new Date(formData.datePurchased),
         dateReceived: new Date(formData.dateReceived),
       });

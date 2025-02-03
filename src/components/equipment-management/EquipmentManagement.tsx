@@ -10,7 +10,11 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,} from 
 import { Skeleton } from "@/components/ui/skeleton";
 import AddEquipment from "@/components/equipment-management/addEquipment";
 
-export default function EquipmentTable() {
+interface EquipmentTableProps {
+  serviceRequestId: string
+}
+
+export default function EquipmentTable({serviceRequestId}: EquipmentTableProps) {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -82,7 +86,7 @@ export default function EquipmentTable() {
             <DialogHeader>
               <DialogTitle>Add New Equipment</DialogTitle>
             </DialogHeader>
-            <AddEquipment />
+            <AddEquipment serviceRequestId={serviceRequestId}/>
             {/* DIRI ANG MODAL SANG ADD EQUIPMENT CTRL+ CLICK ANG ADD EQUIPMENT*/}
           </DialogContent>
         </Dialog>
