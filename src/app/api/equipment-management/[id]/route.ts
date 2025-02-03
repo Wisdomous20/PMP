@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
 import getEquipmentById from "@/domains/equipment-management/services/getEquipmentById";
 import updateEquipment from "@/domains/equipment-management/services/updateEquipment";
-
+import { deleteEquipmentById } from "@/domains/equipment-management/services/deleteEquipmentById";
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -25,9 +25,6 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
     );
   }
 }
-
-
-
 
 export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
   try {
@@ -90,6 +87,22 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
     console.error("Error updating equipment:", error);
     return NextResponse.json(
       { error: "Failed to update equipment" },
+      { status: 500 }
+    );
+  }
+}
+
+export async function DELETE(
+  request: Request,
+  { params }: { params: { id: string } }
+) {
+  try {
+    await deleteEquipmentById(params.id);
+    return NextResponse.json({ message: "Equipment deleted successfully" });
+  } catch (error) {
+    console.error("Error deleting equipment:", error);
+    return NextResponse.json(
+      { error: "Failed to delete equipment" },
       { status: 500 }
     );
   }

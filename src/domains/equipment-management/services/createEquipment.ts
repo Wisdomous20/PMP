@@ -1,49 +1,32 @@
 import { prisma } from "@/lib/prisma";
 
 export default async function createEquipment(
-  description: string,
-  brand: string,
-  serialNumber: string,
-  supplier: string,
-  UnitCost: number,
-  TotalCost: number,
-  DatePurchased: Date,
-  DateRecieved: Date,
-  location: string,
-  department: string,
-  serviceRequestId: string
+  input: EquipmentInput
 ): Promise<{
   id: string;
   description: string;
   brand: string;
+  quantity: number;
   serialNumber: string;
   supplier: string;
-  UnitCost: number;
-  TotalCost: number;
-  DatePurchased: Date;
-  DateRecieved: Date;
+  unitCost: number;
+  totalCost: number;
+  datePurchased: Date;
+  dateReceived: Date;
   status: string;
   location: string;
   department: string;
-  serviceRequestId: string;
+  serviceRequestId: string | null;
 }> {
   try {
     const equipment = await prisma.equipment.create({
       data: {
-        description,
-        brand,
-        serialNumber,
-        supplier,
-        UnitCost,
-        TotalCost,
-        DatePurchased,
-        DateRecieved,
-        status: "Operational", 
-        location,
-        department,
-        serviceRequestId,
+        ...input,
+        status: "Operational",
       },
     });
+
+    console.log("Waa?")
 
     return equipment;
   } catch (error) {

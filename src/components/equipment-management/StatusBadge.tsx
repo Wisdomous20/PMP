@@ -1,5 +1,4 @@
 import { Badge } from "@/components/ui/badge";
-import { EquipmentStatus } from "@/domains/equipment-management/types/equipmentType";
 
 export function StatusBadge({ status }: { status: EquipmentStatus }) {
   const statusStyles = {
