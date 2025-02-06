@@ -1,21 +1,36 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useState } from "react";
-import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "./StatusBadge";
 import { PlusCircle } from "lucide-react";
-import fetchGetAllEquipment from "@/domains/equipment-management/services/fetchGetAllEquipment";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddEquipment from "@/components/equipment-management/addEquipment";
 import { DeleteEquipment } from "./DeleteEquipment";
+import fetchGetEquipmentById from "@/domains/equipment-management/services/fetchGetEquipmentById";
 
 interface EquipmentTableProps {
-  serviceRequestId: string
+  serviceRequestId: string;
 }
 
-export default function EquipmentTable({ serviceRequestId }: EquipmentTableProps) {
+export default function EquipmentTable({
+  serviceRequestId,
+}: EquipmentTableProps) {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
@@ -23,10 +38,8 @@ export default function EquipmentTable({ serviceRequestId }: EquipmentTableProps
   const loadEquipment = async () => {
     try {
       setLoading(true);
-      const data = await fetchGetAllEquipment();
-      if (data) {
-        setEquipment(data);
-      }
+      const data = await fetchGetEquipmentById(serviceRequestId);
+      setEquipment(data || []);
     } catch (error) {
       console.error("Failed to load equipment:", error);
     } finally {
@@ -36,14 +49,14 @@ export default function EquipmentTable({ serviceRequestId }: EquipmentTableProps
 
   useEffect(() => {
     loadEquipment();
-  }, []);
+  }, [serviceRequestId]);
 
   const handleEquipmentDeleted = async () => {
     await loadEquipment();
   };
 
   const handleEquipmentAdded = async () => {
-    setIsDialogOpen(false)
+    setIsDialogOpen(false);
     await loadEquipment();
   };
 
@@ -78,7 +91,10 @@ export default function EquipmentTable({ serviceRequestId }: EquipmentTableProps
             <DialogHeader>
               <DialogTitle>Add New Equipment</DialogTitle>
             </DialogHeader>
-            <AddEquipment serviceRequestId={serviceRequestId} onSuccess={handleEquipmentAdded}/>
+            <AddEquipment
+              serviceRequestId={serviceRequestId}
+              onSuccess={handleEquipmentAdded}
+            />
           </DialogContent>
         </Dialog>
       </div>
@@ -112,8 +128,12 @@ export default function EquipmentTable({ serviceRequestId }: EquipmentTableProps
                 <TableCell>{item.supplier}</TableCell>
                 <TableCell>{item.unitCost}</TableCell>
                 <TableCell>{item.totalCost}</TableCell>
-                <TableCell>{new Date(item.datePurchased).toDateString()}</TableCell>
-                <TableCell>{new Date(item.dateReceived).toDateString()}</TableCell>
+                <TableCell>
+                  {new Date(item.datePurchased).toDateString()}
+                </TableCell>
+                <TableCell>
+                  {new Date(item.dateReceived).toDateString()}
+                </TableCell>
                 <TableCell>
                   <StatusBadge status={item.status} />
                 </TableCell>
@@ -121,7 +141,9 @@ export default function EquipmentTable({ serviceRequestId }: EquipmentTableProps
                 <TableCell>{item.department}</TableCell>
                 <TableCell>
                   <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">Edit</Button>
+                    <Button variant="outline" size="sm">
+                      Edit
+                    </Button>
                     <DeleteEquipment
                       equipmentId={item.id}
                       description={item.description}

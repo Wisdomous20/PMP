@@ -14,7 +14,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
       );
     }
 
-    const equipment = await getEquipmentById(id);
+    const equipment = await getEquipmentById(params.id);
 
     return NextResponse.json(equipment, { status: 200 });
   } catch (error) {
