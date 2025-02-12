@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import createServiceRequestRating from "@/domains/service-request-rating/services/createServiceRequestRating";
+import createRating from "@/domains/service-request-rating/services/createRating";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
     try{
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
             );
         }
 
-        const newServiceRequestRating = await createServiceRequestRating(
+        const newServiceRequestRating = await createRating(
             serviceRequestId,
             rating,
             description
