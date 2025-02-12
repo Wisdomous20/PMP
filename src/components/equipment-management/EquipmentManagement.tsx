@@ -23,9 +23,10 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AddEquipment from "@/components/equipment-management/addEquipment";
 import { DeleteEquipment } from "./DeleteEquipment";
 import fetchGetEquipmentById from "@/domains/equipment-management/services/fetchGetEquipmentById";
+import fetchGetAllEquipment from "@/domains/equipment-management/services/fetchGetAllEquipment";
 
 interface EquipmentTableProps {
-  serviceRequestId: string;
+  serviceRequestId?: string;
 }
 
 export default function EquipmentTable({
@@ -38,8 +39,13 @@ export default function EquipmentTable({
   const loadEquipment = async () => {
     try {
       setLoading(true);
-      const data = await fetchGetEquipmentById(serviceRequestId);
-      setEquipment(data || []);
+      if (serviceRequestId) {
+        const data = await fetchGetEquipmentById(serviceRequestId);
+        setEquipment(data || []);
+      } else {
+        const data = await fetchGetAllEquipment();
+        setEquipment(data || []);
+      }
     } catch (error) {
       console.error("Failed to load equipment:", error);
     } finally {
@@ -115,7 +121,7 @@ export default function EquipmentTable({
               <TableHead>Status</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Department</TableHead>
-              <TableHead>Actions</TableHead>
+              {serviceRequestId && <TableHead>Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -139,17 +145,20 @@ export default function EquipmentTable({
                 </TableCell>
                 <TableCell>{item.location}</TableCell>
                 <TableCell>{item.department}</TableCell>
+
                 <TableCell>
-                  <div className="flex space-x-2">
-                    <Button variant="outline" size="sm">
-                      Edit
-                    </Button>
-                    <DeleteEquipment
-                      equipmentId={item.id}
-                      description={item.description}
-                      onDelete={handleEquipmentDeleted}
-                    />
-                  </div>
+                  {serviceRequestId && (
+                    <div className="flex space-x-2">
+                      <Button variant="outline" size="sm">
+                        Edit
+                      </Button>
+                      <DeleteEquipment
+                        equipmentId={item.id}
+                        description={item.description}
+                        onDelete={handleEquipmentDeleted}
+                      />
+                    </div>
+                  )}
                 </TableCell>
               </TableRow>
             ))}
