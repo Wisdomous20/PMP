@@ -1,54 +1,51 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useState } from "react";
-import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table";
+import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow, } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "./StatusBadge";
 import { PlusCircle } from "lucide-react";
 import fetchGetAllEquipment from "@/domains/equipment-management/services/fetchGetAllEquipment";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog";
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger, } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddEquipment from "@/components/equipment-management/addEquipment";
-import { EquipmentStatus } from "@/domains/equipment-management/types/equipmentType";
+import { DeleteEquipment } from "./DeleteEquipment";
 
-interface Equipment {
-  id: string;
-  qty: number;
-  description: string;
-  brand: string;
-  serialNumber: string;
-  supplier: string;
-  unitCost: number;
-  totalCost: number;
-  datePurchased: Date;
-  dateRecieved: Date;
-  status: EquipmentStatus;
-  location: string;
-  department: string;
-  serviceRequestId: string;
-  remarks: string;
+interface EquipmentTableProps {
+  serviceRequestId: string
 }
 
-export default function EquipmentTable() {
+export default function EquipmentTable({ serviceRequestId }: EquipmentTableProps) {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [loading, setLoading] = useState(true);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    const loadEquipment = async () => {
-      try {
-        const data = await fetchGetAllEquipment();
-        if (data) {
-          setEquipment(data);
-        }
-      } catch (error) {
-        console.error("Failed to load equipment:", error);
-      } finally {
-        setLoading(false);
+  const loadEquipment = async () => {
+    try {
+      setLoading(true);
+      const data = await fetchGetAllEquipment();
+      if (data) {
+        setEquipment(data);
       }
-    };
+    } catch (error) {
+      console.error("Failed to load equipment:", error);
+    } finally {
+      setLoading(false);
+    }
+  };
 
+  useEffect(() => {
     loadEquipment();
   }, []);
+
+  const handleEquipmentDeleted = async () => {
+    await loadEquipment();
+  };
+
+  const handleEquipmentAdded = async () => {
+    setIsDialogOpen(false)
+    await loadEquipment();
+  };
 
   if (loading) {
     return (
@@ -67,25 +64,6 @@ export default function EquipmentTable() {
     );
   }
 
-  const practicelangni = [
-    {
-      id: "1",
-      qty: "2",
-      description: "Laptop",
-      brand: "HP",
-      serialNumber: "123456",
-      supplier: "HP",
-      UnitCost: 1000,
-      TotalCost: 2000,
-      DatePurchased: new Date(),
-      DateRecieved: new Date(),
-      status: "Operational",
-      location: "Office",
-      department: "engi",
-      remarks: "I need new laptop",
-      serviceRequestId: "",
-    },
-  ];
   return (
     <div>
       <div className="flex justify-end mb-4 pt-3">
@@ -100,13 +78,12 @@ export default function EquipmentTable() {
             <DialogHeader>
               <DialogTitle>Add New Equipment</DialogTitle>
             </DialogHeader>
-            <AddEquipment />
-            {/* DIRI ANG MODAL SANG ADD EQUIPMENT CTRL+ CLICK ANG ADD EQUIPMENT*/}
+            <AddEquipment serviceRequestId={serviceRequestId} onSuccess={handleEquipmentAdded}/>
           </DialogContent>
         </Dialog>
       </div>
 
-      <div className="rounded-md border ">
+      <div className="rounded-md border">
         <Table>
           <TableHeader>
             <TableRow>
@@ -122,41 +99,39 @@ export default function EquipmentTable() {
               <TableHead>Status</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Department</TableHead>
-              <TableHead>Remarks</TableHead>
               <TableHead>Actions</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
-          {equipment.map((item: Equipment, index: number) => (
-            <TableRow key={index}>
-              <TableCell>{item.qty}</TableCell>
-              <TableCell>{item.description}</TableCell>
-              <TableCell>{item.brand}</TableCell>
-              <TableCell>{item.serialNumber}</TableCell>
-              <TableCell>{item.supplier}</TableCell>
-              <TableCell>{item.unitCost}</TableCell>
-              <TableCell>{item.totalCost}</TableCell>
-              <TableCell>{item.datePurchased.toDateString()}</TableCell>
-              <TableCell>{item.dateRecieved.toDateString()}</TableCell>
-              <TableCell>
-                <StatusBadge status={item.status} />
-              </TableCell>
-              <TableCell>{item.location}</TableCell>
-              <TableCell>{item.department}</TableCell>
-              <TableCell>{item.remarks}</TableCell>
-              <TableCell>
-                <div className="flex space-x-2">
-                  <Button variant="outline" size="sm">
-                    Edit
-                  </Button>
-                  <Button variant="outline" size="sm">
-                    Details
-                  </Button>
-                </div>
-              </TableCell>
-            </TableRow>
-          ))}
-        </TableBody>
+            {equipment.map((item: Equipment, index: number) => (
+              <TableRow key={index}>
+                <TableCell>{item.quantity}</TableCell>
+                <TableCell>{item.description}</TableCell>
+                <TableCell>{item.brand}</TableCell>
+                <TableCell>{item.serialNumber}</TableCell>
+                <TableCell>{item.supplier}</TableCell>
+                <TableCell>{item.unitCost}</TableCell>
+                <TableCell>{item.totalCost}</TableCell>
+                <TableCell>{new Date(item.datePurchased).toDateString()}</TableCell>
+                <TableCell>{new Date(item.dateReceived).toDateString()}</TableCell>
+                <TableCell>
+                  <StatusBadge status={item.status} />
+                </TableCell>
+                <TableCell>{item.location}</TableCell>
+                <TableCell>{item.department}</TableCell>
+                <TableCell>
+                  <div className="flex space-x-2">
+                    <Button variant="outline" size="sm">Edit</Button>
+                    <DeleteEquipment
+                      equipmentId={item.id}
+                      description={item.description}
+                      onDelete={handleEquipmentDeleted}
+                    />
+                  </div>
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
         </Table>
       </div>
     </div>

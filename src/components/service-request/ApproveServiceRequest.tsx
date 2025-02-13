@@ -20,16 +20,22 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
   const [selectedSupervisor, setSelectedSupervisor] = useState<Supervisor | null>(null);
   const [note, setNote] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
+  const [isLoadingSupervisorList, setIsLoadingSupervisorList] = useState(false);
 
   useEffect(() => {
     const loadSupervisors = async () => {
       try {
+        setIsLoadingSupervisorList(true);
         const fetchedSupervisors = await fetchGetSupervisors();
         if (fetchedSupervisors) {
           setSupervisors(fetchedSupervisors);
+        } else {
+          throw Error;
         }
       } catch (error) {
         console.error("Failed to load supervisors:", error);
+      } finally {
+        setIsLoadingSupervisorList(false);
       }
     };
 
@@ -50,11 +56,11 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
         setSelectedSupervisor(null);
         setNote("");
 
-        refreshPage()
+        refreshPage();
       } catch (error) {
         console.error("Failed to approve service request:", error);
       } finally {
-        setIsLoading(false)
+        setIsLoading(false);
       }
     }
   }
@@ -76,27 +82,33 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
           </DialogDescription>
         </DialogHeader>
 
-        <Select
-          value={selectedSupervisor?.id}
-          onValueChange={(value) => {
-            const supervisor = supervisors.find((sup) => sup.id === value);
-            setSelectedSupervisor(supervisor || null);
-          }}
-        >
-          <SelectTrigger>
-            <SelectValue placeholder="Select a Supervisor" />
-          </SelectTrigger>
+        {isLoadingSupervisorList ? (
+          <div className="flex justify-center items-center h-10 w-full rounded-md bg-primary/10 animate-pulse text-primary font-medium">
+            Loading Supervisors...
+          </div>
+        ) : (
+          <Select
+            value={selectedSupervisor?.id}
+            onValueChange={(value) => {
+              const supervisor = supervisors.find((sup) => sup.id === value);
+              setSelectedSupervisor(supervisor || null);
+            }}
+          >
+            <SelectTrigger>
+              <SelectValue placeholder="Select a Supervisor" />
+            </SelectTrigger>
 
-          <SelectContent>
-            {supervisors.map((supervisor) => (
-              <SelectItem key={supervisor.id} value={supervisor.id}>
-                {supervisor.firstName} {supervisor.lastName}
-              </SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
+            <SelectContent>
+              {supervisors.map((supervisor) => (
+                <SelectItem key={supervisor.id} value={supervisor.id}>
+                  {supervisor.firstName} {supervisor.lastName}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        )}
 
-        <div className="mt-4">
+        <div>
           <label htmlFor="note" className="block font-medium">
             Note (Optional)
           </label>

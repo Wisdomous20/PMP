@@ -1,14 +1,15 @@
-export type EquipmentStatus = "Operational" | "Repairable" | "Scrap"
-export type Equipment = {
+type EquipmentStatus = "Operational" | "Repairable" | "Scrap"
+type Equipment = {
     id: string,
-    quanty: number,
+    quantity: number,
     description: string,
     brand: string,
     serialNumber: string,
-    UnitCost: number,
-    TotalCost: number,
-    DatePurchased: Date,
-    DateRecieved: Date,
+    unitCost: number,
+    totalCost: number,
+    datePurchased: Date,
+    supplier: string;
+    dateReceived: Date,
     status: EquipmentStatus
     location: string,
     department: string,
@@ -19,3 +20,19 @@ type EquipmentServiceRequest = {
     serviceRequestId: string,
     serviceRequestName: string,
 }
+
+type EquipmentInput = {
+    quantity: number;
+    description: string;
+    brand: string;
+    serialNumber: string;
+    supplier: string;
+    unitCost: number;
+    totalCost: number;
+    datePurchased: Date;
+    dateReceived: Date;
+    location: string;
+    department: string;
+    serviceRequestId?: string | null;
+  };
+  

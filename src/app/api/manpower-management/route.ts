@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from "next/server";
 import createPersonnel from "@/domains/manpower-management/service/createPersonel"; 
 import getPersonnel from "@/domains/manpower-management/service/getPersonnel"; 
