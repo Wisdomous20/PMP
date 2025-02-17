@@ -24,7 +24,8 @@ import AddEquipment from "@/components/equipment-management/addEquipment";
 import { DeleteEquipment } from "./DeleteEquipment";
 import fetchGetEquipmentById from "@/domains/equipment-management/services/fetchGetEquipmentById";
 import fetchGetAllEquipment from "@/domains/equipment-management/services/fetchGetAllEquipment";
-
+import { useSession } from "next-auth/react";
+import getUserRoleFetch from "@/domains/user-management/services/getUserRoleFetch";
 interface EquipmentTableProps {
   serviceRequestId?: string;
 }
@@ -33,8 +34,10 @@ export default function EquipmentTable({
   serviceRequestId,
 }: EquipmentTableProps) {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
-  const [loading, setLoading] = useState(true);
+  const [isLoading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const { data: session } = useSession();
+  const [userRole, setUserRole] = useState<UserRole>(null);
 
   const loadEquipment = async () => {
     try {
@@ -52,10 +55,21 @@ export default function EquipmentTable({
       setLoading(false);
     }
   };
+  const loadUserRole = async () => {
+    try {
+      if (session?.user?.id) {
+        const { userRole } = await getUserRoleFetch(session.user.id);
+        setUserRole(userRole as UserRole);
+      }
+    } catch (error) {
+      console.error("Failed to load user role:", error);
+    }
+  };
 
   useEffect(() => {
     loadEquipment();
-  }, [serviceRequestId]);
+    loadUserRole();
+  }, [serviceRequestId, session]);
 
   const handleEquipmentDeleted = async () => {
     await loadEquipment();
@@ -66,7 +80,7 @@ export default function EquipmentTable({
     await loadEquipment();
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="space-y-4">
         <div className="flex justify-end">
@@ -86,23 +100,25 @@ export default function EquipmentTable({
   return (
     <div>
       <div className="flex justify-end mb-4 pt-3">
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="w-4 h-4 mr-2" />
-              Add Equipment
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-scroll">
-            <DialogHeader>
-              <DialogTitle>Add New Equipment</DialogTitle>
-            </DialogHeader>
-            <AddEquipment
-              serviceRequestId={serviceRequestId}
-              onSuccess={handleEquipmentAdded}
-            />
-          </DialogContent>
-        </Dialog>
+        {userRole === "ADMIN" && (
+          <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+              <Button>
+                <PlusCircle className="w-4 h-4 mr-2" />
+                Add Equipment
+              </Button>
+            </DialogTrigger>
+            <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-scroll">
+              <DialogHeader>
+                <DialogTitle>Add New Equipment</DialogTitle>
+              </DialogHeader>
+              <AddEquipment
+                serviceRequestId={serviceRequestId}
+                onSuccess={handleEquipmentAdded}
+              />
+            </DialogContent>
+          </Dialog>
+        )}
       </div>
 
       <div className="rounded-md border">
@@ -121,7 +137,9 @@ export default function EquipmentTable({
               <TableHead>Status</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Department</TableHead>
-              {serviceRequestId && <TableHead>Actions</TableHead>}
+              {(serviceRequestId || userRole === "ADMIN") && (
+                <TableHead>Actions</TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -147,7 +165,7 @@ export default function EquipmentTable({
                 <TableCell>{item.department}</TableCell>
 
                 <TableCell>
-                  {serviceRequestId && (
+                  {(serviceRequestId || userRole === "ADMIN") && (
                     <div className="flex space-x-2">
                       <Button variant="outline" size="sm">
                         Edit
