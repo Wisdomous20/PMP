@@ -26,7 +26,7 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
   try {
     const { id } = params;
     const {
@@ -57,8 +57,7 @@ export async function PUT(req: NextRequest, { params }: { params: { id: string }
       !dateReceived ||
       !status ||
       !location ||
-      !department ||
-      !serviceRequestId
+      !department 
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },

@@ -22,6 +22,7 @@ import {
 import { Skeleton } from "@/components/ui/skeleton";
 import AddEquipment from "@/components/equipment-management/addEquipment";
 import { DeleteEquipment } from "./DeleteEquipment";
+import { EditEquipment } from "./EditEquipment";
 import fetchGetEquipmentById from "@/domains/equipment-management/services/fetchGetEquipmentById";
 import fetchGetAllEquipment from "@/domains/equipment-management/services/fetchGetAllEquipment";
 import { useSession } from "next-auth/react";
@@ -55,6 +56,7 @@ export default function EquipmentTable({
       setLoading(false);
     }
   };
+
   const loadUserRole = async () => {
     try {
       if (session?.user?.id) {
@@ -65,12 +67,10 @@ export default function EquipmentTable({
       console.error("Failed to load user role:", error);
     }
   };
-
   useEffect(() => {
     loadEquipment();
     loadUserRole();
   }, [serviceRequestId, session]);
-
   const handleEquipmentDeleted = async () => {
     await loadEquipment();
   };
@@ -108,7 +108,7 @@ export default function EquipmentTable({
                 Add Equipment
               </Button>
             </DialogTrigger>
-            <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-scroll">
+            <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-y-auto">
               <DialogHeader>
                 <DialogTitle>Add New Equipment</DialogTitle>
               </DialogHeader>
@@ -167,9 +167,11 @@ export default function EquipmentTable({
                 <TableCell>
                   {(serviceRequestId || userRole === "ADMIN") && (
                     <div className="flex space-x-2">
-                      <Button variant="outline" size="sm">
-                        Edit
-                      </Button>
+                      <EditEquipment
+                        equipment={item}
+                        onUpdate={loadEquipment}
+                        serviceRequestId={serviceRequestId}
+                      />
                       <DeleteEquipment
                         equipmentId={item.id}
                         description={item.description}
