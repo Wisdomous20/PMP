@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-export default async function getServiceRequests(userId: string) {
+export default async function getArchivedServiceRequests(userId: string) {
   const user = await prisma.user.findUnique({
     where: { id: userId },
     select: {
@@ -12,11 +12,11 @@ export default async function getServiceRequests(userId: string) {
     throw new Error("User not found");
   }
 
-  let serviceRequests;
+  let archivedServiceRequests;
 
   if (user.user_type === "ADMIN") {
-    serviceRequests = await prisma.serviceRequest.findMany({
-      where: { archived: false },
+    archivedServiceRequests = await prisma.serviceRequest.findMany({
+      where: { archived: true },
       include: {
         user: true,
         status: {
@@ -27,11 +27,12 @@ export default async function getServiceRequests(userId: string) {
       },
     });
   } else if (user.user_type === "SUPERVISOR") {
-    serviceRequests = await prisma.serviceRequest.findMany({
+    archivedServiceRequests = await prisma.serviceRequest.findMany({
       where: {
         supervisorAssignment: {
-          supervisorId: userId
-        }, archived: false,
+          supervisorId: userId,
+        },
+        archived: true,
       },
       include: {
         user: true,
@@ -43,9 +44,10 @@ export default async function getServiceRequests(userId: string) {
       },
     });
   } else if (user.user_type === "USER") {
-    serviceRequests = await prisma.serviceRequest.findMany({
+    archivedServiceRequests = await prisma.serviceRequest.findMany({
       where: {
-        userId,archived: false,
+        userId,
+        archived: true,
       },
       include: {
         user: true,
@@ -60,7 +62,7 @@ export default async function getServiceRequests(userId: string) {
     throw new Error("Invalid user type");
   }
 
-  const formattedRequests = serviceRequests.map((request) => {
+  const formattedRequests = archivedServiceRequests.map((request) => {
     const { id, user, concern, details, status } = request;
     const requesterName = `${user.firstName} ${user.lastName}`;
     const createdOn = status.length > 0 ? status[0].timestamp : null;

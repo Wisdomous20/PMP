@@ -69,6 +69,7 @@ model ServiceRequest {
   status               ServiceRequestStatus[]
   supervisorAssignment SupervisorAssignment?
   equipment            Equipment[]
+  archived             Boolean                @default(false)
 }
 
 model SupervisorAssignment {
