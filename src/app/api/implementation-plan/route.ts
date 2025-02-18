@@ -3,7 +3,7 @@ import CreateImplementationPlan from "@/domains/implementation-plan/services/Cre
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
-    const {serviceRequestId, tasks,} = await req.json();
+    const {serviceRequestId, tasks} = await req.json();
     if (!tasks) {
       return NextResponse.json(
         { error: "Missing required fields" },

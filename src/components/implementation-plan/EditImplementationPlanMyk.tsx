@@ -9,15 +9,22 @@ import { Checkbox } from '@/components/ui/checkbox';
 import { Card, CardContent } from '@/components/ui/card';
 import { Separator } from '@/components/ui/separator';
 import { PlusCircle, Trash2 } from 'lucide-react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from '@/components/ui/dialog';
 import fetchUpdateImplementationPlan from '@/domains/implementation-plan/services/fetchUpdateImplementationPlan';
 import formatTimestamp from '@/utils/formatTimestamp';
 
 interface Task {
   id: string;
   name: string;
-  deadline: Date;
-  confirmed: boolean;
+  startTime: Date;
+  endTime: Date;
+  checked: boolean;
   isEditing: boolean;
 }
 
@@ -26,17 +33,22 @@ interface EditImplementationPlanProps {
   tasksInitial: Task[];
 }
 
-export default function EditImplementationPlan({ serviceRequest, tasksInitial }: EditImplementationPlanProps) {
+export default function EditImplementationPlan({
+  serviceRequest,
+  tasksInitial,
+}: EditImplementationPlanProps) {
   const [tasks, setTasks] = useState<Task[]>(tasksInitial);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
   const addTask = () => {
+    // Create a new task with default startTime and endTime (1 hour later)
     const newTask: Task = {
       id: Date.now().toString(),
       name: 'New Task',
-      deadline: new Date(),
-      confirmed: false,
+      startTime: new Date(),
+      endTime: new Date(Date.now() + 3600000), // 1 hour later
+      checked: false,
       isEditing: false,
     };
     setTasks([...tasks, newTask]);
@@ -47,27 +59,28 @@ export default function EditImplementationPlan({ serviceRequest, tasksInitial }:
   };
 
   const toggleConfirm = (id: string) => {
-    setTasks(tasks.map(task => (task.id === id ? { ...task, confirmed: !task.confirmed } : task)));
+    setTasks(tasks.map(task => (task.id === id ? { ...task, checked: !task.checked } : task)));
   };
 
   const toggleEditing = (id: string) => {
     setTasks(tasks.map(task =>
       task.id === id ? { ...task, isEditing: true } : { ...task, isEditing: false }
-    ))
-  }
+    ));
+  };
+
   const handleDeleteTask = (id: string) => {
     setTasks(tasks.filter(task => task.id !== id));
   };
 
   async function handleUpdateImplementationPlan() {
     setIsUpdating(true);
-
     try {
       const formattedTasks = tasks.map(task => ({
         id: task.id,
         name: task.name,
-        deadline: task.deadline,
-        checked: task.confirmed,
+        startTime: task.startTime,
+        endTime: task.endTime,
+        checked: task.checked,
       }));
 
       await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks);
@@ -82,7 +95,11 @@ export default function EditImplementationPlan({ serviceRequest, tasksInitial }:
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm" className="bg-green-500 hover:bg-green-600 text-white hover:text-white mt-2">
+        <Button
+          variant="outline"
+          size="sm"
+          className="bg-green-500 hover:bg-green-600 text-white hover:text-white mt-2"
+        >
           Edit Implementation Plan
         </Button>
       </DialogTrigger>
@@ -134,14 +151,19 @@ export default function EditImplementationPlan({ serviceRequest, tasksInitial }:
                             autoFocus
                           />
                         ) : (
-                          <span className={task.confirmed ? 'line-through text-gray-500' : ''}>
-                            {task.name}
-                          </span>
+                          <>
+                            <span className={task.checked ? 'line-through text-gray-500' : ''}>
+                              {task.name}
+                            </span>
+                            <div className="text-xs text-muted-foreground">
+                              {task.startTime.toLocaleString()} - {task.endTime.toLocaleString()}
+                            </div>
+                          </>
                         )}
                       </div>
 
                       <Checkbox
-                        checked={task.confirmed}
+                        checked={task.checked}
                         onCheckedChange={() => toggleConfirm(task.id)}
                         aria-label="Confirm task"
                       />
@@ -176,11 +198,17 @@ export default function EditImplementationPlan({ serviceRequest, tasksInitial }:
                     <p className="font-medium">{formatTimestamp(serviceRequest.createdOn)}</p>
                   </div>
                 )}
-                <Button variant="outline" className="w-full h-24 flex flex-col items-center justify-center">
+                <Button
+                  variant="outline"
+                  className="w-full h-24 flex flex-col items-center justify-center"
+                >
                   <span>People Assigned</span>
                 </Button>
 
-                <Button variant="outline" className="w-full h-24 flex items-center justify-center">
+                <Button
+                  variant="outline"
+                  className="w-full h-24 flex items-center justify-center"
+                >
                   <span>Equipment / Budget</span>
                 </Button>
 

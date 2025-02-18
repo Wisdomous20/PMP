@@ -4,7 +4,7 @@ import { CSS } from "@dnd-kit/utilities";
 import EditImplementationPlan from "./EditImplementationPlanMyk";
 
 type TaskProps = {
-  task: ImplementationPlan;
+  task: ImplementationPlan; // Assuming you have an ImplementationPlan type imported
   isDragging?: boolean;
 };
 
@@ -17,11 +17,13 @@ export default function Task({ task, isDragging }: TaskProps) {
     transition,
   };
 
-  const tasksInitial = task.tasks.map((task) => ({
-    id: task.id,
-    name: task.name,
-    deadline: new Date(task.deadline),
-    confirmed: task.checked,
+  // Map the tasks from the implementation plan using the updated Task type fields.
+  const tasksInitial = task.tasks.map((t) => ({
+    id: t.id,
+    name: t.name,
+    startTime: new Date(t.startTime),
+    endTime: new Date(t.endTime),
+    checked: t.checked,
     isEditing: false,
   }));
 
@@ -31,39 +33,36 @@ export default function Task({ task, isDragging }: TaskProps) {
       style={style}
       {...attributes}
       {...listeners}
-      className={`bg-white p-4 mb-2 rounded shadow-sm ${
-        isDragging ? "opacity-50" : ""
+      className={`bg-white p-4 mb-4 rounded shadow hover:shadow-md transition-shadow ${
+        isDragging ? "opacity-50" : "opacity-100"
       }`}
     >
-      {/* Title with text wrapping */}
-      <div
-        className="font-semibold break-words max-w-full"
-        style={{
-          wordWrap: "break-word",
-          wordBreak: "break-word",
-        }}
-      >
-        {task.serviceRequest[0]?.concern}
+      {/* Header: Concern */}
+      <div className="mb-2">
+        <h3 className="font-bold text-lg truncate">
+          {task.serviceRequest[0]?.concern || "No Concern"}
+        </h3>
       </div>
-
-      {/* Details with text wrapping */}
-      <div
-        className="text-sm text-gray-600 mt-1 break-words max-w-full"
-        style={{
-          wordWrap: "break-word",
-          wordBreak: "break-word",
-        }}
-      >
-        {task.serviceRequest[0]?.details}
+      {/* Details */}
+      <div className="text-sm text-gray-600 mb-2 break-words">
+        {task.serviceRequest[0]?.details || "No Details"}
       </div>
-
-      <div className="text-xs text-gray-500 mt-2">
-        <div>Requester: {task.serviceRequest[0]?.requesterName}</div>
+      {/* Requester Information */}
+      <div className="text-xs text-gray-500 mb-2">
+        Requester: {task.serviceRequest[0]?.requesterName || "N/A"}
       </div>
-      <EditImplementationPlan
-        serviceRequest={task.serviceRequest[0]}
-        tasksInitial={tasksInitial}
-      />
+      {/* Summary of tasks count */}
+      <div className="mb-2">
+        <span className="text-xs font-semibold">Tasks:</span>{" "}
+        {task.tasks.length}
+      </div>
+      {/* Edit button */}
+      <div className="flex justify-end">
+        <EditImplementationPlan
+          serviceRequest={task.serviceRequest[0]}
+          tasksInitial={tasksInitial}
+        />
+      </div>
     </div>
   );
 }

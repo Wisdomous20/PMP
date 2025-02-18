@@ -118,8 +118,7 @@ model Task {
   implementationPlanId String
   name                 String
   startTime            DateTime 
-  endTime              DateTime      
-  deadline             DateTime    
+  endTime              DateTime    
   checked              Boolean
   implementationPlan   ImplementationPlan    @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
   assignments          PersonnelAssignment[]
