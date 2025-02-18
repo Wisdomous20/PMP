@@ -1,6 +1,5 @@
 "use client"
 import { useState } from "react"
-import type { CalendarTask } from "@/lib/sampleTaskData"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
@@ -59,12 +58,21 @@ export default function WeekViewCalendar({ tasks }: WeekViewCalendarProps): JSX.
             <ChevronLeft className="h-4 w-4" />
           </Button>
           <div className="font-bold text-lg">
-            {selectedWeekStart.toLocaleDateString()} -{" "}
+            {selectedWeekStart.toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}{" "}
+            -{" "}
             {new Date(
               selectedWeekStart.getFullYear(),
               selectedWeekStart.getMonth(),
               selectedWeekStart.getDate() + 6,
-            ).toLocaleDateString()}
+            ).toLocaleDateString("en-US", {
+              month: "short",
+              day: "numeric",
+              year: "numeric",
+            })}
           </div>
           <Button variant="outline" size="icon" onClick={goToNextWeek}>
             <ChevronRight className="h-4 w-4" />

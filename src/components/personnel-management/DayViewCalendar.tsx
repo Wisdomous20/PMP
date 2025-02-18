@@ -1,6 +1,5 @@
 "use client"
 import React, { useState } from "react"
-import type { CalendarTask } from "@/lib/sampleTaskData"
 import { Button } from "@/components/ui/button"
 import { ChevronLeft, ChevronRight } from "lucide-react"
 
