@@ -1,11 +1,11 @@
 // lib/store.ts
 import { configureStore } from '@reduxjs/toolkit'
-import counterReducer from './features/counter/counterSlice'
+// import counterReducer from './features/counter/counterSlice'
 
 export const makeStore = () => {
   return configureStore({
     reducer: {
-      counter: counterReducer,
+      // counter: counterReducer,
     },
     devTools: process.env.NODE_ENV !== 'production',
   })
