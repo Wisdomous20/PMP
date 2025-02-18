@@ -106,17 +106,18 @@ model ImplementationPlan {
   serviceRequestId     String                @unique
   files                Files[]
   serviceRequest       ServiceRequest        @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
-  personnelAssignments PersonnelAssignment[]
   tasks                Task[]
 }
 
 model Task {
-  id                   String             @id @default(uuid()) @map("_id")
+  id                   String                @id @default(uuid()) @map("_id")
   implementationPlanId String
   name                 String
-  deadline             DateTime
+  startTime            DateTime 
+  endTime              DateTime    
   checked              Boolean
-  implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
+  implementationPlan   ImplementationPlan    @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
+  assignments          PersonnelAssignment[]
 }
 
 model Files {
@@ -127,19 +128,22 @@ model Files {
 }
 
 model Personnel {
-  id                   String                @id @default(uuid()) @map("_id")
-  name                 String
-  department           String
-  position             String
-  personnelAssignments PersonnelAssignment[]
+  id         String                 @id @default(uuid()) @map("_id")
+  name       String
+  department String
+  position   String
+  assignments PersonnelAssignment[]
 }
 
 model PersonnelAssignment {
-  id                   String             @id @default(uuid()) @map("_id")
-  personnelId          String
-  implementationPlanId String
-  implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
-  personnel            Personnel          @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  id           String     @id @default(uuid()) @map("_id")
+  taskId       String
+  personnelId  String
+  assignedAt   DateTime?  @default(now())
+  task         Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  personnel    Personnel  @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  
+  @@unique([taskId, personnelId])
 }
 
 model Equipment {
