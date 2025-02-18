@@ -1,32 +1,24 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
-'use client';
+// EditImplementationPlan.tsx
+"use client";
 
-import { useState } from 'react';
-import { motion } from 'framer-motion';
-import { Button } from '@/components/ui/button';
-import { Input } from '@/components/ui/input';
-import { Checkbox } from '@/components/ui/checkbox';
-import { Card, CardContent } from '@/components/ui/card';
-import { Separator } from '@/components/ui/separator';
-import { PlusCircle, Trash2 } from 'lucide-react';
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Checkbox } from "@/components/ui/checkbox";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Trash2 } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from '@/components/ui/dialog';
-import fetchUpdateImplementationPlan from '@/domains/implementation-plan/services/fetchUpdateImplementationPlan';
-import formatTimestamp from '@/utils/formatTimestamp';
-
-interface Task {
-  id: string;
-  name: string;
-  startTime: Date;
-  endTime: Date;
-  checked: boolean;
-  isEditing: boolean;
-}
+} from "@/components/ui/dialog";
+import fetchUpdateImplementationPlan from "@/domains/implementation-plan/services/fetchUpdateImplementationPlan";
+import formatTimestamp from "@/utils/formatTimestamp";
+import AddTask from "./AddTask";
+import EditTask from "./EditTask";
 
 interface EditImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -41,41 +33,24 @@ export default function EditImplementationPlan({
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const addTask = () => {
-    // Create a new task with default startTime and endTime (1 hour later)
-    const newTask: Task = {
-      id: Date.now().toString(),
-      name: 'New Task',
-      startTime: new Date(),
-      endTime: new Date(Date.now() + 3600000), // 1 hour later
-      checked: false,
-      isEditing: false,
-    };
-    setTasks([...tasks, newTask]);
+  const handleAddTask = (task: Task) => {
+    setTasks((prev) => [...prev, task]);
   };
 
-  const updateTask = (id: string, value: string) => {
-    setTasks(tasks.map(task => (task.id === id ? { ...task, name: value } : task)));
+  const handleUpdateTask = (updatedTask: Task) => {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+    );
   };
 
-  const toggleConfirm = (id: string) => {
-    setTasks(tasks.map(task => (task.id === id ? { ...task, checked: !task.checked } : task)));
-  };
-
-  const toggleEditing = (id: string) => {
-    setTasks(tasks.map(task =>
-      task.id === id ? { ...task, isEditing: true } : { ...task, isEditing: false }
-    ));
-  };
-
-  const handleDeleteTask = (id: string) => {
-    setTasks(tasks.filter(task => task.id !== id));
+  const removeTask = (id: string) => {
+    setTasks(tasks.filter((task) => task.id !== id));
   };
 
   async function handleUpdateImplementationPlan() {
     setIsUpdating(true);
     try {
-      const formattedTasks = tasks.map(task => ({
+      const formattedTasks = tasks.map((task) => ({
         id: task.id,
         name: task.name,
         startTime: task.startTime,
@@ -84,9 +59,9 @@ export default function EditImplementationPlan({
       }));
 
       await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks);
-      console.log('Implementation Plan updated successfully');
+      console.log("Implementation Plan updated successfully");
     } catch (error) {
-      console.error('Failed to update implementation plan:', error);
+      console.error("Failed to update implementation plan:", error);
     } finally {
       setIsUpdating(false);
     }
@@ -98,7 +73,7 @@ export default function EditImplementationPlan({
         <Button
           variant="outline"
           size="sm"
-          className="bg-green-500 hover:bg-green-600 text-white hover:text-white mt-2"
+          className="bg-green-500 hover:bg-green-600 text-white mt-2"
         >
           Edit Implementation Plan
         </Button>
@@ -115,23 +90,18 @@ export default function EditImplementationPlan({
                   <p className="text-sm text-muted-foreground">Name of requester</p>
                   <p className="font-medium">{serviceRequest.requesterName}</p>
                 </div>
-
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Concern</p>
                   <p className="font-medium">{serviceRequest.concern}</p>
                 </div>
-
                 <div className="space-y-1">
                   <p className="text-sm text-muted-foreground">Details of the Request</p>
                   <p className="font-medium">{serviceRequest.details}</p>
                 </div>
-
                 <Separator />
-
                 <div className="space-y-4">
                   <p className="font-semibold">Tasks</p>
-
-                  {tasks.map(task => (
+                  {tasks.map((task) => (
                     <motion.div
                       key={task.id}
                       initial={{ opacity: 0, y: -10 }}
@@ -139,56 +109,36 @@ export default function EditImplementationPlan({
                       transition={{ duration: 0.3 }}
                       className="flex items-center space-x-2"
                     >
-                      <div
-                        className="flex-grow p-2 rounded hover:bg-gray-100 cursor-pointer"
-                        onClick={() => toggleEditing(task.id)}
-                      >
-                        {task.isEditing ? (
-                          <Input
-                            value={task.name}
-                            onChange={(e) => updateTask(task.id, e.target.value)}
-                            onBlur={() => toggleEditing(task.id)}
-                            autoFocus
-                          />
-                        ) : (
-                          <>
-                            <span className={task.checked ? 'line-through text-gray-500' : ''}>
-                              {task.name}
-                            </span>
-                            <div className="text-xs text-muted-foreground">
-                              {task.startTime.toLocaleString()} - {task.endTime.toLocaleString()}
-                            </div>
-                          </>
-                        )}
+                      <div className="flex-grow p-2 rounded hover:bg-gray-100 cursor-pointer">
+                        <div className="font-bold">{task.name}</div>
+                        <div className="text-xs text-muted-foreground">
+                          {task.startTime.toLocaleString()} - {task.endTime.toLocaleString()}
+                        </div>
                       </div>
-
+                      <EditTask task={task} onUpdate={handleUpdateTask} />
                       <Checkbox
                         checked={task.checked}
-                        onCheckedChange={() => toggleConfirm(task.id)}
+                        onCheckedChange={() =>
+                          setTasks((prev) =>
+                            prev.map((t) =>
+                              t.id === task.id ? { ...t, checked: !t.checked } : t
+                            )
+                          )
+                        }
                         aria-label="Confirm task"
                       />
-
                       <Button
                         variant="ghost"
                         size="icon"
                         className="text-red-500"
-                        onClick={() => handleDeleteTask(task.id)}
+                        onClick={() => removeTask(task.id)}
                         aria-label="Delete task"
                       >
                         <Trash2 className="w-5 h-5" />
                       </Button>
                     </motion.div>
                   ))}
-
-                  <Button
-                    type="button"
-                    variant="outline"
-                    className="w-full"
-                    onClick={addTask}
-                  >
-                    <PlusCircle className="w-4 h-4 mr-2" />
-                    Add Task
-                  </Button>
+                  <AddTask onAdd={handleAddTask} />
                 </div>
               </div>
               <div className="space-y-6">
@@ -204,20 +154,18 @@ export default function EditImplementationPlan({
                 >
                   <span>People Assigned</span>
                 </Button>
-
                 <Button
                   variant="outline"
                   className="w-full h-24 flex items-center justify-center"
                 >
                   <span>Equipment / Budget</span>
                 </Button>
-
                 <Button
                   onClick={handleUpdateImplementationPlan}
                   className="w-full mt-4 bg-yellow-400 hover:bg-yellow-500 text-white"
                   disabled={isUpdating}
                 >
-                  {isUpdating ? 'Updating...' : 'Update Implementation Plan'}
+                  {isUpdating ? "Updating..." : "Update Implementation Plan"}
                 </Button>
               </div>
             </div>

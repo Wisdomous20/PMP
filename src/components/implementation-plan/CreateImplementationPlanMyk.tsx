@@ -1,99 +1,78 @@
-"use client"
-import { useState } from "react"
-import { motion } from "framer-motion"
-import { Button } from "@/components/ui/button"
-import { Input } from "@/components/ui/input"
-import { Card, CardContent } from "@/components/ui/card"
-import { Separator } from "@/components/ui/separator"
-import { PlusCircle, Trash } from "lucide-react"
+// CreateImplementationPlan.tsx
+"use client";
+
+import { useState } from "react";
+import { motion } from "framer-motion";
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { Separator } from "@/components/ui/separator";
+import { Trash } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogHeader,
   DialogTitle,
   DialogTrigger,
-} from "@/components/ui/dialog"
-import EquipmentTable from "../equipment-management/EquipmentManagement"
-import fetchCreateImplementationPlan from "@/domains/implementation-plan/services/fetchCreateImplementationPlan"
-import formatTimestamp from "@/utils/formatTimestamp"
-import { fetchInProgressStatus } from "@/domains/service-request/services/status/fetchAddSatus"
-import refreshPage from "@/utils/refreshPage"
-
-interface Task {
-  id: string
-  name: string
-  start: Date
-  end: Date
-}
+} from "@/components/ui/dialog";
+import EquipmentTable from "../equipment-management/EquipmentManagement";
+import fetchCreateImplementationPlan from "@/domains/implementation-plan/services/fetchCreateImplementationPlan";
+import formatTimestamp from "@/utils/formatTimestamp";
+import { fetchInProgressStatus } from "@/domains/service-request/services/status/fetchAddSatus";
+import refreshPage from "@/utils/refreshPage";
+import AddTask from "./AddTask";
+import EditTask from "./EditTask";
 
 interface CreateImplementationPlanProps {
-  serviceRequest: ServiceRequest
+  serviceRequest: ServiceRequest;
 }
 
 export default function CreateImplementationPlan({
   serviceRequest,
 }: CreateImplementationPlanProps) {
-  // Start with an empty tasks list.
-  const [tasks, setTasks] = useState<Task[]>([])
-  const [isDialogOpen, setIsDialogOpen] = useState(false)
-  const [isLoading, setIsLoading] = useState(false)
-  const [isEquipmentDialogOpen, setIsEquipmentDialogOpen] = useState(false)
-  const [isAddTaskDialogOpen, setIsAddTaskDialogOpen] = useState(false)
+  const [tasks, setTasks] = useState<Task[]>([]);
+  const [isDialogOpen, setIsDialogOpen] = useState(false);
+  const [isLoading, setIsLoading] = useState(false);
+  const [isEquipmentDialogOpen, setIsEquipmentDialogOpen] = useState(false);
 
-  // States for the "Add Task" dialog
-  const [newTaskName, setNewTaskName] = useState("")
-  const [newTaskStart, setNewTaskStart] = useState("")
-  const [newTaskEnd, setNewTaskEnd] = useState("")
+  const handleAddTask = (task: Task) => {
+    setTasks((prev) => [...prev, task]);
+  };
 
-  const handleAddTask = () => {
-    if (!newTaskName || !newTaskStart || !newTaskEnd) {
-      alert("Please fill in all fields for the task.")
-      return
-    }
-    const newTask: Task = {
-      id: Date.now().toString(),
-      name: newTaskName,
-      start: new Date(newTaskStart),
-      end: new Date(newTaskEnd),
-    }
-    setTasks((prev) => [...prev, newTask])
-    // Reset the input fields and close the dialog
-    setNewTaskName("")
-    setNewTaskStart("")
-    setNewTaskEnd("")
-    setIsAddTaskDialogOpen(false)
-  }
+  const handleUpdateTask = (updatedTask: Task) => {
+    setTasks((prev) =>
+      prev.map((task) => (task.id === updatedTask.id ? updatedTask : task))
+    );
+  };
 
   const removeTask = (id: string) => {
-    setTasks(tasks.filter((task) => task.id !== id))
-  }
+    setTasks(tasks.filter((task) => task.id !== id));
+  };
 
   async function handleCreateImplementationPlan() {
-    setIsLoading(true)
+    setIsLoading(true);
     try {
-      // Format tasks to include start, end, and a checked flag
       const formattedTasks = tasks.map((task) => ({
         id: task.id,
         name: task.name,
-        startTime: task.start,
-        endTime: task.end,
-        checked: false,
-      }))
+        startTime: task.startTime,
+        endTime: task.endTime,
+        checked: task.checked,
+      }));
 
       const response = await fetchCreateImplementationPlan(
         serviceRequest.id,
         formattedTasks
-      )
+      );
       await fetchInProgressStatus(
         serviceRequest.id,
         "Implementation plan created"
-      )
-      console.log("Plan creation response:", response)
-      refreshPage()
+      );
+      console.log("Plan creation response:", response);
+      refreshPage();
     } catch (error) {
-      console.error("Failed to create implementation plan:", error)
+      console.error("Failed to create implementation plan:", error);
     } finally {
-      setIsLoading(false)
+      setIsLoading(false);
     }
   }
 
@@ -103,7 +82,7 @@ export default function CreateImplementationPlan({
         <Button
           variant="outline"
           size="sm"
-          className="bg-green-500 hover:bg-green-600 text-white hover:text-white"
+          className="bg-green-500 hover:bg-green-600 text-white"
         >
           Create Implementation Plan
         </Button>
@@ -140,13 +119,11 @@ export default function CreateImplementationPlan({
 
                 <div className="space-y-2">
                   <p className="font-semibold">Tasks</p>
-
                   {tasks.length === 0 && (
                     <p className="text-sm text-muted-foreground">
                       No tasks added yet.
                     </p>
                   )}
-
                   {tasks.map((task) => (
                     <motion.div
                       key={task.id}
@@ -158,10 +135,11 @@ export default function CreateImplementationPlan({
                       <div className="flex-grow p-2 rounded bg-gray-50">
                         <div className="font-bold">{task.name}</div>
                         <div className="text-xs text-muted-foreground">
-                          Start: {task.start.toLocaleString()} | End:{" "}
-                          {task.end.toLocaleString()}
+                          Start: {task.startTime.toLocaleString()} | End:{" "}
+                          {task.endTime.toLocaleString()}
                         </div>
                       </div>
+                      <EditTask task={task} onUpdate={handleUpdateTask} />
                       <Button
                         variant="ghost"
                         size="sm"
@@ -172,65 +150,8 @@ export default function CreateImplementationPlan({
                       </Button>
                     </motion.div>
                   ))}
-
-                  {/* "Add Task" Dialog */}
-                  <Dialog
-                    open={isAddTaskDialogOpen}
-                    onOpenChange={setIsAddTaskDialogOpen}
-                  >
-                    <DialogTrigger asChild>
-                      <Button type="button" variant="outline" className="w-full">
-                        <PlusCircle className="w-4 h-4 mr-2" />
-                        Add Task
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="min-w-[40vw]">
-                      <DialogHeader>
-                        <DialogTitle>Add New Task</DialogTitle>
-                      </DialogHeader>
-                      <div className="space-y-4 mt-4">
-                        <div>
-                          <label className="block text-sm font-medium text-muted-foreground">
-                            Task Name
-                          </label>
-                          <Input
-                            type="text"
-                            value={newTaskName}
-                            onChange={(e) => setNewTaskName(e.target.value)}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-muted-foreground">
-                            Start Date & Time
-                          </label>
-                          <Input
-                            type="datetime-local"
-                            value={newTaskStart}
-                            onChange={(e) => setNewTaskStart(e.target.value)}
-                          />
-                        </div>
-                        <div>
-                          <label className="block text-sm font-medium text-muted-foreground">
-                            End Date & Time
-                          </label>
-                          <Input
-                            type="datetime-local"
-                            value={newTaskEnd}
-                            onChange={(e) => setNewTaskEnd(e.target.value)}
-                          />
-                        </div>
-                        <div className="flex justify-end space-x-2 pt-4">
-                          <Button
-                            variant="outline"
-                            onClick={() => setIsAddTaskDialogOpen(false)}
-                          >
-                            Cancel
-                          </Button>
-                          <Button onClick={handleAddTask}>Add Task</Button>
-                        </div>
-                      </div>
-                    </DialogContent>
-                  </Dialog>
+                  {/* Add Task Dialog */}
+                  <AddTask onAdd={handleAddTask} />
                 </div>
               </div>
               {/* Right Side: Miscellaneous Details */}
@@ -250,7 +171,6 @@ export default function CreateImplementationPlan({
                   >
                     <span>People Assigned</span>
                   </Button>
-
                   {/* Equipment / Budget Button */}
                   <Dialog
                     open={isEquipmentDialogOpen}
@@ -271,7 +191,6 @@ export default function CreateImplementationPlan({
                       <EquipmentTable serviceRequestId={serviceRequest.id} />
                     </DialogContent>
                   </Dialog>
-
                   <Button
                     onClick={handleCreateImplementationPlan}
                     className={`w-full mt-4 ${
@@ -290,5 +209,5 @@ export default function CreateImplementationPlan({
         </Card>
       </DialogContent>
     </Dialog>
-  )
+  );
 }
