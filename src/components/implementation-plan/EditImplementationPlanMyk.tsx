@@ -2,7 +2,7 @@
 'use client';
 
 import { useState } from 'react';
-import { updateResolvedStatus } from '../../domains/service-request/services/status/addResolvedStatus';
+import { updateResolvedStatus } from '@/domains/service-request/services/status/addResolvedStatus';
 
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';

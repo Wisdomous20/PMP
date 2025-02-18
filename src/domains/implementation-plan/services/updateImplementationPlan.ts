@@ -1,5 +1,5 @@
-import { prisma } from '../../../../src/lib/prisma';
-import handleCompletedStatus from './handleCompletedStatus';
+import { prisma } from '@/lib/prisma';
+import handleCompletedStatus from '../../service-request/services/status/handleCompletedStatus';
 
 export default async function updateImplementationPlan(
   serviceRequestId: string,
@@ -30,7 +30,7 @@ export default async function updateImplementationPlan(
       },
     });
 
-    if (status === 'completed') {
+    if (status === 'resolved') {
       await handleCompletedStatus(serviceRequestId);
     }
   }
