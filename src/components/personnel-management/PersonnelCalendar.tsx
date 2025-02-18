@@ -47,7 +47,7 @@ export default function PersonnelCalendar({
       </DialogTrigger>
 
       <DialogContent className="max-w-7xl max-h-[90vh] overflow-scroll">
-        <CalendarView tasks={person.tasks} />
+        <CalendarView tasks={person.tasks} personName={person.name}/>
       </DialogContent>
     </Dialog>
   );

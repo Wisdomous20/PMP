@@ -42,7 +42,10 @@ export default function WeekViewCalendar({ tasks }: WeekViewCalendarProps): JSX.
   const weekEnd = new Date(selectedWeekStart)
   weekEnd.setDate(weekEnd.getDate() + 7)
 
-  const weekTasks = tasks.filter((task) => task.start >= weekStart && task.start < weekEnd)
+  const weekTasks = tasks.filter((task) => {
+    const taskStart = new Date(task.start);
+    return taskStart >= weekStart && taskStart < weekEnd;
+  });
 
   const hourHeight = 60
 
@@ -102,7 +105,7 @@ export default function WeekViewCalendar({ tasks }: WeekViewCalendarProps): JSX.
             </div>
 
             {daysOfWeek.map((day, dayIndex) => {
-              const dayTasks = weekTasks.filter((task) => task.start.toDateString() === day.toDateString())
+              const dayTasks = weekTasks.filter((task) => new Date(task.start).toDateString() === day.toDateString());
               return (
                 <div key={dayIndex} className="flex-1 relative border-l border-border">
                   <div className="grid grid-rows-24">
@@ -113,10 +116,12 @@ export default function WeekViewCalendar({ tasks }: WeekViewCalendarProps): JSX.
 
                   <div className="absolute top-0 left-0 right-0 bottom-0">
                     {dayTasks.map((task) => {
-                      const startHour = task.start.getHours() + task.start.getMinutes() / 60
-                      const endHour = task.end.getHours() + task.end.getMinutes() / 60
-                      const top = startHour * hourHeight
-                      const height = (endHour - startHour) * hourHeight
+                      const taskStart = new Date(task.start);
+                      const taskEnd = new Date(task.end);
+                      const startHour = taskStart.getHours() + taskStart.getMinutes() / 60;
+                      const endHour = taskEnd.getHours() + taskEnd.getMinutes() / 60;
+                      const top = startHour * hourHeight;
+                      const height = (endHour - startHour) * hourHeight;
                       return (
                         <div
                           key={task.id}
@@ -130,10 +135,10 @@ export default function WeekViewCalendar({ tasks }: WeekViewCalendarProps): JSX.
                         >
                           <div className="font-bold truncate">{task.title}</div>
                           <div className="truncate">
-                            {formatTime(task.start)} - {formatTime(task.end)}
+                            {formatTime(taskStart)} - {formatTime(taskEnd)}
                           </div>
                         </div>
-                      )
+                      );
                     })}
                   </div>
                 </div>

@@ -33,7 +33,10 @@ export default function DayViewCalendar({ tasks }: DayViewCalendarProps): JSX.El
   const tomorrow = new Date(selectedDate)
   tomorrow.setDate(selectedDate.getDate() + 1)
 
-  const dayTasks = tasks.filter((task) => task.start >= selectedDate && task.start < tomorrow)
+  const dayTasks = tasks.filter((task) => {
+    const taskStart = new Date(task.start);
+    return taskStart >= selectedDate && taskStart < tomorrow;
+  });
 
   const hourHeight = 4 * 16 // 4 quarters and 16px each
 
@@ -81,10 +84,12 @@ export default function DayViewCalendar({ tasks }: DayViewCalendarProps): JSX.El
 
             <div className="absolute top-0 left-0 right-0 bottom-0">
               {dayTasks.map((task) => {
-                const taskStart = dateToDecimalHours(task.start)
-                const taskEnd = dateToDecimalHours(task.end)
-                const top = taskStart * hourHeight
-                const height = (taskEnd - taskStart) * hourHeight
+                const taskStart = new Date(task.start);
+                const taskEnd = new Date(task.end);
+                const startDecimal = dateToDecimalHours(taskStart);
+                const endDecimal = dateToDecimalHours(taskEnd);
+                const top = startDecimal * hourHeight;
+                const height = (endDecimal - startDecimal) * hourHeight;
                 return (
                   <div
                     key={task.id}
@@ -98,10 +103,10 @@ export default function DayViewCalendar({ tasks }: DayViewCalendarProps): JSX.El
                   >
                     <div className="font-bold">{task.title}</div>
                     <div>
-                      {formatTime(task.start)} - {formatTime(task.end)}
+                      {formatTime(taskStart)} - {formatTime(taskEnd)}
                     </div>
                   </div>
-                )
+                );
               })}
             </div>
           </div>
