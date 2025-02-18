@@ -100,7 +100,7 @@ export default function EquipmentTable({
   return (
     <div>
       <div className="flex justify-end mb-4 pt-3">
-        {userRole === "ADMIN" && (
+        {/* {userRole === "ADMIN" && (
           <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
               <Button>
@@ -118,7 +118,24 @@ export default function EquipmentTable({
               />
             </DialogContent>
           </Dialog>
-        )}
+        )} */}
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button>
+              <PlusCircle className="w-4 h-4 mr-2" />
+              Add Equipment
+            </Button>
+          </DialogTrigger>
+          <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Add New Equipment</DialogTitle>
+            </DialogHeader>
+            <AddEquipment
+              serviceRequestId={serviceRequestId}
+              onSuccess={handleEquipmentAdded}
+            />
+          </DialogContent>
+        </Dialog>
       </div>
 
       <div className="rounded-md border">
@@ -170,7 +187,7 @@ export default function EquipmentTable({
                       <EditEquipment
                         equipment={item}
                         onUpdate={loadEquipment}
-                        // serviceRequestId={serviceRequestId}
+                      // serviceRequestId={serviceRequestId}
                       />
                       <DeleteEquipment
                         equipmentId={item.id}
