@@ -2,6 +2,8 @@
 'use client';
 
 import { useState } from 'react';
+import { updateResolvedStatus } from '../../domains/service-request/services/status/addResolvedStatus';
+
 import { motion } from 'framer-motion';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
@@ -19,6 +21,8 @@ interface Task {
   deadline: Date;
   confirmed: boolean;
   isEditing: boolean;
+  endTime: Date;
+  startTime: Date;
 }
 
 interface EditImplementationPlanProps {
@@ -38,6 +42,8 @@ export default function EditImplementationPlan({ serviceRequest, tasksInitial }:
       deadline: new Date(),
       confirmed: false,
       isEditing: false,
+      endTime: new Date(),
+      startTime: new Date()
     };
     setTasks([...tasks, newTask]);
   };
@@ -53,8 +59,9 @@ export default function EditImplementationPlan({ serviceRequest, tasksInitial }:
   const toggleEditing = (id: string) => {
     setTasks(tasks.map(task =>
       task.id === id ? { ...task, isEditing: true } : { ...task, isEditing: false }
-    ))
-  }
+    ));
+  };
+
   const handleDeleteTask = (id: string) => {
     setTasks(tasks.filter(task => task.id !== id));
   };
@@ -68,12 +75,68 @@ export default function EditImplementationPlan({ serviceRequest, tasksInitial }:
         name: task.name,
         deadline: task.deadline,
         checked: task.confirmed,
+        endTime: task.endTime,
+        startTime: task.startTime
       }));
 
       await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks);
       console.log('Implementation Plan updated successfully');
+      setIsDialogOpen(false);
+      window.location.reload();
     } catch (error) {
       console.error('Failed to update implementation plan:', error);
+      alert('Failed to update implementation plan. Please try again.');
+    } finally {
+      setIsUpdating(false);
+    }
+  }
+
+  async function handleMarkAsCompleted() {
+    setIsUpdating(true);
+    
+    try {
+      const formattedTasks = tasks.map(task => ({
+        id: task.id,
+        name: task.name,
+        deadline: task.deadline,
+        checked: task.confirmed,
+        endTime: task.endTime,
+        startTime: task.startTime
+      }));
+
+      await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks, 'completed');
+      await updateResolvedStatus(serviceRequest.id, 'resolved');
+      console.log('Implementation Plan marked as completed and service request resolved');
+      setIsDialogOpen(false);
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to mark implementation plan as completed:', error);
+      alert('Failed to mark as completed. Please try again.');
+    } finally {
+      setIsUpdating(false);
+    }
+  }
+
+  async function handleRequestReview() {
+    setIsUpdating(true);
+    
+    try {
+      const formattedTasks = tasks.map(task => ({
+        id: task.id,
+        name: task.name,
+        deadline: task.deadline,
+        checked: task.confirmed,
+        endTime: task.endTime,
+        startTime: task.startTime
+      }));
+
+      await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks, 'review_requested');
+      console.log('Review requested for implementation plan');
+      setIsDialogOpen(false);
+      window.location.reload();
+    } catch (error) {
+      console.error('Failed to request review:', error);
+      alert('Failed to request review. Please try again.');
     } finally {
       setIsUpdating(false);
     }
@@ -191,6 +254,21 @@ export default function EditImplementationPlan({ serviceRequest, tasksInitial }:
                 >
                   {isUpdating ? 'Updating...' : 'Update Implementation Plan'}
                 </Button>
+                <Button
+                  onClick={handleMarkAsCompleted}
+                  className="w-full mt-4 bg-green-600 hover:bg-green-700 text-white"
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? 'Updating...' : 'Mark as Completed'}
+                </Button>
+                <Button
+                  onClick={handleRequestReview}
+                  className="w-full mt-4 bg-blue-600 hover:bg-blue-700 text-white"
+                  disabled={isUpdating}
+                >
+                  {isUpdating ? 'Processing...' : 'Request Review'}
+                </Button>
+
               </div>
             </div>
           </CardContent>
@@ -199,3 +277,4 @@ export default function EditImplementationPlan({ serviceRequest, tasksInitial }:
     </Dialog>
   );
 }
+

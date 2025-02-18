@@ -18,7 +18,10 @@ interface Task {
   name: string
   deadline: Date
   isEditing: boolean
+  endTime: Date
+  startTime: Date
 }
+
 
 interface CreateImplementationPlanProps {
   serviceRequest: ServiceRequest
@@ -30,8 +33,11 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
       id: '1',
       name: "Initial Task",
       deadline: new Date('2023-12-20'),
-      isEditing: false
-    } 
+      isEditing: false,
+      endTime: new Date(),
+      startTime: new Date()
+    }
+
   ])
   const [isDialogOpen, setIsDialogOpen] = useState(false)
   const [isLoading, setIsLoading] = useState(false)
@@ -43,8 +49,11 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
       id: Date.now().toString(),
       name: "New Task",
       deadline: new Date(),
-      isEditing: false
+      isEditing: false,
+      endTime: new Date(),
+      startTime: new Date()
     }
+
     setTasks([...tasks, newTask])
   }
 
@@ -71,7 +80,10 @@ export default function CreateImplementationPlan({ serviceRequest }: CreateImple
         id: task.id,
         name: task.name,
         deadline: task.deadline,
-        checked: false
+        checked: false,
+        endTime: task.endTime,
+        startTime: task.startTime
+
       }))
 
       const response = await fetchCreateImplementationPlan(serviceRequest.id, formattedTasks)

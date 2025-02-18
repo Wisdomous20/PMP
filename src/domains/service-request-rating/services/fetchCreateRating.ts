@@ -1,4 +1,16 @@
-export default async function fetchCreateServiceRequestRating(serviceRequestId: string, rating: number, description: string) {
+export default async function fetchCreateServiceRequestRating(
+  serviceRequestId: string,
+  rating: number,
+  description: string,
+  surveyData: {
+    startOnTime: string;
+    startReason: string;
+    achievedResults: string;
+    resultReason: string;
+    satisfaction: number | null;
+    feedback: string;
+  }
+) {
     const endpoint = `/api/service-request-rating`;
     try {
         const response = await fetch(endpoint, {
@@ -10,6 +22,7 @@ export default async function fetchCreateServiceRequestRating(serviceRequestId: 
                 serviceRequestId,
                 rating,
                 description,
+                surveyData
             }),
         });
         if (!response.ok) {
