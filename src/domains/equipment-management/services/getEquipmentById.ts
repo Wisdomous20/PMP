@@ -1,9 +1,11 @@
 import { prisma } from "@/lib/prisma";
 
-export default async function getEquipmentById(id: string) {
+export default async function getEquipmentById(serviceRequestId: string) {
   try {
-    const equipment = await prisma.equipment.findUnique({
-      where: { id }
+    const equipment = await prisma.equipment.findMany({
+      where: { 
+        serviceRequestId: serviceRequestId 
+      }
     });
 
     if (!equipment) {
