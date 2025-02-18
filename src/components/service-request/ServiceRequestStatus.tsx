@@ -31,11 +31,6 @@ function getStatusInfo(status: Status[]): { message: string; progress: number[] 
         message: "Your request is pending approval.",
         progress: [0, 0, 0]
       };
-      case "resolved":
-      return{
-        message: "Your request has been completed.",
-        progress: [100, 100, 0]
-      }
   }
 }
 
@@ -49,6 +44,7 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
           <h1 className="text-3xl font-semibold text-center">Your Service Request has been created!</h1>
         </CardHeader>
         <CardContent className="space-y-6">
+          <div className="text-center text-lg text-muted-foreground">{message}</div>
           <div className="flex justify-between items-center gap-2">
             <Progress 
               value={progress[0]} 
@@ -80,3 +76,4 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
     </Card>
   )
 }
+

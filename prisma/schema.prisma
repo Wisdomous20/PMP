@@ -90,20 +90,18 @@ model ServiceRequestStatus {
 }
 
 model ServiceRequestRating {
-  id               String         @id @default(uuid()) @map("_id")
-  ratings          Int
-  description      String
-  serviceRequestId String
-  serviceRequest   ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
+  id             String         @id @default(uuid()) @map("_id")
+  ratings        Rating[]
+  serviceRequest ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
 }
 
-// model Rating {
-//   id                     String               @id @default(uuid()) @map("_id")
-//   serviceRequestRatingId String
-//   description            String
-//   rating                 Int
-//   serviceRequestRating   ServiceRequestRating @relation(fields: [serviceRequestRatingId], references: [id], onDelete: Cascade)
-// }
+model Rating {
+  id                     String               @id @default(uuid()) @map("_id")
+  serviceRequestRatingId String
+  description            String
+  rating                 Int
+  serviceRequestRating   ServiceRequestRating @relation(fields: [serviceRequestRatingId], references: [id], onDelete: Cascade)
+}
 
 model ImplementationPlan {
   id                   String                @id @default(uuid()) @map("_id")
@@ -149,21 +147,21 @@ model PersonnelAssignment {
 }
 
 model Equipment {
-  id               String           @id @default(uuid()) @map("_id")
-  quantity         Int
-  description      String
-  brand            String
-  serialNumber     String
-  supplier         String
-  unitCost         Float
-  totalCost        Float
-  datePurchased    DateTime
-  dateReceived     DateTime
-  status           equipment_status
-  location         String
-  department       String
-  serviceRequestId String?
-  serviceRequest   ServiceRequest?  @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  id                   String                @id @default(uuid()) @map("_id")
+  quantity             Int
+  description          String
+  brand                String
+  serialNumber         String
+  supplier             String
+  unitCost            Float
+  totalCost           Float
+  datePurchased       DateTime
+  dateReceived        DateTime
+  status               equipment_status
+  location             String
+  department           String
+  serviceRequestId     String?
+  serviceRequest       ServiceRequest?        @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
 }
 
 enum user_type {
@@ -177,7 +175,6 @@ enum status {
   approved
   rejected
   in_progress
-  resolved
 }
 
 enum equipment_status {
