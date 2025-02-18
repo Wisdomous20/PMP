@@ -19,21 +19,21 @@ interface EquipmentFormData {
   dateReceived: string;
   location: string;
   department: string;
-  serviceRequestId: string;
+  status: EquipmentStatus;
+  serviceRequestId?: string | null;
 }
-
 interface AddEquipmentProps {
-  serviceRequestId: string;
+  serviceRequestId?: string;
   onSuccess?: () => void;
   onError?: (error: Error) => void;
 }
 
 type FormErrors = Partial<Record<keyof EquipmentFormData, string>>;
 
-export default function AddEquipment({ 
-  serviceRequestId, 
-  onSuccess, 
-  onError 
+export default function AddEquipment({
+  serviceRequestId,
+  onSuccess,
+  onError,
 }: AddEquipmentProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -45,32 +45,44 @@ export default function AddEquipment({
     supplier: "",
     unitCost: 0,
     totalCost: 0,
-    datePurchased: new Date().toISOString().split('T')[0],
-    dateReceived: new Date().toISOString().split('T')[0],
+    datePurchased: new Date().toISOString().split("T")[0],
+    dateReceived: new Date().toISOString().split("T")[0],
     location: "",
+    status: "Operational",
     department: "",
-    serviceRequestId,
+    serviceRequestId: serviceRequestId || null,
   });
 
   useEffect(() => {
     const total = formData.quantity * formData.unitCost;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      totalCost: Number(total.toFixed(2))
+      totalCost: Number(total.toFixed(2)),
     }));
   }, [formData.quantity, formData.unitCost]);
+
+  useEffect(() => {
+    console.log("Current status:", formData.status);
+  }, [formData.status]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
 
-    // Check all fields are filled
-    Object.entries(formData).forEach(([key, value]) => {
-      if (value === "" || value === 0 || value === null || value === undefined) {
+    const requiredFields = Object.entries(formData).filter(
+      ([key]) => key !== "serviceRequestId"
+    );
+
+    requiredFields.forEach(([key, value]) => {
+      if (
+        value === "" ||
+        value === 0 ||
+        value === null ||
+        value === undefined
+      ) {
         newErrors[key as keyof EquipmentFormData] = "This field is required.";
       }
     });
 
-    // Additional validations
     if (formData.quantity <= 0) {
       newErrors.quantity = "Quantity must be greater than 0";
     }
@@ -100,17 +112,15 @@ export default function AddEquipment({
   };
 
   const handleInputChange = (
-    e: ChangeEvent<HTMLInputElement>,
+    e: ChangeEvent<HTMLInputElement | HTMLSelectElement>,
     field: keyof EquipmentFormData
   ) => {
     const value = e.target.value;
+
     const numberFields = ["quantity", "unitCost"];
-    
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: numberFields.includes(field) ? 
-        (Number(value) || 0) : 
-        value
+      [field]: numberFields.includes(field) ? Number(value) || 0 : value,
     }));
   };
 
@@ -119,11 +129,15 @@ export default function AddEquipment({
 
     setIsLoading(true);
     try {
-      await fetchCreateEquipment({
+      const submitData = {
         ...formData,
         datePurchased: new Date(formData.datePurchased),
         dateReceived: new Date(formData.dateReceived),
-      });
+      };
+      console.log("Submitting data:", submitData);
+
+      await fetchCreateEquipment(submitData);
+      console.log("Equipment created successfully");
       onSuccess?.();
     } catch (error) {
       console.error("Failed to create equipment:", error);
@@ -136,32 +150,95 @@ export default function AddEquipment({
   const formFields = [
     { id: "description", label: "Description", type: "text", required: true },
     { id: "brand", label: "Brand", type: "text", required: true },
-    { id: "quantity", label: "Quantity", type: "number", min: "1", required: true },
-    { id: "serialNumber", label: "Serial Number", type: "text", required: true },
+    {
+      id: "quantity",
+      label: "Quantity",
+      type: "number",
+      min: "1",
+      required: true,
+    },
+    {
+      id: "serialNumber",
+      label: "Serial Number",
+      type: "text",
+      required: true,
+    },
     { id: "supplier", label: "Supplier", type: "text", required: true },
-    { id: "unitCost", label: "Unit Cost", type: "number", min: "0", step: "1", required: true },
+    {
+      id: "unitCost",
+      label: "Unit Cost",
+      type: "number",
+      min: "0",
+      step: "1",
+      required: true,
+    },
     { id: "totalCost", label: "Total Cost", type: "number", disabled: true },
-    { id: "datePurchased", label: "Date Purchased", type: "date", required: true },
-    { id: "dateReceived", label: "Date Received", type: "date", required: true },
+    {
+      id: "datePurchased",
+      label: "Date Purchased",
+      type: "date",
+      required: true,
+    },
+    {
+      id: "dateReceived",
+      label: "Date Received",
+      type: "date",
+      required: true,
+    },
     { id: "location", label: "Location", type: "text", required: true },
     { id: "department", label: "Department", type: "text", required: true },
+    {
+      id: "status",
+      label: "Status",
+      type: "select",
+      required: true,
+      options: ["Operational", "Repairable", "Scrap"],
+    },
   ];
 
   return (
     <Card>
       <CardContent className="p-6">
         <div className="grid grid-cols-2 gap-4">
-          {formFields.map(({ id, label, type, ...props }) => (
+          {formFields.map(({ id, label, type, options, ...props }) => (
             <div key={id} className="space-y-2">
               <Label htmlFor={id}>{label} *</Label>
-              <Input
-                id={id}
-                type={type}
-                value={formData[id as keyof EquipmentFormData]?.toString()}
-                onChange={(e) => handleInputChange(e, id as keyof EquipmentFormData)}
-                className={errors[id as keyof EquipmentFormData] ? "border-red-500" : ""}
-                {...props}
-              />
+              {type === "select" ? (
+                <select
+                  id={id}
+                  value={formData[id as keyof EquipmentFormData] as string}
+                  onChange={(e) =>
+                    handleInputChange(e, id as keyof EquipmentFormData)
+                  }
+                  className={`flex h-10 w-full rounded-md border border-input bg-background px-3 py-2 text-sm ring-offset-background file:border-0 file:bg-transparent file:text-sm file:font-medium placeholder:text-muted-foreground focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring focus-visible:ring-offset-2 disabled:cursor-not-allowed disabled:opacity-50 ${
+                    errors[id as keyof EquipmentFormData]
+                      ? "border-red-500"
+                      : ""
+                  }`}
+                  {...props}
+                >
+                  {options?.map((option) => (
+                    <option key={option} value={option}>
+                      {option}
+                    </option>
+                  ))}
+                </select>
+              ) : (
+                <Input
+                  id={id}
+                  type={type}
+                  value={formData[id as keyof EquipmentFormData]?.toString()}
+                  onChange={(e) =>
+                    handleInputChange(e, id as keyof EquipmentFormData)
+                  }
+                  className={
+                    errors[id as keyof EquipmentFormData]
+                      ? "border-red-500"
+                      : ""
+                  }
+                  {...props}
+                />
+              )}
               {errors[id as keyof EquipmentFormData] && (
                 <p className="text-red-500 text-sm mt-1">
                   {errors[id as keyof EquipmentFormData]}
@@ -173,11 +250,7 @@ export default function AddEquipment({
 
         <Separator className="my-4" />
 
-        <Button 
-          onClick={handleSubmit} 
-          className="w-full" 
-          disabled={isLoading}
-        >
+        <Button onClick={handleSubmit} className="w-full" disabled={isLoading}>
           {isLoading ? "Creating..." : "Create Equipment"}
         </Button>
       </CardContent>

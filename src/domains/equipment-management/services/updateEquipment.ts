@@ -12,10 +12,10 @@ export default async function updateEquipment(
     totalCost: number;
     datePurchased: Date;
     dateReceived: Date;
-    status: EquipmentStatus
+    status: EquipmentStatus;
     location: string;
     department: string;
-    serviceRequestId: string;
+    serviceRequestId?: string;
   }
 ) {
   try {

@@ -1,21 +1,6 @@
 export default async function fetchCreateEquipment(
   input: EquipmentInput
-): Promise<{
-  id: string;
-  description: string;
-  brand: string;
-  quantity: number;
-  serialNumber: string;
-  supplier: string;
-  unitCost: number;
-  totalCost: number;
-  datePurchased: Date;
-  dateReceived: Date;
-  status: string;
-  location: string;
-  department: string;
-  serviceRequestId: string | null;
-}> {
+): Promise<Equipment> {
   const endpoint = "/api/equipment-management";
 
   try {
@@ -24,15 +9,18 @@ export default async function fetchCreateEquipment(
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(input),
+      body: JSON.stringify({
+        ...input,
+       
+      }),
     });
 
     if (!response.ok) {
-      const errorData = await response.json();
-      throw new Error(`Error ${response.status}: ${errorData.error}`);
+      throw new Error(`HTTP error! status: ${response.status}`);
     }
 
     const responseData = await response.json();
+    console.log("Response from server:", responseData); 
     return responseData;
   } catch (error) {
     console.error("Failed to create equipment:", error);
