@@ -38,12 +38,10 @@ export async function PUT(
   { params }: { params: { id: string } }
 ) {
   const { id } = params;
-  const { tasks, status } = await req.json();
+  const { tasks } = await req.json();
 
   console.log("tasks", tasks);
-  console.log("status", status);
   console.log("ok")
-
 
   if (!id) {
     return NextResponse.json(
@@ -60,8 +58,7 @@ export async function PUT(
   }
 
   try {
-    updateImplementationPlan(id, tasks, status);
-
+    updateImplementationPlan(id, tasks);
     return NextResponse.json({ message: "Implementation plan updated" });
   } catch (error) {
     console.error("Error updating implementation plan:", error);
