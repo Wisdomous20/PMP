@@ -1,6 +1,9 @@
 export default async function fetchUpdateImplementationPlan(
-  serviceRequestId: string, tasks: Task[]
+  serviceRequestId: string, 
+  tasks: Task[],
+  status?: string
 ) {
+
   const endpoint = `/api/implementation-plan/${serviceRequestId}`;
 
   try {
@@ -11,7 +14,9 @@ export default async function fetchUpdateImplementationPlan(
       },
       body: JSON.stringify({
         tasks,
+        ...(status && { status })
       }),
+
     });
 
     if (!response.ok) {

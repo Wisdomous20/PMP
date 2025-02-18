@@ -12,12 +12,13 @@ type Task = {
     name: string;
     deadline: Date;
     checked: boolean;
+    endTime: Date;
+    startTime: Date;
 }
+
 
 type Files = {
     id: string;
     implementationPlanId: string;
     url: string;
 }
-
-
