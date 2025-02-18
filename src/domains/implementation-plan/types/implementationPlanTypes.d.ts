@@ -20,3 +20,10 @@ type Files = {
     implementationPlanId: string;
     url: string;
 };
+
+type Assignment = {
+  taskId: string;
+  personnelId: string;
+  assignedAt: Date;
+  
+};

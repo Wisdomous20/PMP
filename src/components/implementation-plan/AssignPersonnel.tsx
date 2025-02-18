@@ -1,7 +1,8 @@
-// AssignPersonnelDialog.tsx
+// AssignPersonnel.tsx
 "use client";
 
-import { useState } from "react";
+import React, { useState } from "react";
+import { Button } from "@/components/ui/button";
 import {
   Dialog,
   DialogContent,
@@ -9,138 +10,171 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
 
-interface Task {
+interface TaskInfo {
   id: string;
   name: string;
-}
-
-interface Personnel {
-  id: string;
-  name: string;
-  department?: string;
-  position?: string;
+  startTime: Date;
+  endTime: Date;
 }
 
 interface AssignPersonnelProps {
-  tasks: Task[];
+  tasks: TaskInfo[];
   personnel: Personnel[];
-  onAssign: (
-    taskId: string,
-    personnelId: string,
-    start: Date,
-    end: Date
-  ) => void;
+  assignments: Assignment[];
+  setAssignments: React.Dispatch<React.SetStateAction<Assignment[]>>;
 }
 
 export default function AssignPersonnel({
   tasks,
   personnel,
-  onAssign,
+  assignments,
+  setAssignments,
 }: AssignPersonnelProps) {
-  const [open, setOpen] = useState(false);
-  const [selectedTask, setSelectedTask] = useState<string>("");
-  const [selectedPersonnel, setSelectedPersonnel] = useState<string>("");
-  const [startDateTime, setStartDateTime] = useState<string>("");
-  const [endDateTime, setEndDateTime] = useState<string>("");
+  // Outer dialog state to show assignments list
+  const [isMainOpen, setIsMainOpen] = useState(false);
+  // Nested dialog state for adding a new assignment
+  const [isNestedOpen, setIsNestedOpen] = useState(false);
+  const [selectedTaskId, setSelectedTaskId] = useState("");
+  const [selectedPersonnelId, setSelectedPersonnelId] = useState("");
 
-  const handleSubmit = () => {
-    if (!selectedTask || !selectedPersonnel || !startDateTime || !endDateTime) {
-      // You could add more robust error handling/validation here.
-      alert("Please fill in all fields.");
+  const handleAddSubmit = () => {
+    if (!selectedTaskId || !selectedPersonnelId) {
+      alert("Please select both a task and a personnel member.");
       return;
     }
-    const start = new Date(startDateTime);
-    const end = new Date(endDateTime);
-    onAssign(selectedTask, selectedPersonnel, start, end);
-    setOpen(false);
+    const newAssignment: Assignment = {
+      taskId: selectedTaskId,
+      personnelId: selectedPersonnelId,
+      assignedAt: new Date(),
+    };
+    setAssignments([...assignments, newAssignment]);
+    setSelectedTaskId("");
+    setSelectedPersonnelId("");
+    setIsNestedOpen(false);
+  };
+
+  const handleDeleteAssignment = (index: number) => {
+    setAssignments(assignments.filter((_, i) => i !== index));
   };
 
   return (
-    <Dialog open={open} onOpenChange={setOpen}>
-      <DialogTrigger asChild>
-        <Button variant="outline">Assign Personnel</Button>
-      </DialogTrigger>
-      <DialogContent className="min-w-[60vw] max-h-[80vh] overflow-y-auto">
-        <DialogHeader>
-          <DialogTitle>Assign Personnel to Task</DialogTitle>
-        </DialogHeader>
-        <div className="space-y-4 mt-4">
-          {/* Select Task */}
-          <div>
-            <label className="block text-sm font-medium text-muted-foreground">
-              Select Task
-            </label>
-            <select
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              value={selectedTask}
-              onChange={(e) => setSelectedTask(e.target.value)}
-            >
-              <option value="">Select a task</option>
-              {tasks.map((task) => (
-                <option key={task.id} value={task.id}>
-                  {task.name}
-                </option>
-              ))}
-            </select>
+    <>
+      <Dialog open={isMainOpen} onOpenChange={setIsMainOpen}>
+        <DialogTrigger asChild>
+          <Button variant="outline" className="w-full h-24">Personnel Assignment</Button>
+        </DialogTrigger>
+        <DialogContent className="min-w-[50vw]">
+          <DialogHeader>
+            <DialogTitle>Personnel Assignments</DialogTitle>
+          </DialogHeader>
+          <div className="space-y-4 mt-4">
+            {assignments.length === 0 ? (
+              <p className="text-sm text-muted-foreground">
+                No assignments yet.
+              </p>
+            ) : (
+              <div className="space-y-2">
+                {assignments.map((assignment, index) => {
+                  const task = tasks.find((t) => t.id === assignment.taskId);
+                  const person = personnel.find(
+                    (p) => p.id === assignment.personnelId
+                  );
+                  return (
+                    <div
+                      key={index}
+                      className="flex items-center justify-between p-3 bg-gray-50 rounded shadow-sm"
+                    >
+                      <div>
+                        <div className="font-medium">
+                          {task ? task.name : "Unknown Task"}
+                        </div>
+                        <div className="text-sm text-gray-600">
+                          {person
+                            ? `${person.name} (${person.position})`
+                            : "Unknown Personnel"}
+                        </div>
+                        <div className="text-xs text-gray-500">
+                          {task
+                            ? `Time: ${task.startTime.toLocaleString()} - ${task.endTime.toLocaleString()}`
+                            : "Unknown Time"}
+                        </div>
+                      </div>
+                      <Button
+                        variant="destructive"
+                        onClick={() => handleDeleteAssignment(index)}
+                      >
+                        Delete
+                      </Button>
+                    </div>
+                  );
+                })}
+              </div>
+            )}
+            <div className="mt-4 flex justify-end">
+              <Button variant="outline" onClick={() => setIsNestedOpen(true)}>
+                Add Personnel
+              </Button>
+            </div>
+            {/* Nested dialog for adding assignment */}
+            <Dialog open={isNestedOpen} onOpenChange={setIsNestedOpen}>
+              <DialogTrigger asChild>
+                {/* Invisible trigger – the button above opens the nested dialog */}
+                <span className="hidden" />
+              </DialogTrigger>
+              <DialogContent className="min-w-[40vw]">
+                <DialogHeader>
+                  <DialogTitle>Add Assignment</DialogTitle>
+                </DialogHeader>
+                <div className="space-y-4 mt-4">
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">
+                      Select Task
+                    </label>
+                    <select
+                      value={selectedTaskId}
+                      onChange={(e) => setSelectedTaskId(e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                    >
+                      <option value="">Select a task</option>
+                      {tasks.map((task) => (
+                        <option key={task.id} value={task.id}>
+                          {task.name} (
+                          {task.startTime.toLocaleString()} -{" "}
+                          {task.endTime.toLocaleString()})
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div>
+                    <label className="block text-sm font-medium text-gray-600">
+                      Select Personnel
+                    </label>
+                    <select
+                      value={selectedPersonnelId}
+                      onChange={(e) => setSelectedPersonnelId(e.target.value)}
+                      className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+                    >
+                      <option value="">Select personnel</option>
+                      {personnel.map((p) => (
+                        <option key={p.id} value={p.id}>
+                          {p.name} - {p.position}
+                        </option>
+                      ))}
+                    </select>
+                  </div>
+                  <div className="flex justify-end space-x-2 pt-4">
+                    <Button variant="outline" onClick={() => setIsNestedOpen(false)}>
+                      Cancel
+                    </Button>
+                    <Button onClick={handleAddSubmit}>Add</Button>
+                  </div>
+                </div>
+              </DialogContent>
+            </Dialog>
           </div>
-
-          {/* Select Personnel */}
-          <div>
-            <label className="block text-sm font-medium text-muted-foreground">
-              Select Personnel
-            </label>
-            <select
-              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
-              value={selectedPersonnel}
-              onChange={(e) => setSelectedPersonnel(e.target.value)}
-            >
-              <option value="">Select personnel</option>
-              {personnel.map((person) => (
-                <option key={person.id} value={person.id}>
-                  {person.name}
-                </option>
-              ))}
-            </select>
-          </div>
-
-          {/* Start Date & Time */}
-          <div>
-            <label className="block text-sm font-medium text-muted-foreground">
-              Start Date &amp; Time
-            </label>
-            <Input
-              type="datetime-local"
-              value={startDateTime}
-              onChange={(e) => setStartDateTime(e.target.value)}
-              className="mt-1 block w-full"
-            />
-          </div>
-
-          {/* End Date & Time */}
-          <div>
-            <label className="block text-sm font-medium text-muted-foreground">
-              End Date &amp; Time
-            </label>
-            <Input
-              type="datetime-local"
-              value={endDateTime}
-              onChange={(e) => setEndDateTime(e.target.value)}
-              className="mt-1 block w-full"
-            />
-          </div>
-
-          {/* Action Buttons */}
-          <div className="flex justify-end space-x-2 pt-4">
-            <Button variant="outline" onClick={() => setOpen(false)}>
-              Cancel
-            </Button>
-            <Button onClick={handleSubmit}>Assign</Button>
-          </div>
-        </div>
-      </DialogContent>
-    </Dialog>
+        </DialogContent>
+      </Dialog>
+    </>
   );
 }
