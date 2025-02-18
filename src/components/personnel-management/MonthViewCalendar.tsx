@@ -37,10 +37,6 @@ export default function MonthViewCalendar({ tasks }: MonthViewCalendarProps): JS
     iterDate.setDate(iterDate.getDate() + 1)
   }
 
-  function formatDate(date: Date): string {
-    return new Date(date.getTime() - date.getTimezoneOffset() * 60000).toISOString().split("T")[0]
-  }
-
   return (
     <div className="bg-background border border-border rounded-lg shadow-sm">
       <div className="p-6">
