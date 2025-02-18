@@ -17,7 +17,6 @@ interface EditEquipmentDialogProps {
   equipment: Equipment;
   onUpdate: () => void;
   onError?: (error: Error) => void;
-  serviceRequestId?: string;
 }
 
 type FormErrors = Partial<Record<keyof EquipmentInput, string>>;
@@ -26,7 +25,6 @@ export function EditEquipment({
   equipment,
   onUpdate,
   onError,
-  serviceRequestId,
 }: EditEquipmentDialogProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [isUpdating, setIsUpdating] = useState(false);

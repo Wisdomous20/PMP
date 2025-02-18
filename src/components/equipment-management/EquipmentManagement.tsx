@@ -170,7 +170,7 @@ export default function EquipmentTable({
                       <EditEquipment
                         equipment={item}
                         onUpdate={loadEquipment}
-                        serviceRequestId={serviceRequestId}
+                        // serviceRequestId={serviceRequestId}
                       />
                       <DeleteEquipment
                         equipmentId={item.id}
