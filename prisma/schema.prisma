@@ -63,13 +63,13 @@ model ServiceRequest {
   userId               String
   details              String
   concern              String
+  deleteAt             DateTime?
   equipment            Equipment[]
   implementationPlan   ImplementationPlan?
   user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   ServiceRequestRating ServiceRequestRating?
   status               ServiceRequestStatus[]
   supervisorAssignment SupervisorAssignment?
-  archived             Boolean                @default(false)
 }
 
 model SupervisorAssignment {
@@ -91,32 +91,29 @@ model ServiceRequestStatus {
 }
 
 model ServiceRequestRating {
-  id               String         @id @default(uuid()) @map("_id")
-  description      String
-  ratings          Int
-  serviceRequestId String
-  serviceRequest   ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
+  id             String         @id @default(uuid()) @map("_id")
+  Rating         Rating[]
+  serviceRequest ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
 }
 
 model ImplementationPlan {
-  id                   String                @id @default(uuid()) @map("_id")
-  description          String
-  status               String
-  serviceRequestId     String                @unique
-  files                Files[]
-  serviceRequest       ServiceRequest        @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
-  tasks                Task[]
+  id                  String                @id @default(uuid()) @map("_id")
+  description         String
+  status              String
+  serviceRequestId    String                @unique
+  files               Files[]
+  serviceRequest      ServiceRequest        @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  PersonnelAssignment PersonnelAssignment[]
+  tasks               Task[]
 }
 
 model Task {
-  id                   String                @id @default(uuid()) @map("_id")
+  id                   String             @id @default(uuid()) @map("_id")
   implementationPlanId String
   name                 String
-  startTime            DateTime 
-  endTime              DateTime    
+  deadline             DateTime
   checked              Boolean
-  implementationPlan   ImplementationPlan    @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
-  assignments          PersonnelAssignment[]
+  implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
 }
 
 model Files {
@@ -127,22 +124,19 @@ model Files {
 }
 
 model Personnel {
-  id         String                 @id @default(uuid()) @map("_id")
-  name       String
-  department String
-  position   String
+  id          String                @id @default(uuid()) @map("_id")
+  name        String
+  department  String
+  position    String
   assignments PersonnelAssignment[]
 }
 
 model PersonnelAssignment {
-  id           String     @id @default(uuid()) @map("_id")
-  taskId       String
-  personnelId  String
-  assignedAt   DateTime?  @default(now())
-  task         Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  personnel    Personnel  @relation(fields: [personnelId], references: [id], onDelete: Cascade)
-  
-  @@unique([taskId, personnelId])
+  id                   String             @id @default(uuid()) @map("_id")
+  personnelId          String
+  implementationPlanId String
+  ImplementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
+  personnel            Personnel          @relation(fields: [personnelId], references: [id], onDelete: Cascade)
 }
 
 model Equipment {
@@ -163,6 +157,14 @@ model Equipment {
   serviceRequest   ServiceRequest?  @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
 }
 
+model Rating {
+  id                     String               @id @map("_id")
+  serviceRequestRatingId String
+  description            String
+  rating                 Int
+  ServiceRequestRating   ServiceRequestRating @relation(fields: [serviceRequestRatingId], references: [id], onDelete: Cascade)
+}
+
 enum user_type {
   ADMIN
   USER
@@ -174,6 +176,7 @@ enum status {
   approved
   rejected
   in_progress
+  archive
 }
 
 enum equipment_status {
