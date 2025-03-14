@@ -1,27 +1,40 @@
 import { prisma } from "@/lib/prisma";
 
-//Add files in the future and description
+// Define Task Type
+type Task = {
+  name: string;
+  startTime: Date;
+  endTime: Date;
+  checked: boolean;
+};
 
-export default async function CreateImplementationPlan(serviceRequestId: string, tasks: Task[]) {
+export default async function CreateImplementationPlan(
+  serviceRequestId: string,
+  tasks: Task[]
+) {
   try {
     const implementationPlan = await prisma.implementationPlan.create({
       data: {
-        serviceRequestId, // Linking to the ServiceRequest
-        description: "", // You can update this to accept a description from the user if needed
+        serviceRequestId, 
+        description: "",
         status: "pending",
         tasks: {
           create: tasks.map((task) => ({
             name: task.name,
-            deadline: task.deadline,
+            startTime: task.startTime,
+            endTime: task.endTime,
             checked: task.checked,
           })),
         },
+      },
+      include: {
+        tasks: true,
       },
     });
 
     return implementationPlan;
   } catch (error) {
-    console.error("Error creating Implementation Plan", error);
+    console.error("Error creating Implementation Plan:", error);
     throw new Error("Failed to create Implementation Plan");
   }
 }

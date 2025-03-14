@@ -51,14 +51,17 @@ export default async function getImplementationPlans(userId: string): Promise<Im
     throw new Error("Invalid user type");
   }
 
+  // Format the response
   const formattedPlans: ImplementationPlan[] = implementationPlans.map((plan) => {
     const { id, description, status, tasks, files, serviceRequest } = plan;
     const requesterName = `${serviceRequest.user.firstName} ${serviceRequest.user.lastName}`;
+    
+    // Get earliest status timestamp as createdOn
     const createdOn =
       serviceRequest.status.length > 0
         ? serviceRequest.status.sort((a, b) => a.timestamp.getTime() - b.timestamp.getTime())[0].timestamp
         : null;
-  
+
     return {
       id,
       description,
@@ -71,7 +74,8 @@ export default async function getImplementationPlans(userId: string): Promise<Im
       tasks: tasks.map((task) => ({
         id: task.id,
         name: task.name,
-        deadline: task.deadline,
+        startTime: task.startTime, // Updated field name
+        endTime: task.endTime, // Updated field name
         checked: task.checked,
       })),
       serviceRequest: [{
@@ -88,9 +92,7 @@ export default async function getImplementationPlans(userId: string): Promise<Im
         })),
       }],
     };
-  });  
-
-  console.log(formattedPlans)
+  });
 
   return formattedPlans;
 }

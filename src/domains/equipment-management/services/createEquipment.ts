@@ -13,17 +13,14 @@ export default async function createEquipment(
   totalCost: number;
   datePurchased: Date;
   dateReceived: Date;
-  status: string;
+  status: EquipmentStatus ;
   location: string;
   department: string;
   serviceRequestId: string | null;
 }> {
   try {
     const equipment = await prisma.equipment.create({
-      data: {
-        ...input,
-        status: "Operational",
-      },
+      data: input, 
     });
 
     console.log("Waa?")

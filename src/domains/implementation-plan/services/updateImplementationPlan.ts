@@ -10,11 +10,12 @@ export default async function updateImplementationPlan(serviceRequestId: string,
       where: { id: existingPlan.id },
       data: {
         tasks: {
-          deleteMany: {},
+          deleteMany: {}, // Clear previous tasks
           create: tasks.map(task => ({
             id: task.id,
             name: task.name,
-            deadline: task.deadline,
+            startTime: task.startTime, // Updated field
+            endTime: task.endTime, // Updated field
             checked: task.checked,
           })),
         },

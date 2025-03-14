@@ -1,26 +1,20 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
-import { Plus, Trash, ListFilter, Pencil } from "lucide-react";
+import { Plus, ListFilter } from "lucide-react";
 import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
-import { Checkbox } from "../ui/checkbox";
-
-interface Personnel {
-  id: string;
-  name: string;
-  department: string;
-  position: string;
-}
+// import { Checkbox } from "../ui/checkbox";
+import PersonnelCalendar from "./PersonnelCalendar";
 
 export default function PersonnelManagement() {
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [selectedIds, setSelectedIds] = useState<string[]>([]);
+  // const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [currentPersonnel, setCurrentPersonnel] = useState<Personnel | null>(null);
-  const [visibleCount, setVisibleCount] = useState(5); // Start with 5 items
+  // const [visibleCount, setVisibleCount] = useState(5); // Start with 5 items
 
   useEffect(() => {
     fetchPersonnel();
@@ -40,19 +34,19 @@ export default function PersonnelManagement() {
     }
   };
 
-  const handleDelete = async () => {
-    try {
-      await Promise.all(
-        selectedIds.map((id) =>
-          fetch(`/api/manpower-management/${id}`, { method: "DELETE" })
-        )
-      );
-      setPersonnel((prev) => prev.filter((person) => !selectedIds.includes(person.id)));
-      setSelectedIds([]);
-    } catch (error) {
-      console.error("Error deleting personnel:", error);
-    }
-  };
+  // const handleDelete = async () => {
+  //   try {
+  //     await Promise.all(
+  //       selectedIds.map((id) =>
+  //         fetch(`/api/manpower-management/${id}`, { method: "DELETE" })
+  //       )
+  //     );
+  //     setPersonnel((prev) => prev.filter((person) => !selectedIds.includes(person.id)));
+  //     setSelectedIds([]);
+  //   } catch (error) {
+  //     console.error("Error deleting personnel:", error);
+  //   }
+  // };
 
   const openUpdateDialog = (person: Personnel) => {
     setCurrentPersonnel(person);
@@ -88,13 +82,13 @@ export default function PersonnelManagement() {
             >
               <Plus className="inline-block mr-2 w-4 h-4" /> Add Personnel
             </Button>
-            <Button
+            {/* <Button
               variant={"gold"}
               onClick={handleDelete}
               className="bg-red-600 text-primary-foreground px-4 py-2 rounded-md"
             >
               <Trash className="inline-block mr-2 w-4 h-4" /> Delete Personnel
-            </Button>
+            </Button> */}
           </div>
         </div>
       </div>
@@ -114,8 +108,8 @@ export default function PersonnelManagement() {
 
       {/* Scrollable Container */}
       <div className="rounded-md shadow-md overflow-y-auto h-[500px] mx-auto w-full max-w-7xl mt-6 border p-4">
-        <div className="bg-transparent grid grid-cols-[30px_1fr_1fr_1fr_30px] items-center gap-4 px-4 py-2 font-semibold">
-          <div className="text-center"></div>
+        <div className="bg-transparent grid grid-cols-[1fr_1fr_1fr_30px] items-center gap-4 px-4 py-2 font-semibold">
+          {/* <div className="text-center"></div> */}
           <div className="text-center">Name</div>
           <div className="text-center">Position</div>
           <div className="text-center">Department</div>
@@ -123,42 +117,20 @@ export default function PersonnelManagement() {
         </div>
 
         <div className="mt-4">
-          {personnel.slice(0, visibleCount).map((person) => (
-            <div
+          {personnel.map((person) => (
+            <PersonnelCalendar
               key={person.id}
-              className="bg-gray-300 border border-gray-300 rounded-md shadow-md mb-4 p-4 grid grid-cols-[30px_1fr_1fr_1fr_30px] items-center gap-4"
-            >
-              <div className="flex justify-center">
-                <Checkbox
-                  checked={selectedIds.includes(person.id)}
-                  onCheckedChange={() =>
-                    setSelectedIds((prev) =>
-                      prev.includes(person.id)
-                        ? prev.filter((id) => id !== person.id)
-                        : [...prev, person.id]
-                    )
-                  }
-                />
-              </div>
-              <div className="text-center">
-                <p>{person.name}</p>
-              </div>
-              <div className="text-center">
-                <p>{person.position}</p>
-              </div>
-              <div className="text-center">
-                <p>{person.department}</p>
-              </div>
-              <div className="flex justify-center">
-                <Pencil className="w-4 h-4 cursor-pointer" onClick={() => openUpdateDialog(person)} />
-              </div>
-            </div>
+              person={person}
+              // selectedIds={selectedIds}
+              // setSelectedIds={setSelectedIds}
+              openUpdateDialog={openUpdateDialog}
+            />
           ))}
         </div>
       </div>
 
       {/* Load More Button */}
-      {visibleCount < personnel.length && (
+      {/* {visibleCount < personnel.length && (
         <div className="flex justify-center mt-4">
           <Button
             variant="gold"
@@ -168,7 +140,7 @@ export default function PersonnelManagement() {
             Load more...
           </Button>
         </div>
-      )}
+      )} */}
     </div>
   );
 }
