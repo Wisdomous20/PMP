@@ -1,5 +1,5 @@
 'use client';
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { Button } from "../ui/button"; 
 import { Input } from "../ui/input"; 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from "../ui/dialog";
@@ -13,9 +13,18 @@ interface UpdatePersonnelProps {
 }
 
 export default function UpdatePersonnel({ onUpdate, isOpen, onOpenChange, currentPersonnel }: UpdatePersonnelProps) {
-  const [name, setName] = useState(currentPersonnel ? currentPersonnel.name : "");
-  const [department, setDepartment] = useState(currentPersonnel ? currentPersonnel.department : "");
-  const [position, setPosition] = useState(currentPersonnel ? currentPersonnel.position : "");
+  const [name, setName] = useState("");
+  const [department, setDepartment] = useState("");
+  const [position, setPosition] = useState("");
+
+  // Update the input values whenever currentPersonnel changes
+  useEffect(() => {
+    if (currentPersonnel) {
+      setName(currentPersonnel.name);
+      setDepartment(currentPersonnel.department);
+      setPosition(currentPersonnel.position);
+    }
+  }, [currentPersonnel]);
 
   const handleUpdatePersonnel = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();

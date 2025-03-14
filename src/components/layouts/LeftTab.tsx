@@ -1,7 +1,7 @@
 "use client";
 import { signOut } from "next-auth/react";
 import { Button } from "../ui/button";
-import { Plus, FileText, Archive, LogOut, Folder, User } from "lucide-react"; // Added User icon
+import { Plus, FileText, Archive, LogOut, Folder, User, Wrench } from "lucide-react"; // Added Wrench icon
 import Link from "next/link";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole"; // Updated import path
 import { Skeleton } from "../ui/skeleton";
@@ -79,13 +79,22 @@ export default function LeftTab() {
         </Button>
       </Link>
 
-      {userRole === "ADMIN" && ( // Conditional rendering for admin role
-        <Link href="/personnel-management">
-          <Button variant="gold" size="icon" className="w-11 h-12">
-            <User className="w-6 h-6" /> {/* User icon */}
-            <span className="sr-only">Personnel Management</span>
-          </Button>
-        </Link>
+      {userRole === "ADMIN" && (
+        <>
+          <Link href="/personnel-management">
+            <Button variant="gold" size="icon" className="w-11 h-12">
+              <User className="w-6 h-6" />
+              <span className="sr-only">Personnel Management</span>
+            </Button>
+          </Link>
+
+          <Link href="/equipment-management">
+            <Button variant="gold" size="icon" className="w-11 h-12">
+              <Wrench className="w-6 h-6" /> {/* Wrench icon */}
+              <span className="sr-only">Equipment Management</span>
+            </Button>
+          </Link>
+        </>
       )}
 
       <Link href="/auth/login" onClick={handleLogout}>

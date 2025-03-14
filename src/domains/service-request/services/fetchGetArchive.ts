@@ -1,14 +1,15 @@
-export default async function fetchUpdateEquipment(equipmentId : string, equipment : EquipmentInput) {
-  const endpoint = `/api/equipment-management/${equipmentId}`;
+export default async function fetchGetArchive(userId : string) {
+  const queryParams = new URLSearchParams();
+  queryParams.append("userId", userId)
 
-  console.log('Sending equipment data:', equipment);
+  const endpoint = `/api/service-request/archive?${queryParams.toString()}`;
+
   try {
     const response = await fetch(endpoint, {
-      method: "PATCH",
+      method: "GET",
       headers: {
         "Content-Type": "application/json",
       },
-      body: JSON.stringify(equipment),
     });
 
     if (!response.ok) {
@@ -18,7 +19,7 @@ export default async function fetchUpdateEquipment(equipmentId : string, equipme
 
     return await response.json();
   } catch (error) {
-    console.error("Failed to update equipment:", error);
+    console.error("Failed to fetch archived service requests:", error);
     throw error;
   }
 }

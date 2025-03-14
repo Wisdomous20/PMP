@@ -33,6 +33,7 @@ type EquipmentInput = {
     dateReceived: Date;
     location: string;
     department: string;
+    status: EquipmentStatus;
     serviceRequestId?: string | null;
   };
   

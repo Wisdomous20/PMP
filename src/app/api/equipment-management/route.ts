@@ -16,6 +16,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       dateReceived,
       location,
       department,
+      status,
       serviceRequestId,
     } = await req.json();
 
@@ -32,7 +33,9 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       !datePurchased ||
       !dateReceived ||
       !location ||
-      !department
+      !department ||
+      !status
+      
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -52,6 +55,7 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       dateReceived: new Date(dateReceived),
       location,
       department,
+      status,
       serviceRequestId: serviceRequestId || null,
     });
 

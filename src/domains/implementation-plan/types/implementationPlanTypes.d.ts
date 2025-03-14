@@ -5,19 +5,25 @@ type ImplementationPlan = {
     files: Files[];
     serviceRequest: ServiceRequest[];
     tasks: Task[];
-}
+};
 
 type Task = {
     id: string;
     name: string;
-    deadline: Date;
+    startTime: Date;
+    endTime: Date;
     checked: boolean;
-}
+};
 
 type Files = {
     id: string;
     implementationPlanId: string;
     url: string;
-}
+};
 
-
+type Assignment = {
+  taskId: string;
+  personnelId: string;
+  assignedAt: Date;
+  
+};

@@ -1,7 +1,7 @@
 // import EquipmentTable from "@/components/equipment-management/EquipmentManagement";
 import InventorySummary from "@/components/equipment-management/Inventory-summary";
 import LeftTab from "@/components/layouts/LeftTab";
-
+import EquipmentTable from "@/components/equipment-management/EquipmentManagement";
 export default function EquipmentManagementBoard() {
   return (
     <div className="w-screen h-screen flex">
@@ -11,7 +11,7 @@ export default function EquipmentManagementBoard() {
           <h1 className="text-3xl font-bold">Equipment Management Board</h1>
         </div>
         <InventorySummary />
-        {/* <EquipmentTable /> */}
+        <EquipmentTable />
       </div>
     </div>
   );
