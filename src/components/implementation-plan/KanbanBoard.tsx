@@ -53,8 +53,6 @@ export default function ServiceRequestKanban() {
   const currentOverColumn = useRef<string | null>(null);
   const isUpdatingRef = useRef(false);
   const columnHistory = useRef<string[]>([]);
-
-  // Important: Track database state separately from UI state
   const databaseState = useRef<{ [taskId: string]: string }>({});
 
   useEffect(() => {
@@ -66,7 +64,6 @@ export default function ServiceRequestKanban() {
           .map((plan) => plan.id),
       }));
 
-      // Initialize database state tracking
       const newDatabaseState: { [taskId: string]: string } = {};
       implementationPlans.forEach((plan) => {
         newDatabaseState[plan.id] = plan.status;
@@ -83,7 +80,7 @@ export default function ServiceRequestKanban() {
   const sensors = useSensors(
     useSensor(MouseSensor, {
       activationConstraint: {
-        distance: 5,
+        distance: 10,
         delay: 0,
       },
     }),
@@ -97,7 +94,6 @@ export default function ServiceRequestKanban() {
       const { active } = event;
       const id = active.id.toString();
 
-      // Find the task being dragged
       const task = implementationPlans.find((plan) => plan.id === id);
       if (!task) return;
 
@@ -105,7 +101,6 @@ export default function ServiceRequestKanban() {
       setIsDragging(true);
       setActiveId(id);
 
-      // Reset tracking refs
       currentOverColumn.current = task.status;
       isUpdatingRef.current = false;
       columnHistory.current = [task.status];
@@ -124,13 +119,11 @@ export default function ServiceRequestKanban() {
       const activeId = active.id.toString();
       const overId = over.id.toString();
 
-      // Find source column (where the dragged task was)
       const sourceColumn = columns.find((col) =>
         col.taskIds.includes(activeId)
       );
       if (!sourceColumn) return;
 
-      // Find target column (column or task we're dragging over)
       let targetColumn = columns.find((col) => col.id === overId);
       if (!targetColumn) {
         targetColumn = columns.find((col) => col.taskIds.includes(overId));
@@ -138,25 +131,20 @@ export default function ServiceRequestKanban() {
 
       if (!targetColumn || sourceColumn.id === targetColumn.id) return;
 
-      // Update column tracking
       if (targetColumn.id !== currentOverColumn.current) {
         currentOverColumn.current = targetColumn.id;
         columnHistory.current.push(targetColumn.id);
       }
 
-      // Update visual position
       startTransition(() => {
         setColumns((prev) =>
           prev.map((col) => {
-            // Remove from source column
             if (col.id === sourceColumn.id) {
               return {
                 ...col,
                 taskIds: col.taskIds.filter((id) => id !== activeId),
               };
             }
-
-            // Add to target column if not already there
             if (
               col.id === targetColumn!.id &&
               !col.taskIds.includes(activeId)
@@ -180,12 +168,9 @@ export default function ServiceRequestKanban() {
     try {
       const finalTargetColumnId = currentOverColumn.current;
       const draggedItemId = activeId;
-
-      // Reset UI state
       setIsDragging(false);
       setActiveId(null);
 
-      // Validation checks
       if (isUpdatingRef.current || !finalTargetColumnId || !draggedItemId) {
         resetToServerState();
         isUpdatingRef.current = false;
@@ -194,29 +179,12 @@ export default function ServiceRequestKanban() {
 
       isUpdatingRef.current = true;
 
-      // Get current database state for this task
-      const currentDbStatus = databaseState.current[draggedItemId];
-
-      // Skip update if moving to same status as current DB state
-      if (currentDbStatus === finalTargetColumnId) {
-        console.log(
-          `Task ${draggedItemId} already in ${finalTargetColumnId} in database, skipping update`
-        );
-        resetToServerState();
-        isUpdatingRef.current = false;
-        return;
-      }
-
-      // Store current state for potential revert
       const previousState = JSON.parse(JSON.stringify(columns));
 
       try {
-        // Update columns in UI
         const updatedColumns = columns.map((col) => {
-          // Remove from all columns
           const filtered = col.taskIds.filter((id) => id !== draggedItemId);
 
-          // Add to target column
           if (col.id === finalTargetColumnId) {
             return {
               ...col,
@@ -227,23 +195,17 @@ export default function ServiceRequestKanban() {
           return { ...col, taskIds: filtered };
         });
 
-        // Update UI state
         setColumns(updatedColumns);
         startTransition(() => {
           setOptimisticColumns(updatedColumns);
         });
 
-        // Call API to update backend
-        console.log(
-          `Updating task ${draggedItemId} to ${finalTargetColumnId} in database`
-        );
         const result = await fetchUpdateImplementationPlanStatus(
           draggedItemId,
           finalTargetColumnId
         );
 
         if (result) {
-          // Update our cached database state on success
           databaseState.current[draggedItemId] = finalTargetColumnId;
         } else {
           console.error("API update failed, reverting UI");
