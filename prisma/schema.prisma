@@ -69,6 +69,7 @@ model ServiceRequest {
   status               ServiceRequestStatus[]
   supervisorAssignment SupervisorAssignment?
   equipment            Equipment[]
+  deleteAt             DateTime?
 }
 
 model SupervisorAssignment {
@@ -175,6 +176,7 @@ enum status {
   approved
   rejected
   in_progress
+  archive
 }
 
 enum equipment_status {
