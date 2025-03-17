@@ -91,11 +91,12 @@ model ServiceRequestStatus {
 }
 
 model ServiceRequestRating {
-  id               String         @id @default(uuid()) @map("_id")
+  id               String           @id @default(uuid()) @map("_id")
   description      String
   ratings          Int
   serviceRequestId String
-  serviceRequest   ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
+  RatingQuestion   RatingQuestion[]
+  serviceRequest   ServiceRequest   @relation(fields: [id], references: [id], onDelete: Cascade)
 }
 
 model ImplementationPlan {
@@ -161,6 +162,14 @@ model Equipment {
   department       String
   serviceRequestId String?
   serviceRequest   ServiceRequest?  @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+}
+
+model RatingQuestion {
+  id                     String               @id @map("_id")
+  question               String
+  answer                 String?
+  serviceRequestRatingId String
+  ServiceRequestRating   ServiceRequestRating @relation(fields: [serviceRequestRatingId], references: [id], onDelete: Cascade)
 }
 
 enum user_type {
