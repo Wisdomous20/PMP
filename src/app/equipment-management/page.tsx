@@ -1,5 +1,5 @@
 import LeftTab from "@/components/layouts/LeftTab";
-import EquipmentTable from "@/components/equipment-management/EquipmentManagement";
+import EquipmentTable from "@/components/equipment-management/InventoryManagement";
 export default function EquipmentManagementBoard() {
   return (
     <div className="w-screen h-screen flex">

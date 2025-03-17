@@ -14,7 +14,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import EquipmentTable from "../equipment-management/EquipmentManagement";
+import EquipmentTable from "../equipment-management/InventoryManagement";
 import fetchCreateImplementationPlan from "@/domains/implementation-plan/services/fetchCreateImplementationPlan";
 import formatTimestamp from "@/utils/formatTimestamp";
 import { fetchInProgressStatus } from "@/domains/service-request/services/status/fetchAddSatus";
@@ -26,7 +26,7 @@ import AssignPersonnel from "./AssignPersonnel";
 // These types are based on your provided definitions.
 
 interface CreateImplementationPlanProps {
-  serviceRequest: ServiceRequest
+  serviceRequest: ServiceRequest;
 }
 
 export default function CreateImplementationPlan({
@@ -213,7 +213,9 @@ export default function CreateImplementationPlan({
               <div className="space-y-6">
                 {serviceRequest.createdOn && (
                   <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Request Date</p>
+                    <p className="text-sm text-muted-foreground">
+                      Request Date
+                    </p>
                     <p className="font-medium">
                       {formatTimestamp(serviceRequest.createdOn)}
                     </p>
