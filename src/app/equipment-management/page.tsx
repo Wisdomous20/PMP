@@ -1,4 +1,3 @@
-import InventorySummary from "@/components/equipment-management/Inventory-summary";
 import LeftTab from "@/components/layouts/LeftTab";
 import EquipmentTable from "@/components/equipment-management/EquipmentManagement";
 export default function EquipmentManagementBoard() {
@@ -9,7 +8,7 @@ export default function EquipmentManagementBoard() {
         <div className="flex justify-center mb-6">
           <h1 className="text-3xl font-bold">Inventory Report Summary</h1>
         </div>
-        <InventorySummary />
+
         <EquipmentTable />
       </div>
     </div>
