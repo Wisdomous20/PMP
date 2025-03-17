@@ -12,7 +12,7 @@ interface ServiceRequestProps {
   setServiceRequestIndex: React.Dispatch<React.SetStateAction<number>>
   loading: boolean
 }
-
+  
 export default function ServiceRequestList({ serviceRequests, setServiceRequestIndex, loading }: ServiceRequestProps) {
   const [search, setSearch] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);
@@ -28,7 +28,7 @@ export default function ServiceRequestList({ serviceRequests, setServiceRequestI
 
   if (loading) {
     return (
-      <div className="w-3/6 h-full flex flex-col overflow-y-auto scrollbar-hide overflow-x-hidden space-y-2 p-2 relative">
+      <div className="flex-1 h-full flex flex-col overflow-y-auto scrollbar-hide overflow-x-hidden space-y-2 p-2 relative">
         <div className="items-center px-3">
           <Skeleton className="h-8 w-4/5 rounded-md mb-4" />
         </div>
