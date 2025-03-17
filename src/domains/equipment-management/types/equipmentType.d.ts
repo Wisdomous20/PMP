@@ -36,4 +36,14 @@ type EquipmentInput = {
     status: EquipmentStatus;
     serviceRequestId?: string | null;
   };
+
+  type PaginatedResponse<T> = {
+    data: T[];
+    meta: {
+      total: number;
+      page: number;
+      pageSize: number;
+      pageCount: number;
+    };
+  }
   

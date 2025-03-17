@@ -11,7 +11,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "./StatusBadge";
-import { PlusCircle, Filter } from "lucide-react";
+import { PlusCircle } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -23,8 +23,6 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AddEquipment from "@/components/equipment-management/addEquipment";
 import { DeleteEquipment } from "./DeleteEquipment";
 import { EditEquipment } from "./EditEquipment";
-import fetchGetEquipmentById from "@/domains/equipment-management/services/fetchGetEquipmentById";
-import fetchGetAllEquipment from "@/domains/equipment-management/services/fetchGetAllEquipment";
 import { useSession } from "next-auth/react";
 import getUserRoleFetch from "@/domains/user-management/services/getUserRoleFetch";
 import {
@@ -34,16 +32,14 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import EquipmentPagination from "./EquipmentPagination";
+import fetchPaginatedEquipment from "@/domains/equipment-management/services/fetchPaginatedEquipment";
+import fetchDepartment from "@/domains/equipment-management/services/fetchDepartment";
 
-interface EquipmentTableProps {
-  serviceRequestId?: string;
-}
+const ITEMS_PER_PAGE = 50;
 
-export default function EquipmentTable({
-  serviceRequestId,
-}: EquipmentTableProps) {
+export default function EquipmentTable() {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
-  const [filteredEquipment, setFilteredEquipment] = useState<Equipment[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { data: session } = useSession();
@@ -51,24 +47,29 @@ export default function EquipmentTable({
   const [departments, setDepartments] = useState<string[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
 
-  const loadEquipment = async () => {
+  const [currentPage, setCurrentPage] = useState(1);
+  const [totalPages, setTotalPages] = useState(1);
+  const [totalItems, setTotalItems] = useState(0);
+
+  const loadEquipment = async (page = 1, department = "all") => {
     try {
       setLoading(true);
-      let data: Equipment[] = [];
 
-      if (serviceRequestId) {
-        data = (await fetchGetEquipmentById(serviceRequestId)) || [];
-      } else {
-        data = (await fetchGetAllEquipment()) || [];
+      const response = await fetchPaginatedEquipment({
+        page,
+        pageSize: ITEMS_PER_PAGE,
+        department: department === "all" ? undefined : department,
+      });
+
+      const { data: paginatedData, meta } = response;
+      setEquipment(paginatedData);
+      setTotalItems(meta.total);
+      setTotalPages(meta.pageCount);
+
+      if (page === 1) {
+        const deptList = await fetchDepartment();
+        setDepartments(deptList);
       }
-
-      setEquipment(data || []);
-      setFilteredEquipment(data || []);
-
-      const uniqueDepartments = Array.from(
-        new Set(data.map((item) => item.department))
-      ).sort();
-      setDepartments(uniqueDepartments);
     } catch (error) {
       console.error("Failed to load equipment:", error);
     } finally {
@@ -88,34 +89,30 @@ export default function EquipmentTable({
   };
 
   useEffect(() => {
-    loadEquipment();
+    loadEquipment(currentPage, selectedDepartment);
     loadUserRole();
-  }, [serviceRequestId, session]);
-
-  useEffect(() => {
-    if (selectedDepartment === "all") {
-      setFilteredEquipment(equipment);
-    } else {
-      setFilteredEquipment(
-        equipment.filter((item) => item.department === selectedDepartment)
-      );
-    }
-  }, [selectedDepartment, equipment]);
+  }, [currentPage, selectedDepartment, session]);
 
   const handleEquipmentDeleted = async () => {
-    await loadEquipment();
+    await loadEquipment(currentPage, selectedDepartment);
   };
 
   const handleEquipmentAdded = async () => {
     setIsDialogOpen(false);
-    await loadEquipment();
+    await loadEquipment(1, selectedDepartment);
+    setCurrentPage(1);
   };
 
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
+    setCurrentPage(1);
   };
 
-  if (isLoading) {
+  const handlePageChange = (page: number) => {
+    setCurrentPage(page);
+  };
+
+  if (isLoading && equipment.length === 0) {
     return (
       <div className="space-y-4">
         <div className="flex justify-end">
@@ -145,13 +142,17 @@ export default function EquipmentTable({
             </SelectTrigger>
             <SelectContent>
               <SelectItem value="all">All Departments</SelectItem>
-              {departments.map((dept) => (
-                <SelectItem key={dept} value={dept}>
-                  {dept}
-                </SelectItem>
-              ))}
+              {Array.isArray(departments) &&
+                departments.map((dept) => (
+                  <SelectItem key={dept} value={dept}>
+                    {dept}
+                  </SelectItem>
+                ))}
             </SelectContent>
           </Select>
+          <span className="text-sm text-muted-foreground">
+            {totalItems} items {isLoading && "(Loading...)"}
+          </span>
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -165,10 +166,7 @@ export default function EquipmentTable({
             <DialogHeader>
               <DialogTitle>Add New Equipment</DialogTitle>
             </DialogHeader>
-            <AddEquipment
-              serviceRequestId={serviceRequestId}
-              onSuccess={handleEquipmentAdded}
-            />
+            <AddEquipment onSuccess={handleEquipmentAdded} />
           </DialogContent>
         </Dialog>
       </div>
@@ -189,13 +187,11 @@ export default function EquipmentTable({
               <TableHead>Status</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Department</TableHead>
-              {(serviceRequestId || userRole === "ADMIN") && (
-                <TableHead>Actions</TableHead>
-              )}
+              {userRole === "ADMIN" && <TableHead>Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredEquipment.length === 0 ? (
+            {equipment.length === 0 ? (
               <TableRow>
                 <TableCell
                   colSpan={13}
@@ -205,7 +201,7 @@ export default function EquipmentTable({
                 </TableCell>
               </TableRow>
             ) : (
-              filteredEquipment.map((item: Equipment, index: number) => (
+              equipment.map((item: Equipment, index: number) => (
                 <TableRow key={index}>
                   <TableCell>{item.quantity}</TableCell>
                   <TableCell>{item.description}</TableCell>
@@ -227,11 +223,13 @@ export default function EquipmentTable({
                   <TableCell>{item.department}</TableCell>
 
                   <TableCell>
-                    {(serviceRequestId || userRole === "ADMIN") && (
+                    {userRole === "ADMIN" && (
                       <div className="flex space-x-2">
                         <EditEquipment
                           equipment={item}
-                          onUpdate={loadEquipment}
+                          onUpdate={() =>
+                            loadEquipment(currentPage, selectedDepartment)
+                          }
                         />
                         <DeleteEquipment
                           equipmentId={item.id}
@@ -247,6 +245,12 @@ export default function EquipmentTable({
           </TableBody>
         </Table>
       </div>
+
+      <EquipmentPagination
+        currentPage={currentPage}
+        totalPages={totalPages}
+        onPageChange={handlePageChange}
+      />
     </div>
   );
 }
