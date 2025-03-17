@@ -91,29 +91,42 @@ model ServiceRequestStatus {
 }
 
 model ServiceRequestRating {
-  id             String         @id @default(uuid()) @map("_id")
-  Rating         Rating[]
-  serviceRequest ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
+  id               String         @id @default(uuid()) @map("_id")
+  description      String
+  ratings          Int
+  serviceRequestId String
+  serviceRequest   ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
+  questions        RatingQuestion[]
 }
 
+model RatingQuestion {
+  id                     String  @id @default(uuid()) @map("_id")
+  question               String
+  answer                 String?
+  serviceRequestRatingId String
+  serviceRequestRating   ServiceRequestRating @relation(fields: [serviceRequestRatingId], references: [id], onDelete: Cascade)
+}
+
+
 model ImplementationPlan {
-  id                  String                @id @default(uuid()) @map("_id")
-  description         String
-  status              String
-  serviceRequestId    String                @unique
-  files               Files[]
-  serviceRequest      ServiceRequest        @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
-  PersonnelAssignment PersonnelAssignment[]
-  tasks               Task[]
+  id               String         @id @default(uuid()) @map("_id")
+  description      String
+  status           String
+  serviceRequestId String         @unique
+  files            Files[]
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  tasks            Task[]
 }
 
 model Task {
-  id                   String             @id @default(uuid()) @map("_id")
+  id                   String                @id @default(uuid()) @map("_id")
   implementationPlanId String
   name                 String
-  deadline             DateTime
   checked              Boolean
-  implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
+  endTime              DateTime
+  startTime            DateTime
+  PersonnelAssignment  PersonnelAssignment[]
+  implementationPlan   ImplementationPlan    @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
 }
 
 model Files {
@@ -132,11 +145,14 @@ model Personnel {
 }
 
 model PersonnelAssignment {
-  id                   String             @id @default(uuid()) @map("_id")
-  personnelId          String
-  implementationPlanId String
-  ImplementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
-  personnel            Personnel          @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  id          String    @id @default(uuid()) @map("_id")
+  personnelId String
+  assignedAt  DateTime? @default(now())
+  taskId      String
+  personnel   Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  Task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
+  @@unique([taskId, personnelId])
 }
 
 model Equipment {
@@ -157,14 +173,6 @@ model Equipment {
   serviceRequest   ServiceRequest?  @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
 }
 
-model Rating {
-  id                     String               @id @map("_id")
-  serviceRequestRatingId String
-  description            String
-  rating                 Int
-  ServiceRequestRating   ServiceRequestRating @relation(fields: [serviceRequestRatingId], references: [id], onDelete: Cascade)
-}
-
 enum user_type {
   ADMIN
   USER
@@ -176,7 +184,7 @@ enum status {
   approved
   rejected
   in_progress
-  archive
+  archived
 }
 
 enum equipment_status {

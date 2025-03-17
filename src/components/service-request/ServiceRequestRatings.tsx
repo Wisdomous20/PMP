@@ -4,7 +4,7 @@ import { Button } from '../ui/button';
 import { Input } from '../ui/input';
 import { Textarea } from '../ui/textarea';
 import { RadioGroup, RadioGroupItem } from '../ui/radio-group';
-import fetchCreateServiceRequestRating from '../../domains/service-request-rating/services/fetchCreateRating';
+import fetchAddRating from "@/domains/service-request/services/fetchAddRating";
 
 interface ServiceRequestRatingProps {
   serviceRequestId: string;
@@ -17,7 +17,7 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({ serviceRequ
   const [achievedResults, setAchievedResults] = useState("");
   const [startReason, setStartReason] = useState('');
   const [resultReason, setResultReason] = useState('');
-  const [satisfaction, setSatisfaction] = useState<number | null>(null);
+  const [satisfaction, setSatisfaction] = useState("");
   const [feedback, setFeedback] = useState('');
   const [rating, setRating] = useState<number>(0);
   const [description, setDescription] = useState<string>('');
@@ -25,7 +25,7 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({ serviceRequ
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     try {
-      await fetchCreateServiceRequestRating(
+      await fetchAddRating(
         serviceRequestId,
         rating,
         description,
