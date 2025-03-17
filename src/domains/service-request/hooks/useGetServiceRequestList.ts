@@ -17,7 +17,11 @@ export default function useGetServiceRequestList() {
           session.user.id
         );
 
-        const sortedRequests = [...serviceRequestsInitial].sort((a, b) => {
+        const filteredRequests = serviceRequestsInitial.filter(
+          (request) => !request.status.some((status) => status.status === "archive")
+        )
+
+        const sortedRequests = [...filteredRequests].sort((a, b) => {
           const dateA = a.createdOn ? new Date(a.createdOn) : null;
           const dateB = b.createdOn ? new Date(b.createdOn) : null;
           if (dateA === null && dateB === null) return 0;

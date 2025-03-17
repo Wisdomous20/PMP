@@ -1,6 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
 import getServiceRequestById from "@/domains/service-request/services/getServiceRequestById";
-import setServiceRequestArchive from "@/domains/service-request/services/setServiceRequestArchive";
 
 export async function GET(
   req: NextRequest,
@@ -27,25 +26,4 @@ export async function GET(
   }
 }
 
-export async function PUT(req: NextRequest) {
-    
-    try{
-        const {serviceRequestId} = await req.json();
 
-        if(!serviceRequestId){
-            return NextResponse.json(
-                { error: "Missing required fields" },
-                { status: 400 }
-            );
-        }
-
-        const updatedServiceRequest = await setServiceRequestArchive(serviceRequestId);
-        return NextResponse.json(updatedServiceRequest, { status: 200 });
-    }catch(error){
-        console.error("Error fetching archive:", error);
-        return NextResponse.json(
-            { error: "Failed to retrieve archive" },
-            { status: 500 }
-        );
-    }
-}
