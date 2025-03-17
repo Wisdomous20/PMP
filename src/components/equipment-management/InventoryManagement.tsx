@@ -38,7 +38,7 @@ import fetchDepartment from "@/domains/equipment-management/services/fetchDepart
 
 const ITEMS_PER_PAGE = 50;
 
-export default function EquipmentTable() {
+export default function InventoryManagement() {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
