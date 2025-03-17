@@ -9,11 +9,14 @@ import {prisma} from "@/lib/prisma";
              timestamp: new Date(),
          },
          });
+
+         const deleteDate = new Date();
+         deleteDate.setFullYear(deleteDate.getFullYear() + 5);
  
          await prisma.serviceRequest.update({
          where: { id: serviceRequestId },
          data: {
-             deletedAt: new Date(new Date(),setFullYear(new Date().getFullYear() + 5)),
+             deleteAt: deleteDate,
          },
          });
          return status;
