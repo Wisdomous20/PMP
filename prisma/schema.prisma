@@ -63,13 +63,13 @@ model ServiceRequest {
   userId               String
   details              String
   concern              String
+  archived             Boolean                @default(false)
   equipment            Equipment[]
   implementationPlan   ImplementationPlan?
   user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   ServiceRequestRating ServiceRequestRating?
   status               ServiceRequestStatus[]
   supervisorAssignment SupervisorAssignment?
-  archived             Boolean                @default(false)
 }
 
 model SupervisorAssignment {
@@ -99,24 +99,24 @@ model ServiceRequestRating {
 }
 
 model ImplementationPlan {
-  id                   String                @id @default(uuid()) @map("_id")
-  description          String
-  status               String
-  serviceRequestId     String                @unique
-  files                Files[]
-  serviceRequest       ServiceRequest        @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
-  tasks                Task[]
+  id               String         @id @default(uuid()) @map("_id")
+  description      String
+  status           String
+  serviceRequestId String         @unique
+  files            Files[]
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  tasks            Task[]
 }
 
 model Task {
   id                   String                @id @default(uuid()) @map("_id")
   implementationPlanId String
   name                 String
-  startTime            DateTime 
-  endTime              DateTime    
+  startTime            DateTime
+  endTime              DateTime
   checked              Boolean
-  implementationPlan   ImplementationPlan    @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
   assignments          PersonnelAssignment[]
+  implementationPlan   ImplementationPlan    @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
 }
 
 model Files {
@@ -127,21 +127,21 @@ model Files {
 }
 
 model Personnel {
-  id         String                 @id @default(uuid()) @map("_id")
-  name       String
-  department String
-  position   String
+  id          String                @id @default(uuid()) @map("_id")
+  name        String
+  department  String
+  position    String
   assignments PersonnelAssignment[]
 }
 
 model PersonnelAssignment {
-  id           String     @id @default(uuid()) @map("_id")
-  taskId       String
-  personnelId  String
-  assignedAt   DateTime?  @default(now())
-  task         Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  personnel    Personnel  @relation(fields: [personnelId], references: [id], onDelete: Cascade)
-  
+  id          String    @id @default(uuid()) @map("_id")
+  taskId      String
+  personnelId String
+  assignedAt  DateTime? @default(now())
+  personnel   Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
   @@unique([taskId, personnelId])
 }
 
