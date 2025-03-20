@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import LeftTab from "@/components/layouts/LeftTab";
@@ -10,24 +10,32 @@ import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import { Card } from "@/components/ui/card";
 
 export default function Page() {
-  const [ serviceRequestIndex, setServiceRequestIndex ] = useState(0);
+  const [serviceRequestIndex, setServiceRequestIndex] = useState(0);
   const { serviceRequests, loading } = useGetServiceRequestList();
-  const { userRole, loading: userRoleLoading } = useGetUserRole()
+  const { userRole, loading: userRoleLoading } = useGetUserRole();
 
   return (
-    <div className="w-screen h-screen flex">
+    <div className="w-screen h-screen flex flex-row">
       <LeftTab />
-      <ServiceRequestList serviceRequests={serviceRequests} setServiceRequestIndex={setServiceRequestIndex} loading={loading || userRoleLoading}/>
-      <div className="flex flex-col w-full">
-        {serviceRequests.length === 0 ?
-          <Card className="w-full h-screen flex flex-col"></Card>
-          :
-          userRole === "USER" ?
-            <ServiceRequestStatus serviceRequest={serviceRequests[serviceRequestIndex]}/>
-            :
-            <ServiceRequestDetails serviceRequest={serviceRequests[serviceRequestIndex]}/>
-          
-        }
+      <div className="flex-1 flex flex-row">
+        <ServiceRequestList
+          serviceRequests={serviceRequests}
+          setServiceRequestIndex={setServiceRequestIndex}
+          loading={loading || userRoleLoading}
+        />
+        <div className="flex flex-col w-full">
+          {serviceRequests.length === 0 ? (
+            <Card className="w-full h-screen flex flex-col"></Card>
+          ) : userRole === "USER" ? (
+            <ServiceRequestStatus
+              serviceRequest={serviceRequests[serviceRequestIndex]}
+            />
+          ) : (
+            <ServiceRequestDetails
+              serviceRequest={serviceRequests[serviceRequestIndex]}
+            />
+          )}
+        </div>
       </div>
     </div>
   );

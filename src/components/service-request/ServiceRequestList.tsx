@@ -11,7 +11,7 @@ interface ServiceRequestProps {
   setServiceRequestIndex: React.Dispatch<React.SetStateAction<number>>
   loading: boolean
 }
-
+  
 export default function ServiceRequestList({ serviceRequests, setServiceRequestIndex, loading }: ServiceRequestProps) {
   const [search, setSearch] = useState('');
   const [isSearchOpen, setIsSearchOpen] = useState(false);

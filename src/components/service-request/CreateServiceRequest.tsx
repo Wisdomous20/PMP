@@ -121,7 +121,7 @@ export default function CreateServiceRequest() {
       </Skeleton>
     );
   }
-  
+
   return (
     <div className="w-full max-w-2xl bg-white rounded-lg sm:rounded-md border-2 border-gray-300 shadow-xl overflow-hidden h-auto m-auto">
       <div className="p-5 bg-indigo-dark text-primary-foreground flex items-center">
