@@ -41,10 +41,10 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
   return (
     <Card className="w-full h-screen flex flex-col p-6">
         <CardHeader>
-          <h1 className="text-3xl font-semibold text-center">Your Service Request has been created!</h1>
+          <h1 className="text-3xl font-semibold text-center text-indigo-900">Your Service Request has been created!</h1>
         </CardHeader>
         <CardContent className="space-y-6">
-          <div className="text-center text-lg text-muted-foreground">{message}</div>
+          <div className="text-center text-lg text-muted-foreground text-indigo-800">{message}</div>
           <div className="flex justify-between items-center gap-2">
             <Progress 
               value={progress[0]} 
@@ -65,8 +65,8 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
           </div>
           <Separator />
           <div className="flex items-center justify-between w-full">
-          <h2 className="text-2xl font-medium mb-2">{concern}</h2>
-            <p className="text-sm text-muted-foreground ml-auto">Created: {formatTimestamp(createdOn as Date)}</p>
+          <h2 className="text-2xl font-medium mb-2 text-blue-900">{concern}</h2>
+            <p className="text-sm text-muted-foreground ml-auto text-blue-900">Created: {formatTimestamp(createdOn as Date)}</p>
           </div>
           <Separator />
           <div className="prose max-w-none">
