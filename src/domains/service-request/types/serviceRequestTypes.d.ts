@@ -15,7 +15,7 @@ type GetServiceRequestInputs = {
 
 type Status = {
   id: string
-  status: "pending" | "approved" | "rejected" | "in_progress" | "archive" ;
+  status: "pending" | "approved" | "rejected" | "in_progress" | "archive" | "completed" ;
   timestamp: Date;
   note: string | null
 }

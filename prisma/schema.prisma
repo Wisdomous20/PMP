@@ -185,6 +185,7 @@ enum status {
   rejected
   in_progress
   archived
+  completed
 }
 
 enum equipment_status {

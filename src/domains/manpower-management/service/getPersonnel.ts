@@ -6,7 +6,7 @@ export default async function getPersonnel() {
       include: {
         assignments: {
           include: {
-            task: true,
+            Task: true,
           },
         },
       },
@@ -18,10 +18,10 @@ export default async function getPersonnel() {
 
     const formattedPersonnel = personnel.map((person) => {
       const tasks = person.assignments.map((assignment) => ({
-        id: assignment.task.id,
-        title: assignment.task.name,
-        start: assignment.task.startTime,
-        end: assignment.task.endTime,
+        id: assignment.Task.id,
+        title: assignment.Task.name,
+        start: assignment.Task.startTime,
+        end: assignment.Task.endTime,
       }));
       return {
         ...person,
