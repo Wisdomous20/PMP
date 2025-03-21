@@ -1,4 +1,5 @@
 import { prisma } from "@/lib/prisma";
+import addCompletedStatus from "@/domains/service-request/services/status/addCompletedStatus";
 
 export default async function updateImplementationPlanStatus(
   id: string,
@@ -27,9 +28,12 @@ export default async function updateImplementationPlanStatus(
         tasks: true
       }
     });
-    
+
+    if (status === "completed") {
+      await addCompletedStatus(existingPlan.serviceRequestId);
+    }    
     return updatedPlan;
-    
+  
   } catch (error) {
     console.error('DB Service: Update failed:', {
       message: error instanceof Error ? error.message : 'Unknown error'

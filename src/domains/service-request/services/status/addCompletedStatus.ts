@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-export default async function addCompletedStatus(serviceRequestId: string, note: string) {
+export default async function addCompletedStatus(serviceRequestId: string) {
 
   try {
     const status = await prisma.serviceRequestStatus.create({
@@ -8,7 +8,7 @@ export default async function addCompletedStatus(serviceRequestId: string, note:
         serviceRequestId: serviceRequestId,
         status: "completed",
         timestamp: new Date(),
-        note: note
+        note: "implementation plan completed",
       },
     });
     console.log("In Progress status added:", status);

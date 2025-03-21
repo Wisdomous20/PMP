@@ -19,6 +19,8 @@ import fetchUpdateImplementationPlan from "@/domains/implementation-plan/service
 import formatTimestamp from "@/utils/formatTimestamp";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
+import fetchUpdateImplementationPlanStatus from "@/domains/implementation-plan/services/fetchUpdateImplementationPlanStatus";
+
 
 interface EditImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -62,6 +64,18 @@ export default function EditImplementationPlan({
       console.log("Implementation Plan updated successfully");
     } catch (error) {
       console.error("Failed to update implementation plan:", error);
+    } finally {
+      setIsUpdating(false);
+    }
+  }
+
+  async function handleMarkAsComplete() {
+    setIsUpdating(true);
+    try {
+      await fetchUpdateImplementationPlanStatus(serviceRequest.id, "completed");
+      console.log("Implementation Plan marked as completed");
+    } catch (error) {
+      console.error("Failed to mark implementation plan as completed:", error);
     } finally {
       setIsUpdating(false);
     }
