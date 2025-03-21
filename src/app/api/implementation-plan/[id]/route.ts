@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import getImplementationPlans from "@/domains/implementation-plan/services/getImplementationPlans";
+import { getSession } from "next-auth/react"; // Importing getSession to retrieve user import getImplementationPlans from "@/domains/implementation-plan/services/getImplementationPlans";
 import updateImplementationPlan from "@/domains/implementation-plan/services/updateImplementationPlan";
 import updateImplementationPlanStatus from "@/domains/implementation-plan/services/updateImplementationPlanStatus";   
 
@@ -17,7 +17,8 @@ export async function GET(
   }
 
   try {
-    const implementationPlan = await getImplementationPlans(id);
+    const implementationPlan = await getImplementationPlans(session.user.id); // Pass the user ID from session
+
     if (!implementationPlan) {
       return NextResponse.json(
         { error: "Implementation plan not found" },
@@ -106,4 +107,3 @@ export async function PATCH(
     );
   }
 }
-

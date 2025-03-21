@@ -1,4 +1,3 @@
-// EditImplementationPlan.tsx
 "use client";
 
 import { useState } from "react";
@@ -66,6 +65,21 @@ export default function EditImplementationPlan({
       setIsUpdating(false);
     }
   }
+
+  async function handleCompleteImplementationPlan() {
+    setIsUpdating(true);
+    try {
+      await fetchUpdateImplementationPlan(serviceRequest.id, tasks);
+
+      console.log("Implementation Plan marked as completed");
+    } catch (error) {
+      console.error("Failed to complete implementation plan:", error);
+    } finally {
+      setIsUpdating(false);
+    }
+  }
+
+  const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.checked);
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -142,24 +156,6 @@ export default function EditImplementationPlan({
                 </div>
               </div>
               <div className="space-y-6">
-                {serviceRequest.createdOn && (
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Request Date</p>
-                    <p className="font-medium">{formatTimestamp(serviceRequest.createdOn)}</p>
-                  </div>
-                )}
-                <Button
-                  variant="outline"
-                  className="w-full h-24 flex flex-col items-center justify-center"
-                >
-                  <span>People Assigned</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full h-24 flex items-center justify-center"
-                >
-                  <span>Equipment / Budget</span>
-                </Button>
                 <Button
                   onClick={handleUpdateImplementationPlan}
                   className="w-full mt-4 bg-yellow-400 hover:bg-yellow-500 text-white"
@@ -167,6 +163,15 @@ export default function EditImplementationPlan({
                 >
                   {isUpdating ? "Updating..." : "Update Implementation Plan"}
                 </Button>
+                {allTasksCompleted && (
+                  <Button
+                    onClick={handleCompleteImplementationPlan}
+                    className="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white"
+                    disabled={isUpdating}
+                  >
+                    {isUpdating ? "Completing..." : "Mark as Completed"}
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>

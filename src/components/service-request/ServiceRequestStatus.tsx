@@ -48,7 +48,6 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
   const [isOpen, setIsOpen] = useState(false);
   const [implementationPlanStatus, setImplementationPlanStatus] = useState<string>("");
 
-  // ✅ Combined all duplicate useEffects into one
   useEffect(() => {
     const fetchImplementationPlanStatus = async () => {
       try {
@@ -56,7 +55,6 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
         const data = await response.json();
         setImplementationPlanStatus(data.status);
 
-        // Open rating modal if status is completed
         if (status[status.length - 1]?.status === "completed") {
           setIsOpen(true);
         }
@@ -66,7 +64,7 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
     };
 
     fetchImplementationPlanStatus();
-  }, [serviceRequest.id, status]); // Added `status` as dependency
+  }, [serviceRequest.id, status]);
 
   const { message, progress } = getStatusInfo(status, implementationPlanStatus);
   const isCompleted = status[status.length - 1]?.status === "completed";
@@ -74,15 +72,11 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
   return (
     <Card className="w-full h-screen flex flex-col p-6">
       <CardHeader>
-        <h1 className="text-3xl font-semibold text-center">Your Service Request has been created!</h1>
+        <h1 className="text-3xl font-semibold text-center">{isCompleted ? "Your service request is complete" : "Your Service Request has been created!"}</h1>
       </CardHeader>
       <CardContent className="space-y-6">
         <div className="text-center text-lg text-muted-foreground">{message}</div>
         
-        {implementationPlanStatus === "completed" && (
-          <Button onClick={() => setIsOpen(true)}>Rate Service Request</Button>
-        )}
-
         <div className="flex justify-between items-center gap-2">
           <Progress value={progress[0]} className="h-2 w-1/4" aria-label="Progress step 1" />
           <Progress value={progress[1]} className="h-2 w-1/4" aria-label="Progress step 2" />
@@ -98,8 +92,14 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
         <div className="prose max-w-none">
           <p>{details}</p>
         </div>
+
+        {isCompleted && (
+          <div className="text-center mt-4">
+            <p className="text-lg text-muted-foreground">Thank you for your patience. Please rate the progress by pressing the button below.</p>
+          </div>
+        )}
         
-        {isCompleted && <ServiceRequestRating serviceRequestId={serviceRequest.id} />}
+        {isCompleted && <div className="flex justify-center mt-4"><ServiceRequestRating serviceRequestId={serviceRequest.id} /></div>}
       </CardContent>
     </Card>
   );
