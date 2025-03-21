@@ -1,7 +1,7 @@
 export default async function fetchUpdateImplementationPlanStatus(
   id: string, 
   status: string
-): Promise<any> {
+): Promise<{ status: string }> {
   try {
     const response = await fetch(`/api/implementation-plan/${id}`, {
       method: 'PATCH',

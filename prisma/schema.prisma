@@ -91,22 +91,21 @@ model ServiceRequestStatus {
 }
 
 model ServiceRequestRating {
-  id               String         @id @default(uuid()) @map("_id")
+  id               String           @id @default(uuid()) @map("_id")
   description      String
   ratings          Int
   serviceRequestId String
-  serviceRequest   ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
   questions        RatingQuestion[]
+  serviceRequest   ServiceRequest   @relation(fields: [id], references: [id], onDelete: Cascade)
 }
 
 model RatingQuestion {
-  id                     String  @id @default(uuid()) @map("_id")
+  id                     String               @id @default(uuid()) @map("_id")
   question               String
   answer                 String?
   serviceRequestRatingId String
   serviceRequestRating   ServiceRequestRating @relation(fields: [serviceRequestRatingId], references: [id], onDelete: Cascade)
 }
-
 
 model ImplementationPlan {
   id               String         @id @default(uuid()) @map("_id")
