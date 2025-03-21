@@ -8,7 +8,7 @@ export default async function updateImplementationPlanStatus(
   try {
     const existingPlan = await prisma.implementationPlan.findUnique({
       where: { id },
-      select: { id: true, status: true }
+      select: { id: true, status: true, serviceRequestId: true }
     });
 
     if (!existingPlan) {

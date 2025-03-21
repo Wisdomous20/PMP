@@ -15,11 +15,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import fetchUpdateImplementationPlan from "@/domains/implementation-plan/services/fetchUpdateImplementationPlan";
+import fetchUpdateImplementationPlanStatus from "@/domains/implementation-plan/services/fetchUpdateImplementationPlanStatus";
 import formatTimestamp from "@/utils/formatTimestamp";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
-import fetchUpdateImplementationPlanStatus from "@/domains/implementation-plan/services/fetchUpdateImplementationPlanStatus";
-
 
 interface EditImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -68,7 +67,7 @@ export default function EditImplementationPlan({
     }
   }
 
-  async function handleMarkAsComplete() {
+async function handleCompleteImplementationPlan() {
     setIsUpdating(true);
     try {
       await fetchUpdateImplementationPlanStatus(serviceRequest.id, "completed");
@@ -78,7 +77,25 @@ export default function EditImplementationPlan({
     } finally {
       setIsUpdating(false);
     }
+    
+    // Update the implementation plan with the current tasks
+    const formattedTasks = tasks.map((task) => ({
+        id: task.id,
+        name: task.name,
+        startTime: task.startTime,
+        endTime: task.endTime,
+        checked: task.checked,
+    }));
+
+    await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks);
+    console.log("Implementation Plan updated successfully");
+
   }
+
+const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.checked);
+    
+    // This will be used to determine if the "Mark as Completed" button should be shown
+
 
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -100,16 +117,16 @@ export default function EditImplementationPlan({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-6 md:col-span-2">
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Name of requester</p>
-                  <p className="font-medium">{serviceRequest.requesterName}</p>
+                  <span className="text-sm text-muted-foreground">Name of requester</span>
+                  <div className="font-medium">{serviceRequest.requesterName}</div>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Concern</p>
-                  <p className="font-medium">{serviceRequest.concern}</p>
+                  <span className="text-sm text-muted-foreground">Concern</span>
+                  <div className="font-medium">{serviceRequest.concern}</div>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Details of the Request</p>
-                  <p className="font-medium">{serviceRequest.details}</p>
+                  <span className="text-sm text-muted-foreground">Details of the Request</span>
+                  <div className="font-medium">{serviceRequest.details}</div>
                 </div>
                 <Separator />
                 <div className="space-y-4">

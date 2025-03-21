@@ -55,6 +55,8 @@ export default async function addRatingStatus(
     return serviceRequestRating;
   } catch (error) {
     console.error("Failed to create service request rating:", error);
+    throw new Error("Database operation failed. Please check the input data.");
+
     throw error;
   }
 }
