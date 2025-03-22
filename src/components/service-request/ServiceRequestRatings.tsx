@@ -33,7 +33,7 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
 
-    if (!startOnTime || !achievedResults || !satisfaction || !feedback) {
+    if (!startOnTime || !achievedResults || satisfaction === null || !feedback) {
       setFeedbackMessage("Please fill out all required fields.");
       return;
     }

@@ -1,4 +1,5 @@
 import { useState, useEffect } from "react";
+import { useSession } from "next-auth/react";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -44,14 +45,18 @@ function getStatusInfo(status: Status[], implementationPlanStatus: string): { me
 
 export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestStatusProps) {
   const { concern, details, createdOn, status } = serviceRequest;
-  
+  const { data: session } = useSession();
+  const userId = session?.user?.id;
+
   const [isOpen, setIsOpen] = useState(false);
   const [implementationPlanStatus, setImplementationPlanStatus] = useState<string>("");
 
   useEffect(() => {
     const fetchImplementationPlanStatus = async () => {
+      if (!userId) return;
+
       try {
-        const response = await fetch(`/api/implementation-plan/${serviceRequest.id}`);
+        const response = await fetch(`/api/implementation-plan/${serviceRequest.id}?userId=${userId}`);
         const data = await response.json();
         setImplementationPlanStatus(data.status);
 
@@ -64,7 +69,7 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
     };
 
     fetchImplementationPlanStatus();
-  }, [serviceRequest.id, status]);
+  }, [userId, serviceRequest.id, status]);
 
   const { message, progress } = getStatusInfo(status, implementationPlanStatus);
   const isCompleted = status[status.length - 1]?.status === "completed";

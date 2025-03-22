@@ -7,7 +7,12 @@ interface RatingData {
   feedback: string;
 }
 
-export default async function fetchAddRating (serviceRequestId: string, rating: number, description: string, ratingData: RatingData) {
+export default async function fetchAddRating(
+  serviceRequestId: string,
+  rating: number,
+  description: string,
+  ratingData: RatingData
+) {
   const endpoint = "/api/service-request/rating";
 
   try {

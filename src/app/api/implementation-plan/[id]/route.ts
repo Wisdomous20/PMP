@@ -2,11 +2,25 @@ import { NextRequest, NextResponse } from "next/server";
 import updateImplementationPlan from "@/domains/implementation-plan/services/updateImplementationPlan";
 import updateImplementationPlanStatus from "@/domains/implementation-plan/services/updateImplementationPlanStatus";  
 import getImplementationPlans from "@/domains/implementation-plan/services/getImplementationPlans";
+
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   const { id } = params;
+  const url = new URL(req.url);
+  const userId = url.searchParams.get("userId");
+
+  console.log("Request URL:", req.url);
+  console.log("Parsed URL:", url);
+  console.log("User ID:", userId);
+
+  if (!userId) {
+    return NextResponse.json(
+      { error: "Missing required fields" },
+      { status: 400 }
+    );
+  }
 
   if (!id) {
     return NextResponse.json(
@@ -16,15 +30,15 @@ export async function GET(
   }
 
   try {
-    const implementationPlan = await getImplementationPlans(id); // Pass the user ID from session
+    const implementationPlans = await getImplementationPlans(userId);
 
-    if (!implementationPlan) {
+    if (!implementationPlans) {
       return NextResponse.json(
         { error: "Implementation plan not found" },
         { status: 404 }
       );
     }
-    return NextResponse.json(implementationPlan, { status: 200 });
+    return NextResponse.json(implementationPlans, { status: 200 });
   } catch (error) {
     console.error("Error retrieving implementation plan:", error);
     return NextResponse.json(

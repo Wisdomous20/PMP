@@ -94,9 +94,9 @@ model ServiceRequestRating {
   id               String           @id @default(uuid()) @map("_id")
   description      String
   ratings          Int
-  serviceRequestId String
+  serviceRequestId String           @unique
   questions        RatingQuestion[]
-  serviceRequest   ServiceRequest   @relation(fields: [id], references: [id], onDelete: Cascade)
+  serviceRequest   ServiceRequest   @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
 }
 
 model RatingQuestion {
