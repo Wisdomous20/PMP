@@ -1,8 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import { getSession } from "next-auth/react"; // Importing getSession to retrieve user import getImplementationPlans from "@/domains/implementation-plan/services/getImplementationPlans";
 import updateImplementationPlan from "@/domains/implementation-plan/services/updateImplementationPlan";
-import updateImplementationPlanStatus from "@/domains/implementation-plan/services/updateImplementationPlanStatus";   
-
+import updateImplementationPlanStatus from "@/domains/implementation-plan/services/updateImplementationPlanStatus";  
+import getImplementationPlans from "@/domains/implementation-plan/services/getImplementationPlans";
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -17,7 +16,7 @@ export async function GET(
   }
 
   try {
-    const implementationPlan = await getImplementationPlans(session.user.id); // Pass the user ID from session
+    const implementationPlan = await getImplementationPlans(id); // Pass the user ID from session
 
     if (!implementationPlan) {
       return NextResponse.json(

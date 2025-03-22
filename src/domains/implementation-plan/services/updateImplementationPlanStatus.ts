@@ -2,23 +2,23 @@ import { prisma } from "@/lib/prisma";
 import addCompletedStatus from "@/domains/service-request/services/status/addCompletedStatus";
 
 export default async function updateImplementationPlanStatus(
-  id: string,
+  serviceRequestId: string,
   status: string
 ) {
   try {
-    const existingPlan = await prisma.implementationPlan.findUnique({
-      where: { id },
-      select: { id: true, status: true, serviceRequestId: true }
-    });
+    console.log(`Updating implementation plan status for ID: ${serviceRequestId} to ${status}`);
+  const existingPlan = await prisma.implementationPlan.findUnique({
+    where: { serviceRequestId },
+  });
 
     if (!existingPlan) {
-      console.error('DB Service: Plan not found:', id);
+      console.error('DB Service: Plan not found:', serviceRequestId);
       throw new Error('Implementation plan not found');
     }
 
     const updatedPlan = await prisma.implementationPlan.update({
       where: {
-        id: id
+        serviceRequestId
       },
       data: {
         status: status
