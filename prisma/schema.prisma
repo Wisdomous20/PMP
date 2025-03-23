@@ -70,6 +70,7 @@ model ServiceRequest {
   ServiceRequestRating ServiceRequestRating?
   status               ServiceRequestStatus[]
   supervisorAssignment SupervisorAssignment?
+  deleteAt             DateTime?
 }
 
 model SupervisorAssignment {
