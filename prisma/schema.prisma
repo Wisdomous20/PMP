@@ -116,7 +116,7 @@ model Task {
   checked              Boolean
   endTime              DateTime
   startTime            DateTime
-  PersonnelAssignment  PersonnelAssignment[]
+  assignments          PersonnelAssignment[]
   implementationPlan   ImplementationPlan    @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
 }
 
@@ -128,11 +128,11 @@ model Files {
 }
 
 model Personnel {
-  id                   String                @id @default(uuid()) @map("_id")
-  name                 String
-  department           String
-  position             String
-  personnelAssignments PersonnelAssignment[]
+  id          String                @id @default(uuid()) @map("_id")
+  name        String
+  department  String
+  position    String
+  assignments PersonnelAssignment[]
 }
 
 model PersonnelAssignment {
@@ -141,7 +141,7 @@ model PersonnelAssignment {
   assignedAt  DateTime? @default(now())
   taskId      String
   personnel   Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
-  Task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
   @@unique([taskId, personnelId])
 }

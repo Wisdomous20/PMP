@@ -1,5 +1,5 @@
-export default async function fetchGetEquipmentById(id: string) {
-  const endpoint = `/api/equipment-management/${id}`;
+export default async function fetchGetEquipmentById(serviceRequestId: string): Promise<Equipment[]> {
+  const endpoint = `/api/equipment-management/${serviceRequestId}`;
 
   try {
     const response = await fetch(endpoint, {
@@ -14,9 +14,10 @@ export default async function fetchGetEquipmentById(id: string) {
       throw new Error(`Error ${response.status}: ${errorData.error}`);
     }
 
-    return await response.json() as Equipment;
+    const data = await response.json();
+    return Array.isArray(data) ? data : [data];
   } catch (error) {
     console.error("Failed to fetch equipment:", error);
-    return null
+    return [];
   }
 }

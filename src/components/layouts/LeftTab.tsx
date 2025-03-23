@@ -1,7 +1,14 @@
 "use client";
 import { signOut } from "next-auth/react";
 import { Button } from "../ui/button";
-import { Plus, FileText, Archive, LogOut, Folder, User } from "lucide-react"; // Added User icon
+import {
+  Plus,
+  FileText,
+  Archive,
+  LogOut,
+  Folder,
+  User,
+} from "lucide-react"; // Added Wrench icon
 import Link from "next/link";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole"; // Updated import path
 import { Skeleton } from "../ui/skeleton";

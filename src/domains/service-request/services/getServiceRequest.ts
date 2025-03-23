@@ -30,7 +30,7 @@ export default async function getServiceRequests(userId: string) {
       where: {
         supervisorAssignment: {
           supervisorId: userId
-        },
+        }, 
       },
       include: {
         user: true,
