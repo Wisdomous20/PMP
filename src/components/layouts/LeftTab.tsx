@@ -1,7 +1,15 @@
 "use client";
 import { signOut } from "next-auth/react";
 import { Button } from "../ui/button";
-import { Plus, FileText, Archive, LogOut, Folder, User, Wrench } from "lucide-react"; // Added Wrench icon
+import {
+  Plus,
+  FileText,
+  Archive,
+  LogOut,
+  Folder,
+  User,
+  Wrench,
+} from "lucide-react"; // Added Wrench icon
 import Link from "next/link";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole"; // Updated import path
 import { Skeleton } from "../ui/skeleton";
@@ -39,11 +47,7 @@ export default function LeftTab() {
   return (
     <div className="w-13 border-r bg-indigo-Background flex flex-col items-center py-4 space-y-3">
       <Button variant="gold" size="icon" className="w-11 h-12">
-        <img
-          src="/images/cpu-logo.png"
-          alt="CPU Logo"
-          className="w-8 h-8"
-        />
+        <img src="/images/cpu-logo.png" alt="CPU Logo" className="w-8 h-8" />
         <span className="sr-only">CPU Logo</span>
       </Button>
 
@@ -88,10 +92,10 @@ export default function LeftTab() {
             </Button>
           </Link>
 
-          <Link href="/equipment-management">
+          <Link href="/inventory-management">
             <Button variant="gold" size="icon" className="w-11 h-12">
               <Wrench className="w-6 h-6" /> {/* Wrench icon */}
-              <span className="sr-only">Equipment Management</span>
+              <span className="sr-only">Inventory Management</span>
             </Button>
           </Link>
         </>

@@ -63,13 +63,14 @@ model ServiceRequest {
   userId               String
   details              String
   concern              String
+  deleteAt             DateTime?
   equipment            Equipment[]
   implementationPlan   ImplementationPlan?
   user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   ServiceRequestRating ServiceRequestRating?
   status               ServiceRequestStatus[]
   supervisorAssignment SupervisorAssignment?
-  deleteAt             DateTime?              
+  deleteAt             DateTime?
 }
 
 model SupervisorAssignment {
@@ -91,32 +92,33 @@ model ServiceRequestStatus {
 }
 
 model ServiceRequestRating {
-  id               String         @id @default(uuid()) @map("_id")
+  id               String           @id @default(uuid()) @map("_id")
   description      String
   ratings          Int
   serviceRequestId String
-  serviceRequest   ServiceRequest @relation(fields: [id], references: [id], onDelete: Cascade)
+  RatingQuestion   RatingQuestion[]
+  serviceRequest   ServiceRequest   @relation(fields: [id], references: [id], onDelete: Cascade)
 }
 
 model ImplementationPlan {
-  id                   String                @id @default(uuid()) @map("_id")
-  description          String
-  status               String
-  serviceRequestId     String                @unique
-  files                Files[]
-  serviceRequest       ServiceRequest        @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
-  tasks                Task[]
+  id               String         @id @default(uuid()) @map("_id")
+  description      String
+  status           String
+  serviceRequestId String         @unique
+  files            Files[]
+  serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+  tasks            Task[]
 }
 
 model Task {
   id                   String                @id @default(uuid()) @map("_id")
   implementationPlanId String
   name                 String
-  startTime            DateTime 
-  endTime              DateTime    
   checked              Boolean
-  implementationPlan   ImplementationPlan    @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
+  endTime              DateTime
+  startTime            DateTime
   assignments          PersonnelAssignment[]
+  implementationPlan   ImplementationPlan    @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
 }
 
 model Files {
@@ -127,21 +129,21 @@ model Files {
 }
 
 model Personnel {
-  id         String                 @id @default(uuid()) @map("_id")
-  name       String
-  department String
-  position   String
+  id          String                @id @default(uuid()) @map("_id")
+  name        String
+  department  String
+  position    String
   assignments PersonnelAssignment[]
 }
 
 model PersonnelAssignment {
-  id           String     @id @default(uuid()) @map("_id")
-  taskId       String
-  personnelId  String
-  assignedAt   DateTime?  @default(now())
-  task         Task       @relation(fields: [taskId], references: [id], onDelete: Cascade)
-  personnel    Personnel  @relation(fields: [personnelId], references: [id], onDelete: Cascade)
-  
+  id          String    @id @default(uuid()) @map("_id")
+  personnelId String
+  assignedAt  DateTime? @default(now())
+  taskId      String
+  personnel   Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
+  task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
+
   @@unique([taskId, personnelId])
 }
 
@@ -161,6 +163,14 @@ model Equipment {
   department       String
   serviceRequestId String?
   serviceRequest   ServiceRequest?  @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
+}
+
+model RatingQuestion {
+  id                     String               @id @map("_id")
+  question               String
+  answer                 String?
+  serviceRequestRatingId String
+  ServiceRequestRating   ServiceRequestRating @relation(fields: [serviceRequestRatingId], references: [id], onDelete: Cascade)
 }
 
 enum user_type {
