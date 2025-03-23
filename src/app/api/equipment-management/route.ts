@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
 import createEquipment from "@/domains/equipment-management/services/createEquipment";
 import getAllEquipment from "@/domains/equipment-management/services/getAllEquipment";

@@ -14,7 +14,6 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import EquipmentTable from "../equipment-management/InventoryManagement";
 import fetchCreateImplementationPlan from "@/domains/implementation-plan/services/fetchCreateImplementationPlan";
 import formatTimestamp from "@/utils/formatTimestamp";
 import { fetchInProgressStatus } from "@/domains/service-request/services/status/fetchAddSatus";
@@ -246,7 +245,6 @@ export default function CreateImplementationPlan({
                       <DialogHeader>
                         <DialogTitle>Manage Equipment</DialogTitle>
                       </DialogHeader>
-                      <EquipmentTable serviceRequestId={serviceRequest.id} />
                     </DialogContent>
                   </Dialog>
                   <Button

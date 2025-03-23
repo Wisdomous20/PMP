@@ -3,7 +3,7 @@ import addCompletedStatus from "@/domains/service-request/services/status/addCom
 
 export async function POST(req: NextRequest) {
   try {
-    const { serviceRequestId, note } = await req.json();
+    const { serviceRequestId } = await req.json();
 
     if (!serviceRequestId) {
       return NextResponse.json(
@@ -12,7 +12,7 @@ export async function POST(req: NextRequest) {
       );
     }
 
-    const status = await addCompletedStatus(serviceRequestId, note);
+    const status = await addCompletedStatus(serviceRequestId);
 
     return NextResponse.json(
       { message: "Completed status added successfully", status },

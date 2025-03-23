@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Separator } from "@/components/ui/separator";
@@ -5,7 +6,6 @@ import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import formatTimestamp from "@/utils/formatTimestamp";
 import ServiceRequestRating from "@/components/service-request/ServiceRequestRatings";
-import { Button } from "../ui/button";
 
 interface ServiceRequestStatusProps {
   serviceRequest: ServiceRequest;
@@ -48,7 +48,7 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
   const { data: session } = useSession();
   const userId = session?.user?.id;
 
-  const [isOpen, setIsOpen] = useState(false);
+  // const [isOpen, setIsOpen] = useState(false);
   const [implementationPlanStatus, setImplementationPlanStatus] = useState<string>("");
 
   useEffect(() => {
@@ -60,9 +60,9 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
         const data = await response.json();
         setImplementationPlanStatus(data.status);
 
-        if (status[status.length - 1]?.status === "completed") {
-          setIsOpen(true);
-        }
+        // if (status[status.length - 1]?.status === "completed") {
+        //   setIsOpen(true);
+        // }
       } catch (error) {
         console.error("Failed to fetch implementation plan status:", error);
       }
