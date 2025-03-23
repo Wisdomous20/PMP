@@ -1,12 +1,26 @@
 import { NextRequest, NextResponse } from "next/server";
-import getImplementationPlans from "@/domains/implementation-plan/services/getImplementationPlans";
 import updateImplementationPlan from "@/domains/implementation-plan/services/updateImplementationPlan";
+import updateImplementationPlanStatus from "@/domains/implementation-plan/services/updateImplementationPlanStatus";  
+import getImplementationPlans from "@/domains/implementation-plan/services/getImplementationPlans";
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   const { id } = params;
+  const url = new URL(req.url);
+  const userId = url.searchParams.get("userId");
+
+  console.log("Request URL:", req.url);
+  console.log("Parsed URL:", url);
+  console.log("User ID:", userId);
+
+  if (!userId) {
+    return NextResponse.json(
+      { error: "Missing required fields" },
+      { status: 400 }
+    );
+  }
 
   if (!id) {
     return NextResponse.json(
@@ -16,14 +30,15 @@ export async function GET(
   }
 
   try {
-    const implementationPlan = await getImplementationPlans(id);
-    if (!implementationPlan) {
+    const implementationPlans = await getImplementationPlans(userId);
+
+    if (!implementationPlans) {
       return NextResponse.json(
         { error: "Implementation plan not found" },
         { status: 404 }
       );
     }
-    return NextResponse.json(implementationPlan, { status: 200 });
+    return NextResponse.json(implementationPlans, { status: 200 });
   } catch (error) {
     console.error("Error retrieving implementation plan:", error);
     return NextResponse.json(
@@ -64,6 +79,43 @@ export async function PUT(
     console.error("Error updating implementation plan:", error);
     return NextResponse.json(
       { error: "Failed to update implementation plan" },
+      { status: 500 }
+    );
+  }
+}
+export async function PATCH(
+  req: NextRequest,
+  { params }: { params: { id: string } }
+) {
+  const { id } = params;
+
+  try {
+    const body = await req.json();
+    const { status } = body;
+
+    if (!id || !status) {
+      console.error('Missing required fields:', { id, status });
+      return NextResponse.json(
+        { error: "Implementation plan ID and status are required" },
+        { status: 400 }
+      );
+    }
+
+    const updatedPlan = await updateImplementationPlanStatus(id, status);
+
+    if (!updatedPlan) {
+      console.error('Update failed - no plan returned');
+      return NextResponse.json(
+        { error: "Failed to update implementation plan" }, 
+        { status: 500 }
+      );
+    }
+
+    return NextResponse.json(updatedPlan, { status: 200 });
+  } catch (error) {
+    console.error('Error in PATCH handler:', error);
+    return NextResponse.json(
+      { error: "Failed to update implementation plan status", details: error instanceof Error ? error.message : 'Unknown error' },
       { status: 500 }
     );
   }
