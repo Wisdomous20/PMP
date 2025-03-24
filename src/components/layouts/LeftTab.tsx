@@ -8,9 +8,10 @@ import {
   LogOut,
   Folder,
   User,
-} from "lucide-react"; // Added Wrench icon
+  Wrench, // Added Equipment icon
+} from "lucide-react";
 import Link from "next/link";
-import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole"; // Updated import path
+import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import { Skeleton } from "../ui/skeleton";
 
 export default function LeftTab() {
@@ -39,11 +40,11 @@ export default function LeftTab() {
           <div className="w-6 h-6 bg-white rounded-md"></div>
           <span className="sr-only">Loading Archive Button</span>
         </Skeleton>
-        <div className = "absolute bottom-[40px]">
-        <Skeleton className="w-11 h-12 bg-gray-300 rounded-md flex items-center justify-center">
-          <div className="w-6 h-6 bg-white rounded-md"></div>
-          <span className="sr-only">Loading Logout Button</span>
-        </Skeleton>
+        <div className="absolute bottom-[40px]">
+          <Skeleton className="w-11 h-12 bg-gray-300 rounded-md flex items-center justify-center">
+            <div className="w-6 h-6 bg-white rounded-md"></div>
+            <span className="sr-only">Loading Logout Button</span>
+          </Skeleton>
         </div>
       </div>
     );
@@ -105,6 +106,19 @@ export default function LeftTab() {
         </div>
       </Link>
 
+      {/* Equipment Management (For Supervisor and Admin) */}
+      {(userRole === "SUPERVISOR" || userRole === "ADMIN") && (
+        <Link href="/inventory-management">
+          <div className="flex flex-col items-center gap-1">
+            <Button variant="gold" size="icon" className="w-10 h-10">
+              <Wrench className="w-6 h-6" />
+              <span className="sr-only">Equipment Management</span>
+            </Button>
+            <span className="text-xs text-white mt-[-6px] font-bold">Equipment</span>
+          </div>
+        </Link>
+      )}
+
       {/* Personnel Management (Admin only) */}
       {userRole === "ADMIN" && (
         <Link href="/personnel-management">
@@ -133,6 +147,7 @@ export default function LeftTab() {
     </div>
   );
 }
+
 
 //   return (
 //     <div className="w-20 border-r bg-indigo-Background flex flex-col items-center py-4 space-y-3">
