@@ -20,7 +20,7 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { Skeleton } from "@/components/ui/skeleton";
-import AddEquipment from "@/components/equipment-management/addEquipment";
+import AddEquipment from "@/components/inventory-management/addEquipment";
 import { DeleteEquipment } from "./DeleteEquipment";
 import { EditEquipment } from "./EditEquipment";
 import { useSession } from "next-auth/react";
@@ -33,8 +33,8 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import EquipmentPagination from "./EquipmentPagination";
-import fetchPaginatedEquipment from "@/domains/equipment-management/services/fetchPaginatedEquipment";
-import fetchDepartment from "@/domains/equipment-management/services/fetchDepartment";
+import fetchPaginatedEquipment from "@/domains/inventory-management/services/fetchPaginatedEquipment";
+import fetchDepartment from "@/domains/inventory-management/services/fetchDepartment";
 
 const ITEMS_PER_PAGE = 50;
 

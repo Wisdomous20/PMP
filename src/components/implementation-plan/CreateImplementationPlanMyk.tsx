@@ -229,7 +229,7 @@ export default function CreateImplementationPlan({
                     setAssignments={setAssignments}
                   />
                   {/* Equipment / Budget Button */}
-                  <Dialog
+                  {/* <Dialog
                     open={isEquipmentDialogOpen}
                     onOpenChange={setIsEquipmentDialogOpen}
                   >
@@ -246,7 +246,7 @@ export default function CreateImplementationPlan({
                         <DialogTitle>Manage Equipment</DialogTitle>
                       </DialogHeader>
                     </DialogContent>
-                  </Dialog>
+                  </Dialog> */}
                   <Button
                     onClick={handleCreateImplementationPlan}
                     className={`w-full mt-4 ${

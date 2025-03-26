@@ -1,7 +1,7 @@
 export default async function fetchGetImplementationPlans(
   userId: string
 ): Promise<ImplementationPlan[]> {
-  const endpoint = `/api/implementation-plan/${userId}`;
+  const endpoint = `/api/implementation-plan/user/${userId}`;
 
   try {
     const response = await fetch(endpoint, {

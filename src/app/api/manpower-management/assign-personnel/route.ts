@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import addPersonnelToImplementationPlan from "@/domains/manpower-management/service/addPersonnelToImplementationPlan";
+import addPersonnelToImplementationPlan from "@/domains/personnel-management/service/addPersonnelToImplementationPlan";
 
 export async function POST(req: NextRequest) {
     try{

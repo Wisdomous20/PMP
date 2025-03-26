@@ -118,7 +118,7 @@ const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.checked
               <div className="space-y-6 md:col-span-2">
                 <div className="space-y-1">
                   <span className="text-sm text-muted-foreground">Name of requester</span>
-                  <div className="font-medium">{serviceRequest.requesterName}</div>
+                  <div className="font-medium">{serviceRequest.user.firstName} {serviceRequest.user.lastName}</div>
                 </div>
                 <div className="space-y-1">
                   <span className="text-sm text-muted-foreground">Concern</span>

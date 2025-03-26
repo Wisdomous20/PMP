@@ -11,7 +11,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import fetchUpdateEquipment from "@/domains/equipment-management/services/fetchUpdateEquipment";
+import fetchUpdateEquipment from "@/domains/inventory-management/services/fetchUpdateEquipment";
 
 interface EditEquipmentDialogProps {
   equipment: Equipment;

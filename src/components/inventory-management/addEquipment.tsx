@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import fetchCreateEquipment from "@/domains/equipment-management/services/fetchCreateEquipment";
+import fetchCreateEquipment from "@/domains/inventory-management/services/fetchCreateEquipment";
 
 interface EquipmentFormData {
   quantity: number;

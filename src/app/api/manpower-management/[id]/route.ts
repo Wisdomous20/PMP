@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import getPersonnelById from "@/domains/manpower-management/service/getPersonnelById";
-import deletePersonnel from "@/domains/manpower-management/service/deletePersonnel";
-import updatePersonnel from "@/domains/manpower-management/service/updatePersonnel";
+import getPersonnelById from "@/domains/personnel-management/service/getPersonnelById";
+import deletePersonnel from "@/domains/personnel-management/service/deletePersonnel";
+import updatePersonnel from "@/domains/personnel-management/service/updatePersonnel";
 
 export async function GET(req: NextRequest,
     { params }: { params: { id: string } }

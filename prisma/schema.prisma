@@ -192,3 +192,19 @@ enum equipment_status {
   Repairable
   Scrap
 }
+
+model Notification {
+  id        String           @id @default(uuid()) @map("_id")
+  type      NotificationType
+  message   String
+  link      String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+}
+
+enum NotificationType {
+  inventory
+  service_request
+  implementation_plan
+  personnel
+}

@@ -8,7 +8,7 @@ type TaskProps = {
   isDragging?: boolean;
 };
 
-export default function Task({ task, isDragging }: TaskProps) {
+export default function ImplementationPlanPreview({ task, isDragging }: TaskProps) {
   const { attributes, listeners, setNodeRef, transform, transition } =
     useSortable({ id: task.id });
 
@@ -40,16 +40,16 @@ export default function Task({ task, isDragging }: TaskProps) {
       {/* Header: Concern */}
       <div className="mb-2">
         <h3 className="font-bold text-lg truncate">
-          {task.serviceRequest[0]?.concern || "No Concern"}
+          {task.serviceRequest?.concern || "No Concern"}
         </h3>
       </div>
       {/* Details */}
       <div className="text-sm text-gray-600 mb-2 break-words">
-        {task.serviceRequest[0]?.details || "No Details"}
+        {task.serviceRequest?.details || "No Details"}
       </div>
       {/* Requester Information */}
       <div className="text-xs text-gray-500 mb-2">
-        Requester: {task.serviceRequest[0]?.requesterName || "N/A"}
+        Requester: {task.serviceRequest?.requesterName || "N/A"}
       </div>
       {/* Summary of tasks count */}
       <div className="mb-2">
@@ -59,7 +59,7 @@ export default function Task({ task, isDragging }: TaskProps) {
       {/* Edit button */}
       <div className="flex justify-end">
         <EditImplementationPlan
-          serviceRequest={task.serviceRequest[0]}
+          serviceRequest={task.serviceRequest}
           tasksInitial={tasksInitial}
         />
       </div>

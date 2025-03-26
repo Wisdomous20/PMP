@@ -8,7 +8,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { fetchDeleteEquipmentById } from "@/domains/equipment-management/services/fetchDeleteEquipmentById";
+import { fetchDeleteEquipmentById } from "@/domains/inventory-management/services/fetchDeleteEquipmentById";
 
 interface DeleteEquipmentDialogProps {
   equipmentId: string;

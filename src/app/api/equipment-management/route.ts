@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import createEquipment from "@/domains/equipment-management/services/createEquipment";
-import getAllEquipment from "@/domains/equipment-management/services/getAllEquipment";
+import createEquipment from "@/domains/inventory-management/services/createEquipment";
+import getAllEquipment from "@/domains/inventory-management/services/getAllEquipment";
 import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
