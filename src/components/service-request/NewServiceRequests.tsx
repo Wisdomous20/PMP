@@ -31,21 +31,31 @@ export default function NewServiceRequests() {
 
   if (loading) {
     return (
-      <div className="p-4 space-y-3">
-        {[...Array(5)].map((_, i) => (
-          <div key={i} className="flex items-center space-x-4">
-            <Skeleton className="h-12 w-full rounded-md" />
-          </div>
-        ))}
-      </div>
+      <Card className="w-full">
+        <CardHeader className="border-b">
+          <CardTitle>Recent Pending Requests</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          {[...Array(5)].map((_, i) => (
+            <div key={i} className="flex items-center space-x-4">
+              <Skeleton className="h-12 w-full rounded-md" />
+            </div>
+          ))}
+        </CardContent>
+      </Card>
     )
   }
 
   if (error) {
     return (
-      <div className="p-4 text-red-500">
-        {error}
-      </div>
+      <Card className="w-full">
+        <CardHeader className="border-b">
+          <CardTitle>Recent Pending Requests</CardTitle>
+        </CardHeader>
+        <CardContent className="p-4 text-red-500">
+          {error}
+        </CardContent>
+      </Card>
     )
   }
 

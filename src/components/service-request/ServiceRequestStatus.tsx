@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-unused-vars */
 import { useState, useEffect } from "react";
 import { useSession } from "next-auth/react";
 import { Separator } from "@/components/ui/separator";
@@ -49,6 +50,7 @@ export default function ServiceRequestStatus({ serviceRequest }: ServiceRequestS
   const userId = session?.user?.id;
 
   const [implementationPlanStatus, setImplementationPlanStatus] = useState<string>("");
+  // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [existingRating, setExistingRating] = useState<any>(null);
   const [isRatingSubmitted, setIsRatingSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);

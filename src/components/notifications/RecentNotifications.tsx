@@ -90,7 +90,7 @@ export default function RecentNotifications() {
 
   if (loading) {
     return (
-      <Card className="h-full">
+      <Card className="h-full max-h-screen">
         <CardHeader className="border-b p-4">
           <Skeleton className="h-6 w-1/3" />
         </CardHeader>
@@ -129,8 +129,8 @@ export default function RecentNotifications() {
       <CardHeader className="border-b p-4">
         <CardTitle>Notifications</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col h-full p-0">
-        <ScrollArea className="flex-1">
+      <CardContent className="flex flex-col h-full max-h-screen p-0">
+        <ScrollArea className="flex-1 h-full">
           <div className="p-4">
             {Object.entries(groupedNotifications).map(([date, items]) => (
               <div key={date} className="mb-4">

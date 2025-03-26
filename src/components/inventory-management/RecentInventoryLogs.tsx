@@ -19,7 +19,7 @@ export default function RecentInventoryLogs() {
           pageSize: 15,
         })
         setEquipmentLogs(response.data)
-        // eslint-disable-next-line @typescript-eslint/no-explicit-any
+      // eslint-disable-next-line @typescript-eslint/no-explicit-any
       } catch (err: any) {
         console.error("Error fetching equipment logs:", err)
         setError(err.message || "Error fetching equipment logs")
@@ -50,6 +50,9 @@ export default function RecentInventoryLogs() {
   if (error) {
     return (
       <Card className="w-full">
+        <CardHeader className="border-b">
+          <CardTitle>Latest Equipment Logs</CardTitle>
+        </CardHeader>
         <CardContent className="p-4 text-red-500">
           Error: {error}
         </CardContent>
@@ -64,7 +67,7 @@ export default function RecentInventoryLogs() {
           Latest Equipment Logs
         </CardTitle>
       </CardHeader>
-      <CardContent>
+      <CardContent className="p-0">
         <ul className="space-y-3">
           {equipmentLogs.map((equipment) => (
             <li key={equipment.id} className="border p-3 rounded-md">

@@ -37,7 +37,7 @@ export default function ServiceRequestList({ serviceRequests, setServiceRequestI
   }
 
   return (
-    <div className="w-[460px] h-full flex flex-col border-r border-gray-200 bg-white">
+    <div className="w-[500px] h-full flex flex-col border-r border-gray-200 bg-white">
       <div className="items-center px-3">
       <h2 className="text-md sm:text-2xl font-semibold text-indigo-text pt-3"> Service Requests </h2>
       </div>

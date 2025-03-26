@@ -33,7 +33,7 @@ export default function ServiceRequestPreview({
           <p className="text-sm text-gray-500 dark:text-gray-400">{detailsPreview}</p>
           </div>
         </div>
-        <span className="text-sm font-semibold text-indigo-950 dark:text-gray-400">
+        <span className="text-sm font-semibold w-20 text-right text-indigo-950 dark:text-gray-400">
           {formatTimestamp(createdOn as Date)}
         </span>
       </div>

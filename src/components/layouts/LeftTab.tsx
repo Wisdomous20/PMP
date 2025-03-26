@@ -8,7 +8,8 @@ import {
   LogOut,
   Folder,
   User,
-  Wrench, // Added Equipment icon
+  Wrench,
+  Home,
 } from "lucide-react";
 import Link from "next/link";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
@@ -70,6 +71,20 @@ export default function LeftTab() {
           </div>
         </Link>
       )}
+
+      {/* Dashboard (Admin Only) */}
+      {userRole === "ADMIN" && (
+        <Link href="/">
+          <div className="flex flex-col items-center gap-1">
+            <Button variant="gold" size="icon" className="w-10 h-10">
+              <Home className="w-6 h-6" />
+              <span className="sr-only">Dashboard</span>
+            </Button>
+            <span className="text-xs text-white mt-[-6px] font-bold">Dashboard</span>
+          </div>
+        </Link>
+      )}
+
 
       {/* Projects (For Supervisor and Admin) */}
       {(userRole === "SUPERVISOR" || userRole === "ADMIN") && (

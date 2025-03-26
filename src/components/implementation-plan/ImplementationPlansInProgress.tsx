@@ -51,8 +51,20 @@ export default function ImplementationPlansInProgress() {
   }
 
   if (error) {
-    return <div>Error: {error}</div>;
+    return (
+      <Card className="w-full">
+        <CardHeader className="flex flex-row items-center justify-between border-b p-4">
+          <CardTitle className="text-lg font-semibold text-gray-800">
+            Implementation Plans in Progress
+          </CardTitle>
+        </CardHeader>
+        <CardContent className="p-4">
+          <div className="text-sm text-red-600">Error: {error}</div>
+        </CardContent>
+      </Card>
+    );
   }
+
 
   return (
     <Card className="w-full">

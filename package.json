@@ -55,6 +55,7 @@
     "supertest": "^7.0.0",
     "tailwind-merge": "^2.5.3",
     "tailwindcss-animate": "^1.0.7",
+    "uuid": "^11.1.0",
     "validator": "^13.12.0"
   },
   "devDependencies": {
@@ -70,6 +71,7 @@
     "@types/react-dom": "^18",
     "@types/selenium-webdriver": "^4.1.26",
     "@types/testing-library__jest-dom": "^5.14.9",
+    "@types/uuid": "^10.0.0",
     "@types/validator": "^13.12.2",
     "eslint": "^8",
     "eslint-config-next": "14.2.15",

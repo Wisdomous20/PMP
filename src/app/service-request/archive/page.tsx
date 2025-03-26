@@ -10,55 +10,49 @@ import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import { Card } from "@/components/ui/card";
 
 export default function Page() {
-  const [ serviceRequestIndex, setServiceRequestIndex ] = useState(0);
+  const [serviceRequestIndex, setServiceRequestIndex] = useState(0);
   const { serviceRequests, loading } = useGetServiceRequestList();
   const { userRole, loading: userRoleLoading } = useGetUserRole()
 
-//   return (
-//     <div className="w-screen h-screen flex overflow-x-hidden">
-//       <div className="w-20 flex-shrink-0">
-//       <LeftTab />
-//       </div>
-//       <ServiceRequestList serviceRequests={serviceRequests} setServiceRequestIndex={setServiceRequestIndex} loading={loading || userRoleLoading}/>
-//       <div className="flex flex-col w-full">
-//         {serviceRequests.length === 0 ?
-//           <Card className="w-full h-screen flex flex-col"></Card>
-//           :
-//           userRole === "USER" ?
-//             <ServiceRequestStatus serviceRequest={serviceRequests[serviceRequestIndex]}/>
-//             :
-//             <ServiceRequestDetails serviceRequest={serviceRequests[serviceRequestIndex]}/>
-//         }
-//       </div>
-//     </div>
-//   );
-// }
-return (
-  <div className="w-screen h-screen flex overflow-hidden">
-    {/* Fix LeftTab width and prevent shrinking */}
-    <div className="w-20 flex-none">
+  //   return (
+  //     <div className="w-screen h-screen flex overflow-x-hidden">
+  //       <div className="w-20 flex-shrink-0">
+  //       <LeftTab />
+  //       </div>
+  //       <ServiceRequestList serviceRequests={serviceRequests} setServiceRequestIndex={setServiceRequestIndex} loading={loading || userRoleLoading}/>
+  //       <div className="flex flex-col w-full">
+  //         {serviceRequests.length === 0 ?
+  //           <Card className="w-full h-screen flex flex-col"></Card>
+  //           :
+  //           userRole === "USER" ?
+  //             <ServiceRequestStatus serviceRequest={serviceRequests[serviceRequestIndex]}/>
+  //             :
+  //             <ServiceRequestDetails serviceRequest={serviceRequests[serviceRequestIndex]}/>
+  //         }
+  //       </div>
+  //     </div>
+  //   );
+  // }
+  return (
+    <div className="w-screen h-screen flex flex-row">
       <LeftTab />
-    </div>
 
-    {/* Allow ServiceRequestList to grow and fill available space */}
-    <div className="flex-1">
-      <ServiceRequestList 
-        serviceRequests={serviceRequests} 
-        setServiceRequestIndex={setServiceRequestIndex} 
-        loading={loading || userRoleLoading}
-      />
+      <div className="flex-1 flex flex-row">
+        <ServiceRequestList
+          serviceRequests={serviceRequests}
+          setServiceRequestIndex={setServiceRequestIndex}
+          loading={loading || userRoleLoading}
+        />
+        <div className="flex flex-col w-full">
+          {serviceRequests.length === 0 ? (
+            <Card className="w-full h-screen flex flex-col"></Card>
+          ) : userRole === "USER" ? (
+            <ServiceRequestStatus serviceRequest={serviceRequests[serviceRequestIndex]} />
+          ) : (
+            <ServiceRequestDetails serviceRequest={serviceRequests[serviceRequestIndex]} />
+          )}
+        </div>
+      </div>
     </div>
-
-    {/* Content Section */}
-    <div className="flex flex-col w-full">
-      {serviceRequests.length === 0 ? (
-        <Card className="w-full h-screen flex flex-col"></Card>
-      ) : userRole === "USER" ? (
-        <ServiceRequestStatus serviceRequest={serviceRequests[serviceRequestIndex]} />
-      ) : (
-        <ServiceRequestDetails serviceRequest={serviceRequests[serviceRequestIndex]} />
-      )}
-    </div>
-  </div>
-);
+  );
 }
