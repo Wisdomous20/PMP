@@ -1,73 +1,24 @@
-"use client"
+// components/ImplementationPlansInProgress.tsx
+"use client";
 
-import { useEffect, useState } from "react"
-import { MoreVertical } from "lucide-react"
-import { Button } from "@/components/ui/button"
-import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card"
-import { Progress } from "@/components/ui/progress"
-import { Skeleton } from "@/components/ui/skeleton"
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from "@/components/ui/dropdown-menu"
+import React from "react";
+import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
+import { Button } from "@/components/ui/button";
+import { Skeleton } from "@/components/ui/skeleton";
+import ImplementationPlanPreview from "./ImplementationPlanPreview";
+import useGetImplementationPlans from "@/domains/implementation-plan/hooks/useGetImplementationPlans";
 
-const implementationPlans = [
-  {
-    id: 1,
-    concern: "System Upgrade",
-    details: "Upgrade core infrastructure to latest version",
-    tasks: 7,
-    progress: 75,
-  },
-  {
-    id: 2,
-    concern: "Security Audit",
-    details: "Perform quarterly security assessment",
-    tasks: 7,
-    progress: 79,
-  },
-  {
-    id: 3,
-    concern: "Data Migration",
-    details: "Transfer data to new storage solution",
-    tasks: 7,
-    progress: 74,
-  },
-  {
-    id: 4,
-    concern: "UI Redesign",
-    details: "Implement new design system across platform",
-    tasks: 7,
-    progress: 78,
-  },
-  {
-    id: 5,
-    concern: "API Integration",
-    details: "Connect with third-party service providers",
-    tasks: 7,
-    progress: 76,
-  },
-  {
-    id: 6,
-    concern: "Performance Optimization",
-    details: "Improve system response time and efficiency",
-    tasks: 7,
-    progress: 74,
-  },
-]
+// Utility function to categorize plans
+const isInProgress = (plan: ImplementationPlan) => {
+  const totalTasks = plan.tasks.length;
+  const completedTasks = plan.tasks.filter((task) => task.checked).length;
+  return completedTasks > 0 && completedTasks < totalTasks;
+};
 
-export default function ImplementationPlans() {
-  const [loading, setLoading] = useState(true)
+export default function ImplementationPlansInProgress() {
+  const { implementationPlans, loading, error } = useGetImplementationPlans();
 
-  // Simulate a network delay for loading state
-  useEffect(() => {
-    const timer = setTimeout(() => {
-      setLoading(false)
-    }, 1500)
-    return () => clearTimeout(timer)
-  }, [])
+  const inProgressPlans = implementationPlans.filter(isInProgress);
 
   if (loading) {
     return (
@@ -78,7 +29,7 @@ export default function ImplementationPlans() {
         </CardHeader>
         <CardContent className="p-4">
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-            {Array.from({ length: 6 }).map((_, index) => (
+            {Array.from({ length: 3 }).map((_, index) => (
               <Card key={index} className="border border-gray-100 shadow-none">
                 <CardHeader className="flex items-start justify-between p-3 pb-0">
                   <div>
@@ -96,7 +47,11 @@ export default function ImplementationPlans() {
           </div>
         </CardContent>
       </Card>
-    )
+    );
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
   }
 
   return (
@@ -111,38 +66,16 @@ export default function ImplementationPlans() {
       </CardHeader>
 
       <CardContent className="p-4">
-        <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
-          {implementationPlans.map((plan) => (
-            <Card key={plan.id} className="border border-gray-100 shadow-none">
-              <CardHeader className="flex items-start justify-between p-3 pb-0">
-                <div>
-                  <h3 className="font-medium text-gray-700">{plan.concern}</h3>
-                  <p className="text-xs text-gray-500">{plan.details}</p>
-                </div>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-7 w-7">
-                      <MoreVertical className="h-4 w-4" />
-                      <span className="sr-only">Open menu</span>
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem>View details</DropdownMenuItem>
-                    <DropdownMenuItem>Edit plan</DropdownMenuItem>
-                    <DropdownMenuItem>Archive</DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </CardHeader>
-              <CardContent className="p-3 pt-2">
-                <div className="text-xs text-gray-500 mb-1.5">
-                  {plan.tasks} Tasks | {plan.progress}%
-                </div>
-                <Progress value={plan.progress} className="h-1.5" />
-              </CardContent>
-            </Card>
-          ))}
-        </div>
+        {inProgressPlans.length === 0 ? (
+          <div className="text-sm text-gray-500">No in-progress plans available.</div>
+        ) : (
+          <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
+            {inProgressPlans.map((plan) => (
+              <ImplementationPlanPreview key={plan.id} plan={plan} />
+            ))}
+          </div>
+        )}
       </CardContent>
     </Card>
-  )
+  );
 }

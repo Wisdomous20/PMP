@@ -16,7 +16,7 @@ interface ServiceRequestDetailsProps {
 export default function ServiceRequestDetails({ serviceRequest }: ServiceRequestDetailsProps) {
   const { id, concern, details, createdOn, requesterName, status } = serviceRequest;
   const { userRole, loading: roleLoading } = useGetUserRole();
-  const [loading, setLoading] = useState(true); // Initialize your loading state
+  const [loading, setLoading] = useState(true)
 
   const currentStatus = status
     .slice()
