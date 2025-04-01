@@ -25,9 +25,9 @@ interface ServiceRequestRatingProps {
   onSuccessfulSubmit?: () => void;
 }
 
-const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({ 
+const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
   serviceRequestId,
-  onSuccessfulSubmit
+  onSuccessfulSubmit,
 }) => {
   const [formState, setFormState] = useState<RatingFormData>({
     startOnTime: "",
@@ -42,10 +42,13 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
   const [page, setPage] = useState(1);
   const [feedbackMessage, setFeedbackMessage] = useState("");
 
-  const handleInputChange = (field: keyof RatingFormData, value: string | number | null) => {
-    setFormState(prev => ({
+  const handleInputChange = (
+    field: keyof RatingFormData,
+    value: string | number | null
+  ) => {
+    setFormState((prev) => ({
       ...prev,
-      [field]: value
+      [field]: value,
     }));
   };
 
@@ -66,18 +69,24 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
     }
 
     try {
-      await fetchAddRating(serviceRequestId, 0, "", {
-        startOnTime: formState.startOnTime,
-        startReason: formState.startReason || null,
-        achievedResults: formState.achievedResults,
-        resultReason: formState.resultReason || null,
-        satisfaction: formState.satisfaction!,
-        feedback: formState.feedback,
-      });
+      // Pass the actual satisfaction rating value instead of hardcoded 0
+      await fetchAddRating(
+        serviceRequestId,
+        formState.satisfaction!, // Use the user's selected rating
+        formState.feedback, // Use the feedback text as the description
+        {
+          startOnTime: formState.startOnTime,
+          startReason: formState.startReason || null,
+          achievedResults: formState.achievedResults,
+          resultReason: formState.resultReason || null,
+          satisfaction: formState.satisfaction!,
+          feedback: formState.feedback,
+        }
+      );
 
       setFeedbackMessage("Rating submitted successfully!");
       setIsOpen(false);
-      
+
       if (onSuccessfulSubmit) {
         onSuccessfulSubmit();
       }
@@ -92,7 +101,7 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
       <p className="flex justify-center pb-2">Did the project start on time?</p>
       <div className="flex justify-center gap-4 mt-2">
         {["yes", "no"].map((option) => (
-          <Button 
+          <Button
             key={option}
             onClick={() => handleInputChange("startOnTime", option)}
             variant={formState.startOnTime === option ? "default" : "outline"}
@@ -111,13 +120,17 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
         />
       )}
 
-      <p className="mt-4 flex justify-center pb-2">Did the plan achieve the desired results?</p>
+      <p className="mt-4 flex justify-center pb-2">
+        Did the plan achieve the desired results?
+      </p>
       <div className="flex justify-center gap-4 mt-2">
         {["yes", "no"].map((option) => (
-          <Button 
+          <Button
             key={option}
             onClick={() => handleInputChange("achievedResults", option)}
-            variant={formState.achievedResults === option ? "default" : "outline"}
+            variant={
+              formState.achievedResults === option ? "default" : "outline"
+            }
           >
             {option.charAt(0).toUpperCase() + option.slice(1)}
           </Button>
@@ -145,8 +158,8 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
               key={num}
               onClick={() => handleInputChange("satisfaction", num)}
               className={`w-10 h-10 rounded-full text-sm font-medium border transition-all duration-200 ${
-                formState.satisfaction === num 
-                  ? "bg-blue-500 text-white border-blue-500" 
+                formState.satisfaction === num
+                  ? "bg-blue-500 text-white border-blue-500"
                   : "border-gray-300 text-gray-600 hover:bg-gray-100"
               }`}
             >
@@ -172,16 +185,18 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
   return (
     <div className="flex flex-row">
       <Button onClick={() => setIsOpen(true)}>Rate Service Request</Button>
-      
+
       {feedbackMessage && (
         <div className="mt-2 text-sm text-red-500">{feedbackMessage}</div>
       )}
-      
+
       <Dialog open={isOpen} onOpenChange={setIsOpen}>
         <DialogContent className="p-6 bg-white rounded-lg w-[460px]">
           <DialogHeader>
             <DialogTitle className="text-lg font-semibold">
-              {page === 1 ? "Project Start & Results" : "How satisfied are you?"}
+              {page === 1
+                ? "Project Start & Results"
+                : "How satisfied are you?"}
             </DialogTitle>
           </DialogHeader>
 
@@ -189,19 +204,19 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
 
           <DialogFooter>
             {page === 1 && (
-              <Button 
-                className="bg-purple-600 text-white" 
+              <Button
+                className="bg-purple-600 text-white"
                 onClick={() => validateFirstPage() && setPage(2)}
                 disabled={!validateFirstPage()}
               >
                 Next
               </Button>
             )}
-            
+
             {page === 2 && (
               <>
-                <Button 
-                  className="bg-purple-600 text-white" 
+                <Button
+                  className="bg-purple-600 text-white"
                   onClick={handleSubmit}
                   disabled={!validateSecondPage()}
                 >
@@ -210,7 +225,7 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
                 <Button onClick={() => setPage(1)}>Back</Button>
               </>
             )}
-            
+
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               Close
             </Button>
