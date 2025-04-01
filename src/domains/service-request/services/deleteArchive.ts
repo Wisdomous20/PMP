@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
  
- export default async function deleteArchiveServiceRquests(){
+ export async function deleteArchiveServiceRquests(){
      try{
          const now = new Date();
          await prisma.serviceRequest.deleteMany({
@@ -15,3 +15,19 @@ import { prisma } from "@/lib/prisma";
          console.error("Error deleting archived service requests:", error);
      }
  }
+
+ export async function deleteSelectedServiceRequestArchive(serviceRequestIds: string[]) {
+    try {
+        const result = await prisma.serviceRequest.deleteMany({
+            where: {
+                id: {
+                    in: serviceRequestIds
+                }
+            }
+        });
+        return result;
+    } catch (error) {
+        console.error("Error manually deleting archived service requests:", error);
+        throw error;
+    }
+}
