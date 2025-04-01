@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import addRating from "@/domains/service-request/services/addRating";
+import addRating from "@/domains/rating/service/addRating";
 
 export async function POST(req: NextRequest) {
   const { serviceRequestId, rating, description, ratingData } = await req.json();
@@ -26,3 +26,4 @@ export async function POST(req: NextRequest) {
     );
   }
 }
+

@@ -13,7 +13,7 @@ export default async function fetchAddRating(
   description: string,
   ratingData: RatingData
 ) {
-  const endpoint = "/api/service-request/rating";
+  const endpoint = "/api/rating/rating";
 
   try {
     const response = await fetch(endpoint, {

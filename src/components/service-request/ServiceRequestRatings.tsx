@@ -9,7 +9,7 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import fetchAddRating from "@/domains/service-request/services/fetchAddRating";
+import fetchAddRating from "@/domains/rating/service/fetchAddRating";
 
 interface RatingFormData {
   startOnTime: string;
