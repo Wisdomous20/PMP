@@ -1,4 +1,4 @@
-"use client"
+"use client";
 
 import { useState } from "react";
 import LeftTab from "@/components/layouts/LeftTab";
@@ -8,11 +8,12 @@ import ServiceRequestStatus from "@/components/service-request/ServiceRequestSta
 import useGetServiceRequestList from "@/domains/service-request/hooks/useGetServiceRequestList";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import { Card } from "@/components/ui/card";
+import Archives from "@/components/service-request/Archives";
 
 export default function Page() {
   const [serviceRequestIndex, setServiceRequestIndex] = useState(0);
   const { serviceRequests, loading } = useGetServiceRequestList();
-  const { userRole, loading: userRoleLoading } = useGetUserRole()
+  const { userRole, loading: userRoleLoading } = useGetUserRole();
 
   //   return (
   //     <div className="w-screen h-screen flex overflow-x-hidden">
@@ -36,8 +37,9 @@ export default function Page() {
   return (
     <div className="w-screen h-screen flex flex-row">
       <LeftTab />
+      <Archives />
 
-      <div className="flex-1 flex flex-row">
+      {/* <div className="flex-1 flex flex-row">
         <ServiceRequestList
           serviceRequests={serviceRequests}
           setServiceRequestIndex={setServiceRequestIndex}
@@ -52,7 +54,7 @@ export default function Page() {
             <ServiceRequestDetails serviceRequest={serviceRequests[serviceRequestIndex]} />
           )}
         </div>
-      </div>
+      </div> */}
     </div>
   );
 }
