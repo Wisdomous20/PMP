@@ -172,6 +172,15 @@ model Equipment {
   serviceRequest   ServiceRequest?  @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
 }
 
+model Notification {
+  id        String           @id @default(uuid()) @map("_id")
+  type      NotificationType
+  message   String
+  link      String
+  isRead    Boolean          @default(false)
+  createdAt DateTime         @default(now())
+}
+
 enum user_type {
   ADMIN
   USER
@@ -191,15 +200,6 @@ enum equipment_status {
   Operational
   Repairable
   Scrap
-}
-
-model Notification {
-  id        String           @id @default(uuid()) @map("_id")
-  type      NotificationType
-  message   String
-  link      String
-  isRead    Boolean          @default(false)
-  createdAt DateTime         @default(now())
 }
 
 enum NotificationType {
