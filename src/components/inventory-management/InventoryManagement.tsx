@@ -1,6 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useState } from "react";
+import { jsPDF } from 'jspdf';
+import autoTable from 'jspdf-autotable';
 import {
   Table,
   TableBody,
@@ -112,6 +114,51 @@ export default function InventoryManagement() {
     setCurrentPage(page);
   };
 
+  const downloadPDF = () => {
+    const doc = new jsPDF({orientation: "landscape"});
+    doc.text("Equipment Report", 14, 10);
+
+    const tableColumnHeaders = [
+      "Qty",
+      "Description",
+      "Brand/Model",
+      "Serial Number",
+      "Supplier",
+      "Unit Cost",
+      "Total Cost",
+      "Date Purchased",
+      "Date Received",
+      "Status",
+      "Location",
+      "Department",
+    ];
+
+    const tableRows = equipment.map((item) => [
+      item.quantity,
+      item.description,
+      item.brand,
+      item.serialNumber,
+      item.supplier,
+      item.unitCost.toFixed(2),
+      item.totalCost.toFixed(2),
+      new Date(item.datePurchased).toLocaleDateString(),
+      new Date(item.dateReceived).toLocaleDateString(),
+      item.status,
+      item.location,
+      item.department,
+    ]);
+
+    autoTable(doc,{
+      head: [tableColumnHeaders],
+      body: tableRows,
+      startY: 20,
+    });
+
+    doc.save("equipment-report.pdf");
+  };
+
+  
+
   if (isLoading && equipment.length === 0) {
     return (
       <div className="space-y-4">
@@ -169,6 +216,7 @@ export default function InventoryManagement() {
             <AddEquipment onSuccess={handleEquipmentAdded} />
           </DialogContent>
         </Dialog>
+        <Button onClick={downloadPDF}>Download PDF</Button>
       </div>
 
       <div className="rounded-md border">
