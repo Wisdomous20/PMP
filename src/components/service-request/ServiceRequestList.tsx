@@ -14,10 +14,6 @@ interface ServiceRequestProps {
   
 export default function ServiceRequestList({ serviceRequests, setServiceRequestIndex, loading }: ServiceRequestProps) {
   const [search, setSearch] = useState('');
-  // const [isSearchOpen, setIsSearchOpen] = useState(false);
-  // const toggleSearch = () => {
-  //   setIsSearchOpen(!isSearchOpen);
-  // };
 
   const filteredRequests = serviceRequests.filter(request =>
     request.concern.toLowerCase().includes(search.toLowerCase()) ||

@@ -83,11 +83,50 @@ export default function Archives() {
 
   if (loading) {
     return (
-      <div className="flex-1 p-8">
-        <h1 className="text-2xl font-bold mb-6">Archives</h1>
-        <div className="space-y-4">
-          <Skeleton className="h-12 w-full" />
-          <Skeleton className="h-80 w-full" />
+      <div className="flex-1 p-8 relative overflow-hidden flex flex-col">
+        <Skeleton className="h-8 w-32 mb-6 shrink-0" />
+
+        <div className="flex justify-between mb-6 shrink-0">
+          <div className="flex items-center space-x-2">
+            <Skeleton className="h-10 w-6 rounded" />
+            <Skeleton className="h-10 w-80 rounded" />
+          </div>
+          <Skeleton className="h-10 w-24 rounded" />
+        </div>
+
+        <div className="bg-gray-200 rounded-t-md">
+          <div className="grid grid-cols-12 gap-4 px-6 py-5">
+            <div className="col-span-1" />
+            <Skeleton className="col-span-2 h-6" />
+            <Skeleton className="col-span-3 h-6" />
+            <Skeleton className="col-span-3 h-6" />
+            <Skeleton className="col-span-2 h-6" />
+          </div>
+        </div>
+
+        <div className="space-y-2 mt-2 overflow-y-auto flex-1 pr-2">
+          {[...Array(9)].map((_, idx) => (
+            <div
+              key={idx}
+              className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md"
+            >
+              <div className="col-span-1 flex items-center justify-center">
+                <Skeleton className="h-5 w-5 rounded-sm" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-40" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-48" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <div className="col-span-2">
+                <Skeleton className="h-4 w-20" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
@@ -105,21 +144,19 @@ export default function Archives() {
   }
 
   return (
-    <div className="flex-1 p-8 relative">
-      <h1 className="text-2xl font-bold mb-6">Archives</h1>
+    <div className="flex-1 p-8 relative overflow-y-auto overflow-hidden flex flex-col">
+      <h1 className="text-2xl font-bold mb-6 shrink-0">Archives</h1>
 
-      <div className="flex justify-between mb-6">
-        <div className="relative w-80">
+      <div className="flex justify-between mb-6 shrink-0">
+        <div className="relative flex items-center space-x-2">
+          <Search className="text-gray-500" size={20} />{" "}
           <input
             type="text"
-            className="w-full border border-gray-300 rounded-md pl-10 pr-4 py-2"
-            placeholder="Search by title or requestor..."
+            className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            placeholder="Search requests..."
             value={searchTerm}
             onChange={(e) => setSearchTerm(e.target.value)}
           />
-          <div className="absolute left-3 top-2.5 text-gray-400">
-            <Search size={18} />
-          </div>
           {searchTerm && (
             <button
               className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
@@ -142,15 +179,15 @@ export default function Archives() {
         </div>
       </div>
 
-      <div>
-        <div className="bg-gray-100 rounded-t-md ">
-          <div className="grid grid-cols-12 gap-4 px-4 py-3 font-medium text-sm">
+      <div className="overflow-y-auto flex-1 pr-2">
+      <div className="sticky top-0 z-10 bg-yellow-300 rounded-t-md shadow-md mb-1">
+          <div className="grid grid-cols-12 gap-4 px-6 py-5 text-base">
             <div className="col-span-1 flex items-center justify-center" />
             <div className="col-span-3 font-bold">Name of Requestor</div>
             <div className="col-span-3 items-center justify-center font-bold">
               Title
             </div>
-            <div className="col-span-3 font-bold">Request Date</div>
+            <div className="col-span-3 font-bold ">Request Date</div>
             <div className="col-span-2 items-center justify-center font-bold">
               Status
             </div>
@@ -168,7 +205,7 @@ export default function Archives() {
             filteredRequests.map((request) => (
               <div
                 key={request.id}
-                className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-50 rounded-md hover:bg-gray-100 transition-colors cursor-pointer"
+                className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md hover:bg-gray-300 transition-colors cursor-pointer"
                 onClick={() => handleRequestClick(request)}
               >
                 <div
@@ -191,8 +228,8 @@ export default function Archives() {
                     ? format(new Date(request.requestDate), "MMM d, yyyy")
                     : "N/A"}
                 </div>
-                <div className="col-span-2 flex items-center text-green-600 font-medium">
-                  {"Completed"}
+                <div className="col-span-2 flex items-center text-green-600 font-semibold">
+                  Completed
                 </div>
               </div>
             ))
