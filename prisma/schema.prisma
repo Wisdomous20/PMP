@@ -3,12 +3,12 @@ generator client {
 }
 
 datasource db {
-  provider = "postgresql"
+  provider = "mongodb"
   url      = env("DATABASE_URL")
 }
 
 model User {
-  id                    String                 @id @default(uuid()) @map("_id")
+  id                    String                 @id @default(auto()) @map("_id") @db.ObjectId
   email                 String                 @unique
   password              String?
   user_type             user_type
@@ -26,9 +26,9 @@ model User {
 }
 
 model Session {
-  id           String   @id @default(uuid()) @map("_id")
+  id           String   @id @default(auto()) @map("_id") @db.ObjectId
   sessionToken String   @unique
-  userId       String
+  userId       String   @db.ObjectId
   expires      DateTime
   createdAt    DateTime @default(now())
   updatedAt    DateTime @updatedAt
@@ -38,8 +38,8 @@ model Session {
 }
 
 model Account {
-  id                String   @id @default(uuid()) @map("_id")
-  userId            String
+  id                String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId            String   @db.ObjectId
   type              String
   provider          String
   providerAccountId String
@@ -59,8 +59,8 @@ model Account {
 }
 
 model ServiceRequest {
-  id                   String                 @id @default(uuid()) @map("_id")
-  userId               String
+  id                   String                 @id @default(auto()) @map("_id") @db.ObjectId
+  userId               String                 @db.ObjectId
   details              String
   concern              String
   deleteAt             DateTime?
@@ -73,17 +73,17 @@ model ServiceRequest {
 }
 
 model SupervisorAssignment {
-  id               String         @id @default(uuid()) @map("_id")
-  serviceRequestId String         @unique
-  supervisorId     String
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  serviceRequestId String         @unique @db.ObjectId
+  supervisorId     String         @db.ObjectId
   assignedAt       DateTime       @default(now())
   serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
   supervisor       User           @relation(fields: [supervisorId], references: [id], onDelete: Cascade)
 }
 
 model ServiceRequestStatus {
-  id               String         @id @default(uuid()) @map("_id")
-  serviceRequestId String
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
+  serviceRequestId String         @db.ObjectId
   timestamp        DateTime
   note             String?
   status           status
@@ -91,35 +91,35 @@ model ServiceRequestStatus {
 }
 
 model ServiceRequestRating {
-  id               String           @id @default(uuid()) @map("_id")
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
   description      String
   ratings          Int
-  serviceRequestId String           @unique
+  serviceRequestId String           @unique @db.ObjectId
   questions        RatingQuestion[]
   serviceRequest   ServiceRequest   @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
 }
 
 model RatingQuestion {
-  id                     String               @id @default(uuid()) @map("_id")
+  id                     String               @id @default(auto()) @map("_id") @db.ObjectId
   question               String
   answer                 String?
-  serviceRequestRatingId String
+  serviceRequestRatingId String               @db.ObjectId
   serviceRequestRating   ServiceRequestRating @relation(fields: [serviceRequestRatingId], references: [id], onDelete: Cascade)
 }
 
 model ImplementationPlan {
-  id               String         @id @default(uuid()) @map("_id")
+  id               String         @id @default(auto()) @map("_id") @db.ObjectId
   description      String
   status           String
-  serviceRequestId String         @unique
+  serviceRequestId String         @unique @db.ObjectId
   files            Files[]
   serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
   tasks            Task[]
 }
 
 model Task {
-  id                   String                @id @default(uuid()) @map("_id")
-  implementationPlanId String
+  id                   String                @id @default(auto()) @map("_id") @db.ObjectId
+  implementationPlanId String                @db.ObjectId
   name                 String
   checked              Boolean
   endTime              DateTime
@@ -129,14 +129,14 @@ model Task {
 }
 
 model Files {
-  id                   String             @id @default(uuid()) @map("_id")
-  implementationPlanId String
+  id                   String             @id @default(auto()) @map("_id") @db.ObjectId
+  implementationPlanId String             @db.ObjectId
   url                  String
   implementationPlan   ImplementationPlan @relation(fields: [implementationPlanId], references: [id], onDelete: Cascade)
 }
 
 model Personnel {
-  id          String                @id @default(uuid()) @map("_id")
+  id          String                @id @default(auto()) @map("_id") @db.ObjectId
   name        String
   department  String
   position    String
@@ -144,10 +144,10 @@ model Personnel {
 }
 
 model PersonnelAssignment {
-  id          String    @id @default(uuid()) @map("_id")
-  personnelId String
+  id          String    @id @default(auto()) @map("_id") @db.ObjectId
+  personnelId String    @db.ObjectId
   assignedAt  DateTime? @default(now())
-  taskId      String
+  taskId      String    @db.ObjectId
   personnel   Personnel @relation(fields: [personnelId], references: [id], onDelete: Cascade)
   task        Task      @relation(fields: [taskId], references: [id], onDelete: Cascade)
 
@@ -155,7 +155,7 @@ model PersonnelAssignment {
 }
 
 model Equipment {
-  id               String           @id @default(uuid()) @map("_id")
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
   quantity         Int
   description      String
   brand            String
@@ -168,12 +168,12 @@ model Equipment {
   status           equipment_status
   location         String
   department       String
-  serviceRequestId String?
+  serviceRequestId String?          @db.ObjectId
   serviceRequest   ServiceRequest?  @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
 }
 
 model Notification {
-  id        String           @id @default(uuid()) @map("_id")
+  id        String           @id @default(auto()) @map("_id") @db.ObjectId
   type      NotificationType
   message   String
   link      String
