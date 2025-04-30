@@ -167,7 +167,7 @@ export default function Page() {
                   If it&lsquo;s not approved, you&lsquo;ll be notified with a reason and given the option to update and resubmit it.
                 </p>
                 <p className="text-gray-600 leading-relaxed mt-2">
-                  If it&lsquo;s approved, you&lsquo;ll see a green status update and the project will move forward to the planning
+                  If it&lsquo;s approved, you&lsquo;ll be given an approved status update and the project will move forward to the planning
                   stage.
                 </p>
               </div>
@@ -184,8 +184,7 @@ export default function Page() {
               <div className="ml-6 bg-white p-6 rounded-xl shadow-md flex-1">
                 <h3 className="text-xl font-bold text-blue-900 mb-3">Project Planning</h3>
                 <p className="text-gray-600 leading-relaxed">
-                  If your request is approved, the admin team will prepare a project plan outlining tasks, timelines,
-                  and required resources. You&lsquo;ll receive a notification when the plan is ready for your review. You can
+                  If your request is approved, the admin team will prepare a project plan outlining tasks, and timelines. You&lsquo;ll receive a notification when the plan is ready for your review. You can
                   either approve it or request adjustments to ensure it meets your expectations before the work begins.
                 </p>
               </div>
@@ -203,8 +202,7 @@ export default function Page() {
                 <h3 className="text-xl font-bold text-blue-900 mb-3">Project Execution</h3>
                 <p className="text-gray-600 leading-relaxed">
                   Once the plan is approved, the project will begin as scheduled. You can track its progress directly
-                  through the system with clear status updates like &ldquo;In Progress,&ldquo; &ldquo;Almost Done,&ldquo; or &ldquo;Completed.&ldquo; You&apos;ll
-                  also receive notifications about any updates or changes.
+                  through the system. You&apos;ll also receive notifications about any updates or changes.
                 </p>
               </div>
             </div>
