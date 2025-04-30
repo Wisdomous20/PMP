@@ -1,17 +1,26 @@
 import { withAuth } from "next-auth/middleware"
 import { NextRequest, NextResponse } from "next/server"
 
-const authMiddleware = withAuth(
+export default withAuth(
+  // eslint-disable-next-line @typescript-eslint/no-unused-vars
   function middleware(req: NextRequest) {
-    if (req.nextUrl.pathname === "/service-request/create") {
-      return NextResponse.next()
-    }
-
     return NextResponse.next()
   },
+  {
+    pages: {
+      signIn: '/auth/signin',
+    },
+    callbacks: {
+      authorized: ({ req, token }) => {
+        if (req.nextUrl.pathname === "/service-request/create") {
+          return true
+        }
+        
+        return !!token
+      }
+    }
+  }
 )
-
-export default authMiddleware
 
 export const config = {
   matcher: [

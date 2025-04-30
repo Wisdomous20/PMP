@@ -40,7 +40,7 @@ export default function Page() {
             Request services from the University under the Office of the Vice President of Administration.
           </p>
           <Link
-            href="/request"
+            href="/service-request/create"
             className="bg-blue-900 text-white px-8 py-4 rounded-md font-medium hover:bg-blue-800 transition-colors inline-flex items-center"
           >
             Create a Service Request

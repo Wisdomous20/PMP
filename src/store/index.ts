@@ -1,11 +1,11 @@
 import { configureStore } from '@reduxjs/toolkit';
 import { createWrapper } from 'next-redux-wrapper';
-import seatsReducer from './slices/seatsSlice';
+import serviceRequestReducer from './slices/serviceRequestSlice';
 
 export const makeStore = () => 
   configureStore({
     reducer: {
-      seats: seatsReducer,
+      serviceRequest: serviceRequestReducer,
     },
     devTools: process.env.NODE_ENV !== 'production',
   });

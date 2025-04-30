@@ -46,6 +46,7 @@
     "lucide-react": "^0.452.0",
     "next": "14.2.15",
     "next-auth": "^4.24.8",
+    "next-redux-wrapper": "^8.1.0",
     "node-cron": "^3.0.3",
     "nodemailer": "^6.9.16",
     "radio-group": "^0.0.2",
