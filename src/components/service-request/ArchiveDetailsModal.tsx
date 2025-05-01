@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useEffect, useState } from "react";
 import { X } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
+import fetchGetImplementationPlanByServiceRequestId from "@/domains/implementation-plan/services/fetchGetImplementationPlanByServiceRequestId";
+
 
 interface ServiceRequestDetailsModalProps {
   request: any;
@@ -13,7 +15,44 @@ export default function ArchiveDetailsModal({
   request,
   onClose,
 }: ServiceRequestDetailsModalProps) {
+  const [implementationPlan, setImplementationPlan] = useState<any>(null);
+  const [isLoading, setIsLoading] = useState(true);
+  const [error, setError] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (!request?.id) return;
+
+    async function fetchImplementationPlan() {
+      setIsLoading(true);
+      setError(null);
+
+      try {
+        const data = await fetchGetImplementationPlanByServiceRequestId(request.id);
+        setImplementationPlan(data);
+      } catch (err) {
+        console.error("Error fetching implementation plan:", err);
+        setError("Failed to load implementation plan.");
+      } finally {
+        setIsLoading(false);
+      }
+    }
+
+    fetchImplementationPlan();
+  }, [request?.id]);
+
   if (!request) return null;
+
+  if (isLoading) {
+    return <div>Loading implementation plan...</div>;
+  }
+
+  if (error) {
+    return <div>Error: {error}</div>;
+  }
+
+  const tasks = implementationPlan?.tasks || [];
+
+
 
   console.log("FULL REQUEST DATA:", JSON.stringify(request, null, 2));
   console.log("TASK DATA:", request.Task);
@@ -73,9 +112,9 @@ export default function ArchiveDetailsModal({
 
         <div className="mb-4">
           <p className="text-sm text-gray-500 mb-1">Tasks</p>
-          {request.Task && request.Task.length > 0 ? (
+          {tasks.length > 0 ? (
             <ul className="list-disc pl-5 space-y-4">
-              {request.Task.map((task: any) => (
+              {tasks.map((task: any) => (
                 <li key={task.id} className="text-sm">
                   <p className="font-medium">{task.name}</p>
                   <p className="text-xs text-gray-500">

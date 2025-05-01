@@ -32,6 +32,7 @@
     "@radix-ui/react-toast": "^1.2.2",
     "@reduxjs/toolkit": "^2.7.0",
     "@supabase/supabase-js": "^2.45.4",
+    "@tanstack/react-query": "^5.74.11",
     "bcrypt": "^5.1.1",
     "chromedriver": "^129.0.4",
     "class-variance-authority": "^0.7.0",
