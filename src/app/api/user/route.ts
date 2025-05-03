@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import updateUserRole from "@/domains/user-management/services/updateUserRole";
 
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
   try {
@@ -30,5 +31,31 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
     );
   } finally {
     await prisma.$disconnect();
+  }
+}
+
+export async function PUT(req: NextRequest): Promise<NextResponse> {
+  try {
+    const { userId, newRole } = await req.json();
+
+    if (!userId || !newRole) {
+      return NextResponse.json(
+        { error: "User ID and new role are required" },
+        { status: 400 }
+      );
+    }
+
+    const updatedUser = await updateUserRole(userId, newRole);
+
+    return NextResponse.json(
+      { message: "User role updated successfully", user: updatedUser },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    return NextResponse.json(
+      { error: "Failed to update user role" },
+      { status: 500 }
+    );
   }
 }
