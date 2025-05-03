@@ -2,7 +2,26 @@ import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
 import updateUserRole from "@/domains/user-management/services/updateUserRole";
 
-// DELETE: Remove a user by email
+export async function GET(): Promise<NextResponse> {
+  try {
+    const users = await prisma.user.findMany({
+      orderBy: {
+        id: "desc", // Sort with latest user first
+      },
+    });
+
+    return NextResponse.json(users, { status: 200 });
+  } catch (error) {
+    console.error("Error fetching users:", error);
+    return NextResponse.json(
+      { error: "Failed to fetch users" },
+      { status: 500 }
+    );
+  } finally {
+    await prisma.$disconnect();
+  }
+}
+
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
   try {
     const { email } = await req.json();
