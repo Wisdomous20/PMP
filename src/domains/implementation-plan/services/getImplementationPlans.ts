@@ -15,7 +15,7 @@ export default async function getImplementationPlans(userId: string) {
 
     let implementationPlans;
 
-    if (user.user_type === "ADMIN") {
+    if (user.user_type === "ADMIN" || user.user_type === "SECRETARY") {
       implementationPlans = await prisma.implementationPlan.findMany({
         include: {
           tasks: true,
