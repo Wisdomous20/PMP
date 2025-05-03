@@ -31,11 +31,13 @@ useEffect(() => {
 }, []);
 
   
-  const filteredUsers = users.filter((u) =>
-    u.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-    u.email.toLowerCase().includes(searchTerm.toLowerCase())
-  );
+const filteredUsers = users
+.filter(u => u.user_type !== "ADMIN")
+.filter((u) =>
+  u.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+  u.lastName .toLowerCase().includes(searchTerm.toLowerCase()) ||
+  u.email   .toLowerCase().includes(searchTerm.toLowerCase())
+);
 
   if (loading) {
     return (
@@ -120,3 +122,4 @@ useEffect(() => {
     </div>
   );
 }
+

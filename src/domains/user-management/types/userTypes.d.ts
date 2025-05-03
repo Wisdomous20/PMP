@@ -7,4 +7,4 @@ type Supervisor = {
 
 
 
-type UserRole = 'ADMIN' | 'SUPERVISOR' | 'USER' ;
+type UserRole = 'ADMIN' | 'SUPERVISOR' | 'USER' | "SECRETARY";
