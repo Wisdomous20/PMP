@@ -8,6 +8,7 @@ import {
   LogOut,
   Folder,
   User,
+  Users,
   Wrench,
   Home,
 } from "lucide-react";
@@ -143,6 +144,19 @@ export default function LeftTab() {
               <span className="sr-only">Personnel Management</span>
             </Button>
             <span className="text-xs text-white mt-[-6px] font-bold">Personnel</span>
+          </div>
+        </Link>
+      )}
+
+       {/* User Management (Admin only) */}
+       {userRole === "ADMIN" && (
+        <Link href="/user-management">
+          <div className="flex flex-col items-center gap-1">
+            <Button variant="gold" size="icon" className="w-10 h-10">
+              <Users className="w-6 h-6" />
+              <span className="sr-only">User</span>
+            </Button>
+            <span className="text-xs text-white mt-[-6px] font-bold">User</span>
           </div>
         </Link>
       )}
