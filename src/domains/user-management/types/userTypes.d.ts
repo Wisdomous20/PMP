@@ -5,4 +5,6 @@ type Supervisor = {
   department: string | null;
 }
 
-type UserRole = 'ADMIN' | 'SUPERVISOR' | 'USER' | null;
+
+
+type UserRole = 'ADMIN' | 'SUPERVISOR' | 'USER' ;

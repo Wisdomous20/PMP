@@ -75,7 +75,7 @@ export default function LeftTab() {
 
       {/* Dashboard (Admin Only) */}
       {userRole === "ADMIN" && (
-        <Link href="/">
+        <Link href="/dashboard">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
               <Home className="w-6 h-6" />

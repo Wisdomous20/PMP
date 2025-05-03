@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
+import updateUserRole from "@/domains/user-management/services/updateUserRole";
 
 // DELETE: Remove a user by email
 export async function DELETE(req: NextRequest): Promise<NextResponse> {
@@ -34,18 +35,28 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-// GET: Fetch all users
-export async function GET(): Promise<NextResponse> {
+export async function PUT(req: NextRequest): Promise<NextResponse> {
   try {
-    const users = await prisma.user.findMany();
-    return NextResponse.json(users, { status: 200 });
-  } catch (error) {
-    console.error("Error fetching users:", error);
+    const { userId, newRole } = await req.json();
+
+    if (!userId || !newRole) {
+      return NextResponse.json(
+        { error: "User ID and new role are required" },
+        { status: 400 }
+      );
+    }
+
+    const updatedUser = await updateUserRole(userId, newRole);
+
     return NextResponse.json(
-      { error: "Failed to fetch users" },
+      { message: "User role updated successfully", user: updatedUser },
+      { status: 200 }
+    );
+  } catch (error) {
+    console.error("Error updating user role:", error);
+    return NextResponse.json(
+      { error: "Failed to update user role" },
       { status: 500 }
     );
-  } finally {
-    await prisma.$disconnect();
   }
 }
