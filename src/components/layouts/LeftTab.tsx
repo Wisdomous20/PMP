@@ -1,5 +1,7 @@
 "use client";
-import { signOut } from "next-auth/react";
+
+import { useQuery } from "@tanstack/react-query";
+import { signOut, useSession } from "next-auth/react";
 import { Button } from "../ui/button";
 import {
   Plus,
@@ -12,41 +14,29 @@ import {
   Home,
 } from "lucide-react";
 import Link from "next/link";
-import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import { Skeleton } from "../ui/skeleton";
+import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
 
 export default function LeftTab() {
-  const { userRole, loading } = useGetUserRole();
+  const { data: session } = useSession(); // Get session data from next-auth
+
+  const { data: userRole, isLoading } = useQuery({
+    queryKey: ["userRole", session?.user.id],
+    queryFn: () => fetchUserRole(session?.user.id as string),
+    enabled: !!session?.user.id, // Only fetch if user ID exists
+  });
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
   };
 
-  if (loading) {
+  if (isLoading) {
     return (
       <div className="w-20 border-r bg-gray-300 flex flex-col items-center py-4 space-y-3">
         <Skeleton className="w-11 h-12 bg-gray-300 rounded-md flex items-center justify-center">
           <div className="w-8 h-8 bg-white rounded-full"></div>
-          <span className="sr-only">Loading CPU Logo</span>
+          <span className="sr-only">Loading...</span>
         </Skeleton>
-        <Skeleton className="w-11 h-12 bg-gray-300 rounded-md flex items-center justify-center">
-          <div className="w-6 h-6 bg-white rounded-md"></div>
-          <span className="sr-only">Loading Create Service Request Button</span>
-        </Skeleton>
-        <Skeleton className="w-11 h-12 bg-gray-300 rounded-md flex items-center justify-center">
-          <div className="w-6 h-6 bg-white rounded-md"></div>
-          <span className="sr-only">Loading Service Request List Button</span>
-        </Skeleton>
-        <Skeleton className="w-11 h-12 bg-gray-300 rounded-md flex items-center justify-center">
-          <div className="w-6 h-6 bg-white rounded-md"></div>
-          <span className="sr-only">Loading Archive Button</span>
-        </Skeleton>
-        <div className="absolute bottom-[40px]">
-          <Skeleton className="w-11 h-12 bg-gray-300 rounded-md flex items-center justify-center">
-            <div className="w-6 h-6 bg-white rounded-md"></div>
-            <span className="sr-only">Loading Logout Button</span>
-          </Skeleton>
-        </div>
       </div>
     );
   }
@@ -74,17 +64,18 @@ export default function LeftTab() {
 
       {/* Dashboard (Admin Only) */}
       {userRole === "ADMIN" && (
-        <Link href="/">
+        <Link href="/dashboard">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
               <Home className="w-6 h-6" />
               <span className="sr-only">Dashboard</span>
             </Button>
-            <span className="text-xs text-white mt-[-6px] font-bold">Dashboard</span>
+            <span className="text-xs text-white mt-[-6px] font-bold">
+              Dashboard
+            </span>
           </div>
         </Link>
       )}
-
 
       {/* Projects (For Supervisor and Admin) */}
       {(userRole === "SUPERVISOR" || userRole === "ADMIN") && (
@@ -94,7 +85,9 @@ export default function LeftTab() {
               <Folder className="w-6 h-6" />
               <span className="sr-only">Projects</span>
             </Button>
-            <span className="text-xs text-white mt-[-6px] font-bold">Projects</span>
+            <span className="text-xs text-white mt-[-6px] font-bold">
+              Projects
+            </span>
           </div>
         </Link>
       )}
@@ -129,7 +122,9 @@ export default function LeftTab() {
               <Wrench className="w-6 h-6" />
               <span className="sr-only">Equipment Management</span>
             </Button>
-            <span className="text-xs text-white mt-[-6px] font-bold">Equipment</span>
+            <span className="text-xs text-white mt-[-6px] font-bold">
+              Equipment
+            </span>
           </div>
         </Link>
       )}
@@ -142,86 +137,26 @@ export default function LeftTab() {
               <User className="w-6 h-6" />
               <span className="sr-only">Personnel Management</span>
             </Button>
-            <span className="text-xs text-white mt-[-6px] font-bold">Personnel</span>
+            <span className="text-xs text-white mt-[-6px] font-bold">
+              Personnel
+            </span>
           </div>
         </Link>
       )}
 
       {/* Sign Out at Bottom */}
       <div className="absolute bottom-[40px]">
-        <Link href="/auth/login" onClick={handleLogout}>
-          <div className="flex flex-col items-center gap-1">
-            <Button variant="gold" size="icon" className="w-10 h-10">
-              <LogOut className="w-6 h-6" />
-              <span className="sr-only">Sign Out</span>
-            </Button>
-            <span className="text-xs text-white mt-[-6px] font-bold">Sign Out</span>
-          </div>
-        </Link>
+        <div
+          className="flex flex-col items-center gap-1 cursor-pointer"
+          onClick={handleLogout}
+        >
+          <Button variant="gold" size="icon" className="w-10 h-10">
+            <LogOut className="w-6 h-6" />
+            <span className="sr-only">Sign Out</span>
+          </Button>
+          <span className="text-xs text-white mt-[-6px] font-bold">Sign Out</span>
+        </div>
       </div>
     </div>
   );
 }
-
-
-//   return (
-//     <div className="w-20 border-r bg-indigo-Background flex flex-col items-center py-4 space-y-3">
-//       <Button variant="gold" size="icon" className="w-11 h-12">
-//         <img
-//           src="/images/cpu-logo.png"
-//           alt="CPU Logo"
-//           className="w-8 h-8"
-//         />
-//         <span className="sr-only">CPU Logo</span>
-//       </Button>
-
-//       {userRole === "USER" && (
-//         <Link href="/service-request/create">
-//           <Button variant="gold" size="icon" className="w-11 h-12">
-//             <Plus className="w-7 h-7" />
-//             <span className="sr-only">Create Service Request</span>
-//           </Button>
-//         </Link>
-//       )}
-
-//       {(userRole === "SUPERVISOR" || userRole === "ADMIN") && (
-//         <Link href="/projects">
-//           <Button variant="gold" size="icon" className="w-11 h-12">
-//             <Folder className="w-6 h-6" />
-//             <span className="sr-only">Projects</span>
-//           </Button>
-//         </Link>
-//       )}
-
-//       <Link href="/service-request">
-//         <Button variant="gold" size="icon" className="w-11 h-12">
-//           <FileText className="w-6 h-6" />
-//           <span className="sr-only">Service Request List</span>
-//         </Button>
-//       </Link>
-
-//       <Link href="/service-request/archive">
-//         <Button variant="gold" size="icon" className="w-11 h-12">
-//           <Archive className="w-6 h-6" />
-//           <span className="sr-only">Archive</span>
-//         </Button>
-//       </Link>
-
-//       {userRole === "ADMIN" && ( // Conditional rendering for admin role
-//         <Link href="/personnel-management">
-//           <Button variant="gold" size="icon" className="w-11 h-12">
-//             <User className="w-6 h-6" /> {/* User icon */}
-//             <span className="sr-only">Personnel Management</span>
-//           </Button>
-//         </Link>
-//       )}
-
-//       <Link href="/auth/login" onClick={handleLogout}>
-//         <Button variant="gold" size="icon" className="w-11 h-12">
-//           <LogOut className="w-6 h-6" />
-//           <span className="sr-only">Back</span>
-//         </Button>
-//       </Link>
-//     </div>
-//   );
-// }
