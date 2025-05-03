@@ -1,4 +1,3 @@
-import PersonnelManagement from "@/components/personnel-management/personnel-management";
 import LeftTab from "@/components/layouts/LeftTab";
 import UserManagement from "@/components/user-management/UserManagement";
 

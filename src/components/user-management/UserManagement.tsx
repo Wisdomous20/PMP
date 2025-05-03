@@ -1,93 +1,111 @@
- "use client"
+"use client";
 import { useEffect, useState } from "react";
-import { Button } from "../ui/button";
-import React from "react";
 import { Search, X } from "lucide-react";
-import { Checkbox } from "@/components/ui/checkbox";
-import { format } from "date-fns";
-import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "@/hooks/use-toast";
 import { User } from "@prisma/client";
-
-const users = [
-  {
-    id: 1,
-    name: "Sheree Laluma",
-    email: "sheree@cpu.edu.ph",
-    role: "Admin",
-    status: "Active",
-  },
-  {
-    id: 2,
-    name: "Aljason Javier",
-    email: "aljason@cpu.edu.ph",
-    role: "Supervisor",
-    status: "Active",
-  },
-  {
-    id: 3,
-    name: "Mykiell Pagayonan",
-    email: "mykiell@cpu.edu.ph",
-    role: "User",
-    status: "Deactivated",
-  },
-  // Add more as needed
-];
+import { Skeleton } from "@/components/ui/skeleton";
+import fetchGetAllUsers from "@/domains/user-management/services/fetchGetAllUsers";
 
 export default function UserManagement() {
-
-  const [user, setUser] = useState<User[]>([]);
-  const [selectedUser, setSelectedUser] = useState<User | null>(null);
+  const [users, setUsers] = useState<User[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
-  // const [visibleCount, setVisibleCount] = useState(5); // Start with 5 items
+  const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    const fetchUsers = async () => {
+      try {
+        const data = await fetchGetAllUsers();
+        setUsers(data ?? []);
+      } catch (error) {
+        console.error("Error fetching users:", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+
     fetchUsers();
   }, []);
 
-  const fetchUsers = async () => {
-    try {
-      const res = await fetch("/api/users");
-      const data = await res.json();
-      setUser(data);
-    } catch (error) {
-      console.error("Error fetching users:", error);
-    }
-  };
+  const filteredUsers = users.filter((u) =>
+    u.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+    u.email.toLowerCase().includes(searchTerm.toLowerCase())
+  );
 
+  if (loading) {
     return (
-      <div className="flex-1 p-8 relative overflow-y-auto overflow-hidden flex flex-col">
-        <h1 className="text-2xl font-bold mb-6 shrink-0">User Management</h1>
-  
-        {/* Table header (optional) */}
-        <div className="sticky top-0 p-5 bg-yellow-300 rounded-t-md shadow-md mb-1"></div>
-  
-        {/* Table */}
-        <div className="border border-t-0 rounded-b-md divide-y">
-          {users.map((user) => (
-            <div
-              key={user.id}
-              onClick={()=> setSelectedUser(user)}
-              className="flex items-center px-6 py-6 bg-white hover:bg-gray-50"
-            >
-              <input type="checkbox" className="mr-6 w-5 h-5" />
-              <div className="flex-1 text-base">
-                <p className="font-semibold">{user.name}</p>
-                <p className="text-gray-500 text-sm">{user.email}</p>
-              </div>
-              <div className="w-48 text-base text-gray-600">{user.role}</div>
-              <div
-                className={`w-36 text-base font-semibold ${
-                  user.status === "Active" ? "text-green-600" : "text-red-500"
-                }`}
-              >
-                {user.status}
-              </div>
-            </div>
-          ))}
+      <div className="flex-1 p-8 relative overflow-hidden flex flex-col">
+        <Skeleton className="h-8 w-40 mb-6 shrink-0" />
+        <div className="flex items-center space-x-2 mb-6">
+          <Skeleton className="h-10 w-6 rounded" />
+          <Skeleton className="h-10 w-80 rounded" />
         </div>
+        <Skeleton className="h-10 w-32 mb-2" />
+        {[...Array(6)].map((_, i) => (
+          <div key={i} className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md mb-2">
+            <Skeleton className="col-span-4 h-4" />
+            <Skeleton className="col-span-5 h-4" />
+            <Skeleton className="col-span-3 h-4" />
+          </div>
+        ))}
       </div>
     );
+  }
+
+  return (
+    <div className="flex-1 p-8 relative overflow-y-auto overflow-hidden flex flex-col">
+      <h1 className="text-2xl font-bold mb-6 shrink-0">User Management</h1>
+
+      <div className="flex justify-between mb-6 shrink-0">
+        <div className="relative flex items-center space-x-2">
+          <Search className="text-gray-500" size={20} />
+          <input
+            type="text"
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+            placeholder="Search by name or email..."
+            className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+          />
+          {searchTerm && (
+            <button
+              className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+              onClick={() => setSearchTerm("")}
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="overflow-y-auto flex-1 pr-2">
+        <div className="sticky top-0 z-10 bg-yellow-300 rounded-t-md shadow-md mb-1">
+          <div className="grid grid-cols-12 gap-4 px-6 py-5 text-base font-bold">
+            <div className="col-span-4">Full Name</div>
+            <div className="col-span-5">Email</div>
+            <div className="col-span-3">User Type</div>
+          </div>
+        </div>
+
+        <div className="space-y-2 mt-2">
+          {filteredUsers.length === 0 ? (
+            <div className="text-center py-8 bg-white rounded-md">
+              {searchTerm
+                ? "No matching users found"
+                : "No users found"}
+            </div>
+          ) : (
+            filteredUsers.map((user) => (
+              <div
+                key={user.id}
+                className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md hover:bg-gray-300 transition-colors cursor-pointer"
+              >
+                <div className="col-span-4 flex items-center">{`${user.firstName} ${user.lastName}`}</div>
+                <div className="col-span-5 flex items-center">{user.email}</div>
+                <div className="col-span-3 flex items-center text-gray-600">{user.user_type}</div>
+              </div>
+            ))
+          )}
+        </div>
+      </div>
+    </div>
+  );
 }
