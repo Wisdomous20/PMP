@@ -21,7 +21,7 @@ export default function Page() {
           <Skeleton className="h-64 w-full" />
         </div>
       ) : (
-        userRole === "ADMIN" ||  userRole === "SUPERVISOR" ? <Dashboard /> : <CreateServiceRequest />
+        userRole === "ADMIN" ||  userRole === "SUPERVISOR" || userRole === "SECRETARY" ? <Dashboard /> : <CreateServiceRequest />
       )}
     </div>
   );

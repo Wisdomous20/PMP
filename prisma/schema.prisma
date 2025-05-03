@@ -185,6 +185,7 @@ enum user_type {
   ADMIN
   USER
   SUPERVISOR
+  SECRETARY
 }
 
 enum status {

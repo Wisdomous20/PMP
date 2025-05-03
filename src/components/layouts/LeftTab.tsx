@@ -72,8 +72,8 @@ export default function LeftTab() {
         </Link>
       )}
 
-      {/* Dashboard (Admin Only) */}
-      {userRole === "ADMIN" && (
+      {/* Dashboard (Admin and Secretary) */}
+      {(userRole === "ADMIN" || userRole === "SECRETARY") && (
         <Link href="/">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -86,8 +86,8 @@ export default function LeftTab() {
       )}
 
 
-      {/* Projects (For Supervisor and Admin) */}
-      {(userRole === "SUPERVISOR" || userRole === "ADMIN") && (
+      {/* Projects (For Supervisor, Admin and Secretary) */}
+      {(userRole === "SUPERVISOR" || userRole === "ADMIN" || userRole === "SECRETARY") && (
         <Link href="/projects">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -121,8 +121,8 @@ export default function LeftTab() {
         </div>
       </Link>
 
-      {/* Equipment Management (For Supervisor and Admin) */}
-      {(userRole === "SUPERVISOR" || userRole === "ADMIN") && (
+      {/* Equipment Management (For Supervisor, Admin and Secretary) */}
+      {(userRole === "SUPERVISOR" || userRole === "ADMIN" || userRole === "SECRETARY") && (
         <Link href="/inventory-management">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -134,8 +134,8 @@ export default function LeftTab() {
         </Link>
       )}
 
-      {/* Personnel Management (Admin only) */}
-      {userRole === "ADMIN" && (
+      {/* Personnel Management (Admin and Secretary) */}
+      {(userRole === "ADMIN" || userRole === "SECRETARY") && (
         <Link href="/personnel-management">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
