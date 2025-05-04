@@ -1,44 +1,26 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import { Toaster } from "@/components/ui/toaster"
+"use client";
+
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { SessionProvider } from "next-auth/react";
+import React from "react";
 import "./globals.css";
-import { getServerSession } from "next-auth";
-import SessionProvider from "@/components/auth/SessionProvider";
 import ClientProvider from "./ClientProvider";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
+const queryClient = new QueryClient();
 
-export const metadata: Metadata = {
-  title: "CPU Project Management System",
-  description: "CPU Project Management System",
-};
-
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const session = await getServerSession()
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
+      <body>
         <ClientProvider>
-          <SessionProvider session={session}>
+        <QueryClientProvider client={queryClient}>
+          <SessionProvider>
             {children}
-            <Toaster />
           </SessionProvider>
+          {/* React Query Devtools for debugging */}
+          <ReactQueryDevtools initialIsOpen={false} />
+        </QueryClientProvider>
         </ClientProvider>
       </body>
     </html>

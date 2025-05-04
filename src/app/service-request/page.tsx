@@ -26,14 +26,18 @@ export default function Page() {
         <div className="flex flex-col w-full">
           {serviceRequests.length === 0 ? (
             <Card className="w-full h-screen flex flex-col"></Card>
-          ) : userRole === "USER" ? (
-            <ServiceRequestStatus
-              serviceRequest={serviceRequests[serviceRequestIndex]}
-            />
           ) : (
-            <ServiceRequestDetails
-              serviceRequest={serviceRequests[serviceRequestIndex]}
-            />
+            <div className="flex-1">
+              {userRole === "USER" ? (
+                <ServiceRequestStatus
+                  serviceRequest={serviceRequests[serviceRequestIndex]}
+                />
+              ) : (
+                <ServiceRequestDetails
+                  serviceRequest={serviceRequests[serviceRequestIndex]}
+                />
+              )}
+            </div>
           )}
         </div>
       </div>
