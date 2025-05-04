@@ -10,6 +10,7 @@ import {
   LogOut,
   Folder,
   User,
+  Users,
   Wrench,
   Home,
 } from "lucide-react";
@@ -62,8 +63,8 @@ export default function LeftTab() {
         </Link>
       )}
 
-      {/* Dashboard (Admin Only) */}
-      {userRole === "ADMIN" && (
+      {/* Dashboard (Admin and Secretary) */}
+      {(userRole === "ADMIN" || userRole === "SECRETARY") && (
         <Link href="/dashboard">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -77,8 +78,8 @@ export default function LeftTab() {
         </Link>
       )}
 
-      {/* Projects (For Supervisor and Admin) */}
-      {(userRole === "SUPERVISOR" || userRole === "ADMIN") && (
+      {/* Projects (For Supervisor, Admin and Secretary) */}
+      {(userRole === "SUPERVISOR" || userRole === "ADMIN" || userRole === "SECRETARY") && (
         <Link href="/projects">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -114,8 +115,8 @@ export default function LeftTab() {
         </div>
       </Link>
 
-      {/* Equipment Management (For Supervisor and Admin) */}
-      {(userRole === "SUPERVISOR" || userRole === "ADMIN") && (
+ 
+      {(userRole === "SUPERVISOR" || userRole === "ADMIN" || userRole === "SECRETARY") && (
         <Link href="/inventory-management">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -129,8 +130,8 @@ export default function LeftTab() {
         </Link>
       )}
 
-      {/* Personnel Management (Admin only) */}
-      {userRole === "ADMIN" && (
+      {/* Personnel Management (Admin and Secretary) */}
+      {(userRole === "ADMIN" || userRole === "SECRETARY") && (
         <Link href="/personnel-management">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -140,6 +141,19 @@ export default function LeftTab() {
             <span className="text-xs text-white mt-[-6px] font-bold">
               Personnel
             </span>
+          </div>
+        </Link>
+      )}
+
+       {/* User Management (Admin only) */}
+       {userRole === "ADMIN" && (
+        <Link href="/user-management">
+          <div className="flex flex-col items-center gap-1">
+            <Button variant="gold" size="icon" className="w-10 h-10">
+              <Users className="w-6 h-6" />
+              <span className="sr-only">User</span>
+            </Button>
+            <span className="text-xs text-white mt-[-6px] font-bold">User</span>
           </div>
         </Link>
       )}

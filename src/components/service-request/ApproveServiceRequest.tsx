@@ -9,12 +9,13 @@ import fetchGetSupervisors from "@/domains/user-management/services/fetchGetSupe
 import fetchAssignSupervisor from "@/domains/service-request/services/fetchAssignSupervisor";
 import { fetchAddApprovedStatus } from "@/domains/service-request/services/status/fetchAddSatus";
 import refreshPage from "@/utils/refreshPage";
-
+import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 interface ApproveServiceRequestProps {
   serviceRequestId: string;
 }
 
 export default function ApproveServiceRequest({ serviceRequestId }: ApproveServiceRequestProps) {
+  const { userRole, loading } = useGetUserRole()
   const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
   const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
   const [selectedSupervisor, setSelectedSupervisor] = useState<Supervisor | null>(null);
@@ -63,6 +64,13 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
         setIsLoading(false);
       }
     }
+  }
+
+  if (loading) {
+    return null; 
+  }
+
+  if (userRole !== "ADMIN") {
   }
 
   return (
