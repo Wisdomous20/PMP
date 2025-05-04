@@ -6,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Trash2 } from "lucide-react";
+import { Trash2, Edit as EditIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -100,13 +100,10 @@ const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.checked
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="bg-green-500 hover:bg-green-600 text-white mt-2"
-        >
-          Edit Implementation Plan
-        </Button>
+        <span className="text-green-500 hover:text-green-600 cursor-pointer mt-2 px-2 py-1 text-xs inline-flex items-center space-x-1 select-none">
+          <EditIcon className="w-3 h-3" />
+          <span>Edit</span>
+        </span>
       </DialogTrigger>
       <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-scroll">
         <DialogHeader>

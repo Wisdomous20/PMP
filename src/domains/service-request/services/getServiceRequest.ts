@@ -14,7 +14,7 @@ export default async function getServiceRequests(userId: string) {
 
   let serviceRequests;
 
-  if (user.user_type === "ADMIN") {
+  if (user.user_type === "ADMIN" || user.user_type === "SECRETARY") {
     serviceRequests = await prisma.serviceRequest.findMany({
       include: {
         user: true,
