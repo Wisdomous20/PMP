@@ -9,10 +9,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import validator from "validator";
 import { signIn } from "next-auth/react";
 
-
 export default function Login() {
-  const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/service-request";
   const router = useRouter();
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
@@ -69,7 +66,10 @@ export default function Login() {
           console.error("Login error:", result.error);
           setIsLoading(false);
 
-          if (result.error.includes("Email not found") || result.error.includes("CredentialsSignin")) {
+          if (
+            result.error.includes("Email not found") ||
+            result.error.includes("CredentialsSignin")
+          ) {
             console.log("Email not found. Please register first");
             setErrors({
               ...errors,
@@ -81,9 +81,22 @@ export default function Login() {
             setErrors({ ...errors, submit: "Invalid email or password" });
           }
         } else {
-          setTimeout(() => {
-            router.push(callbackUrl);
-          }, 2000);
+          try {
+            const response = await fetch("/api/auth/session");
+            const session = await response.json();
+            const userRole = session?.user?.role;
+
+            setTimeout(() => {
+              if (userRole === "ADMIN" || userRole === "SUPERVISOR") {
+                router.push("/dashboard");
+              } else {
+                router.push("/");
+              }
+            }, 300);
+          } catch (error) {
+            console.error("Error fetching session:", error);
+            setIsLoading(false);
+          }
         }
       } catch (error) {
         console.error("Login error:", error);
@@ -134,7 +147,9 @@ export default function Login() {
               placeholder="Enter your email"
             />
             {errors.email && (
-              <p className="text-red-500 text-xs mt-1" id="email-error">{errors.email}</p>
+              <p className="text-red-500 text-xs mt-1" id="email-error">
+                {errors.email}
+              </p>
             )}
           </div>
           <div>
@@ -166,7 +181,9 @@ export default function Login() {
               </button>
             </div>
             {errors.password && (
-              <p className="text-red-500 text-xs mt-1" id="password-error">{errors.password}</p>
+              <p className="text-red-500 text-xs mt-1" id="password-error">
+                {errors.password}
+              </p>
             )}
           </div>
           <div className="mt-3">
@@ -197,7 +214,6 @@ export default function Login() {
               <p className="text-red-500 text-xs mt-1">{errors.submit}</p>
             )}
           </div>
-
         </form>
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-400">
