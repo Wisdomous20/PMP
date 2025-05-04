@@ -28,6 +28,7 @@ export const config = {
     "/projects/:path*",
     "/personnel-management/:path*",
     "/inventory-management/:path*",
+    "/user-management/:path*",
     "/implementation-plan/:path*",
     "/dashboard/:path*",
   ],
