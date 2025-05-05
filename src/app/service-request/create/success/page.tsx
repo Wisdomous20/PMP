@@ -18,16 +18,16 @@ export default function SuccessPage() {
           <p className="text-gray-600 mb-6">
             Your service request has been successfully submitted. Our team will review it and get back to you soon.
           </p>
-          <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-4">
+          {/* <div className="bg-blue-50 border border-blue-100 rounded-lg p-4 mb-4">
             <h3 className="font-medium text-blue-800 mb-1">Request ID</h3>
             <p className="text-blue-600 font-mono">#SR-{Math.floor(100000 + Math.random() * 900000)}</p>
-          </div>
+          </div> */}
           <p className="text-sm text-gray-500">
             You will receive an email confirmation with the details of your request.
           </p>
         </CardContent>
         <CardFooter className="flex flex-col gap-3">
-          <Link href="/service-requests" className="w-full">
+          <Link href="/service-request" className="w-full">
             <Button className="w-full bg-blue-600 hover:bg-blue-700" variant="default">
               <ListChecks className="h-4 w-4 mr-2" />
               View My Requests

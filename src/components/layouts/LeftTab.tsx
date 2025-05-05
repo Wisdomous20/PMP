@@ -29,6 +29,7 @@ export default function LeftTab() {
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
+    window.location.href = '/';
   };
 
   if (isLoading) {
@@ -115,7 +116,7 @@ export default function LeftTab() {
         </div>
       </Link>
 
- 
+
       {(userRole === "SUPERVISOR" || userRole === "ADMIN" || userRole === "SECRETARY") && (
         <Link href="/inventory-management">
           <div className="flex flex-col items-center gap-1">
@@ -145,8 +146,8 @@ export default function LeftTab() {
         </Link>
       )}
 
-       {/* User Management (Admin only) */}
-       {userRole === "ADMIN" && (
+      {/* User Management (Admin only) */}
+      {userRole === "ADMIN" && (
         <Link href="/user-management">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">

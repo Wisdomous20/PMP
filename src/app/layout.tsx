@@ -1,27 +1,19 @@
 "use client";
 
-import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
-import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
-import { SessionProvider } from "next-auth/react";
 import React from "react";
-import "./globals.css";
+import { SessionProvider } from "next-auth/react";
 import ClientProvider from "./ClientProvider";
-
-const queryClient = new QueryClient();
+import "./globals.css";
 
 export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
       <body>
-        <ClientProvider>
-        <QueryClientProvider client={queryClient}>
-          <SessionProvider>
+        <SessionProvider>
+          <ClientProvider>
             {children}
-          </SessionProvider>
-          {/* React Query Devtools for debugging */}
-          <ReactQueryDevtools initialIsOpen={false} />
-        </QueryClientProvider>
-        </ClientProvider>
+          </ClientProvider>
+        </SessionProvider>
       </body>
     </html>
   );

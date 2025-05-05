@@ -1,4 +1,4 @@
-"use-client";
+"use client";
 
 import { useState, useEffect } from "react";
 import useGetSessionData from "../../user-management/hooks/useGetSessionData";
@@ -38,11 +38,10 @@ export default function useGetServiceRequestList() {
   };
 
   useEffect(() => {
-    if (session) {
+    if (session?.user.id) {
       fetchServiceRequests();
     }
-    fetchServiceRequests();
-  }, [session]);
+  }, [session]);  
 
   return { serviceRequests, error, loading };
 }

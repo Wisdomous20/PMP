@@ -2,14 +2,27 @@
 
 import { Provider } from "react-redux";
 import { store } from "@/store/store";
-import { useRef } from "react";
+import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
+import { ReactQueryDevtools } from "@tanstack/react-query-devtools";
+import { useRef, useState, useEffect } from "react";
 
 export default function ClientProvider({ children }: { children: React.ReactNode }) {
-  const initialized = useRef(false);
+  const [queryClient, setQueryClient] = useState<QueryClient | null>(null);
 
-  if (!initialized.current) {
-    initialized.current = true;
+  useEffect(() => {
+    setQueryClient(new QueryClient());
+  }, []);
+
+  if (!queryClient) {
+    return null;
   }
 
-  return <Provider store={store}>{children}</Provider>;
+  return (
+    <Provider store={store}>
+      <QueryClientProvider client={queryClient}>
+        {children}
+        <ReactQueryDevtools initialIsOpen={false} />
+      </QueryClientProvider>
+    </Provider>
+  );
 }

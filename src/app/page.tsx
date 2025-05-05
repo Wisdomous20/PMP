@@ -1,28 +1,41 @@
 "use client";
+
 import { useEffect, useRef } from "react";
-import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+import { useQuery } from "@tanstack/react-query";
 import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
 import Header from "@/components/layouts/Header";
 import Link from "next/link";
 import { CheckCircle, Clock, FileText, Users } from "lucide-react";
 import Footer from "@/components/layouts/Footer";
+import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
 
 export default function Page() {
-  const { userRole, loading } = useGetUserRole();
   const router = useRouter();
   const howItWorksRef = useRef<HTMLElement>(null);
+  const { data: session } = useSession();
+
+  const { data: userRole, isLoading: isUserRoleLoading } = useQuery({
+    queryKey: ["userRole", session?.user?.id],
+    queryFn: () => fetchUserRole(session?.user?.id as string),
+    enabled: !!session?.user?.id,
+  });
 
   const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
-    ref.current?.scrollIntoView({ behavior: "smooth" });
+    if (ref && ref.current) {
+      ref.current.scrollIntoView({ behavior: "smooth" });
+    }
   };
 
   useEffect(() => {
-    if (!loading) {
-      if (userRole === "ADMIN" || userRole === "SUPERVISOR") {
-        router.push("/dashboard");
-      }
+    if (!isUserRoleLoading && userRole && (userRole === "ADMIN" || userRole === "SUPERVISOR")) {
+      router.push("/dashboard");
     }
-  }, [loading]);
+  }, [isUserRoleLoading, userRole, router]);
+
+  if (isUserRoleLoading || (userRole && (userRole === "ADMIN" || userRole === "SUPERVISOR"))) {
+     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  }
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50">

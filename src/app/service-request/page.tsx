@@ -4,42 +4,56 @@ import { useState } from "react";
 import LeftTab from "@/components/layouts/LeftTab";
 import ServiceRequestList from "@/components/service-request/ServiceRequestList";
 import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
-import ServiceRequestStatus from "@/components/service-request/ServiceRequestStatus";
+import UserServiceRequestList from "@/components/service-request/UserServiceRequestList";
 import useGetServiceRequestList from "@/domains/service-request/hooks/useGetServiceRequestList";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import { Card } from "@/components/ui/card";
 
 export default function Page() {
-  const [serviceRequestIndex, setServiceRequestIndex] = useState(0);
-  const { serviceRequests, loading } = useGetServiceRequestList();
-  const { userRole, loading: userRoleLoading } = useGetUserRole();
+  const [ selectedIndex, setSelectedIndex ] = useState(0);
+  const { serviceRequests, loading: srLoading } = useGetServiceRequestList();
+  const { userRole, loading: roleLoading } = useGetUserRole();
+  const loading = srLoading || roleLoading;
+
+  if (loading) {
+    return (
+      <div className="w-screen h-screen flex items-center justify-center">
+        <span>Loading...</span>
+      </div>
+    );
+  }
+
+  const isAdmin = userRole !== "USER";
 
   return (
-    <div className="w-screen h-screen flex flex-row">
-      <LeftTab />
-      <div className="flex-1 flex flex-row">
-        <ServiceRequestList
-          serviceRequests={serviceRequests}
-          setServiceRequestIndex={setServiceRequestIndex}
-          loading={loading || userRoleLoading}
-        />
-        <div className="flex flex-col w-full">
-          {serviceRequests.length === 0 ? (
-            <Card className="w-full h-screen flex flex-col"></Card>
-          ) : (
+    <div className="w-full min-h-screen h-full flex bg-gradient-to-b from-yellow-50 to-blue-50">
+      {isAdmin && <LeftTab />}
+      <div className={isAdmin ? "flex-1 flex" : "w-full h-full"}>
+        {isAdmin ? (
+          <>
+            <ServiceRequestList
+              serviceRequests={serviceRequests}
+              setServiceRequestIndex={setSelectedIndex}
+              loading={srLoading}
+            />
             <div className="flex-1">
-              {userRole === "USER" ? (
-                <ServiceRequestStatus
-                  serviceRequest={serviceRequests[serviceRequestIndex]}
-                />
+              {serviceRequests.length === 0 ? (
+                <Card className="w-full h-full flex items-center justify-center">
+                  <span className="text-gray-400">No requests found</span>
+                </Card>
               ) : (
                 <ServiceRequestDetails
-                  serviceRequest={serviceRequests[serviceRequestIndex]}
+                  serviceRequest={serviceRequests[selectedIndex]}
                 />
               )}
             </div>
-          )}
-        </div>
+          </>
+        ) : (
+          <UserServiceRequestList
+            serviceRequests={serviceRequests}
+            loading={srLoading}
+          />
+        )}
       </div>
     </div>
   );

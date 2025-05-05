@@ -221,7 +221,7 @@ export default function ServiceRequestStatus({
   };
 
   return (
-    <Card className="w-full h-screen flex flex-col p-6">
+    <Card className="w-full h-full min-h-[80vh] flex flex-col p-6">
       <CardHeader>
         <h1 className="text-3xl font-semibold text-center">
           {isCompleted
