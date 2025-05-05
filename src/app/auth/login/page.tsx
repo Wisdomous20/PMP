@@ -1,8 +1,10 @@
-import Login from "@/components/auth/Login";
+import dynamic from 'next/dynamic';
+
+const Login = dynamic(
+  () => import('@/components/auth/Login'),
+  { ssr: false }
+);
+
 export default function Page() {
-  return (
-    <div className="">
-      <Login />
-    </div>
-  );
+  return <Login />;
 }

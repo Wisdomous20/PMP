@@ -1,12 +1,10 @@
-import Register from "@/components/auth/Register";
-import { Suspense } from "react";
+import dynamic from 'next/dynamic';
+
+const Register = dynamic(
+  () => import('@/components/auth/Register'),
+  { ssr: false }
+);
 
 export default function Page() {
-  return (
-    <div className="">
-      <Suspense fallback={<div>Loading...</div>}>
-        <Register />
-      </Suspense>
-    </div>
-  );
+  return <Register />;
 }

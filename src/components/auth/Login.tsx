@@ -8,9 +8,12 @@ import Image from "next/image";
 import { useRouter } from "next/navigation";
 import validator from "validator";
 import { signIn } from "next-auth/react";
+import { useSearchParams } from "next/navigation";
 
 export default function Login() {
   const router = useRouter();
+  const searchParams = useSearchParams();
+  const callbackUrl = searchParams.get("callbackUrl") || "/";
   const [email, setEmail] = useState("");
   const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
@@ -90,7 +93,7 @@ export default function Login() {
               if (userRole === "ADMIN" || userRole === "SUPERVISOR") {
                 router.push("/dashboard");
               } else {
-                router.push("/");
+                router.push(callbackUrl);
               }
             }, 300);
           } catch (error) {
@@ -219,7 +222,7 @@ export default function Login() {
           <p className="text-sm text-gray-400">
             Don&lsquo;t have an account?{" "}
             <a
-              href="/auth/register"
+              href={`/auth/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}
               className="text-yellow-400 hover:underline"
             >
               Register here

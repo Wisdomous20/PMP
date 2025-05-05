@@ -57,7 +57,7 @@ export default function Register() {
       newErrors.firstName = "First name is required.";
       isValid = false;
     }
-  
+
     if (!validator.isAlpha(lastName, 'en-US', { ignore: " -" })) {
       newErrors.lastName = "Last name must contain only letters.";
       isValid = false;
@@ -65,7 +65,7 @@ export default function Register() {
       newErrors.lastName = "Last name is required.";
       isValid = false;
     }
-    
+
     if (validator.isEmpty(department)) {
       newErrors.department = "Department is required.";
       isValid = false;
@@ -405,7 +405,10 @@ export default function Register() {
         <div className="mt-4 text-center">
           <p className="text-sm text-gray-400">
             Already have an account?{" "}
-            <a href="/auth/login" className="text-yellow-400 hover:underline">
+            <a
+              href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}
+              className="text-yellow-400 hover:underline"
+            >
               Log in here
             </a>
           </p>
