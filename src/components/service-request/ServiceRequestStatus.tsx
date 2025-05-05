@@ -1,6 +1,6 @@
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
-import { useRouter } from "next/navigation"; // Add this import
+// import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
@@ -15,7 +15,7 @@ interface ServiceRequestStatusProps {
 
 function getStatusInfo(
   status: Status[],
-  implementationPlanStatus: string
+  // implementationPlanStatus: string
 ): { message: string; progress: number[] } {
   const lastStatus = status[status.length - 1]?.status;
 
@@ -54,16 +54,16 @@ export default function ServiceRequestStatus({
 }: ServiceRequestStatusProps) {
   const { concern, details, createdOn, status, id } = serviceRequest;
   const { data: session } = useSession();
-  const router = useRouter(); // Add this
+  // const router = useRouter();
   const userId = session?.user?.id;
 
-  const [implementationPlanStatus, setImplementationPlanStatus] =
-    useState<string>("");
+  // const [implementationPlanStatus, setImplementationPlanStatus] =
+  //   useState<string>("");
   // eslint-disable-next-line @typescript-eslint/no-explicit-any
   const [existingRating, setExistingRating] = useState<any>(null);
   const [isRatingSubmitted, setIsRatingSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { message, progress } = getStatusInfo(status, implementationPlanStatus);
+  const { message, progress } = getStatusInfo(status);
   const isCompleted = status[status.length - 1]?.status === "completed";
   const archiveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasArchivedRef = useRef(false);
@@ -74,11 +74,11 @@ export default function ServiceRequestStatus({
       try {
         // Fetch implementation plan status
         if (userId) {
-          const implPlanResponse = await fetch(
-            `/api/implementation-plan/${id}?userId=${userId}`
-          );
-          const implPlanData = await implPlanResponse.json();
-          setImplementationPlanStatus(implPlanData.status);
+          // const implPlanResponse = await fetch(
+          //   `/api/implementation-plan/${id}?userId=${userId}`
+          // );
+          // const implPlanData = await implPlanResponse.json();
+          // setImplementationPlanStatus(implPlanData.status);
         }
 
         // Fetch existing rating if request is completed
@@ -126,9 +126,9 @@ export default function ServiceRequestStatus({
         await archiveServiceRequest();
       }, 3000);
 
-      const handleRouteChange = async () => {
-        await archiveServiceRequest();
-      };
+      // const handleRouteChange = async () => {
+      //   await archiveServiceRequest();
+      // };
 
       return () => {
         window.removeEventListener("beforeunload", handleBeforeUnload);

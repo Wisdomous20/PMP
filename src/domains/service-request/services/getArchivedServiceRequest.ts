@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
-export default async function getArchivedServiceRequests(userId: string) {
+export default async function getArchivedServiceRequests() {
   try { const serviceRequests = await prisma.serviceRequest.findMany({
     where: {
       status: {

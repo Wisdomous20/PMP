@@ -13,7 +13,7 @@ export async function GET(req: NextRequest) {
   }
   
   try {
-    const archivedRequests = await getArchivedServiceRequests(userId);
+    const archivedRequests = await getArchivedServiceRequests();
     return NextResponse.json(archivedRequests);
   } catch (error) {
     console.error("Error fetching archived service requests:", error);

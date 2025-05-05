@@ -5,7 +5,7 @@ import useGetSessionData from "./useGetSessionData";
 import getUserRoleFetch from "@/domains/user-management/services/getUserRoleFetch";
 
 export default function useGetUserRole() {
-  const [userRole, setUserRole] = useState<UserRole>(null);
+  const [userRole, setUserRole] = useState<UserRole>();
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { sessionData: session } = useGetSessionData();

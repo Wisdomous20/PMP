@@ -1,3 +1,4 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
 import React, { useState } from "react";
@@ -60,6 +61,7 @@ export default function Archives() {
         });
         setSelectedItems([]);
         refreshArchives();
+      // eslint-disable-next-line @typescript-eslint/no-unused-vars
       } catch (error) {
         toast({
           title: "Error",

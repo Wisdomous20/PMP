@@ -12,10 +12,12 @@ interface UserDetailsModalProps {
   onClose: () => void;
 }
 
-const roles: UserRole[] = ["USER", "SUPERVISOR", "SECRETARY"];
+type LimitedUserRole = Exclude<UserRole, 'ADMIN' | null>;
+
+const roles: LimitedUserRole[] = ["USER", "SUPERVISOR", "SECRETARY"];
 
 export default function UserDetailsModal({ user, open, onClose }: UserDetailsModalProps) {
-  const [selectedRole, setSelectedRole] = useState<UserRole>(user?.user_type || "USER");
+  const [selectedRole, setSelectedRole] = useState<LimitedUserRole>((user?.user_type || "USER") as LimitedUserRole);
   const [working, setWorking] = useState(false);
 
   if (!user) return null;
@@ -50,7 +52,7 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
             <span className="font-medium">User Type:</span>
             <select
               value={selectedRole}
-              onChange={(e) => setSelectedRole(e.target.value as UserRole)}
+              onChange={(e) => setSelectedRole(e.target.value as LimitedUserRole)}
               className="border border-gray-300 rounded-md px-3 py-1 focus:outline-none"
             >
               {roles.map((role) => (

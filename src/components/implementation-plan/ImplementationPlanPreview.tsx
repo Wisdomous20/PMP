@@ -9,7 +9,7 @@ interface ImplementationPlanPreviewProps {
 }
 
 const ImplementationPlanPreview: React.FC<ImplementationPlanPreviewProps> = ({ plan }) => {
-  const { userRole, loading, error } = useGetUserRole();
+  const { userRole } = useGetUserRole();
   const isSecretary = userRole === "SECRETARY";
 
   const tasksInitial = plan.tasks.map((t) => ({
