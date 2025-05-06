@@ -6,6 +6,7 @@ type EmailParams = {
   statusText: "Submitted" | "In Progress" | "Approved" | "Rejected" | "Completed";
   concern: string;
   details: string;
+  note?: string;
   color?: string;
 };
 
@@ -15,6 +16,7 @@ export async function sendServiceRequestStatusEmail({
   statusText,
   concern,
   details,
+  note,
   color = "#2c3e50",
 }: EmailParams) {
   const transporter = nodemailer.createTransport({
@@ -24,6 +26,15 @@ export async function sendServiceRequestStatusEmail({
       pass: process.env.EMAIL_PASS,
     },
   });
+
+  const noteSection = note
+    ? `
+      <h3 style="margin-top: 24px; color: #333;">Note</h3>
+      <p style="padding: 10px; background-color: #f9f9f9; border-radius: 4px;">
+        ${note}
+      </p>
+    `
+    : "";
 
   const html = `
     <div style="font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; background-color: #f4f7f6; color: #333;">
@@ -44,6 +55,8 @@ export async function sendServiceRequestStatusEmail({
             <td style="padding: 10px;">${details}</td>
           </tr>
         </table>
+
+        ${noteSection}
 
         <p style="margin-top: 24px;">We will continue to update you as your request progresses. If you need further assistance, feel free to reply to this email.</p>
 
@@ -68,11 +81,5 @@ export async function sendServiceRequestStatusEmail({
     html,
   };
 
-  try {
-    await transporter.sendMail(mailOptions);
-    console.log(`Service request email sent to ${to}`);
-  } catch (err) {
-    console.error("Error sending email:", err);
-    throw new Error("Failed to send service request email.");
-  }
+  await transporter.sendMail(mailOptions);
 }
