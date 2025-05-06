@@ -1,9 +1,15 @@
-import { format } from "date-fns";
+import { format, isValid } from "date-fns";
 
-export default function formatTimestamp(timestamp: Date) : string {
+export default function formatTimestamp(timestamp: Date): string {
+  console.log(timestamp)
+  console.log(isValid(timestamp))
   const date = new Date(timestamp);
-  const today = new Date();
 
+  if (!isValid(date)) {
+    return "Invalid Date";
+  }
+
+  const today = new Date();
   const isSameDay = today.toDateString() === date.toDateString();
   const isSameYear = today.getFullYear() === date.getFullYear();
 

@@ -1,28 +1,40 @@
 import { NextRequest, NextResponse } from "next/server";
+import { prisma } from "@/lib/prisma";
 import addRejectedStatus from "@/domains/service-request/services/status/addRejectedStatus";
+import { createNotification } from "@/domains/notification/services/createNotification";
+import { sendServiceRequestStatusEmail } from "@/domains/notification/services/sendServiceRequestStatusEmail";
 
 export async function POST(req: NextRequest) {
   const { serviceRequestId, note } = await req.json();
-
   if (!serviceRequestId) {
-    return NextResponse.json(
-      { error: "Service request ID is required" },
-      { status: 400 }
-    );
+    return NextResponse.json({ error: "serviceRequestId is required" }, { status: 400 });
   }
 
-  try {
-    const status = await addRejectedStatus(serviceRequestId, note);
-
-    return NextResponse.json(
-      { message: `Rejected status added successfully`, status },
-      { status: 200 }
-    );
-  } catch (error) {
-    console.error(`Error adding rejected status:`, error);
-    return NextResponse.json(
-      { error: `Failed to add rejected status` },
-      { status: 500 }
-    );
+  const request = await prisma.serviceRequest.findUnique({
+    where: { id: serviceRequestId },
+    include: { user: true },
+  });
+  if (!request) {
+    return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
+
+  const status = await addRejectedStatus(serviceRequestId, note);
+
+  await createNotification(
+    "service_request",
+    `Service request ${serviceRequestId} has been rejected.`,
+    `/admin/service-requests/${serviceRequestId}`
+  );
+
+  await sendServiceRequestStatusEmail({
+    to: request.user.email,
+    userName: `${request.user.firstName} ${request.user.lastName}`,
+    statusText: "Rejected",
+    concern: request.concern,
+    details: request.details,
+    note,           
+    color: "#e74c3c",
+  });
+
+  return NextResponse.json({ message: "Rejected", status }, { status: 200 });
 }

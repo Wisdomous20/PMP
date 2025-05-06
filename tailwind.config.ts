@@ -46,7 +46,8 @@ const config: Config = {
 				text:'#1e1b4b'
 			},
 			gold:{
-				Background: '#fbbf24'
+				Background: '#fbbf24',
+				light: '#fef3c7'
 			},
 			gray:{
 				text:'#111827',

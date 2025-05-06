@@ -34,6 +34,7 @@ export default async function getServiceRequestById(serviceRequestId: string) : 
     id,
     requesterName,
     concern,
+    user,
     details,
     createdOn,
     status: serviceRequestStatus

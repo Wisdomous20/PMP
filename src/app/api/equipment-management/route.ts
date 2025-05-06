@@ -1,6 +1,8 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
 import { NextRequest, NextResponse } from "next/server";
-import createEquipment from "@/domains/equipment-management/services/createEquipment";
-import getAllEquipment from "@/domains/equipment-management/services/getAllEquipment";
+import createEquipment from "@/domains/inventory-management/services/createEquipment";
+import getAllEquipment from "@/domains/inventory-management/services/getAllEquipment";
+import { prisma } from "@/lib/prisma";
 
 export async function POST(req: NextRequest): Promise<NextResponse> {
   try {
@@ -35,7 +37,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       !location ||
       !department ||
       !status
-      
     ) {
       return NextResponse.json(
         { error: "Missing required fields" },
@@ -69,10 +70,99 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
   }
 }
 
-export async function GET(): Promise<NextResponse> {
+export async function GET(req: NextRequest): Promise<NextResponse> {
   try {
-    const equipment = await getAllEquipment();
-    return NextResponse.json(equipment, { status: 200 });
+    const url = new URL(req.url);
+    const searchParams = url.searchParams;
+    
+    if (searchParams.has('departments')) {
+      const departmentsData = await prisma.equipment.findMany({
+        distinct: ["department"],
+        select: {
+          department: true,
+        },
+      });
+      
+      const departments = departmentsData
+        .map((item) => item.department)
+        .filter(Boolean)
+        .sort();
+      
+      return NextResponse.json({ departments });
+    }
+    
+    const page = searchParams.get('page');
+    const pageSize = searchParams.get('pageSize');
+    const department = searchParams.get('department');
+    
+    if (!page && !pageSize) {
+      const equipment = await getAllEquipment();
+      return NextResponse.json(equipment, { status: 200 });
+    }
+    
+    const currentPage = parseInt(page || '1');
+    const itemsPerPage = parseInt(pageSize || '50');
+    
+    const whereConditions: any = {};
+    if (department) {
+      whereConditions.department = department;
+    }
+    
+    const totalCount = await prisma.equipment.count({
+      where: whereConditions,
+    });
+    
+    const skip = (currentPage - 1) * itemsPerPage;
+    const take = itemsPerPage;
+    const pageCount = Math.ceil(totalCount / itemsPerPage);
+    
+    const equipment = await prisma.equipment.findMany({
+      where: whereConditions,
+      skip,
+      take,
+      orderBy: {
+        dateReceived: 'desc',
+      },
+      include: {
+        serviceRequest: {
+          select: {
+            id: true,
+            details: true,
+            concern: true,
+          },
+        },
+      },
+    });
+    
+    const mappedEquipment = equipment.map(item => ({
+      id: item.id,
+      quantity: item.quantity,
+      description: item.description,
+      brand: item.brand,
+      serialNumber: item.serialNumber,
+      unitCost: item.unitCost,
+      totalCost: item.totalCost,
+      datePurchased: item.datePurchased,
+      supplier: item.supplier,
+      dateReceived: item.dateReceived,
+      status: item.status,
+      location: item.location,
+      department: item.department,
+      serviceRequest: item.serviceRequest ? {
+        serviceRequestId: item.serviceRequest.id,
+        serviceRequestName: item.serviceRequest.concern || item.serviceRequest.id,
+      } : undefined,
+    }));
+    
+    return NextResponse.json({
+      data: mappedEquipment,
+      meta: {
+        total: totalCount,
+        page: currentPage,
+        pageSize: itemsPerPage,
+        pageCount,
+      },
+    }, { status: 200 });
   } catch (error) {
     console.error("Error fetching equipment:", error);
     return NextResponse.json(

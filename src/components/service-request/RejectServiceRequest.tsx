@@ -1,69 +1,58 @@
-'use client'
+'use client';
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { XIcon } from "lucide-react";
-import { fetchAddRejectedStatus } from "@/domains/service-request/services/status/fetchAddSatus";
+import fetchRejectServiceRequest from "@/domains/service-request/services/fetchRejectServiceRequest";
+import refreshPage from "@/utils/refreshPage";
+import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 interface RejectServiceRequestProps {
   serviceRequestId: string;
 }
 
 export default function RejectServiceRequest({ serviceRequestId }: RejectServiceRequestProps) {
-  const [isRejectDialogOpen, setIsRejectDialogOpen] = useState(false);
-  const [reason, setReason] = useState("");
-  const [rows, setRows] = useState(1);
+  const { userRole, loading } = useGetUserRole();
+  const [isOpen, setIsOpen] = useState(false);
+  const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
-
-  const handleReject = async () => {
-    try {
-      console.log("Request rejected with reason:", reason);
-      setIsLoading(true)
-
-      await handleSubmit();
-      setIsRejectDialogOpen(false);
-      setReason("");
-    } catch (err) {
-      console.error('Failed to reject service request:', err);
-      setError('Failed to reject the request. Please try again.');
-    } finally {
-      setIsLoading(false)
-    }
-  };
-
-  const handleInputChange = (event: React.ChangeEvent<HTMLTextAreaElement>) => {
-    setReason(event.target.value);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLTextAreaElement>) => {
-    if (e.key === 'Enter' && !e.shiftKey) {
-      e.preventDefault();
-      handleSubmit();
-    }
-  };
-
-  const handleSubmit = async () => {
-    if (reason.trim() === "") {
-      throw new Error("Reason is required.");
-    }
-
-    await fetchAddRejectedStatus(serviceRequestId, reason);
-  };
 
   useEffect(() => {
     if (textareaRef.current) {
       textareaRef.current.style.height = "auto";
       textareaRef.current.style.height = `${textareaRef.current.scrollHeight}px`;
-      setRows(textareaRef.current.rows);
     }
-  }, [reason]);
+  }, [note]);
+
+  const handleSubmit = async () => {
+    if (!note.trim()) {
+      setError("Reason is required.");
+      return;
+    }
+    setError(null);
+    setIsLoading(true);
+
+    try {
+      await fetchRejectServiceRequest(serviceRequestId, note);
+      setIsOpen(false);
+      setNote("");
+      refreshPage();
+    } catch (e) {
+      console.error(e);
+      setError("Failed to reject the request. Please try again.");
+    } finally {
+      setIsLoading(false);
+    }
+  };
+
+  if (loading || userRole !== "ADMIN") return null;
 
   return (
-    <Dialog open={isRejectDialogOpen} onOpenChange={setIsRejectDialogOpen}>
+    <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
         <Button variant="destructive" size="sm">
           <XIcon className="h-4 w-4 mr-2" />
@@ -74,30 +63,26 @@ export default function RejectServiceRequest({ serviceRequestId }: RejectService
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Reject Service Request</DialogTitle>
-          <DialogDescription>
-            Please provide a reason for rejecting this service request.
-          </DialogDescription>
+          <DialogDescription>Provide a reason for rejection.</DialogDescription>
         </DialogHeader>
 
         {error && <p className="text-red-500 mt-2">{error}</p>}
 
-        <div className="grid gap-4 py-4">
-          <Label htmlFor="reason" className="text-left">
-            Reason
-          </Label>
+        <div className="mt-4">
+          <Label htmlFor="note">Reason</Label>
           <Textarea
+            id="note"
             ref={textareaRef}
-            value={reason}
-            onChange={handleInputChange}
-            onKeyDown={handleKeyDown}
-            placeholder="Type Reason..."
-            rows={rows}
-            className="min-h-[40px] max-h-[200px] resize-none"
+            value={note}
+            onChange={(e) => setNote(e.target.value)}
+            placeholder="Type reason..."
+            rows={1}
+            className="mt-2 w-full resize-none max-h-[200px]"
           />
         </div>
 
         <DialogFooter>
-          <Button type="button" onClick={handleReject} disabled={isLoading}>
+          <Button onClick={handleSubmit} disabled={isLoading}>
             {isLoading ? "Rejecting..." : "Confirm Rejection"}
           </Button>
         </DialogFooter>

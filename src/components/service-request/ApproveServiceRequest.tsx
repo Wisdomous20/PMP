@@ -1,4 +1,5 @@
 'use client';
+
 import { useState, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@/components/ui/select";
@@ -6,15 +7,18 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { CheckIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import fetchGetSupervisors from "@/domains/user-management/services/fetchGetSupervisors";
-import fetchAssignSupervisor from "@/domains/service-request/services/fetchAssignSupervisor";
-import { fetchAddApprovedStatus } from "@/domains/service-request/services/status/fetchAddSatus";
+import fetchApproveServiceRequest from "@/domains/service-request/services/fetchApproveServiceRequest";
 import refreshPage from "@/utils/refreshPage";
+import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 interface ApproveServiceRequestProps {
   serviceRequestId: string;
 }
 
+type Supervisor = { id: string; firstName: string; lastName: string };
+
 export default function ApproveServiceRequest({ serviceRequestId }: ApproveServiceRequestProps) {
+  const { userRole, loading } = useGetUserRole();
   const [isApproveDialogOpen, setIsApproveDialogOpen] = useState(false);
   const [supervisors, setSupervisors] = useState<Supervisor[]>([]);
   const [selectedSupervisor, setSelectedSupervisor] = useState<Supervisor | null>(null);
@@ -23,47 +27,42 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
   const [isLoadingSupervisorList, setIsLoadingSupervisorList] = useState(false);
 
   useEffect(() => {
-    const loadSupervisors = async () => {
+    async function loadSupervisors() {
       try {
         setIsLoadingSupervisorList(true);
-        const fetchedSupervisors = await fetchGetSupervisors();
-        if (fetchedSupervisors) {
-          setSupervisors(fetchedSupervisors);
-        } else {
-          throw Error;
-        }
-      } catch (error) {
-        console.error("Failed to load supervisors:", error);
+        const fetched = await fetchGetSupervisors();
+        setSupervisors(fetched || []);
+      } catch (e) {
+        console.error(e);
       } finally {
         setIsLoadingSupervisorList(false);
       }
-    };
-
+    }
     loadSupervisors();
   }, []);
 
   async function handleApprove() {
-    if (selectedSupervisor) {
-      console.log("Request approved for supervisor:", selectedSupervisor, "with note:", note);
+    if (!selectedSupervisor) return;
+    setIsLoading(true);
+    try {
+      await fetchApproveServiceRequest(
+        serviceRequestId,
+        selectedSupervisor.id,
+        note
+      );
 
-      try {
-        setIsLoading(true);
-
-        await fetchAssignSupervisor(serviceRequestId, selectedSupervisor.id);
-        await fetchAddApprovedStatus(serviceRequestId, note);
-
-        setIsApproveDialogOpen(false);
-        setSelectedSupervisor(null);
-        setNote("");
-
-        refreshPage();
-      } catch (error) {
-        console.error("Failed to approve service request:", error);
-      } finally {
-        setIsLoading(false);
-      }
+      setIsApproveDialogOpen(false);
+      setSelectedSupervisor(null);
+      setNote("");
+      refreshPage();
+    } catch (e) {
+      console.error(e);
+    } finally {
+      setIsLoading(false);
     }
   }
+
+  if (loading || userRole !== "ADMIN") return null;
 
   return (
     <Dialog open={isApproveDialogOpen} onOpenChange={setIsApproveDialogOpen}>
@@ -73,57 +72,51 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
           Approve
         </Button>
       </DialogTrigger>
-
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Approve Service Request</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to approve this service request?
-          </DialogDescription>
+          <DialogDescription>Confirm approval and assign a supervisor.</DialogDescription>
         </DialogHeader>
 
         {isLoadingSupervisorList ? (
-          <div className="flex justify-center items-center h-10 w-full rounded-md bg-primary/10 animate-pulse text-primary font-medium">
-            Loading Supervisors...
-          </div>
+          <div className="flex justify-center p-4">Loading...</div>
         ) : (
           <Select
             value={selectedSupervisor?.id}
-            onValueChange={(value) => {
-              const supervisor = supervisors.find((sup) => sup.id === value);
-              setSelectedSupervisor(supervisor || null);
+            onValueChange={(val) => {
+              const sup = supervisors.find((s) => s.id === val) || null;
+              setSelectedSupervisor(sup);
             }}
           >
             <SelectTrigger>
               <SelectValue placeholder="Select a Supervisor" />
             </SelectTrigger>
-
             <SelectContent>
-              {supervisors.map((supervisor) => (
-                <SelectItem key={supervisor.id} value={supervisor.id}>
-                  {supervisor.firstName} {supervisor.lastName}
+              {supervisors.map((sup) => (
+                <SelectItem key={sup.id} value={sup.id}>
+                  {sup.firstName} {sup.lastName}
                 </SelectItem>
               ))}
             </SelectContent>
           </Select>
         )}
 
-        <div>
+        <div className="mt-4">
           <label htmlFor="note" className="block font-medium">
             Note (Optional)
           </label>
           <Textarea
             id="note"
-            placeholder="Add any extra information..."
             rows={3}
+            placeholder="Add extra information..."
             value={note}
             onChange={(e) => setNote(e.target.value)}
-            className="mt-2 w-full resize-none"
+            className="mt-2 w-full"
           />
         </div>
 
         <DialogFooter>
-          <Button type="button" onClick={handleApprove} disabled={!selectedSupervisor || isLoading}>
+          <Button onClick={handleApprove} disabled={!selectedSupervisor || isLoading}>
             {isLoading ? "Approving..." : "Confirm Approval"}
           </Button>
         </DialogFooter>

@@ -1,4 +1,3 @@
-// EditImplementationPlan.tsx
 "use client";
 
 import { useState } from "react";
@@ -7,7 +6,7 @@ import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Trash2 } from "lucide-react";
+import { Trash2, Edit as EditIcon } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -16,7 +15,8 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import fetchUpdateImplementationPlan from "@/domains/implementation-plan/services/fetchUpdateImplementationPlan";
-import formatTimestamp from "@/utils/formatTimestamp";
+import fetchUpdateImplementationPlanStatus from "@/domains/implementation-plan/services/fetchUpdateImplementationPlanStatus";
+// import formatTimestamp from "@/utils/formatTimestamp";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
 
@@ -67,16 +67,43 @@ export default function EditImplementationPlan({
     }
   }
 
+async function handleCompleteImplementationPlan() {
+    setIsUpdating(true);
+    try {
+      await fetchUpdateImplementationPlanStatus(serviceRequest.id, "completed");
+      console.log("Implementation Plan marked as completed");
+    } catch (error) {
+      console.error("Failed to mark implementation plan as completed:", error);
+    } finally {
+      setIsUpdating(false);
+    }
+    
+    // Update the implementation plan with the current tasks
+    const formattedTasks = tasks.map((task) => ({
+        id: task.id,
+        name: task.name,
+        startTime: task.startTime,
+        endTime: task.endTime,
+        checked: task.checked,
+    }));
+
+    await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks);
+    console.log("Implementation Plan updated successfully");
+
+  }
+
+const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.checked);
+    
+    // This will be used to determine if the "Mark as Completed" button should be shown
+
+
   return (
     <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
       <DialogTrigger asChild>
-        <Button
-          variant="outline"
-          size="sm"
-          className="bg-green-500 hover:bg-green-600 text-white mt-2"
-        >
-          Edit Implementation Plan
-        </Button>
+        <span className="text-green-500 hover:text-green-600 cursor-pointer mt-2 px-2 py-1 text-xs inline-flex items-center space-x-1 select-none">
+          <EditIcon className="w-3 h-3" />
+          <span>Edit</span>
+        </span>
       </DialogTrigger>
       <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-scroll">
         <DialogHeader>
@@ -87,16 +114,16 @@ export default function EditImplementationPlan({
             <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
               <div className="space-y-6 md:col-span-2">
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Name of requester</p>
-                  <p className="font-medium">{serviceRequest.requesterName}</p>
+                  <span className="text-sm text-muted-foreground">Name of requester</span>
+                  <div className="font-medium">{serviceRequest.user.firstName} {serviceRequest.user.lastName}</div>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Concern</p>
-                  <p className="font-medium">{serviceRequest.concern}</p>
+                  <span className="text-sm text-muted-foreground">Concern</span>
+                  <div className="font-medium">{serviceRequest.concern}</div>
                 </div>
                 <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Details of the Request</p>
-                  <p className="font-medium">{serviceRequest.details}</p>
+                  <span className="text-sm text-muted-foreground">Details of the Request</span>
+                  <div className="font-medium">{serviceRequest.details}</div>
                 </div>
                 <Separator />
                 <div className="space-y-4">
@@ -142,24 +169,6 @@ export default function EditImplementationPlan({
                 </div>
               </div>
               <div className="space-y-6">
-                {serviceRequest.createdOn && (
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">Request Date</p>
-                    <p className="font-medium">{formatTimestamp(serviceRequest.createdOn)}</p>
-                  </div>
-                )}
-                <Button
-                  variant="outline"
-                  className="w-full h-24 flex flex-col items-center justify-center"
-                >
-                  <span>People Assigned</span>
-                </Button>
-                <Button
-                  variant="outline"
-                  className="w-full h-24 flex items-center justify-center"
-                >
-                  <span>Equipment / Budget</span>
-                </Button>
                 <Button
                   onClick={handleUpdateImplementationPlan}
                   className="w-full mt-4 bg-yellow-400 hover:bg-yellow-500 text-white"
@@ -167,6 +176,15 @@ export default function EditImplementationPlan({
                 >
                   {isUpdating ? "Updating..." : "Update Implementation Plan"}
                 </Button>
+                {allTasksCompleted && (
+                  <Button
+                    onClick={handleCompleteImplementationPlan}
+                    className="w-full mt-4 bg-blue-500 hover:bg-blue-600 text-white"
+                    disabled={isUpdating}
+                  >
+                    {isUpdating ? "Completing..." : "Mark as Completed"}
+                  </Button>
+                )}
               </div>
             </div>
           </CardContent>

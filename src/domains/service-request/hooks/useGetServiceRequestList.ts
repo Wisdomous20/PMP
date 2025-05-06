@@ -1,4 +1,4 @@
-"use-client";
+"use client";
 
 import { useState, useEffect } from "react";
 import useGetSessionData from "../../user-management/hooks/useGetSessionData";
@@ -17,7 +17,10 @@ export default function useGetServiceRequestList() {
           session.user.id
         );
 
-        const sortedRequests = [...serviceRequestsInitial].sort((a, b) => {
+        const filteredRequests = serviceRequestsInitial.filter(
+          (request: ServiceRequest) => !request.status.some((status) => status.status === "archived")
+        );
+        const sortedRequests = [...filteredRequests].sort((a, b) => {
           const dateA = a.createdOn ? new Date(a.createdOn) : null;
           const dateB = b.createdOn ? new Date(b.createdOn) : null;
           if (dateA === null && dateB === null) return 0;
@@ -35,11 +38,10 @@ export default function useGetServiceRequestList() {
   };
 
   useEffect(() => {
-    if (session) {
+    if (session?.user.id) {
       fetchServiceRequests();
     }
-    fetchServiceRequests();
-  }, [session]);
+  }, [session]);  
 
   return { serviceRequests, error, loading };
 }

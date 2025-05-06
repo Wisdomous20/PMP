@@ -1,7 +1,7 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 import { NextRequest, NextResponse } from "next/server";
-import createPersonnel from "@/domains/manpower-management/service/createPersonel"; 
-import getPersonnel from "@/domains/manpower-management/service/getPersonnel"; 
+import createPersonnel from "@/domains/personnel-management/service/createPersonel"; 
+import getPersonnel from "@/domains/personnel-management/service/getPersonnel"; 
 
 export async function POST(req: NextRequest) {
   const { name, department, position } = await req.json();

@@ -1,7 +1,7 @@
 import { NextRequest, NextResponse } from "next/server";
-import getEquipmentById from "@/domains/equipment-management/services/getEquipmentById";
-import updateEquipment from "@/domains/equipment-management/services/updateEquipment";
-import { deleteEquipmentById } from "@/domains/equipment-management/services/deleteEquipmentById";
+import getEquipmentById from "@/domains/inventory-management/services/getEquipmentById";
+import updateEquipment from "@/domains/inventory-management/services/updateEquipment";
+import { deleteEquipmentById } from "@/domains/inventory-management/services/deleteEquipmentById";
 
 export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
   try {

@@ -2,10 +2,22 @@ type ImplementationPlan = {
     id: string;
     description: string;
     status: string;
-    files: Files[];
-    serviceRequest: ServiceRequest[];
+    serviceRequest: ServiceRequest;
     tasks: Task[];
 };
+
+type ServiceRequest = {
+    id: string;
+    requesterName: string;
+    concern: string;
+    details: string;
+    createdOn: Date | null;
+    status: Status[];
+    user: {
+        firstName: string,
+        lastName: string
+    }
+}
 
 type Task = {
     id: string;
@@ -15,15 +27,8 @@ type Task = {
     checked: boolean;
 };
 
-type Files = {
-    id: string;
-    implementationPlanId: string;
-    url: string;
-};
-
 type Assignment = {
   taskId: string;
   personnelId: string;
   assignedAt: Date;
-  
 };
