@@ -1,7 +1,7 @@
 export default async function fetchGetImplementationPlanById(
   planId: string
 ): Promise<ImplementationPlan> {
-  const endpoint = `/api/implementation-plan/${planId}`;
+  const endpoint = `/api/implementation-plan/${planId}/tasks`;
 
   try {
     const response = await fetch(endpoint, {

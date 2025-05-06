@@ -3,7 +3,7 @@ import { useState, useEffect } from "react";
 import { Button } from "../ui/button"; 
 import { Input } from "../ui/input"; 
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogClose } from "../ui/dialog";
-import updatePersonnelService from "../../domains/manpower-management/service/updatePersonnel";
+import updatePersonnelService from "../../domains/personnel-management/service/updatePersonnel";
 
 interface UpdatePersonnelProps {
   onUpdate: () => void;

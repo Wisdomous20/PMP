@@ -14,9 +14,8 @@ export default async function getServiceRequests(userId: string) {
 
   let serviceRequests;
 
-  if (user.user_type === "ADMIN") {
+  if (user.user_type === "ADMIN" || user.user_type === "SECRETARY") {
     serviceRequests = await prisma.serviceRequest.findMany({
-      where: { archived: false },
       include: {
         user: true,
         status: {
@@ -31,7 +30,7 @@ export default async function getServiceRequests(userId: string) {
       where: {
         supervisorAssignment: {
           supervisorId: userId
-        }, archived: false,
+        }, 
       },
       include: {
         user: true,
@@ -45,7 +44,7 @@ export default async function getServiceRequests(userId: string) {
   } else if (user.user_type === "USER") {
     serviceRequests = await prisma.serviceRequest.findMany({
       where: {
-        userId,archived: false,
+        userId,
       },
       include: {
         user: true,

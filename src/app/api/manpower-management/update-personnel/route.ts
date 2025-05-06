@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import updatePersonnel from "@/domains/manpower-management/service/updatePersonnel"; 
+import updatePersonnel from "@/domains/personnel-management/service/updatePersonnel"; 
 
 export async function PUT(req: NextRequest) {
     const { id, name, department,position } = await req.json();

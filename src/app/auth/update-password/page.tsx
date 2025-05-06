@@ -1,10 +1,10 @@
-import UpdatePassword from '@/components/auth/UpdatePassword';
+import dynamic from 'next/dynamic';
+
+const UpdatePassword = dynamic(
+  () => import('@/components/auth/UpdatePassword'),
+  { ssr: false }
+);
 
 export default function Page() {
-  return (
-    <div className="">
-        <UpdatePassword />
-    </div>
-  );
+  return <UpdatePassword />;
 }
-

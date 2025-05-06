@@ -1,41 +1,18 @@
-import type { Metadata } from "next";
-import localFont from "next/font/local";
-import { Toaster } from "@/components/ui/toaster"
+"use client";
+
+import React from "react";
+import { SessionProvider } from "next-auth/react";
+import ClientProvider from "./ClientProvider";
 import "./globals.css";
-import { getServerSession } from "next-auth";
-import SessionProvider from "@/components/auth/SessionProvider";
 
-const geistSans = localFont({
-  src: "./fonts/GeistVF.woff",
-  variable: "--font-geist-sans",
-  weight: "100 900",
-});
-const geistMono = localFont({
-  src: "./fonts/GeistMonoVF.woff",
-  variable: "--font-geist-mono",
-  weight: "100 900",
-});
-
-export const metadata: Metadata = {
-  title: "CPU Project Management System",
-  description: "CPU Project Management System",
-};
-
-export default async function RootLayout({
-  children,
-}: Readonly<{
-  children: React.ReactNode;
-}>) {
-  const session = await getServerSession()
-
+export default function RootLayout({ children }: { children: React.ReactNode }) {
   return (
     <html lang="en">
-      <body
-        className={`${geistSans.variable} ${geistMono.variable} antialiased`}
-      >
-        <SessionProvider session={session}>
-          {children}
-          <Toaster />
+      <body>
+        <SessionProvider>
+          <ClientProvider>
+            {children}
+          </ClientProvider>
         </SessionProvider>
       </body>
     </html>
