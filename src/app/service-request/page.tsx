@@ -15,6 +15,8 @@ export default function Page() {
   const { userRole, loading: roleLoading } = useGetUserRole();
   const loading = srLoading || roleLoading;
 
+  console.log(serviceRequests)
+
   if (loading) {
     return (
       <div className="w-screen h-screen flex items-center justify-center">

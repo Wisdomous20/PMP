@@ -27,6 +27,8 @@ export default function LeftTab() {
     enabled: !!session?.user.id, // Only fetch if user ID exists
   });
 
+  console.log(userRole)
+
   const handleLogout = async () => {
     await signOut({ redirect: false });
     window.location.href = '/';

@@ -29,6 +29,13 @@ export default function NewServiceRequests() {
     loadRequests()
   }, [])
 
+  // Once loaded, sort by creation date descending
+  const sortedRequests = [...serviceRequests].sort((a, b) => {
+    const aTime = a.createdOn ? new Date(a.createdOn).getTime() : 0
+    const bTime = b.createdOn ? new Date(b.createdOn).getTime() : 0
+    return bTime - aTime
+  })
+
   if (loading) {
     return (
       <Card className="w-full">
@@ -59,7 +66,7 @@ export default function NewServiceRequests() {
     )
   }
 
-  if (!serviceRequests.length) {
+  if (!sortedRequests.length) {
     return (
       <Card className="w-full h-full p-8 flex flex-col items-center justify-center">
         <Inbox className="w-16 h-16 text-gray-400 mb-4" />
@@ -80,7 +87,7 @@ export default function NewServiceRequests() {
       </CardHeader>
       <CardContent className="p-0">
         <div className="overflow-y-auto">
-          {serviceRequests.map((request, index) => (
+          {sortedRequests.map((request, index) => (
             <ServiceRequestPreview
               key={request.id}
               index={index}

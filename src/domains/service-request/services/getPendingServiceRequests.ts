@@ -16,7 +16,7 @@ export async function getPendingServiceRequests() {
       user: true,
       status: {
         orderBy: {
-          timestamp: "asc",
+          timestamp: "desc",
         },
       },
     },

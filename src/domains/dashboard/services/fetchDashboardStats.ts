@@ -1,6 +1,6 @@
 // lib/fetchDashboardStats.ts
 export async function fetchDashboardStats() {
-  const response = await fetch("/api/dashboard-stats", {
+  const response = await fetch("/api/dashboard/stats", {
     method: "GET",
     headers: { "Content-Type": "application/json" },
   });

@@ -3,7 +3,6 @@
 import { useState, useEffect } from "react"
 import Link from "next/link"
 import { ChevronLeft, Plus, Search, Clock, CheckCircle, AlertCircle } from "lucide-react"
-import LeftTab from "@/components/layouts/LeftTab"
 import { Button } from "@/components/ui/button"
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card"
 import { Dialog, DialogContent } from "@/components/ui/dialog"
@@ -11,6 +10,7 @@ import { Input } from "@/components/ui/input"
 import { Badge } from "@/components/ui/badge"
 import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs"
 import ServiceRequestStatus from "@/components/service-request/ServiceRequestStatus"
+import formatTimestamp from "@/utils/formatTimestamp"
 
 interface UserServiceRequestListProps {
   serviceRequests: ServiceRequest[],
@@ -163,7 +163,8 @@ export default function UserServiceRequestList({ serviceRequests, loading } : Us
                                 {getStatusBadge(request)}
                               </div>
                               <div className="flex items-center gap-4 text-sm text-gray-500">
-                                <span>{request.id}</span>
+                                {/* <span>{request.id}</span> */}
+                                {formatTimestamp(request.createdOn as Date)}
                                 {/* <span>{new Date(request.createdOn).toLocaleDateString()}</span> */}
                               </div>
                             </div>

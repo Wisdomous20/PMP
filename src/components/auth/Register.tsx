@@ -11,7 +11,7 @@ import validator from "validator";
 
 export default function Register() {
   const searchParams = useSearchParams();
-  const callbackUrl = searchParams.get("callbackUrl") || "/service-request";
+  const callbackUrl = searchParams.get("callbackUrl") || "/service-request/create";
   const router = useRouter();
   const [firstName, setFirstName] = useState("");
   const [lastName, setLastName] = useState("");

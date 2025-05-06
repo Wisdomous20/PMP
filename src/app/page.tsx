@@ -33,9 +33,9 @@ export default function Page() {
     }
   }, [isUserRoleLoading, userRole, router]);
 
-  if (isUserRoleLoading || (userRole && (userRole === "ADMIN" || userRole === "SUPERVISOR"))) {
-     return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
-  }
+  // if (isUserRoleLoading || (userRole && (userRole === "ADMIN" || userRole === "SUPERVISOR"))) {
+  //    return <div className="flex justify-center items-center min-h-screen">Loading...</div>;
+  // }
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50">

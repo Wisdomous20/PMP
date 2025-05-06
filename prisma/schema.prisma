@@ -115,6 +115,7 @@ model ImplementationPlan {
   files            Files[]
   serviceRequest   ServiceRequest @relation(fields: [serviceRequestId], references: [id], onDelete: Cascade)
   tasks            Task[]
+  createdAt        DateTime       @default(now())
 }
 
 model Task {
