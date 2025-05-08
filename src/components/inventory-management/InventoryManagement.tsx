@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 import {
   Table,
   TableBody,
@@ -115,7 +117,7 @@ export default function InventoryManagement() {
   };
 
   const downloadPDF = () => {
-    const doc = new jsPDF({orientation: "landscape"});
+    const doc = new jsPDF({ orientation: "landscape" });
     doc.text("Equipment Report", 14, 10);
 
     const tableColumnHeaders = [
@@ -148,7 +150,7 @@ export default function InventoryManagement() {
       item.department,
     ]);
 
-    autoTable(doc,{
+    autoTable(doc, {
       head: [tableColumnHeaders],
       body: tableRows,
       startY: 20,
@@ -157,7 +159,45 @@ export default function InventoryManagement() {
     doc.save("equipment-report.pdf");
   };
 
-  
+  const downloadExcel = () => {
+    // Create worksheet from equipment data
+    const wsData = [
+      [
+        "Qty",
+        "Description",
+        "Brand/Model",
+        "Serial Number",
+        "Supplier",
+        "Unit Cost",
+        "Total Cost",
+        "Date Purchased",
+        "Date Received",
+        "Status",
+        "Location",
+        "Department",
+      ],
+      ...equipment.map((item) => [
+        item.quantity,
+        item.description,
+        item.brand,
+        item.serialNumber,
+        item.supplier,
+        item.unitCost,
+        item.totalCost,
+        new Date(item.datePurchased).toLocaleDateString(),
+        new Date(item.dateReceived).toLocaleDateString(),
+        item.status,
+        item.location,
+        item.department,
+      ]),
+    ];
+    const ws = XLSX.utils.aoa_to_sheet(wsData);
+    const wb = XLSX.utils.book_new();
+    XLSX.utils.book_append_sheet(wb, ws, "Equipment Report");
+    const wbout = XLSX.write(wb, { bookType: 'xlsx', type: 'array' });
+    const blob = new Blob([wbout], { type: 'application/octet-stream' });
+    saveAs(blob, 'equipment-report.xlsx');
+  };
 
   if (isLoading && equipment.length === 0) {
     return (
@@ -216,7 +256,10 @@ export default function InventoryManagement() {
             <AddEquipment onSuccess={handleEquipmentAdded} />
           </DialogContent>
         </Dialog>
-        <Button onClick={downloadPDF}>Download PDF</Button>
+        <div className="flex gap-2">
+          <Button onClick={downloadPDF}>Download PDF</Button>
+          <Button onClick={downloadExcel}>Download Excel</Button>
+        </div>
       </div>
 
       <div className="rounded-md border">
