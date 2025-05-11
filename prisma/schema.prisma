@@ -23,6 +23,7 @@ model User {
   supervisorAssignments SupervisorAssignment[]
   accounts              Account[]
   sessions              Session[]
+  pendingLimit          Int                    @default(5)
 }
 
 model Session {

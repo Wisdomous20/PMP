@@ -9,10 +9,9 @@ type CreateSRResult = {
 
 export async function canCreateServiceRequest(
   userId: string,
-  pendingLimit: number = 5
 ): Promise<CreateSRResult> {
   const hasUnratedCompleted = await hasUnratedCompletedRequest(userId);
-  const reachedPendingLimit = await hasReachedPendingLimit(userId, pendingLimit);
+  const reachedPendingLimit = await hasReachedPendingLimit(userId);
 
   const allowed = !hasUnratedCompleted && !reachedPendingLimit;
 

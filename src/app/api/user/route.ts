@@ -1,6 +1,6 @@
 import { prisma } from "@/lib/prisma";
 import { NextRequest, NextResponse } from "next/server";
-import updateUserRole from "@/domains/user-management/services/updateUserRole";
+import updateUser from "@/domains/user-management/services/updateUser";
 
 export async function GET(): Promise<NextResponse> {
   try {
@@ -56,26 +56,14 @@ export async function DELETE(req: NextRequest): Promise<NextResponse> {
 
 export async function PUT(req: NextRequest): Promise<NextResponse> {
   try {
-    const { userId, newRole } = await req.json();
-
-    if (!userId || !newRole) {
-      return NextResponse.json(
-        { error: "User ID and new role are required" },
-        { status: 400 }
-      );
+    const { userId, newRole, pendingLimit } = await req.json();
+    if (!userId || !newRole || pendingLimit == null) {
+      return NextResponse.json({ error: "User ID, new role, and pendingLimit are required" }, { status: 400 });
     }
-
-    const updatedUser = await updateUserRole(userId, newRole);
-
-    return NextResponse.json(
-      { message: "User role updated successfully", user: updatedUser },
-      { status: 200 }
-    );
+    const updated = await updateUser(userId, newRole, pendingLimit);
+    return NextResponse.json({ message: "User updated successfully", user: updated }, { status: 200 });
   } catch (error) {
-    console.error("Error updating user role:", error);
-    return NextResponse.json(
-      { error: "Failed to update user role" },
-      { status: 500 }
-    );
+    console.error("Error updating user:", error);
+    return NextResponse.json({ error: "Failed to update user" }, { status: 500 });
   }
 }
