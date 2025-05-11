@@ -49,7 +49,7 @@ export default function Page() {
           </h2>
           <p className="text-gray-600 text-lg md:text-xl mb-8 max-w-2xl mx-auto">
             Request services from the University under the Office of the Vice
-            President of Administration.
+            President for Administration.
           </p>
           <Link
             href="/service-request/create"
