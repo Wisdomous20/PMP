@@ -45,7 +45,7 @@ export default function Footer() {
 
             <li className="flex items-center">
               <Phone className="h-4 w-4 mr-2" />
-              <span>+63 938 011 0950</span>
+              <span> 3266/3260</span>
             </li>
 
             <li className="flex items-center">
@@ -54,7 +54,7 @@ export default function Footer() {
                 // href="mailto:info@sigrabfilmfest.com"
                 className="hover:text-blue-100 transition-all duration-300"
               >
-                centralphilippineuniversity@gmail.com
+                ovpa@cpu.edu.ph
               </a>
             </li>
           </ul>
