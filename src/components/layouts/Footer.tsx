@@ -63,14 +63,14 @@ export default function Footer() {
 
       <div className="mt-8 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center">
         <p className="text-gray-600 mb-4 md:mb-0">© {new Date().getFullYear()} Central Philippine University Project Management System. All rights reserved.</p>
-        {/* <div className="flex gap-6">
-          <Link href="#" className="text-gray-600 hover:text-blue-900 transition-colors">
+        <div className="flex gap-6">
+          <Link href="/privacy-policy" className="text-gray-600 hover:text-blue-900 transition-colors">
             Privacy Policy
           </Link>
-          <Link href="#" className="text-gray-600 hover:text-blue-900 transition-colors">
-            Terms of Service
+          <Link href="/terms-and-conditions" className="text-gray-600 hover:text-blue-900 transition-colors">
+            Terms and Conditions
           </Link>
-        </div> */}
+        </div>
       </div>
     </footer>
   )
