@@ -62,6 +62,10 @@ export default function CreateServiceRequest() {
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
 
+  const isFormComplete = useMemo(() => {
+    return reduxConcern.trim() !== "" && reduxDetails.trim() !== "";
+  }, [reduxConcern, reduxDetails]);
+
   useEffect(() => {
     if (!reduxConcern) return;
 
@@ -102,10 +106,8 @@ export default function CreateServiceRequest() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    const concern = reduxConcern;
-    const details = reduxDetails;
-
-    if (concern.trim() === "" || details.trim() === "") {
+    
+    if (!isFormComplete) {
       toast({
         title: "Error",
         description: "Please fill in all fields",
@@ -113,6 +115,9 @@ export default function CreateServiceRequest() {
       });
       return;
     }
+
+    const concern = reduxConcern;
+    const details = reduxDetails;
 
     const userId = sessionData?.user.id;
     if (!userId) {
@@ -243,8 +248,12 @@ export default function CreateServiceRequest() {
           <Button
             type="submit"
             onClick={handleSubmit}
-            className="bg-indigo-Background hover:bg-indigo-600 text-white"
-            disabled={isLoading}
+            className={`${
+              isFormComplete && !isLoading
+                ? "bg-indigo-Background hover:bg-indigo-600 text-white"
+                : "bg-gray-300 text-gray-500 cursor-not-allowed"
+            }`}
+            disabled={!isFormComplete || isLoading || showLoginPrompt}
           >
             {isLoading ? (
               <>
