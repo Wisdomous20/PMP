@@ -8,7 +8,6 @@ export async function getDashboardStats() {
   const previousWeekStart = subDays(currentWeekStart, 7);
   const previousWeekEnd = subDays(currentWeekStart, 1);
 
-  // Implementation Plans - all time
   const totalPlans = await prisma.implementationPlan.count();
   const completedPlans = await prisma.implementationPlan.count({
     where: { status: "completed" },
@@ -17,7 +16,6 @@ export async function getDashboardStats() {
     where: { status: "in_progress" },
   });
 
-  // Current week counts
   const currentTotalPlans = await prisma.implementationPlan.count({
     where: {
       createdAt: { gte: currentWeekStart, lte: currentWeekEnd },

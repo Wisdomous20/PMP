@@ -1,29 +1,17 @@
 "use client";
-import { useEffect, useState } from "react";
-import { ArrowUpRight, CheckCircle2, Clock, Package } from "lucide-react";
+import { ArrowUpRight, CheckCircle2, Clock, Package, BarChart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import { fetchDashboardStats } from "@/domains/dashboard/services/fetchDashboardStats";
 
-export default function DashboardStats() {
-  const [stats, setStats] = useState<Stats>();
-  const [loading, setLoading] = useState(true);
+interface DashboardStatsProps {
+  isLoading: boolean
+  stats: Stats,
+  error: string | null
+}
 
-  useEffect(() => {
-    async function loadStats() {
-      try {
-        const data = await fetchDashboardStats();
-        setStats(data);
-      } catch (error) {
-        console.error("Error loading dashboard stats:", error);
-      } finally {
-        setLoading(false);
-      }
-    }
-    loadStats();
-  }, []);
+export default function DashboardStats({isLoading, stats, error} : DashboardStatsProps) {
 
-  if (loading || !stats) {
+  if (isLoading || !stats) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
         {Array.from({ length: 4 }).map((_, index) => (
@@ -42,6 +30,22 @@ export default function DashboardStats() {
           </Card>
         ))}
       </div>
+    );
+  }
+
+    if (error) {
+    return (
+      <Card className="w-full">
+        <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+          <CardTitle className="text-lg font-semibold">Dashboard Statistics</CardTitle>
+          <BarChart className="h-5 w-5 text-muted-foreground" />
+        </CardHeader>
+        <CardContent className="p-4 text-red-500">
+          <div className="flex items-center space-x-2">
+            <p>Error loading statistics: {error}</p>
+          </div>
+        </CardContent>
+      </Card>
     );
   }
 

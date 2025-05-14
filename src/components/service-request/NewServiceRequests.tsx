@@ -1,42 +1,25 @@
 "use client"
 
-import { useState, useEffect } from "react"
 import { Skeleton } from "@/components/ui/skeleton"
 import ServiceRequestPreview from "./ServiceRequestPreview"
-import { fetchPendingServiceRequests } from "@/domains/service-request/services/fetchPendingServiceRequests"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Inbox } from "lucide-react"
 
-export default function NewServiceRequests() {
-  const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([])
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string>("")
+interface NewServiceRequestsProps {
+  newServiceRequests: ServiceRequest[],
+  isLoading: boolean,
+  error: string | null
+}
 
-  useEffect(() => {
-    async function loadRequests() {
-      try {
-        setLoading(true)
-        const data = await fetchPendingServiceRequests()
-        setServiceRequests(data)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        console.error("Error fetching pending service requests:", err)
-        setError(err.message || "Error loading service requests")
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadRequests()
-  }, [])
+export default function NewServiceRequests({newServiceRequests, isLoading, error} : NewServiceRequestsProps) {
 
-  // Once loaded, sort by creation date descending
-  const sortedRequests = [...serviceRequests].sort((a, b) => {
+  const sortedRequests = [...newServiceRequests].sort((a, b) => {
     const aTime = a.createdOn ? new Date(a.createdOn).getTime() : 0
     const bTime = b.createdOn ? new Date(b.createdOn).getTime() : 0
     return bTime - aTime
   })
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card className="w-full">
         <CardHeader className="border-b">

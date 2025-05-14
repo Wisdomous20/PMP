@@ -6,21 +6,24 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import ImplementationPlanPreview from "./ImplementationPlanPreview";
-import useGetImplementationPlans from "@/domains/implementation-plan/hooks/useGetImplementationPlans";
 
-// Utility function to categorize plans
 const isInProgress = (plan: ImplementationPlan) => {
   const totalTasks = plan.tasks.length;
   const completedTasks = plan.tasks.filter((task) => task.checked).length;
   return completedTasks > 0 && completedTasks < totalTasks;
 };
 
-export default function ImplementationPlansInProgress() {
-  const { implementationPlans, loading, error } = useGetImplementationPlans();
+interface ImplementationPlansInProgressProps {
+  isLoading: boolean
+  implementationPlans: ImplementationPlan[],
+  error: string | null
+}
+
+export default function ImplementationPlansInProgress({isLoading, implementationPlans, error} : ImplementationPlansInProgressProps) {
 
   const inProgressPlans = implementationPlans.filter(isInProgress);
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card className="w-full">
         <CardHeader className="flex flex-row items-center justify-between border-b p-4">
