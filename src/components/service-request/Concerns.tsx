@@ -1,6 +1,6 @@
 "use client";
 
-import * as React from "react";
+import React, { useState } from "react";
 import { Check, ChevronsUpDown } from "lucide-react";
 
 import { cn } from "@/lib/utils";
@@ -22,15 +22,18 @@ import {
 interface ConcernsProps {
   concerns: { value: string; label: string }[];
   onSelect: (value: string) => void;
+  value?: string;
 }
 
-export default function Concerns({ concerns, onSelect }: ConcernsProps) {
-  const [open, setOpen] = React.useState(false);
-  const [value, setValue] = React.useState("");
+export default function Concerns({ concerns, onSelect, value: externalValue }: ConcernsProps) {
+  const [open, setOpen] = useState(false);
+  
+  const [internalValue, setInternalValue] = useState("");
+  const value = externalValue !== undefined ? externalValue : internalValue;
 
   const handleSelect = (currentValue: string) => {
     const newValue = currentValue === value ? "" : currentValue;
-    setValue(newValue);
+    setInternalValue(newValue);
     setOpen(false);
     onSelect(newValue);
   };

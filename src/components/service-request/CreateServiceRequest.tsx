@@ -64,8 +64,10 @@ export default function CreateServiceRequest() {
 
   useEffect(() => {
     if (!reduxConcern) return;
+
     const found = predefinedConcerns.find(c => c.value === reduxConcern);
-    if (found && found.value !== "Others") {
+
+    if (found) {
       setSelectedConcern(found.value);
       setCustomConcern("");
     } else {
@@ -174,9 +176,10 @@ export default function CreateServiceRequest() {
               <label htmlFor="concern" className="text-sm font-medium text-indigo-text block">
                 Concern/Work to be done
               </label>
-              <Concerns 
-                concerns={predefinedConcerns} 
+              <Concerns
+                concerns={predefinedConcerns}
                 onSelect={handleConcernSelect}
+                value={selectedConcern} 
               />
               {selectedConcern === "Others" && (
                 <Input
@@ -219,12 +222,12 @@ export default function CreateServiceRequest() {
                   You need to be logged in to submit a service request.
                 </p>
                 <div className="flex gap-4">
-                  <Link href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}>  
+                  <Link href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
                     <Button className="bg-indigo-Background hover:bg-indigo-600 text-white">
                       Login
                     </Button>
                   </Link>
-                  <Link href={`/auth/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}>  
+                  <Link href={`/auth/register?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
                     <Button variant="outline" className="border-indigo-600 text-indigo-600 hover:bg-indigo-50">
                       Register
                     </Button>
@@ -237,8 +240,8 @@ export default function CreateServiceRequest() {
 
         <CardFooter className="flex justify-between items-center px-6 py-4 bg-slate-50 rounded-b-lg border-t">
           <p className="text-sm text-gray-500">All fields are required</p>
-          <Button 
-            type="submit" 
+          <Button
+            type="submit"
             onClick={handleSubmit}
             className="bg-indigo-Background hover:bg-indigo-600 text-white"
             disabled={isLoading}
