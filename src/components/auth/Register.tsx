@@ -8,6 +8,8 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { signIn } from "next-auth/react";
 import Image from "next/image";
 import validator from "validator";
+import { fetchVerificationToken } from "@/domains/user-management/services/fetchVerificationToken";
+import { fetchSendUserVerificationEmail } from "@/domains/notification/services/fetchSendUserVerificationEmail";
 
 export default function Register() {
   const searchParams = useSearchParams();
@@ -144,6 +146,8 @@ export default function Register() {
           return;
         }
 
+        console.log(data)
+
         const signInResult = await signIn("credentials", {
           redirect: false,
           email,
@@ -156,8 +160,30 @@ export default function Register() {
             submit: signInResult.error || "An error occurred during sign in.",
           }));
           setIsLoading(false);
-        } else {
-          router.push(callbackUrl)
+          return
+        }
+
+        console.log(data.newUser.id)
+
+        const verificationToken = await fetchVerificationToken(data.newUser.id)
+        console.log(verificationToken)
+
+        try {
+          await fetchSendUserVerificationEmail(
+            email,
+            `${firstName} ${lastName}`,
+            data.newUser.id,
+            verificationToken
+          );
+
+          router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
+        } catch (emailError) {
+          console.error("Failed to send verification email:", emailError);
+          setErrors((prevErrors) => ({
+            ...prevErrors,
+            submit: "Registration successful, but failed to send verification email. Please contact support.",
+          }));
+          setIsLoading(false);
         }
       } catch (error) {
         console.error("Registration error:", error);
@@ -174,7 +200,7 @@ export default function Register() {
 
   return (
     <div
-      className="min-h-screen flex items-center justify-center bg-cover bg-center"
+      className="min-h-screen flex items-center justify-center bg-cover bg-center px-4"
       style={{ backgroundImage: "url('/images/cpu-bg.jpg')" }}
     >
       <div className="absolute inset-0 bg-black opacity-50"></div>

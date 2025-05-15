@@ -24,6 +24,7 @@ model User {
   accounts              Account[]
   sessions              Session[]
   pendingLimit          Int                    @default(5)
+  isVerified            Boolean                @default(false)
 }
 
 model Session {
