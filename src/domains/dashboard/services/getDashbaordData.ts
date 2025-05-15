@@ -1,6 +1,6 @@
 import getImplementationPlans from "@/domains/implementation-plan/services/getImplementationPlans";
 import { getPaginatedEquipment } from "@/domains/inventory-management/services/getPaginatedEquipment";
-import { fetchNotifications } from "@/domains/notification/services/fetchNotifications";
+import { getNotifications } from "@/domains/notification/services/getNotifications";
 import { getPendingServiceRequests } from "@/domains/service-request/services/getPendingServiceRequests";
 import { getDashboardStats } from "./getDashboardStats";
 
@@ -13,7 +13,7 @@ export async function getDashboardData(userId: string) {
     dashboardStats,
   ] = await Promise.all([
     getImplementationPlans(userId),
-    fetchNotifications(userId),
+    getNotifications(userId),
     getPaginatedEquipment({ page: 1, pageSize: 15, userId }),
     getPendingServiceRequests(userId),
     getDashboardStats(userId),

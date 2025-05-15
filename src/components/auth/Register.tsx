@@ -173,20 +173,20 @@ export default function Register() {
           return;
         }
 
-        const signInResult = await signIn("credentials", {
-          redirect: false,
-          email,
-          password,
-        });
+        // const signInResult = await signIn("credentials", {
+        //   redirect: false,
+        //   email,
+        //   password,
+        // });
 
-        if (signInResult?.error) {
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            submit: signInResult.error || "An error occurred during sign in.",
-          }));
-          setIsLoading(false);
-          return
-        }
+        // if (signInResult?.error) {
+        //   setErrors((prevErrors) => ({
+        //     ...prevErrors,
+        //     submit: signInResult.error || "An error occurred during sign in.",
+        //   }));
+        //   setIsLoading(false);
+        //   return
+        // }
 
         try {
           const verificationToken = await fetchVerificationToken(data.newUser.id);

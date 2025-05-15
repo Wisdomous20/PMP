@@ -1,5 +1,6 @@
 import { NextRequest, NextResponse } from "next/server";
 import { prisma } from "@/lib/prisma";
+import { getNotifications } from "@/domains/notification/services/getNotifications";
 
 export async function GET(req: NextRequest) {
   try {
@@ -11,31 +12,7 @@ export async function GET(req: NextRequest) {
       );
     }
 
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { user_type: true, department: true },
-    });
-    if (!user) {
-      return NextResponse.json(
-        { error: "User not found" },
-        { status: 404 }
-      );
-    }
-
-    let whereClause = {};
-    if (user.user_type === "ADMIN" || user.user_type === "SECRETARY") {
-      whereClause = {};
-    } else if (user.user_type === "SUPERVISOR") {
-      whereClause = { department: user.department };
-    } else {
-      whereClause = { supervisorId: userId };
-    }
-
-    const notifications = await prisma.notification.findMany({
-      where: whereClause,
-      orderBy: { createdAt: "desc" },
-      take: 15,
-    });
+    const notifications = getNotifications(userId)
 
     return NextResponse.json(notifications);
   } catch (error) {
