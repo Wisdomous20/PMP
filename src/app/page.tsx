@@ -45,11 +45,10 @@ export default function Page() {
             Project Management System
           </h1>
           <h2 className="text-3xl md:text-4xl lg:text-5xl text-yellow-400 mb-6 leading-tight">
-            Central Philippine University
+            Office of the Vice President for Administration
           </h2>
           <p className="text-gray-600 text-lg md:text-xl mb-8 max-w-2xl mx-auto">
-            Request services from the University under the Office of the Vice
-            President for Administration.
+            Central Philippine University
           </p>
           <Link
             href="/service-request/create"
