@@ -25,6 +25,7 @@ model User {
   sessions              Session[]
   pendingLimit          Int                    @default(5)
   isVerified            Boolean                @default(false)
+  createdAt             DateTime               @default(now())
 }
 
 model Session {

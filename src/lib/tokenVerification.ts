@@ -1,4 +1,4 @@
-const tokenStore = new Map<string, { token: string; expires: Date }>();
+export const tokenStore = new Map<string, { token: string; expires: Date }>();
 
 export function setToken(attendeeId: string, token: string, expires: Date) {
   tokenStore.set(attendeeId, { token, expires });
