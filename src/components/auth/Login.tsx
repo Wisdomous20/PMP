@@ -69,6 +69,8 @@ export default function Login() {
           console.error("Login error:", result.error);
           setIsLoading(false);
 
+          console.log(result)
+
           if (
             result.error.includes("Email not found") ||
             result.error.includes("CredentialsSignin")
@@ -80,6 +82,8 @@ export default function Login() {
             });
           } else if (result.error.includes("Invalid email or password")) {
             setErrors({ ...errors, submit: "Invalid email or password" });
+          } else if (result.error.includes("Please verify your email before logging in.")) {
+            setErrors({ ...errors, submit: "Please verify your email before logging in." });
           } else {
             setErrors({ ...errors, submit: "Invalid email or password" });
           }

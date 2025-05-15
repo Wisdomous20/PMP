@@ -26,43 +26,37 @@ export const authOptions: NextAuthOptions = {
         },
       },
       async authorize(credentials): Promise<User | null> {
-        if (!credentials) {
-          return null;
-        }
+        if (!credentials) return null;
 
+        let user;
         try {
-          const user = await prisma.user.findUnique({
+          user = await prisma.user.findUnique({
             where: { email: credentials.email },
           });
 
-          if (!user || !user.email) {
-            return null;
-          }
+          if (!user) return null;
 
           const isValid = user.password
             ? await bcrypt.compare(credentials.password, user.password)
             : false;
-
-          if (!isValid) {
-            return null;
-          }
-
-          if (!user.isVerified) {
-            throw new Error("Please verify your email before logging in.");
-          }
-
-          return {
-            id: user.id,
-            name: `${user.firstName} ${user.lastName}`,
-            firstName: user.firstName,
-            lastName: user.lastName,
-            email: user.email,
-            role: user.user_type,
-          } as User;
-        } catch (error) {
-          console.error(error);
-          return null;
+          if (!isValid) return null;
+        } catch (dbErr) {
+          console.error("DB error in authorize:", dbErr);
+          throw new Error("Unexpected error");
         }
+
+        if (!user.isVerified) {
+          throw new Error("Please verify your email before logging in.");
+        }
+
+        return {
+          id: user.id,
+          name: `${user.firstName} ${user.lastName}`,
+          firstName: user.firstName,
+          lastName: user.lastName,
+          email: user.email,
+          role: user.user_type,
+        } as User;
       },
     }),
   ],
