@@ -13,7 +13,7 @@ interface NewServiceRequestsProps {
 
 export default function NewServiceRequests({newServiceRequests, isLoading, error} : NewServiceRequestsProps) {
 
-  const sortedRequests = [...newServiceRequests].sort((a, b) => {
+  const sortedRequests = isLoading ? [] : [...newServiceRequests].sort((a, b) => {
     const aTime = a.createdOn ? new Date(a.createdOn).getTime() : 0
     const bTime = b.createdOn ? new Date(b.createdOn).getTime() : 0
     return bTime - aTime

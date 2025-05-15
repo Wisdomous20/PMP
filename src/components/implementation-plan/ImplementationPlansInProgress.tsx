@@ -6,6 +6,7 @@ import { Card, CardHeader, CardContent, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/button";
 import { Skeleton } from "@/components/ui/skeleton";
 import ImplementationPlanPreview from "./ImplementationPlanPreview";
+import Link from "next/link";
 
 const isInProgress = (plan: ImplementationPlan) => {
   const totalTasks = plan.tasks.length;
@@ -19,9 +20,9 @@ interface ImplementationPlansInProgressProps {
   error: string | null
 }
 
-export default function ImplementationPlansInProgress({isLoading, implementationPlans, error} : ImplementationPlansInProgressProps) {
+export default function ImplementationPlansInProgress({ isLoading, implementationPlans, error }: ImplementationPlansInProgressProps) {
 
-  const inProgressPlans = implementationPlans.filter(isInProgress);
+  const inProgressPlans = isLoading ? [] : implementationPlans.filter(isInProgress);
 
   if (isLoading) {
     return (
@@ -75,9 +76,11 @@ export default function ImplementationPlansInProgress({isLoading, implementation
         <CardTitle className="text-lg font-semibold text-gray-800">
           Implementation Plans in Progress
         </CardTitle>
-        <Button variant="ghost" className="text-blue-600 font-medium text-sm">
-          See more
-        </Button>
+        <Link href="/projects">
+          <Button variant="ghost" className="text-blue-600 font-medium text-sm">
+            See more
+          </Button>
+        </Link>
       </CardHeader>
 
       <CardContent className="p-4">

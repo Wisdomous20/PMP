@@ -10,7 +10,7 @@ export async function getPaginatedEquipment({
   page,
   pageSize,
   userId,
-}: FetchPaginatedEquipmentParams): Promise<PaginatedResponse<Equipment>> {
+}: FetchPaginatedEquipmentParams): Promise<Equipment[]> {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -34,13 +34,8 @@ export async function getPaginatedEquipment({
       whereConditions.department = user.department;
     }
 
-    const totalCount = await prisma.equipment.count({
-      where: whereConditions,
-    });
-
     const skip = (currentPage - 1) * itemsPerPage;
     const take = itemsPerPage;
-    const pageCount = Math.ceil(totalCount / itemsPerPage);
 
     const equipment = await prisma.equipment.findMany({
       where: whereConditions,
@@ -83,15 +78,7 @@ export async function getPaginatedEquipment({
         : undefined,
     }));
 
-    return {
-      data: mappedEquipment,
-      meta: {
-        total: totalCount,
-        page: currentPage,
-        pageSize: itemsPerPage,
-        pageCount,
-      },
-    };
+    return mappedEquipment;
   } catch (error) {
     console.error("Error fetching equipment:", error);
     throw error;
