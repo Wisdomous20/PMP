@@ -1,22 +1,19 @@
-// lib/sendSupervisorAssignmentEmail.ts
 import nodemailer from "nodemailer";
 
 type SupervisorEmailParams = {
   to: string;
   supervisorName: string;
-  assignedBy: string;
   serviceRequestId: string;
   concern: string;
   details: string;
   color?: string;
 };
 
-const baseUrl = process.env.APP_BASE_URL || "http://localhost:3000"
+const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000"
 
 export async function sendSupervisorAssignmentEmail({
   to,
   supervisorName,
-  assignedBy,
   serviceRequestId,
   concern,
   details,
@@ -37,7 +34,7 @@ export async function sendSupervisorAssignmentEmail({
       <div style="max-width: 600px; margin: auto; background: #fff; padding: 24px; border-radius: 8px; box-shadow: 0 2px 8px rgba(0,0,0,0.1);">
         <h2 style="text-align: center; color: ${color};">New Service Request Assigned</h2>
         <p>Hello <strong>${supervisorName}</strong>,</p>
-        <p>You have been assigned a new service request by <strong>${assignedBy}</strong>. Please review the details below and take the appropriate action.</p>
+        <p>You have been assigned a new service request. Please review the details below and take the appropriate action.</p>
 
         <h3 style="margin-top: 24px; color: #333;">Request Summary</h3>
         <table style="width: 100%; border-collapse: collapse; margin-top: 10px;">
@@ -78,7 +75,7 @@ export async function sendSupervisorAssignmentEmail({
   const mailOptions = {
     from: `"CPU Project Management" <${process.env.EMAIL_USER}>`,
     to,
-    subject: `You’ve Been Assigned a Service Request (${serviceRequestId})`,
+    subject: `You’ve Been Assigned a Service Request (${concern})`,
     html,
   };
 

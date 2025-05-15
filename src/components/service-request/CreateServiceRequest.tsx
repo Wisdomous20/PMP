@@ -15,6 +15,7 @@ import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "../ui/skeleton";
 import Concerns from "./Concerns";
 import useGetSessionData from "@/domains/user-management/hooks/useGetSessionData";
+import fetchCanCreateServiceRequest from "@/domains/service-request/services/fetchCanCreateServiceRequest";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -67,11 +68,11 @@ export default function CreateServiceRequest() {
   const [customConcern, setCustomConcern] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
-  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false); // Add privacy state
-  const [agreedToTerms, setAgreedToTerms] = useState(false); // Add terms state
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false);
+  const [agreedToTerms, setAgreedToTerms] = useState(false);
 
   const isFormComplete = useMemo(() => {
-    return reduxConcern.trim() !== "" && reduxDetails.trim() !== "" && agreedToPrivacy && agreedToTerms; // Include both agreements
+    return reduxConcern.trim() !== "" && reduxDetails.trim() !== "" && agreedToPrivacy && agreedToTerms;
   }, [reduxConcern, reduxDetails, agreedToPrivacy, agreedToTerms]);
 
   useEffect(() => {
@@ -81,7 +82,7 @@ export default function CreateServiceRequest() {
 
     if (found) {
       setSelectedConcern(found.value);
-      setCustomConcern("");     
+      setCustomConcern("");
     } else {
       setSelectedConcern("Others");
       setCustomConcern(reduxConcern);
@@ -161,6 +162,41 @@ export default function CreateServiceRequest() {
 
     try {
       setIsLoading(true);
+
+      const canCreateResponse = await fetchCanCreateServiceRequest(userId);
+
+      if (!canCreateResponse) {
+        toast({
+          title: "Error",
+          description: "Unable to verify service request eligibility. Please try again.",
+          variant: "destructive",
+        });
+        return;
+      }
+
+      if (!canCreateResponse.allowed) {
+        if (canCreateResponse.hasUnratedCompleted) {
+          toast({
+            title: "Cannot Create Service Request",
+            description: "You have unrated completed service requests. Please rate them first before creating a new service request.",
+            variant: "destructive",
+          });
+        } else if (canCreateResponse.reachedPendingLimit) {
+          toast({
+            title: "Cannot Create Service Request",
+            description: "You have reached the maximum number of pending service requests. Please wait for them to be completed or cancelled before creating a new one.",
+            variant: "destructive",
+          });
+        } else {
+          toast({
+            title: "Cannot Create Service Request",
+            description: "You are unable to create a new service request at this time.",
+            variant: "destructive",
+          });
+        }
+        return;
+      }
+
       const serviceRequest = await fetchCreateServiceRequest(userId, concern, details);
       console.log("Service request created:", serviceRequest);
 
@@ -172,8 +208,8 @@ export default function CreateServiceRequest() {
       dispatch(resetServiceRequest());
       setSelectedConcern("");
       setCustomConcern("");
-      setAgreedToPrivacy(false); // Reset privacy agreement
-      setAgreedToTerms(false); // Reset terms agreement
+      setAgreedToPrivacy(false);
+      setAgreedToTerms(false);
 
       router.push("/service-request/create/success");
     } catch (error) {
@@ -322,11 +358,10 @@ export default function CreateServiceRequest() {
           <Button
             type="submit"
             onClick={handleSubmit}
-            className={`${
-              isFormComplete && !isLoading && !showLoginPrompt
-                ? "bg-indigo-Background hover:bg-indigo-600 text-white"
-                : "bg-gray-300 text-gray-500 cursor-not-allowed"
-            }`}
+            className={`${isFormComplete && !isLoading && !showLoginPrompt
+              ? "bg-indigo-Background hover:bg-indigo-600 text-white"
+              : "bg-gray-300 text-gray-500 cursor-not-allowed"
+              }`}
             disabled={!isFormComplete || isLoading || showLoginPrompt}
           >
             {isLoading ? (

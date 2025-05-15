@@ -5,7 +5,7 @@ import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Eye, EyeOff } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
-import { signIn } from "next-auth/react";
+// import { signIn } from "next-auth/react";
 import Image from "next/image";
 import validator from "validator";
 import { fetchVerificationToken } from "@/domains/user-management/services/fetchVerificationToken";

@@ -1,12 +1,13 @@
 "use client";
-
 import { useEffect, useState } from "react";
 import { useParams } from "next/navigation";
 import ServiceRequestStatus from "@/components/service-request/ServiceRequestStatus";
+import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
 import { Card } from "@/components/ui/card";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import fetchGetServiceRequestById from "@/domains/service-request/services/fetchGetServiceRequestById";
+import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
 export default function ServiceRequestDetailsPage() {
   const params = useParams();
@@ -14,6 +15,7 @@ export default function ServiceRequestDetailsPage() {
   const [serviceRequest, setServiceRequest] = useState<ServiceRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+  const { userRole, loading: roleLoading } = useGetUserRole();
 
   useEffect(() => {
     if (serviceRequestId) {
@@ -39,54 +41,86 @@ export default function ServiceRequestDetailsPage() {
     }
   }, [serviceRequestId]);
 
-  if (loading) {
+  if (loading || roleLoading) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        <span>Loading service request details...</span>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 flex items-center justify-center">
+        <div className="text-center">
+          <div className="animate-spin rounded-full h-32 w-32 border-b-2 border-blue-600 mx-auto mb-4"></div>
+          <p className="text-lg text-gray-600">Loading service request details...</p>
+        </div>
       </div>
     );
   }
 
   if (error) {
     return (
-      <div className="w-screen h-screen flex flex-col items-center justify-center p-4">
-        <Card className="p-6 text-center">
-          <p className="text-red-600 mb-4">{error}</p>
-          <Link href="/service-requests">
-            <button className="text-blue-600 hover:text-blue-800 flex items-center">
-              <ChevronLeft className="h-4 w-4 mr-1" /> Back to all requests
-            </button>
-          </Link>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center p-8">
+            <Card className="p-8">
+              <div className="text-red-600 text-lg mb-4">{error}</div>
+              <Link
+                href="/service-requests"
+                className="inline-flex items-center text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Back to all requests
+              </Link>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   }
 
   if (!serviceRequest) {
-    // This case should ideally be caught by `error` state from fetchServiceRequestDetails returning null
-    // but acts as a fallback for robustness.
     return (
-      <div className="w-screen h-screen flex flex-col items-center justify-center p-4">
-        <Card className="p-6 text-center">
-          <span className="text-gray-500">Service request not found.</span>
-          <Link href="/service-requests">
-            <button className="text-blue-600 hover:text-blue-800 mt-4 flex items-center">
-              <ChevronLeft className="h-4 w-4 mr-1" /> Back to all requests
-            </button>
-          </Link>
-        </Card>
+      <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-8">
+        <div className="max-w-6xl mx-auto">
+          <div className="text-center p-8">
+            <Card className="p-8">
+              <div className="text-gray-600 text-lg mb-4">Service request not found.</div>
+              <Link
+                href="/service-requests"
+                className="inline-flex items-center text-blue-600 hover:text-blue-800 hover:underline"
+              >
+                <ChevronLeft className="h-4 w-4 mr-1" />
+                Back to all requests
+              </Link>
+            </Card>
+          </div>
+        </div>
       </div>
     );
   }
 
+  const getBackLinkText = () => {
+    if (userRole === "SUPERVISOR" || userRole === "ADMIN") {
+      return "Back to all service requests";
+    }
+    return "Back to My Service Requests";
+  };
+
   return (
-    <div className="w-full min-h-screen h-full flex bg-gradient-to-b from-yellow-50 to-blue-50 py-12 px-4 justify-center">
-      <div className="max-w-4xl w-full">
-        <Link href="/service-requests" className="inline-flex items-center text-blue-600 hover:text-blue-800 mb-4">
-          <ChevronLeft className="h-4 w-4 mr-1" />
-          Back to My Service Requests
-        </Link>
-        <ServiceRequestStatus serviceRequest={serviceRequest} />
+    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-blue-50 px-4 py-8">
+      <div className="max-w-6xl mx-auto h-full">
+        <div className="mb-6">
+          <Link
+            href={"/service-request"}
+            className="inline-flex items-center text-blue-600 hover:text-blue-800 hover:underline text-lg font-medium"
+          >
+            <ChevronLeft className="h-5 w-5 mr-1" />
+            {getBackLinkText()}
+          </Link>
+        </div>
+        
+        {(userRole === "ADMIN" || userRole === "SUPERVISOR" || userRole === "SECRETARY") && (
+          <ServiceRequestDetails serviceRequest={serviceRequest} />
+        )}
+        
+        {userRole === "USER" && (
+          <ServiceRequestStatus serviceRequest={serviceRequest} />
+        )}
       </div>
     </div>
   );
