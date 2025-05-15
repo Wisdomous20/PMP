@@ -27,6 +27,8 @@ model User {
   isVerified            Boolean                @default(false)
   createdAt             DateTime               @default(now())
   notifications          Notification[]
+
+  VerificationToken VerificationToken[]
 }
 
 model Session {
@@ -158,6 +160,19 @@ model PersonnelAssignment {
 
   @@unique([taskId, personnelId])
 }
+
+model VerificationToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verification_tokens")
+}
+
 
 model Equipment {
   id               String           @id @default(auto()) @map("_id") @db.ObjectId

@@ -4,7 +4,7 @@ export async function fetchVerificationToken(userId: string): Promise<string> {
     {
       method: "POST",
       headers: { "Content-Type": "application/json" },
-      body: JSON.stringify({ attendeeId: userId }),
+      body: JSON.stringify({ userId }),
     }
   );
 

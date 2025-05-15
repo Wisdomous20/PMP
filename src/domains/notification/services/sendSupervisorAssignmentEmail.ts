@@ -68,8 +68,6 @@ export async function sendSupervisorAssignmentEmail({
           </a>
         </div>
 
-        <p style="margin-top: 24px;">Thank you for your attention. If you have any questions, reply to this email.</p>
-
         <div style="text-align: center; padding: 20px; background: #f4f7f6; border-radius: 8px; margin-top: 30px;">
           <p style="font-size: 12px; color: #666; margin: 0;">© ${new Date().getFullYear()} Central Philippine University</p>
         </div>

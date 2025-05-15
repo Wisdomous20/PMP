@@ -22,6 +22,9 @@ function VerifyUserPage() {
     const userIdQuery = searchParams.get("userId");
     const tokenQuery = searchParams.get("token");
 
+    console.log(userIdQuery)
+    console.log(tokenQuery)
+
     if (userIdQuery) {
       setUserId(userIdQuery);
     } else {
@@ -47,13 +50,15 @@ function VerifyUserPage() {
     setVerifyStatus("loading");
 
     try {
-      const response = await fetch("/api/verify/validate-user", {
+      const response = await fetch("/api/auth/validate-user", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ userId, token }),
       });
 
       const data = await response.json();
+
+      console.log(data)
 
       if (response.ok && data.success) {
         setVerifyStatus("success");

@@ -23,8 +23,8 @@ export async function sendUserVerificationEmail({
     },
   });
 
-  const baseUrl = process.env.APP_BASE_URL || "";
-  const verifyUrl = `${baseUrl}/verify-user?userId=${encodeURIComponent(
+  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const verifyUrl = `${baseUrl}/auth/verify-user?userId=${encodeURIComponent(
     userId
   )}&token=${encodeURIComponent(verificationToken)}`;
 
@@ -61,7 +61,7 @@ export async function sendUserVerificationEmail({
           <p style="font-size: 12px; color: #666; margin: 5px 0;">Office of the Vice President for Administration</p>
           <p style="font-size: 12px; color: #666; margin: 5px 0;">
             Contact us at 
-            <a href="mailto:cpu.admin@cpu.edu.ph" style="color: ${color}; text-decoration: none;">cpu.admin@cpu.edu.ph</a>
+            <a href="mailto:ovpa@cpu.edu.phh" style="color: ${color}; text-decoration: none;">ovpa@cpu.edu.ph</a>
           </p>
           <p style="font-size: 10px; color: #aaa; margin-top: 10px;">© ${new Date().getFullYear()} Central Philippine University. All rights reserved.</p>
         </div>
