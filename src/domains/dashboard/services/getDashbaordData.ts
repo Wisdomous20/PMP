@@ -13,10 +13,10 @@ export async function getDashboardData(userId: string) {
     dashboardStats,
   ] = await Promise.all([
     getImplementationPlans(userId),
-    fetchNotifications(),
+    fetchNotifications(userId),
     getPaginatedEquipment({ page: 1, pageSize: 15, userId }),
     getPendingServiceRequests(userId),
-    getDashboardStats(),
+    getDashboardStats(userId),
   ]);
 
   return {

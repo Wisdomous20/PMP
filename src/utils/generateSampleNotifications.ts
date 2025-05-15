@@ -41,7 +41,8 @@ const generateSampleNotifications = (): AdminNotification[] => {
       id: uuidv4(),
       type,
       message: messages[type][Math.floor(Math.random() * messages[type].length)],
-      isRead: Math.random() > 0.5, // Randomly mark some as read
+      isRead: Math.random() > 0.5, 
+      link: "sample link",
       createdAt: randomDate.toISOString()
     };
   };

@@ -2,6 +2,8 @@ export interface CreateNotificationPayload {
   type: NotificationType;
   message: string;
   link: string;
+  department?: string;
+  supervisorId?: string;
 }
 
 export async function fetchCreateNotification(
@@ -20,12 +22,5 @@ export async function fetchCreateNotification(
     );
   }
 
-  return (await res.json()) as {
-    id: string;
-    type: NotificationType;
-    message: string;
-    link: string;
-    isRead: boolean;
-    createdAt: string;
-  };
+  return (await res.json()) as AdminNotification;
 }
