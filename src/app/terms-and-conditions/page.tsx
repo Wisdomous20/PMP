@@ -429,9 +429,9 @@ export default function TermsAndConditionsPage() {
                     <div className="bg-blue-50 p-6 rounded-lg mt-3">
                       <p className="text-gray-700 font-medium">Project Management System Administrator</p>
                       <p className="text-gray-600">Central Philippine University</p>
-                      <p className="text-gray-600">Office of the Vice President of Administration</p>
-                      <p className="text-gray-600">Email: pms-admin@cpu.edu.ph</p>
-                      <p className="text-gray-600">Phone: (123) 456-7890</p>
+                      <p className="text-gray-600">Office of the Vice President for Administration</p>
+                      <p className="text-gray-600">Email: ovpa@cpu.edu.ph</p>
+                      <p className="text-gray-600">Phone: 3266/3260</p>
                       <p className="text-gray-600">Address: Jaro, Iloilo City, Philippines</p>
                     </div>
                   </div>
@@ -458,7 +458,7 @@ export default function TermsAndConditionsPage() {
           </p>
           <div className="flex flex-wrap justify-center gap-4">
             <Link 
-              href="/contact" 
+              href="mailto:ovpa@cpu.edu.ph" 
               className="bg-white text-blue-900 px-6 py-3 rounded-md font-medium hover:bg-blue-50 transition-colors"
             >
               Contact Support

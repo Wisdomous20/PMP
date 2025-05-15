@@ -27,13 +27,13 @@ export default function Footer() {
           <h4 className="font-bold text-blue-900 mb-4">Information</h4>
           <ul className="space-y-2">
             <li>
-              <Link href="#" className="text-gray-600 hover:text-blue-900 transition-colors">
+              <Link href="/privacy-policy" className="text-gray-600 hover:text-blue-900 transition-colors">
                 Privacy Policy
               </Link>
             </li>
             <li>
-              <Link href="#" className="text-gray-600 hover:text-blue-900 transition-colors">
-                Terms of Service
+              <Link href="/terms-and-conditions" className="text-gray-600 hover:text-blue-900 transition-colors">
+                Terms and Conditions
               </Link>
             </li>
           </ul>
@@ -51,7 +51,7 @@ export default function Footer() {
             <li className="flex items-center">
               <Mail className="h-4 w-4 mr-2" />
               <a
-                // href="mailto:info@sigrabfilmfest.com"
+                href="mailto:ovpa@cpu.edu.ph"
                 className="hover:text-blue-100 transition-all duration-300"
               >
                 ovpa@cpu.edu.ph
@@ -63,14 +63,6 @@ export default function Footer() {
 
       <div className="mt-8 pt-8 border-t border-gray-200 flex flex-col md:flex-row justify-between items-center">
         <p className="text-gray-600 mb-4 md:mb-0">© {new Date().getFullYear()} Central Philippine University Project Management System. All rights reserved.</p>
-        <div className="flex gap-6">
-          <Link href="/privacy-policy" className="text-gray-600 hover:text-blue-900 transition-colors">
-            Privacy Policy
-          </Link>
-          <Link href="/terms-and-conditions" className="text-gray-600 hover:text-blue-900 transition-colors">
-            Terms and Conditions
-          </Link>
-        </div>
       </div>
     </footer>
   )

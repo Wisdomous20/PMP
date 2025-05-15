@@ -474,16 +474,16 @@ export default function Register() {
         </div>
 
         <div className="mt-6 text-center text-xs text-gray-400">
-          <a href="#" className="hover:underline">
+          <a href="mailto:ovpa@cpu.edu.ph" className="hover:underline">
             Help
           </a>
           ·
-          <a href="#" className="ml-2 hover:underline">
+          <a href="/privacy-policy" className="ml-2 hover:underline">
             Privacy Policy
           </a>
           ·
-          <a href="#" className="ml-2 hover:underline">
-            Terms of Use
+          <a href="/terms-and-conditions" className="ml-2 hover:underline">
+            Terms and Conditions
           </a>
         </div>
       </div>

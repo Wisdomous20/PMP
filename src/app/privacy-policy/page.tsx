@@ -18,18 +18,18 @@ export default function PrivacyPolicyPage() {
   return (
     <div className="w-full min-h-screen flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50">
       <Header scrollToSection={scrollToSection} howItWorksRef={policyRef} />
-      
+
       <section className="pt-16 px-6 max-w-7xl mx-auto w-full">
         <div className="mb-8">
-          <Link 
-            href="/" 
+          <Link
+            href="/"
             className="inline-flex items-center text-blue-900 hover:text-blue-700 transition-colors"
           >
             <ArrowLeft className="h-4 w-4 mr-2" />
             Back to Home
           </Link>
         </div>
-        
+
         <div className="text-center mb-12">
           <div className="text-sm font-medium text-blue-600 mb-3 uppercase tracking-wider">
             Important Information
@@ -69,10 +69,8 @@ export default function PrivacyPolicyPage() {
                       <li>Full name</li>
                       <li>Email address</li>
                       <li>Department or unit affiliation</li>
-                      <li>University ID number</li>
-                      <li>Contact information (phone number, office location)</li>
+                      <li>Contact information</li>
                       <li>User role and permissions within the system</li>
-                      <li>Profile pictures (if uploaded)</li>
                     </ul>
                   </div>
 
@@ -83,7 +81,6 @@ export default function PrivacyPolicyPage() {
                     </p>
                     <ul className="list-disc ml-6 text-gray-600 space-y-2">
                       <li>Request descriptions and details</li>
-                      <li>Attached files or documents</li>
                       <li>Location information relevant to the request</li>
                       <li>Timestamps of submission and updates</li>
                       <li>Communications related to your requests</li>
@@ -116,7 +113,7 @@ export default function PrivacyPolicyPage() {
                   <p className="text-gray-600">
                     Central Philippine University uses the collected information for the following purposes:
                   </p>
-                  
+
                   <div>
                     <h3 className="text-xl font-medium text-blue-800 mb-2">System Operation</h3>
                     <ul className="list-disc ml-6 text-gray-600 space-y-2">
@@ -173,7 +170,7 @@ export default function PrivacyPolicyPage() {
                   <div>
                     <h3 className="text-xl font-medium text-blue-800 mb-2">Internal University Departments</h3>
                     <p className="text-gray-600">
-                      Information is shared with relevant university departments and personnel solely for the purpose of fulfilling service requests and maintaining efficient operations under the Office of the Vice President of Administration.
+                      Information is shared with relevant university departments and personnel solely for the purpose of fulfilling service requests and maintaining efficient operations under the Office of the Vice President for Administration.
                     </p>
                   </div>
 
@@ -209,7 +206,7 @@ export default function PrivacyPolicyPage() {
                   <p className="text-gray-600">
                     We implement appropriate technical and organizational measures to protect your personal information against unauthorized access, alteration, disclosure, or destruction:
                   </p>
-                  
+
                   <ul className="list-disc ml-6 text-gray-600 space-y-2">
                     <li>Data encryption for information transmitted through the system</li>
                     <li>Secure authentication procedures including password policies</li>
@@ -267,7 +264,7 @@ export default function PrivacyPolicyPage() {
                   <div>
                     <h3 className="text-xl font-medium text-blue-800 mb-2">How to Exercise Your Rights</h3>
                     <p className="text-gray-600">
-                      To exercise these rights, please contact our Data Protection Officer at dpo@cpu.edu.ph or submit a written request to the Office of the Vice President of Administration. We will respond to your request within 30 days.
+                      To exercise these rights, please contact our Data Protection Officer at dpo@cpu.edu.ph or submit a written request to the Office of the Vice President for Administration. We will respond to your request within 30 days.
                     </p>
                   </div>
                 </div>
@@ -279,12 +276,10 @@ export default function PrivacyPolicyPage() {
                   <p className="text-gray-600 mb-4">
                     Our system uses cookies and similar tracking technologies to enhance your experience and collect information about how you use the system:
                   </p>
-                  
+
                   <ul className="list-disc ml-6 text-gray-600 space-y-2">
                     <li><strong>Session Cookies:</strong> Temporary cookies that are deleted when you close your browser, used to maintain your session while using the system</li>
-                    <li><strong>Persistent Cookies:</strong> Remain on your device for a set period, helping us recognize you when you return to the system</li>
                     <li><strong>Authentication Cookies:</strong> Used to identify you once you have logged in</li>
-                    <li><strong>Preference Cookies:</strong> Remember your settings and preferences for future visits</li>
                     <li><strong>Analytics Cookies:</strong> Help us understand how users interact with the system</li>
                   </ul>
 
@@ -300,7 +295,7 @@ export default function PrivacyPolicyPage() {
                   <p className="text-gray-600 mb-4">
                     We retain your personal information for as long as necessary to fulfill the purposes outlined in this Privacy Policy, unless a longer retention period is required or permitted by law. The retention periods for different types of data may vary:
                   </p>
-                  
+
                   <ul className="list-disc ml-6 text-gray-600 space-y-2">
                     <li><strong>Account Information:</strong> Maintained for the duration of your affiliation with the university and for a reasonable period thereafter</li>
                     <li><strong>Service Request Data:</strong> Retained for up to 5 years after completion for reference, auditing, and analysis purposes</li>
@@ -341,13 +336,13 @@ export default function PrivacyPolicyPage() {
                   <p className="text-gray-600 mb-4">
                     If you have any questions, concerns, or requests regarding this Privacy Policy or our data practices, please contact us at:
                   </p>
-                  
+
                   <div className="bg-blue-50 p-6 rounded-lg">
-                    <p className="text-gray-700 font-medium">Data Protection Officer</p>
+                    <p className="text-gray-700 font-medium">Project Management System Administrator</p>
                     <p className="text-gray-600">Central Philippine University</p>
-                    <p className="text-gray-600">Office of the Vice President of Administration</p>
-                    <p className="text-gray-600">Email: dpo@cpu.edu.ph</p>
-                    <p className="text-gray-600">Phone: (123) 456-7890</p>
+                    <p className="text-gray-600">Office of the Vice President for Administration</p>
+                    <p className="text-gray-600">Email: ovpa@cpu.edu.ph</p>
+                    <p className="text-gray-600">Phone: 3266/3260</p>
                     <p className="text-gray-600">Address: Jaro, Iloilo City, Philippines</p>
                   </div>
                 </div>
@@ -355,7 +350,7 @@ export default function PrivacyPolicyPage() {
             </section>
           </div>
         </div>
-        
+
         {/* CTA Section */}
         <div className="bg-blue-900 text-white rounded-xl p-8 mb-16 text-center">
           <h2 className="text-2xl font-bold mb-4">Have Questions About Your Privacy?</h2>
@@ -363,14 +358,14 @@ export default function PrivacyPolicyPage() {
             We&apos;re committed to transparency and protecting your information. If you need clarification on any aspect of our privacy policy, our team is here to help.
           </p>
           <div className="flex flex-wrap justify-center gap-4">
-            <Link 
-              href="/contact" 
+            <Link
+              href="mailto:ovpa@cpu.edu.ph"
               className="bg-white text-blue-900 px-6 py-3 rounded-md font-medium hover:bg-blue-50 transition-colors"
             >
               Contact Support
             </Link>
-            <Link 
-              href="/service-request/create" 
+            <Link
+              href="/service-request/create"
               className="bg-blue-800 text-white px-6 py-3 rounded-md font-medium hover:bg-blue-700 transition-colors"
             >
               Create a Service Request
@@ -378,7 +373,7 @@ export default function PrivacyPolicyPage() {
           </div>
         </div>
       </section>
-      
+
       <Footer />
     </div>
   );

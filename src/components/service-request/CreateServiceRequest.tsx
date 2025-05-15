@@ -7,6 +7,7 @@ import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter } from "@/components/ui/card";
+import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
 import fetchCreateServiceRequest from "@/domains/service-request/services/fetchCreateServiceRequest";
@@ -66,10 +67,12 @@ export default function CreateServiceRequest() {
   const [customConcern, setCustomConcern] = useState<string>("");
   const [isLoading, setIsLoading] = useState(false);
   const [showLoginPrompt, setShowLoginPrompt] = useState(false);
+  const [agreedToPrivacy, setAgreedToPrivacy] = useState(false); // Add privacy state
+  const [agreedToTerms, setAgreedToTerms] = useState(false); // Add terms state
 
   const isFormComplete = useMemo(() => {
-    return reduxConcern.trim() !== "" && reduxDetails.trim() !== "";
-  }, [reduxConcern, reduxDetails]);
+    return reduxConcern.trim() !== "" && reduxDetails.trim() !== "" && agreedToPrivacy && agreedToTerms; // Include both agreements
+  }, [reduxConcern, reduxDetails, agreedToPrivacy, agreedToTerms]);
 
   useEffect(() => {
     if (!reduxConcern) return;
@@ -78,7 +81,7 @@ export default function CreateServiceRequest() {
 
     if (found) {
       setSelectedConcern(found.value);
-      setCustomConcern("");
+      setCustomConcern("");     
     } else {
       setSelectedConcern("Others");
       setCustomConcern(reduxConcern);
@@ -113,6 +116,14 @@ export default function CreateServiceRequest() {
     e.preventDefault();
 
     if (!isFormComplete) {
+      if (!agreedToPrivacy || !agreedToTerms) {
+        toast({
+          title: "Validation Error",
+          description: "Please agree to the Privacy Policy and Terms and Conditions.",
+          variant: "destructive",
+        });
+        return;
+      }
       toast({
         title: "Validation Error",
         description: "Please fill in all required fields.",
@@ -161,6 +172,8 @@ export default function CreateServiceRequest() {
       dispatch(resetServiceRequest());
       setSelectedConcern("");
       setCustomConcern("");
+      setAgreedToPrivacy(false); // Reset privacy agreement
+      setAgreedToTerms(false); // Reset terms agreement
 
       router.push("/service-request/create/success");
     } catch (error) {
@@ -242,6 +255,42 @@ export default function CreateServiceRequest() {
                   Your request will be reviewed within 1 to 2 Business Days. For urgent matters, please contact our support team
                   directly at ovpa@cpu.edu.ph.
                 </p>
+              </div>
+            </div>
+
+            <div className="bg-indigo-50 border border-indigo-200 rounded-lg p-4">
+              <div className="space-y-3">
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="privacy"
+                    className="data-[state=checked]:bg-indigo-Background hover:cursor-pointer border-indigo-300"
+                    checked={agreedToPrivacy}
+                    onCheckedChange={(checked) => setAgreedToPrivacy(checked as boolean)}
+                    disabled={isLoading}
+                  />
+                  <div className="text-indigo-text text-sm leading-tight">
+                    By providing your data & submitting, you consent to our{" "}
+                    <Link href="/privacy-policy" className="text-indigo-600 inline mx-1 hover:underline">
+                      Privacy Policy
+                    </Link>
+                  </div>
+                </div>
+
+                <div className="flex items-start space-x-2">
+                  <Checkbox
+                    id="terms"
+                    className=" data-[state=checked]:bg-indigo-Background hover:cursor-pointer border-indigo-300"
+                    checked={agreedToTerms}
+                    onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
+                    disabled={isLoading}
+                  />
+                  <div className="text-indigo-text text-sm leading-tight">
+                    I have read the{" "}
+                    <Link href="/terms-and-conditions" className="text-indigo-600 inline mx-1 hover:underline">
+                      Terms and Conditions
+                    </Link>
+                  </div>
+                </div>
               </div>
             </div>
 
