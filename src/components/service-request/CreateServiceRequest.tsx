@@ -43,6 +43,11 @@ const predefinedConcerns = [
   { value: "Others", label: "Others" },
 ];
 
+const MAX_LENGTH = {
+  customConcern: 100,
+  details: 500,
+};
+
 export default function CreateServiceRequest() {
   const router = useRouter();
   const pathname = usePathname();
@@ -106,11 +111,29 @@ export default function CreateServiceRequest() {
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    
+
     if (!isFormComplete) {
       toast({
-        title: "Error",
-        description: "Please fill in all fields",
+        title: "Validation Error",
+        description: "Please fill in all required fields.",
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (selectedConcern === "Others" && reduxConcern.length > MAX_LENGTH.customConcern) {
+      toast({
+        title: "Validation Error",
+        description: `Custom concern cannot exceed ${MAX_LENGTH.customConcern} characters.`,
+        variant: "destructive",
+      });
+      return;
+    }
+
+    if (reduxDetails.length > MAX_LENGTH.details) {
+      toast({
+        title: "Validation Error",
+        description: `Details cannot exceed ${MAX_LENGTH.details} characters.`,
         variant: "destructive",
       });
       return;
@@ -184,7 +207,7 @@ export default function CreateServiceRequest() {
               <Concerns
                 concerns={predefinedConcerns}
                 onSelect={handleConcernSelect}
-                value={selectedConcern} 
+                value={selectedConcern}
               />
               {selectedConcern === "Others" && (
                 <Input
@@ -193,6 +216,7 @@ export default function CreateServiceRequest() {
                   onChange={handleCustomConcernChange}
                   placeholder="Enter your custom concern..."
                   className="w-full mt-2"
+                  maxLength={MAX_LENGTH.customConcern}
                 />
               )}
             </div>
@@ -207,6 +231,7 @@ export default function CreateServiceRequest() {
                 onChange={handleDetailsChange}
                 placeholder="Please provide detailed information about your request..."
                 className="w-full h-full max-h-[300px] min-h-[150px] resize-none overflow-auto"
+                maxLength={MAX_LENGTH.details}
               />
             </div>
 
@@ -249,7 +274,7 @@ export default function CreateServiceRequest() {
             type="submit"
             onClick={handleSubmit}
             className={`${
-              isFormComplete && !isLoading
+              isFormComplete && !isLoading && !showLoginPrompt
                 ? "bg-indigo-Background hover:bg-indigo-600 text-white"
                 : "bg-gray-300 text-gray-500 cursor-not-allowed"
             }`}

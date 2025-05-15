@@ -11,6 +11,17 @@ import validator from "validator";
 import { fetchVerificationToken } from "@/domains/user-management/services/fetchVerificationToken";
 import { fetchSendUserVerificationEmail } from "@/domains/notification/services/fetchSendUserVerificationEmail";
 
+// Define character limits for inputs
+const MAX_LENGTH = {
+  firstName: 50,
+  lastName: 50,
+  department: 100,
+  localNumber: 10,
+  cellphoneNumber: 15,
+  email: 255, 
+  password: 128,
+};
+
 export default function Register() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/service-request/create";
@@ -52,34 +63,46 @@ export default function Register() {
       submit: "",
     };
 
-    if (!validator.isAlpha(firstName, 'en-US', { ignore: " -" })) {
-      newErrors.firstName = "First name must contain only letters.";
-      isValid = false;
-    } else if (validator.isEmpty(firstName)) {
+    if (validator.isEmpty(firstName)) {
       newErrors.firstName = "First name is required.";
       isValid = false;
+    } else if (!validator.isAlpha(firstName, 'en-US', { ignore: " -" })) {
+      newErrors.firstName = "First name must contain only letters.";
+      isValid = false;
+    } else if (firstName.length > MAX_LENGTH.firstName) {
+      newErrors.firstName = `First name cannot exceed ${MAX_LENGTH.firstName} characters.`;
+      isValid = false;
     }
 
-    if (!validator.isAlpha(lastName, 'en-US', { ignore: " -" })) {
-      newErrors.lastName = "Last name must contain only letters.";
-      isValid = false;
-    } else if (validator.isEmpty(lastName)) {
+    if (validator.isEmpty(lastName)) {
       newErrors.lastName = "Last name is required.";
       isValid = false;
+    } else if (!validator.isAlpha(lastName, 'en-US', { ignore: " -" })) {
+      newErrors.lastName = "Last name must contain only letters.";
+      isValid = false;
+    } else if (lastName.length > MAX_LENGTH.lastName) {
+      newErrors.lastName = `Last name cannot exceed ${MAX_LENGTH.lastName} characters.`;
+      isValid = false;
     }
 
-    if (validator.isEmpty(department)) {
+    if (validator.isEmpty(department.trim())) {
       newErrors.department = "Department is required.";
       isValid = false;
+    } else if (department.length > MAX_LENGTH.department) {
+        newErrors.department = `Department cannot exceed ${MAX_LENGTH.department} characters.`;
+        isValid = false;
     }
 
-    if (!validator.isEmpty(localNumber) && !validator.isNumeric(localNumber)) {
-      newErrors.localNumber = "Local number must contain only numbers.";
-      isValid = false;
-    } else if (!validator.isEmpty(localNumber) && !validator.isLength(localNumber, { min: 7, max: 10 })) {
-      newErrors.localNumber = "Local number must be between 7 and 10 digits.";
-      isValid = false;
+    if (!validator.isEmpty(localNumber)) {
+        if (!validator.isNumeric(localNumber)) {
+            newErrors.localNumber = "Local number must contain only numbers.";
+            isValid = false;
+        } else if (!validator.isLength(localNumber, { min: 7, max: MAX_LENGTH.localNumber })) {
+            newErrors.localNumber = `Local number must be between 7 and ${MAX_LENGTH.localNumber} digits.`;
+            isValid = false;
+        }
     }
+
 
     if (validator.isEmpty(cellphoneNumber)) {
       newErrors.cellphoneNumber = "Cellphone number is required.";
@@ -87,22 +110,26 @@ export default function Register() {
     } else if (!validator.isMobilePhone(cellphoneNumber, 'any')) {
       newErrors.cellphoneNumber = "Please enter a valid cellphone number.";
       isValid = false;
-    }
-
-    if (!department.trim()) {
-      newErrors.department = "Department is required.";
-      isValid = false;
+    } else if (cellphoneNumber.length > MAX_LENGTH.cellphoneNumber) {
+        newErrors.cellphoneNumber = `Cellphone number cannot exceed ${MAX_LENGTH.cellphoneNumber} characters.`;
+        isValid = false;
     }
 
     if (!validator.isEmail(email) || !email.endsWith("@cpu.edu.ph")) {
       newErrors.email = "Please enter a valid CPU email address.";
       isValid = false;
+    } else if (email.length > MAX_LENGTH.email) {
+        newErrors.email = `Email address cannot exceed ${MAX_LENGTH.email} characters.`;
+        isValid = false;
     }
 
     if (!validator.isStrongPassword(password)) {
       newErrors.password =
         "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number, and one special character.";
       isValid = false;
+    } else if (password.length > MAX_LENGTH.password) {
+        newErrors.password = `Password cannot exceed ${MAX_LENGTH.password} characters.`;
+        isValid = false;
     }
 
     if (password !== confirmPassword) {
@@ -146,8 +173,6 @@ export default function Register() {
           return;
         }
 
-        console.log(data)
-
         const signInResult = await signIn("credentials", {
           redirect: false,
           email,
@@ -163,12 +188,8 @@ export default function Register() {
           return
         }
 
-        console.log(data.newUser.id)
-
-        const verificationToken = await fetchVerificationToken(data.newUser.id)
-        console.log(verificationToken)
-
         try {
+          const verificationToken = await fetchVerificationToken(data.newUser.id);
           await fetchSendUserVerificationEmail(
             email,
             `${firstName} ${lastName}`,
@@ -177,19 +198,21 @@ export default function Register() {
           );
 
           router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
+
         } catch (emailError) {
           console.error("Failed to send verification email:", emailError);
           setErrors((prevErrors) => ({
             ...prevErrors,
-            submit: "Registration successful, but failed to send verification email. Please contact support.",
+            submit: "Registration successful, but failed to send verification email. Please check your spam folder or contact support.",
           }));
           setIsLoading(false);
         }
+
       } catch (error) {
-        console.error("Registration error:", error);
+        console.error("Registration process error:", error);
         setErrors((prevErrors) => ({
           ...prevErrors,
-          submit: "An error occurred during registration.",
+          submit: "An unexpected error occurred during the registration process.",
         }));
         setIsLoading(false);
       }
@@ -237,6 +260,7 @@ export default function Register() {
                 onChange={(e) => setFirstName(e.target.value)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
                 placeholder="Enter your first name"
+                maxLength={MAX_LENGTH.firstName}
               />
               {errors.firstName && (
                 <p className="text-red-500 text-xs mt-1">{errors.firstName}</p>
@@ -256,6 +280,7 @@ export default function Register() {
                 onChange={(e) => setLastName(e.target.value)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
                 placeholder="Enter your last name"
+                 maxLength={MAX_LENGTH.lastName}
               />
               {errors.lastName && (
                 <p className="text-red-500 text-xs mt-1">{errors.lastName}</p>
@@ -277,6 +302,7 @@ export default function Register() {
               onChange={(e) => setDepartment(e.target.value)}
               className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
               placeholder="Enter your unit/department/college"
+              maxLength={MAX_LENGTH.department}
             />
             {errors.department && (
               <p className="text-red-500 text-xs mt-1">{errors.department}</p>
@@ -289,7 +315,7 @@ export default function Register() {
                 htmlFor="localNumber"
                 className="block text-sm font-medium text-gray-200 mb-1"
               >
-                Local Number
+                Local Number (Optional)
               </label>
               <Input
                 id="localNumber"
@@ -298,6 +324,7 @@ export default function Register() {
                 onChange={(e) => setLocalNumber(e.target.value)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
                 placeholder="Enter your local number"
+                maxLength={MAX_LENGTH.localNumber}
               />
               {errors.localNumber && (
                 <p className="text-red-500 text-xs mt-1">{errors.localNumber}</p>
@@ -317,6 +344,7 @@ export default function Register() {
                 onChange={(e) => setCellphoneNumber(e.target.value)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
                 placeholder="Enter your cellphone number"
+                 maxLength={MAX_LENGTH.cellphoneNumber}
               />
               {errors.cellphoneNumber && (
                 <p className="text-red-500 text-xs mt-1">{errors.cellphoneNumber}</p>
@@ -329,7 +357,7 @@ export default function Register() {
               htmlFor="email"
               className="block text-sm font-medium text-gray-200 mb-1"
             >
-              Email
+              CPU Email
             </label>
             <Input
               id="email"
@@ -338,6 +366,7 @@ export default function Register() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
               placeholder="Enter your CPU email"
+              maxLength={MAX_LENGTH.email}
             />
             {errors.email && (
               <p className="text-red-500 text-xs mt-1">{errors.email}</p>
@@ -359,11 +388,13 @@ export default function Register() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400 pr-10"
                 placeholder="Enter your password"
+                maxLength={MAX_LENGTH.password}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" />
@@ -392,11 +423,13 @@ export default function Register() {
                 onChange={(e) => setConfirmPassword(e.target.value)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400 pr-10"
                 placeholder="Confirm your password"
+                 maxLength={MAX_LENGTH.password}
               />
               <button
                 type="button"
                 onClick={() => setShowConfirmPassword(!showConfirmPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 focus:outline-none"
+                 aria-label={showConfirmPassword ? "Hide confirm password" : "Show confirm password"}
               >
                 {showConfirmPassword ? (
                   <EyeOff className="h-4 w-4" />
