@@ -36,8 +36,8 @@ export default function Login() {
       password: "",
       submit: "",
     };
-
-    if (!validator.isEmail(email) || !email.endsWith("@cpu.edu.ph")) {
+    if (!validator.isEmail(email)) {
+    // if (!validator.isEmail(email) || !email.endsWith("@cpu.edu.ph")) {
       newErrors.email = "Please enter a valid CPU email address.";
       isValid = false;
     } else if (email.length > MAX_LENGTH.email) {
