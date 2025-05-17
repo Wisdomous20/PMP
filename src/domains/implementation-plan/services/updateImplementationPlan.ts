@@ -1,8 +1,69 @@
-import { prisma } from '@/lib/prisma';
+import { prisma } from "@/lib/prisma";
 
-export default async function updateImplementationPlan(serviceRequestId: string, tasks: Task[]) {
+interface Task {
+  id: string;
+  name: string;
+  checked: boolean;
+  startTime: string | Date;
+  endTime: string | Date;
+  assignments: ServerPersonnelAssignment[]; // Include personnel assignments
+}
+
+type ServerPersonnelAssignment = {
+  id: string;
+  personnelId: string;
+  taskId: string;
+  personnel: ServerPersonnel;
+};
+
+type ServerPersonnel = {
+  id: string;
+  name: string;
+};
+
+interface ServerServiceRequest {
+  id: string;
+  concern: string;
+  details: string;
+}
+
+interface ServerTaskFromGet {
+  id: string;
+  name: string;
+  checked: boolean;
+  startTime: string | Date;
+  endTime: string | Date;
+  assignments: ServerPersonnelAssignment[];
+}
+
+export interface ServerImplementationPlan {
+  id: string;
+  description: string;
+  status: string;
+  serviceRequestId: string;
+  serviceRequest: ServerServiceRequest;
+  tasks: ServerTaskFromGet[];
+  createdAt: string | Date;
+}
+
+export default async function updateImplementationPlan(
+  serviceRequestId: string,
+  tasks: Task[]
+): Promise<ServerImplementationPlan | null> {
   const existingPlan = await prisma.implementationPlan.findUnique({
     where: { serviceRequestId },
+    include: {
+      serviceRequest: true,
+      tasks: {
+        include: {
+          assignments: {
+            include: {
+              personnel: true
+            }
+          }
+        }
+      },
+    },
   });
 
   if (existingPlan) {
@@ -10,16 +71,40 @@ export default async function updateImplementationPlan(serviceRequestId: string,
       where: { id: existingPlan.id },
       data: {
         tasks: {
-          deleteMany: {}, // Clear previous tasks
-          create: tasks.map(task => ({
-            id: task.id,
+          deleteMany: {},
+          create: tasks.map((task) => ({
             name: task.name,
-            startTime: task.startTime, // Updated field
-            endTime: task.endTime, // Updated field
+            startTime: task.startTime,
+            endTime: task.endTime,
             checked: task.checked,
+            assignments: {
+              create: task.assignments?.map(assignment => ({
+                id: assignment.id,
+                personnelId: assignment.personnelId,
+              })) || []
+            },
           })),
         },
       },
     });
+
+    const updatedPlan = await prisma.implementationPlan.findUnique({
+      where: { serviceRequestId },
+      include: {
+        serviceRequest: true,
+        tasks: {     
+          include: {
+            assignments: {
+              include: {
+                personnel: true
+              }
+            }
+          }
+        },
+      },
+    });
+
+    return updatedPlan;
   }
+  return null;
 }

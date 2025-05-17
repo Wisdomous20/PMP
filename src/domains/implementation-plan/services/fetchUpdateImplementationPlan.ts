@@ -1,3 +1,5 @@
+import { ServerImplementationPlan } from "./updateImplementationPlan";
+
 export default async function fetchUpdateImplementationPlan(
   serviceRequestId: string, tasks: Task[]
 ) {
@@ -19,7 +21,7 @@ export default async function fetchUpdateImplementationPlan(
       throw new Error(`Error ${response.status}: ${errorData.error}`);
     }
 
-    const responseData = await response.json();
+    const responseData: ServerImplementationPlan = await response.json();
     return responseData;
   } catch (error) {
     console.error("Failed to update implementation plan:", error);
