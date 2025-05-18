@@ -5,9 +5,12 @@ type NotificationType =
   | "personnel"
 
 type AdminNotification = {
-  id: string
-  type: NotificationType
-  message: string
-  isRead: boolean
-  createdAt: string
+  id: string;
+  type: NotificationType;
+  message: string;
+  link: string;
+  department?: string;
+  supervisorId?: string;
+  isRead: boolean;
+  createdAt: string;
 }

@@ -1,16 +1,15 @@
 import { NextRequest, NextResponse } from "next/server";
 import updateImplementationPlan from "@/domains/implementation-plan/services/updateImplementationPlan";
-import updateImplementationPlanStatus from "@/domains/implementation-plan/services/updateImplementationPlanStatus";  
-// import getImplementationPlans from "@/domains/implementation-plan/services/getImplementationPlans";
+import updateImplementationPlanStatus from "@/domains/implementation-plan/services/updateImplementationPlanStatus";
 import getImplementationPlanByServiceRequestId from "@/domains/implementation-plan/services/getImplementationPlanByServiceRequestId";
+import getServiceRequestById from "@/domains/service-request/services/getServiceRequestById";
+import { sendServiceRequestCompletedEmail } from "@/domains/notification/services/sendServiceRequestCompleteEmail"; 
 
 export async function GET(
   req: NextRequest,
   { params }: { params: { id: string } }
 ): Promise<NextResponse> {
   const { id } = params;
-
-  console.log("API called with serviceRequestId:", id);
 
   if (!id) {
     return NextResponse.json(
@@ -21,7 +20,6 @@ export async function GET(
 
   try {
     const tasks = await getImplementationPlanByServiceRequestId(id);
-    console.log("Tasks fetched:", tasks);
 
     if (!tasks) {
       return NextResponse.json(
@@ -47,9 +45,6 @@ export async function PUT(
   const { id } = params;
   const { tasks } = await req.json();
 
-  console.log("tasks", tasks);
-  console.log("ok")
-
   if (!id) {
     return NextResponse.json(
       { error: "Implementation plan ID is required" },
@@ -65,7 +60,7 @@ export async function PUT(
   }
 
   try {
-    updateImplementationPlan(id, tasks);
+    await updateImplementationPlan(id, tasks);
     return NextResponse.json({ message: "Implementation plan updated" });
   } catch (error) {
     console.error("Error updating implementation plan:", error);
@@ -75,6 +70,7 @@ export async function PUT(
     );
   }
 }
+
 export async function PATCH(
   req: NextRequest,
   { params }: { params: { id: string } }
@@ -86,7 +82,6 @@ export async function PATCH(
     const { status } = body;
 
     if (!id || !status) {
-      console.error('Missing required fields:', { id, status });
       return NextResponse.json(
         { error: "Implementation plan ID and status are required" },
         { status: 400 }
@@ -94,13 +89,24 @@ export async function PATCH(
     }
 
     const updatedPlan = await updateImplementationPlanStatus(id, status);
-
     if (!updatedPlan) {
-      console.error('Update failed - no plan returned');
       return NextResponse.json(
-        { error: "Failed to update implementation plan" }, 
+        { error: "Failed to update implementation plan status" },
         { status: 500 }
       );
+    }
+
+    if (status === "completed") {
+      const serviceRequest = await getServiceRequestById(id);
+      if (serviceRequest && serviceRequest.user && serviceRequest.user) {
+        await sendServiceRequestCompletedEmail({
+          to: serviceRequest.user.email,
+          userName: `${serviceRequest.user.firstName} ${serviceRequest.user.lastName}`,
+          concern: serviceRequest.concern,
+          details: serviceRequest.details,
+          requestId: id,
+        });
+      }
     }
 
     return NextResponse.json(updatedPlan, { status: 200 });

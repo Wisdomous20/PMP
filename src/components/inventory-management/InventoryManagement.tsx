@@ -3,6 +3,8 @@
 import { useEffect, useState } from "react";
 import { jsPDF } from 'jspdf';
 import autoTable from 'jspdf-autotable';
+import * as XLSX from 'xlsx';
+import { saveAs } from 'file-saver';
 import {
   Table,
   TableBody,
@@ -37,6 +39,7 @@ import {
 import EquipmentPagination from "./EquipmentPagination";
 import fetchPaginatedEquipment from "@/domains/inventory-management/services/fetchPaginatedEquipment";
 import fetchDepartment from "@/domains/inventory-management/services/fetchDepartment";
+import { createInventoryExcel } from "@/domains/inventory-management/services/createinventoryExcel";
 
 const ITEMS_PER_PAGE = 50;
 
@@ -115,7 +118,7 @@ export default function InventoryManagement() {
   };
 
   const downloadPDF = () => {
-    const doc = new jsPDF({orientation: "landscape"});
+    const doc = new jsPDF({ orientation: "landscape" });
     doc.text("Equipment Report", 14, 10);
 
     const tableColumnHeaders = [
@@ -148,7 +151,7 @@ export default function InventoryManagement() {
       item.department,
     ]);
 
-    autoTable(doc,{
+    autoTable(doc, {
       head: [tableColumnHeaders],
       body: tableRows,
       startY: 20,
@@ -156,8 +159,6 @@ export default function InventoryManagement() {
 
     doc.save("equipment-report.pdf");
   };
-
-  
 
   if (isLoading && equipment.length === 0) {
     return (
@@ -216,7 +217,18 @@ export default function InventoryManagement() {
             <AddEquipment onSuccess={handleEquipmentAdded} />
           </DialogContent>
         </Dialog>
-        <Button onClick={downloadPDF}>Download PDF</Button>
+        <div className="flex gap-2">
+          <Button onClick={downloadPDF}>Download PDF</Button>
+          <Button onClick={() =>
+            createInventoryExcel(
+              selectedDepartment === 'all' ? 'ALL DEPARTMENTS' : selectedDepartment,
+              new Date(),
+              equipment
+            )
+          }>
+            Download Excel
+          </Button>
+        </div>
       </div>
 
       <div className="rounded-md border">

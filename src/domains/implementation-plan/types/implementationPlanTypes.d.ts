@@ -15,7 +15,8 @@ type ServiceRequest = {
     status: Status[];
     user: {
         firstName: string,
-        lastName: string
+        lastName: string,
+        email: string
     }
 }
 

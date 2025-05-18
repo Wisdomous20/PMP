@@ -10,6 +10,11 @@ import validator from "validator";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 
+const MAX_LENGTH = {
+  email: 255,
+  password: 128,
+};
+
 export default function Login() {
   const router = useRouter();
   const searchParams = useSearchParams();
@@ -31,15 +36,21 @@ export default function Login() {
       password: "",
       submit: "",
     };
-
-    if (!validator.isEmail(email) || !email.endsWith("@cpu.edu.ph")) {
-      newErrors.email = "Please enter a valid CPU email address";
+    if (!validator.isEmail(email)) {
+    // if (!validator.isEmail(email) || !email.endsWith("@cpu.edu.ph")) {
+      newErrors.email = "Please enter a valid CPU email address.";
       isValid = false;
+    } else if (email.length > MAX_LENGTH.email) {
+        newErrors.email = `Email address cannot exceed ${MAX_LENGTH.email} characters.`;
+        isValid = false;
     }
 
     if (!validator.isLength(password, { min: 8 })) {
-      newErrors.password = "Password must be at least 8 characters long";
+      newErrors.password = "Password must be at least 8 characters long.";
       isValid = false;
+    } else if (password.length > MAX_LENGTH.password) {
+        newErrors.password = `Password cannot exceed ${MAX_LENGTH.password} characters.`;
+        isValid = false;
     }
 
     setErrors(newErrors);
@@ -49,13 +60,9 @@ export default function Login() {
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
-    const newErrors = {
-      email: "",
-      password: "",
-      submit: "",
-    };
+    const initialErrors = { ...errors, submit: "" };
+    setErrors(initialErrors);
 
-    setErrors(newErrors);
 
     if (validateForm()) {
       try {
@@ -73,37 +80,55 @@ export default function Login() {
             result.error.includes("Email not found") ||
             result.error.includes("CredentialsSignin")
           ) {
-            console.log("Email not found. Please register first");
-            setErrors({
-              ...errors,
-              submit: "Email not found. Please register first",
-            });
+             setErrors(prevErrors => ({
+                ...prevErrors,
+                submit: "Email not found. Please register first.",
+              }));
           } else if (result.error.includes("Invalid email or password")) {
-            setErrors({ ...errors, submit: "Invalid email or password" });
-          } else {
-            setErrors({ ...errors, submit: "Invalid email or password" });
+             setErrors(prevErrors => ({
+                ...prevErrors,
+                 submit: "Invalid email or password.",
+              }));
+          } else if (result.error.includes("Please verify your email before logging in.")) {
+             setErrors(prevErrors => ({
+                ...prevErrors,
+                 submit: "Please verify your email before logging in.",
+              }));
           }
-        } else {
+          else {
+             setErrors(prevErrors => ({
+                ...prevErrors,
+                 submit: "An error occurred during login.",
+              }));
+          }
+        }
+        else {
           try {
             const response = await fetch("/api/auth/session");
             const session = await response.json();
             const userRole = session?.user?.role;
 
-            setTimeout(() => {
-              if (userRole === "ADMIN" || userRole === "SUPERVISOR") {
-                router.push("/dashboard");
-              } else {
-                router.push(callbackUrl);
-              }
-            }, 300);
+            if (userRole === "ADMIN" || userRole === "SUPERVISOR") {
+              router.push("/dashboard");
+            } else {
+              router.push(callbackUrl);
+            }
+
           } catch (error) {
             console.error("Error fetching session:", error);
             setIsLoading(false);
+            setErrors(prevErrors => ({
+                ...prevErrors,
+                 submit: "Login successful, but failed to retrieve user information. Please try again or contact support.",
+              }));
           }
         }
       } catch (error) {
-        console.error("Login error:", error);
-        setErrors({ ...errors, submit: "An error occurred during login" });
+        console.error("Login process error:", error);
+        setErrors(prevErrors => ({
+            ...prevErrors,
+            submit: "An unexpected error occurred during the login process.",
+         }));
         setIsLoading(false);
       }
     } else {
@@ -148,6 +173,7 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
               placeholder="Enter your email"
+               maxLength={MAX_LENGTH.email}
             />
             {errors.email && (
               <p className="text-red-500 text-xs mt-1" id="email-error">
@@ -170,11 +196,13 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400 pr-10"
                 placeholder="Enter your password"
+                 maxLength={MAX_LENGTH.password}
               />
               <button
                 type="button"
                 onClick={() => setShowPassword(!showPassword)}
                 className="absolute right-3 top-1/2 -translate-y-1/2 text-gray-400 hover:text-gray-300 focus:outline-none"
+                aria-label={showPassword ? "Hide password" : "Show password"}
               >
                 {showPassword ? (
                   <EyeOff className="h-4 w-4" />
@@ -230,16 +258,16 @@ export default function Login() {
           </p>
         </div>
         <div className="mt-6 text-center text-xs text-gray-400">
-          <a href="#" className="hover:underline">
+          <a href="mailto:ovpa@cpu.edu.ph" className="hover:underline">
             Help
           </a>{" "}
           ·
-          <a href="#" className="ml-2 hover:underline">
+          <a href="/privacy-policy" className="ml-2 hover:underline">
             Privacy Policy
           </a>{" "}
           ·
-          <a href="#" className="ml-2 hover:underline">
-            Terms of Use
+          <a href="/terms-and-conditions" className="ml-2 hover:underline">
+            Terms and Conditions
           </a>
         </div>
       </div>

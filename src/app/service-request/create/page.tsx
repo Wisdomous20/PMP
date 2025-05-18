@@ -12,7 +12,7 @@ const DynamicCreateServiceRequest = dynamic(
 
 export default function Page() {
   return (
-    <div className="relative w-screen h-screen flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 p-6 sm:p-10">
+    <div className="relative w-full min-h-screen flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 p-6 sm:p-10">
       <Link
         href="/"
         className="inline-flex items-center text-blue-600 hover:text-blue-800 transition-colors duration-200 mb-6 sm:mb-8 self-start"

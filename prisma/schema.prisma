@@ -23,6 +23,12 @@ model User {
   supervisorAssignments SupervisorAssignment[]
   accounts              Account[]
   sessions              Session[]
+  pendingLimit          Int                    @default(5)
+  isVerified            Boolean                @default(false)
+  createdAt             DateTime               @default(now())
+  notifications          Notification[]
+
+  VerificationToken VerificationToken[]
 }
 
 model Session {
@@ -155,6 +161,19 @@ model PersonnelAssignment {
   @@unique([taskId, personnelId])
 }
 
+model VerificationToken {
+  id        String   @id @default(auto()) @map("_id") @db.ObjectId
+  userId    String   @db.ObjectId
+  token     String   @unique
+  expires   DateTime
+  createdAt DateTime @default(now())
+
+  user User @relation(fields: [userId], references: [id], onDelete: Cascade)
+
+  @@map("verification_tokens")
+}
+
+
 model Equipment {
   id               String           @id @default(auto()) @map("_id") @db.ObjectId
   quantity         Int
@@ -174,12 +193,15 @@ model Equipment {
 }
 
 model Notification {
-  id        String           @id @default(auto()) @map("_id") @db.ObjectId
-  type      NotificationType
-  message   String
-  link      String
-  isRead    Boolean          @default(false)
-  createdAt DateTime         @default(now())
+  id               String           @id @default(auto()) @map("_id") @db.ObjectId
+  type             NotificationType
+  message          String
+  link             String
+  department       String?
+  supervisorId     String?          @db.ObjectId
+  user      User?    @relation(fields: [supervisorId], references: [id], onDelete: Cascade)
+  isRead    Boolean  @default(false)
+  createdAt DateTime @default(now())
 }
 
 enum user_type {

@@ -22,15 +22,12 @@ export default function UserServiceRequestList({ serviceRequests, loading } : Us
   const [activeTab, setActiveTab] = useState("all")
   const [selectedRequest, setSelectedRequest] = useState<ServiceRequest | null>(null)
   const [dialogOpen, setDialogOpen] = useState(false)
-  // Force client-side rendering of conditional content
   const [mounted, setMounted] = useState(false)
   
-  // Ensure hydration is complete before rendering conditionally
   useEffect(() => {
     setMounted(true)
   }, [])
 
-  // Status badge renderer
   const getStatusBadge = (request : ServiceRequest) => {
     const lastStatus = request.status && request.status.length > 0 
       ? request.status[request.status.length - 1].status 
@@ -77,7 +74,6 @@ export default function UserServiceRequestList({ serviceRequests, loading } : Us
     setDialogOpen(true)
   }
 
-  // Only filter once mounted to avoid hydration mismatch
   const filteredRequests = mounted ? serviceRequests.filter((request) => {
     const matchesSearch =
       (request.concern?.toLowerCase().includes(searchTerm.toLowerCase()) || 
@@ -85,12 +81,10 @@ export default function UserServiceRequestList({ serviceRequests, loading } : Us
     
     if (activeTab === "all") return matchesSearch
     
-    // Get the latest status
     const lastStatus = request.status && request.status.length > 0 
       ? request.status[request.status.length - 1].status 
       : "pending"
       
-    // Normalize status values to match tabs
     const normalizedStatus = lastStatus === "in_progress" ? "in-progress" : lastStatus
     
     return matchesSearch && normalizedStatus === activeTab

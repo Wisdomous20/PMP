@@ -11,17 +11,26 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { PlusCircle } from "lucide-react";
+import { Plus } from "lucide-react";
 
 interface AddTaskProps {
   onAdd: (task: Task) => void;
+  personnel: Personnel[];
+  assignments: Assignment[];
+  setAssignments: React.Dispatch<React.SetStateAction<Assignment[]>>;
 }
 
-export default function AddTask({ onAdd }: AddTaskProps) {
+export default function AddTask({
+  onAdd,
+  personnel,
+  assignments,
+  setAssignments,
+}: AddTaskProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [taskName, setTaskName] = useState("");
   const [taskStart, setTaskStart] = useState("");
   const [taskEnd, setTaskEnd] = useState("");
+  const [selectedPersonnelId, setSelectedPersonnelId] = useState("");
 
   const handleSubmit = () => {
     if (!taskName || !taskStart || !taskEnd) {
@@ -35,8 +44,13 @@ export default function AddTask({ onAdd }: AddTaskProps) {
       endTime: new Date(taskEnd),
       checked: false,
     };
+    const newAssignment: Assignment = {
+      taskId: newTask.id,
+      personnelId: selectedPersonnelId,
+      assignedAt: new Date(),
+    };
+    setAssignments([...assignments, newAssignment]);
     onAdd(newTask);
-    // Reset fields and close dialog
     setTaskName("");
     setTaskStart("");
     setTaskEnd("");
@@ -46,9 +60,11 @@ export default function AddTask({ onAdd }: AddTaskProps) {
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button type="button" variant="outline" className="w-full">
-          <PlusCircle className="w-4 h-4 mr-2" />
-          Add Task
+        <Button
+          variant="outline"
+          className="h-8"
+        >
+          <Plus className="h-3 w-3 mr-1" /> <p className="font-medium">Add Task</p>
         </Button>
       </DialogTrigger>
       <DialogContent className="min-w-[40vw]">
@@ -85,6 +101,23 @@ export default function AddTask({ onAdd }: AddTaskProps) {
               value={taskEnd}
               onChange={(e) => setTaskEnd(e.target.value)}
             />
+          </div>
+          <div>
+            <label className="block text-sm font-medium text-gray-600">
+              Select Personnel
+            </label>
+            <select
+              value={selectedPersonnelId}
+              onChange={(e) => setSelectedPersonnelId(e.target.value)}
+              className="mt-1 block w-full border border-gray-300 rounded-md p-2"
+            >
+              <option value="">Select personnel</option>
+              {personnel.map((p) => (
+                <option key={p.id} value={p.id}>
+                  {p.name} - {p.position}
+                </option>
+              ))}
+            </select>
           </div>
           <div className="flex justify-end space-x-2 pt-4">
             <Button variant="outline" onClick={() => setIsOpen(false)}>

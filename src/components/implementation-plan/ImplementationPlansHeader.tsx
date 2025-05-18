@@ -1,18 +1,11 @@
 import React from "react";
-import Link from "next/link";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
-import { ArrowLeft, Search } from "lucide-react";
+import { Search } from "lucide-react";
 
 const ImplementationPlansHeader: React.FC = () => {
   return (
     <div className="mb-6">
       <div className="flex items-center mb-4">
-        <Link href="/" className="mr-4">
-          <Button variant="ghost" size="icon" className="h-8 w-8">
-            <ArrowLeft className="h-4 w-4" />
-          </Button>
-        </Link>
         <h1 className="text-2xl font-bold tracking-tight">Implementation Plans</h1>
       </div>
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">

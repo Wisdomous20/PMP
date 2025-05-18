@@ -19,13 +19,13 @@ export async function POST(req: NextRequest) {
     return NextResponse.json({ error: "Not found" }, { status: 404 });
   }
 
-  await assignSupervisor(serviceRequestId, supervisorId);
+  const response = await assignSupervisor(serviceRequestId, supervisorId);
   const status = await addApprovedStatus(serviceRequestId, note);
 
   await createNotification(
     "service_request",
-    `Service request ${serviceRequestId} approved and assigned to supervisor ${supervisorId}.`,
-    `/admin/service-requests/${serviceRequestId}`
+    `Service request ${request.concern} approved and assigned to supervisor ${response.supervisorAssignment.supervisorName}.`,
+    `/service-requests/${serviceRequestId}`
   );
 
   await sendServiceRequestStatusEmail({

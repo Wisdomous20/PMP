@@ -1,10 +1,17 @@
 "use client";
-
-import { useState } from "react";
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
+import { useState, useEffect } from "react";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogFooter,
+} from "@/components/ui/dialog";
 import { User } from "@prisma/client";
-import fetchUpdateUserRole from "@/domains/user-management/services/fetchUpdateUserRole";
+import fetchUpdateUser from "@/domains/user-management/services/fetchUpdateUser";
 import { Button } from "@/components/ui/button";
+
+type LimitedUserRole = Exclude<User["user_type"], "ADMIN" | null>;
 
 interface UserDetailsModalProps {
   user: User | null;
@@ -12,20 +19,28 @@ interface UserDetailsModalProps {
   onClose: () => void;
 }
 
-type LimitedUserRole = Exclude<UserRole, 'ADMIN' | null>;
-
 const roles: LimitedUserRole[] = ["USER", "SUPERVISOR", "SECRETARY"];
 
 export default function UserDetailsModal({ user, open, onClose }: UserDetailsModalProps) {
-  const [selectedRole, setSelectedRole] = useState<LimitedUserRole>((user?.user_type || "USER") as LimitedUserRole);
+  const [selectedRole, setSelectedRole] = useState<LimitedUserRole>(
+    (user?.user_type || "USER") as LimitedUserRole
+  );
+  const [pendingLimit, setPendingLimit] = useState<number>(5);
   const [working, setWorking] = useState(false);
+
+  useEffect(() => {
+    if (user) {
+      setSelectedRole(user.user_type as LimitedUserRole);
+      setPendingLimit(user.pendingLimit ?? 5);
+    }
+  }, [user]);
 
   if (!user) return null;
 
   const handleSave = async () => {
     setWorking(true);
     try {
-      await fetchUpdateUserRole(user.id, selectedRole);
+      await fetchUpdateUser(user.id, selectedRole, pendingLimit);
     } catch (e) {
       console.error(e);
     } finally {
@@ -42,7 +57,6 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
             {user.firstName} {user.lastName}
           </DialogTitle>
         </DialogHeader>
-
         <div className="mt-4 space-y-4 text-gray-700">
           <div className="flex justify-between">
             <span className="font-medium">Email:</span>
@@ -62,26 +76,35 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
               ))}
             </select>
           </div>
+          <div className="flex justify-between items-center">
+            <span className="font-medium">Pending Limit:</span>
+            <input
+              type="number"
+              min={1}
+              value={pendingLimit}
+              onChange={(e) => setPendingLimit(parseInt(e.target.value, 10))}
+              className="border border-gray-300 rounded-md px-3 py-1 w-20 focus:outline-none"
+            />
+          </div>
           <div className="flex justify-between">
             <span className="font-medium">Department:</span>
             <span>{user.department}</span>
           </div>
           <div className="flex justify-between">
             <span className="font-medium">Cellphone:</span>
-            <span>{user.cellphoneNumber || '-'}</span>
+            <span>{user.cellphoneNumber || "-"}</span>
           </div>
           <div className="flex justify-between">
             <span className="font-medium">Local Number:</span>
-            <span>{user.localNumber || '-'}</span>
+            <span>{user.localNumber || "-"}</span>
           </div>
         </div>
-
         <DialogFooter className="mt-6 flex justify-end space-x-2">
           <Button onClick={onClose} disabled={working} variant="secondary">
             Cancel
           </Button>
           <Button onClick={handleSave} disabled={working} variant="default">
-            {working ? 'Saving...' : 'Save'}
+            {working ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>
       </DialogContent>

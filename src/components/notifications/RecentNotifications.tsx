@@ -1,6 +1,6 @@
 "use client"
 
-import { useState, useEffect } from "react"
+import { useState } from "react"
 import { ScrollArea } from "@/components/ui/scroll-area"
 import { Badge } from "@/components/ui/badge"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
@@ -13,7 +13,6 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
-import { fetchNotifications } from "@/domains/notification/services/fetchNotifications"
 import { markNotificationAsRead } from "@/domains/notification/services/markNotificationAsRead"
 
 function getNotificationDateGroup(createdAt: string) {
@@ -37,28 +36,14 @@ function getNotificationDateGroup(createdAt: string) {
   return date.toLocaleDateString()
 }
 
-export default function RecentNotifications() {
-  const [notifications, setNotifications] = useState<AdminNotification[]>([])
-  const [selectedNotification, setSelectedNotification] = useState<AdminNotification | null>(null)
-  const [loading, setLoading] = useState<boolean>(true)
-  const [error, setError] = useState<string>("")
+interface RecentNotificationsProps {
+  notifications: AdminNotification[],
+  isLoading: boolean,
+  error: string | null
+}
 
-  useEffect(() => {
-    async function loadNotifications() {
-      try {
-        setLoading(true)
-        const data = await fetchNotifications()
-        setNotifications(data)
-      // eslint-disable-next-line @typescript-eslint/no-explicit-any
-      } catch (err: any) {
-        console.error("Error fetching notifications:", err)
-        setError(err.message || "Error fetching notifications")
-      } finally {
-        setLoading(false)
-      }
-    }
-    loadNotifications()
-  }, [])
+export default function RecentNotifications({notifications, isLoading, error} : RecentNotificationsProps) {
+  const [selectedNotification, setSelectedNotification] = useState<AdminNotification | null>(null)
 
   const handleSelectNotification = (notification: AdminNotification) => {
     setSelectedNotification(notification)
@@ -69,17 +54,13 @@ export default function RecentNotifications() {
 
   const handleMarkAsRead = async (id: string) => {
     try {
-      setNotifications((prev) =>
-        prev.map((notif) => (notif.id === id ? { ...notif, isRead: true } : notif))
-      )
       await markNotificationAsRead(id)
     } catch (err) {
       console.error("Error marking notification as read:", err)
     }
   }
 
-  // Group notifications by date
-  const groupedNotifications = notifications.reduce<Record<string, AdminNotification[]>>((acc, notification) => {
+  const groupedNotifications = isLoading ? [] : notifications.reduce<Record<string, AdminNotification[]>>((acc, notification) => {
     const dateLabel = getNotificationDateGroup(notification.createdAt)
     if (!acc[dateLabel]) {
       acc[dateLabel] = []
@@ -88,7 +69,7 @@ export default function RecentNotifications() {
     return acc
   }, {})
 
-  if (loading) {
+  if (isLoading) {
     return (
       <Card className="h-full max-h-screen">
         <CardHeader className="border-b p-4">

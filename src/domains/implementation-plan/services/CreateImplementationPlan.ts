@@ -29,6 +29,11 @@ export default async function CreateImplementationPlan(
       },
       include: {
         tasks: true,
+        serviceRequest:  {
+          select: {
+            concern: true,
+          },
+        }
       },
     });
 

@@ -37,6 +37,7 @@ export default async function getImplementationPlanByServiceRequestId(
         createdOn,
         status: statuses,
         user: {
+          email: impl.serviceRequest.user.email,
           firstName: impl.serviceRequest.user.firstName,
           lastName: impl.serviceRequest.user.lastName,
         },
