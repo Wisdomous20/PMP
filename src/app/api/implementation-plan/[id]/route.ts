@@ -3,9 +3,7 @@ import updateImplementationPlan from "@/domains/implementation-plan/services/upd
 import updateImplementationPlanStatus from "@/domains/implementation-plan/services/updateImplementationPlanStatus";
 import getImplementationPlanByServiceRequestId from "@/domains/implementation-plan/services/getImplementationPlanByServiceRequestId";
 import getServiceRequestById from "@/domains/service-request/services/getServiceRequestById";
-import { sendServiceRequestCompletedEmail } from "@/domains/notification/services/sendServiceRequestCompleteEmail";
-
-import { ServerImplementationPlan } from "@/domains/implementation-plan/services/updateImplementationPlan";
+import { sendServiceRequestCompletedEmail } from "@/domains/notification/services/sendServiceRequestCompleteEmail"; 
 
 export async function GET(
   req: NextRequest,
@@ -62,15 +60,8 @@ export async function PUT(
   }
 
   try {
-    const updatedPlan: ServerImplementationPlan | null = await updateImplementationPlan(id, tasks);
-
-    if (!updatedPlan) {
-      return NextResponse.json(
-        { error: "Failed to update implementation plan" },
-        { status: 500 }
-      );
-    }
-    return NextResponse.json(updatedPlan, { status: 200 });
+    await updateImplementationPlan(id, tasks);
+    return NextResponse.json({ message: "Implementation plan updated" });
   } catch (error) {
     console.error("Error updating implementation plan:", error);
     return NextResponse.json(

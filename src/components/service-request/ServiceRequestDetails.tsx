@@ -5,13 +5,15 @@ import ApproveServiceRequest from "./ApproveServiceRequest";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import { Skeleton } from "../ui/skeleton";
 import { useState, useEffect } from "react";
-import CreateImplementationPlanModal from "../implementation-plan/ImplementationPlanCreateModal";
+import CreateImplementationPlan from "../implementation-plan/CreateImplementationPlanMyk";
 import formatTimestamp from "@/utils/formatTimestamp";
 
 interface ServiceRequestDetailsProps {
   serviceRequest: ServiceRequest;
 }
 
+
+// Add this to your ServiceRequestDetails component
 export default function ServiceRequestDetails({ serviceRequest }: ServiceRequestDetailsProps) {
   const { id, concern, details, createdOn, requesterName, status } = serviceRequest;
   const { userRole, loading: roleLoading } = useGetUserRole();
@@ -47,14 +49,14 @@ export default function ServiceRequestDetails({ serviceRequest }: ServiceRequest
               </div>
             ) : currentStatus === "approved" && (
               <div>
-                <CreateImplementationPlanModal concern={serviceRequest.concern} description={serviceRequest.details} serviceRequestId={serviceRequest.id} teamMembers={[]}/>
+                <CreateImplementationPlan serviceRequest={serviceRequest} />
               </div>
             )
           )}
           
           {userRole === "SUPERVISOR" && currentStatus === "approved" && (
             <div>
-              <CreateImplementationPlanModal concern={serviceRequest.concern} description={serviceRequest.details} serviceRequestId={serviceRequest.id} teamMembers={[]} />
+              <CreateImplementationPlan serviceRequest={serviceRequest} />
             </div>
           )}
         
