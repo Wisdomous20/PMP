@@ -15,14 +15,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import fetchCreateImplementationPlan from "@/domains/implementation-plan/services/fetchCreateImplementationPlan";
-import formatTimestamp from "@/utils/formatTimestamp";
 import { fetchInProgressStatus } from "@/domains/service-request/services/status/fetchAddSatus";
 import refreshPage from "@/utils/refreshPage";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
-import AssignPersonnel from "./AssignPersonnel";
-
-// These types are based on your provided definitions.
 
 interface CreateImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -36,9 +32,7 @@ export default function CreateImplementationPlan({
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [isEquipmentDialogOpen, setIsEquipmentDialogOpen] = useState(false);
 
-  // Fetch personnel on mount
   useEffect(() => {
     const fetchPersonnel = async () => {
       try {
@@ -73,7 +67,6 @@ export default function CreateImplementationPlan({
   async function handleCreateImplementationPlan() {
     setIsLoading(true);
     try {
-      // Format tasks for the API call
       const formattedTasks = tasks.map((task) => ({
         id: task.id,
         name: task.name,
@@ -82,15 +75,12 @@ export default function CreateImplementationPlan({
         checked: task.checked,
       }));
 
-      // Create the implementation plan and get the created plan's ID
       const planResponse = await fetchCreateImplementationPlan(
         serviceRequest.id,
         formattedTasks
       );
       const planId = planResponse.id;
 
-      // Transform assignments to the structure expected by the backend:
-      // Each assignment now includes a nested "task" object with its name and ISO date strings.
       const transformedAssignments = assignments.map((assignment) => {
         const task = tasks.find((t) => t.id === assignment.taskId);
         if (!task) {
@@ -109,7 +99,6 @@ export default function CreateImplementationPlan({
         };
       });
 
-      // If there are any assignments, send them via the dedicated API route.
       if (transformedAssignments.length > 0) {
         await fetch("/api/implementation-plan/assign-personnel", {
           method: "POST",
@@ -145,125 +134,106 @@ export default function CreateImplementationPlan({
           Create Implementation Plan
         </Button>
       </DialogTrigger>
-      <DialogContent className="min-w-[70vw] max-h-[90vh] overflow-scroll">
-        <DialogHeader>
-          <DialogTitle>Create Implementation Plan</DialogTitle>
-        </DialogHeader>
-        <Card className="w-full max-w-6xl mx-auto shadow-lg">
-          <CardContent className="p-6">
-            <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
-              {/* Left Side: Request details and Tasks */}
-              <div className="space-y-6 md:col-span-2">
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">
-                    Name of requester
-                  </p>
-                  <p className="font-medium">{serviceRequest.requesterName}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">Concern</p>
-                  <p className="font-medium">{serviceRequest.concern}</p>
-                </div>
-                <div className="space-y-1">
-                  <p className="text-sm text-muted-foreground">
-                    Details of the Request
-                  </p>
-                  <p className="font-medium">{serviceRequest.details}</p>
-                </div>
-                <Separator />
-                <div className="space-y-2">
-                  <p className="font-semibold">Tasks</p>
-                  {tasks.length === 0 && (
-                    <p className="text-sm text-muted-foreground">
-                      No tasks added yet.
-                    </p>
-                  )}
-                  {tasks.map((task) => (
-                    <motion.div
-                      key={task.id}
-                      initial={{ opacity: 0, y: -10 }}
-                      animate={{ opacity: 1, y: 0 }}
-                      transition={{ duration: 0.3 }}
-                      className="flex items-center space-x-2"
-                    >
-                      <div className="flex-grow p-2 rounded bg-gray-50">
-                        <div className="font-bold">{task.name}</div>
-                        <div className="text-xs text-muted-foreground">
-                          Start: {task.startTime.toLocaleString()} | End:{" "}
-                          {task.endTime.toLocaleString()}
-                        </div>
-                      </div>
-                      <EditTask task={task} onUpdate={handleUpdateTask} />
-                      <Button
-                        variant="ghost"
-                        size="sm"
-                        className="text-red-500 hover:text-red-600"
-                        onClick={() => removeTask(task.id)}
-                      >
-                        <Trash className="w-4 h-4" />
-                      </Button>
-                    </motion.div>
-                  ))}
-                  {/* Add Task Dialog */}
-                  <AddTask onAdd={handleAddTask} />
-                </div>
-              </div>
-              {/* Right Side: Miscellaneous Details */}
-              <div className="space-y-6">
-                {serviceRequest.createdOn && (
-                  <div className="space-y-1">
-                    <p className="text-sm text-muted-foreground">
-                      Request Date
-                    </p>
-                    <p className="font-medium">
-                      {formatTimestamp(serviceRequest.createdOn)}
-                    </p>
-                  </div>
-                )}
-                <div className="space-y-4">
-                  {/* Personnel Assignment Section */}
-                  <AssignPersonnel
-                    tasks={tasks}
-                    personnel={personnel}
-                    assignments={assignments}
-                    setAssignments={setAssignments}
-                  />
-                  {/* Equipment / Budget Button */}
-                  {/* <Dialog
-                    open={isEquipmentDialogOpen}
-                    onOpenChange={setIsEquipmentDialogOpen}
-                  >
-                    <DialogTrigger asChild>
-                      <Button
-                        variant="outline"
-                        className="w-full h-24 flex items-center justify-center"
-                      >
-                        <span>Equipment / Budget</span>
-                      </Button>
-                    </DialogTrigger>
-                    <DialogContent className="min-w-[80vw] max-h-[80vh] overflow-y-scroll">
-                      <DialogHeader>
-                        <DialogTitle>Manage Equipment</DialogTitle>
-                      </DialogHeader>
-                    </DialogContent>
-                  </Dialog> */}
-                  <Button
-                    onClick={handleCreateImplementationPlan}
-                    className={`w-full mt-4 ${
-                      isLoading
-                        ? "bg-green-300 cursor-not-allowed"
-                        : "bg-green-500 hover:bg-green-600 text-white"
-                    }`}
-                    disabled={isLoading}
-                  >
-                    {isLoading ? "Creating..." : "Confirm"}
-                  </Button>
-                </div>
-              </div>
+      <DialogContent className="min-w-[50vw] max-h-[90vh] flex flex-col overflow-y-scroll">
+        <h1 className="text-lg font-semibold text-gray-800">
+          {serviceRequest.concern}
+        </h1>
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Name of requester
+          </p>
+          <p className="font-medium">{serviceRequest.requesterName}</p>
+        </div>
+        <div>
+          <p className="text-sm text-muted-foreground">
+            Details of the Request
+          </p>
+          <p className="font-medium">{serviceRequest.details}</p>
+        </div>
+        <div className="mt-2 ">
+          <div className="flex flex-row w-full items-center justify-between">
+            <p className="font-semibold text-gray-800">Tasks</p>
+            <AddTask
+              onAdd={handleAddTask}
+              personnel={personnel}
+              assignments={assignments}
+              setAssignments={setAssignments} />
+          </div>
+          <Separator className="my-2" />
+          {tasks.length === 0 ? (
+            <div className="flex flex-col items-center justify-center py-8 text-center bg-gray-50 rounded-lg">
+              <p className="text-gray-500 mb-2">No tasks added yet</p>
+              <p className="text-sm text-gray-400">Create tasks to build your implementation plan</p>
             </div>
-          </CardContent>
-        </Card>
+          ) : (
+            <div className="space-y-1">
+              {tasks.map((task) => (
+                <TaskCard
+                  key={task.id}
+                  task={task}
+                  onUpdate={handleUpdateTask}
+                  onDelete={removeTask}
+                  personnel={personnel}
+                  assignments={assignments}
+                  setAssignments={setAssignments}
+                />
+              ))}
+            </div>
+          )}
+        </div>
+        <div className="flex justify-end">
+          <Button
+            onClick={handleCreateImplementationPlan}
+            disabled={isLoading || tasks.length === 0}
+            className="bg-green-600 hover:bg-green-700"
+          >
+            {isLoading ? "Creating..." : "Save Implementation Plan"}
+          </Button>
+        </div>
       </DialogContent>
-    </Dialog>
+    </Dialog >
   );
+}
+
+interface TaskCardProps {
+  task: Task;
+  onUpdate: (updatedTask: Task) => void;
+  onDelete: (id: string) => void;
+  personnel: Personnel[];
+  assignments: Assignment[];
+  setAssignments: React.Dispatch<React.SetStateAction<Assignment[]>>;
+}
+
+function TaskCard({ task, onUpdate, onDelete, personnel, assignments, setAssignments }: TaskCardProps) {
+  const [hover, setHover] = useState(false);
+
+  return (
+    <motion.div
+      key={task.id}
+      initial={{ opacity: 0, y: -10 }}
+      animate={{ opacity: 1, y: 0 }}
+      transition={{ duration: 0.3 }}
+      className="flex items-center space-x-2"
+      onMouseEnter={() => setHover(true)}
+      onMouseLeave={() => setHover(false)}
+    >
+      <div className="flex-grow p-1 rounded">
+        <div className="text-sm font-medium">{task.name}</div>
+        <div className="text-xs text-muted-foreground">
+          Start: {task.startTime.toLocaleString()} | End:{" "}
+          {task.endTime.toLocaleString()}
+        </div>
+      </div>
+      {hover &&
+        <EditTask
+          task={task}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+          personnel={personnel}
+          assignments={assignments}
+          setAssignments={setAssignments}
+        />
+      }
+    </motion.div>
+  )
 }
