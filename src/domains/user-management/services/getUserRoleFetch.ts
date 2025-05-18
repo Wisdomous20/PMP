@@ -1,4 +1,8 @@
-export default async function getUserRoleFetch(userId : string) {
+interface UserRoleObject {
+  userRole: UserRole
+}
+
+export default async function getUserRoleFetch(userId : string) : Promise<UserRoleObject> {
   const endpoint = `/api/auth/user-role`;
 
   try {
