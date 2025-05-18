@@ -9,6 +9,7 @@ import { useRouter } from "next/navigation";
 import validator from "validator";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
+import getUserRoleFetch from "@/domains/user-management/services/getUserRoleFetch";
 
 const MAX_LENGTH = {
   email: 255,
@@ -37,20 +38,20 @@ export default function Login() {
       submit: "",
     };
     if (!validator.isEmail(email)) {
-    // if (!validator.isEmail(email) || !email.endsWith("@cpu.edu.ph")) {
+      // if (!validator.isEmail(email) || !email.endsWith("@cpu.edu.ph")) {
       newErrors.email = "Please enter a valid CPU email address.";
       isValid = false;
     } else if (email.length > MAX_LENGTH.email) {
-        newErrors.email = `Email address cannot exceed ${MAX_LENGTH.email} characters.`;
-        isValid = false;
+      newErrors.email = `Email address cannot exceed ${MAX_LENGTH.email} characters.`;
+      isValid = false;
     }
 
     if (!validator.isLength(password, { min: 8 })) {
       newErrors.password = "Password must be at least 8 characters long.";
       isValid = false;
     } else if (password.length > MAX_LENGTH.password) {
-        newErrors.password = `Password cannot exceed ${MAX_LENGTH.password} characters.`;
-        isValid = false;
+      newErrors.password = `Password cannot exceed ${MAX_LENGTH.password} characters.`;
+      isValid = false;
     }
 
     setErrors(newErrors);
@@ -80,35 +81,35 @@ export default function Login() {
             result.error.includes("Email not found") ||
             result.error.includes("CredentialsSignin")
           ) {
-             setErrors(prevErrors => ({
-                ...prevErrors,
-                submit: "Email not found. Please register first.",
-              }));
+            setErrors(prevErrors => ({
+              ...prevErrors,
+              submit: "Email not found. Please register first.",
+            }));
           } else if (result.error.includes("Invalid email or password")) {
-             setErrors(prevErrors => ({
-                ...prevErrors,
-                 submit: "Invalid email or password.",
-              }));
+            setErrors(prevErrors => ({
+              ...prevErrors,
+              submit: "Invalid email or password.",
+            }));
           } else if (result.error.includes("Please verify your email before logging in.")) {
-             setErrors(prevErrors => ({
-                ...prevErrors,
-                 submit: "Please verify your email before logging in.",
-              }));
+            setErrors(prevErrors => ({
+              ...prevErrors,
+              submit: "Please verify your email before logging in.",
+            }));
           }
           else {
-             setErrors(prevErrors => ({
-                ...prevErrors,
-                 submit: "An error occurred during login.",
-              }));
+            setErrors(prevErrors => ({
+              ...prevErrors,
+              submit: "An error occurred during login.",
+            }));
           }
         }
         else {
           try {
             const response = await fetch("/api/auth/session");
             const session = await response.json();
-            const userRole = session?.user?.role;
+            const userRole = await getUserRoleFetch(session?.user.id)
 
-            if (userRole === "ADMIN" || userRole === "SUPERVISOR") {
+            if (userRole.userRole === "ADMIN" || userRole.userRole === "SUPERVISOR") {
               router.push("/dashboard");
             } else {
               router.push(callbackUrl);
@@ -118,17 +119,17 @@ export default function Login() {
             console.error("Error fetching session:", error);
             setIsLoading(false);
             setErrors(prevErrors => ({
-                ...prevErrors,
-                 submit: "Login successful, but failed to retrieve user information. Please try again or contact support.",
-              }));
+              ...prevErrors,
+              submit: "Login successful, but failed to retrieve user information. Please try again or contact support.",
+            }));
           }
         }
       } catch (error) {
         console.error("Login process error:", error);
         setErrors(prevErrors => ({
-            ...prevErrors,
-            submit: "An unexpected error occurred during the login process.",
-         }));
+          ...prevErrors,
+          submit: "An unexpected error occurred during the login process.",
+        }));
         setIsLoading(false);
       }
     } else {
@@ -173,7 +174,7 @@ export default function Login() {
               onChange={(e) => setEmail(e.target.value)}
               className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
               placeholder="Enter your email"
-               maxLength={MAX_LENGTH.email}
+              maxLength={MAX_LENGTH.email}
             />
             {errors.email && (
               <p className="text-red-500 text-xs mt-1" id="email-error">
@@ -196,7 +197,7 @@ export default function Login() {
                 onChange={(e) => setPassword(e.target.value)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400 pr-10"
                 placeholder="Enter your password"
-                 maxLength={MAX_LENGTH.password}
+                maxLength={MAX_LENGTH.password}
               />
               <button
                 type="button"
