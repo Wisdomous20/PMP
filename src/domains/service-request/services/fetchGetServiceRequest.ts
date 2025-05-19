@@ -1,4 +1,4 @@
-export default async function fetchGetServiceRequest(userId : string) {
+export default async function fetchGetServiceRequest(userId : string) : Promise<ServiceRequest[]> {
   const queryParams = new URLSearchParams();
   queryParams.append("userId", userId)
 

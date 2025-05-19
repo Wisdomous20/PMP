@@ -9,29 +9,46 @@ import CreateImplementationPlan from "../implementation-plan/CreateImplementatio
 import formatTimestamp from "@/utils/formatTimestamp";
 
 interface ServiceRequestDetailsProps {
-  serviceRequest: ServiceRequest;
+  serviceRequest?: ServiceRequest;
 }
 
-
-// Add this to your ServiceRequestDetails component
 export default function ServiceRequestDetails({ serviceRequest }: ServiceRequestDetailsProps) {
-  const { id, concern, details, createdOn, requesterName, status } = serviceRequest;
   const { userRole, loading: roleLoading } = useGetUserRole();
   const [loading, setLoading] = useState(true);
+  
+  useEffect(() => {
+    if (!roleLoading && serviceRequest) {
+      setLoading(false);
+    }
+  }, [roleLoading, serviceRequest]);
+
+  if (loading || !serviceRequest) {
+    return (
+      <Card className="w-full h-full">
+        <CardHeader>
+          <Skeleton className="h-8 w-1/2 mb-2" />
+        </CardHeader>
+        <CardContent>
+          <div className="space-y-4">
+            <div className="flex justify-between items-center">
+              <Skeleton className="h-14 w-20" />
+              <Skeleton className="h-14 w-20" />
+              <Skeleton className="h-14 w-20" />
+            </div>
+            <Separator />
+            <Skeleton className="h-4 w-full mb-2" />
+            <Skeleton className="h-20 w-full" />
+          </div>
+        </CardContent>
+      </Card>
+    );
+  }
+
+  const { id, concern, details, createdOn, requesterName, status } = serviceRequest;
   
   const currentStatus = status
     .slice()
     .sort((a, b) => new Date(b.timestamp).getTime() - new Date(a.timestamp).getTime())[0]?.status;
-    
-  useEffect(() => {
-    if (!roleLoading) {
-      setLoading(false);
-    }
-  }, [roleLoading]);
-
-  if (loading) {
-    return <Skeleton className="w-full h-64" />;
-  }
 
   return (
     <Card className="w-full h-full">

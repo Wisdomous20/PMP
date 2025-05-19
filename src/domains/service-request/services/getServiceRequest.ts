@@ -20,7 +20,7 @@ export default async function getServiceRequests(userId: string) {
         user: true,
         status: {
           orderBy: {
-            timestamp: "asc",
+            timestamp: "desc",
           },
         },
       },

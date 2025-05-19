@@ -20,12 +20,6 @@ export default function ServiceRequestList({ serviceRequests, setServiceRequestI
     request.requesterName.toLowerCase().includes(search.toLowerCase())
   );
 
-  const sortedRequests = [...filteredRequests].sort((a, b) => {
-    const aTime = a.createdOn ? new Date(a.createdOn).getTime() : 0;
-    const bTime = b.createdOn ? new Date(b.createdOn).getTime() : 0;
-    return bTime - aTime;
-  });
-
   if (loading) {
     return (
       <div className="p-4 space-y-3">
@@ -57,7 +51,7 @@ export default function ServiceRequestList({ serviceRequests, setServiceRequestI
       </div>
 
       <div className="overflow-y-auto">
-        {sortedRequests.map((request, index) => (
+        {filteredRequests.map((request, index) => (
           <ServiceRequestPreview
             key={index}
             index={index}
@@ -65,7 +59,7 @@ export default function ServiceRequestList({ serviceRequests, setServiceRequestI
             setServiceRequestIndex={setServiceRequestIndex}
           />
         ))}
-        {sortedRequests.length === 0 && (
+        {filteredRequests.length === 0 && (
           <div className="p-4 text-center text-gray-500">No service requests found.</div>
         )}
       </div>

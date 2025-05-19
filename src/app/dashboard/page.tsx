@@ -9,12 +9,12 @@ import { useSession } from "next-auth/react";
 import { useQuery } from "@tanstack/react-query";
 
 export default function Page() {
-  const { data: session } = useSession(); // Get session data from next-auth
+  const { data: session } = useSession();
 
   const { data: userRole, isLoading } = useQuery({
     queryKey: ["userRole", session?.user.id],
     queryFn: () => fetchUserRole(session?.user.id as string),
-    enabled: !!session?.user.id, // Only fetch if user ID exists
+    enabled: !!session?.user.id,
   });
 
   return (

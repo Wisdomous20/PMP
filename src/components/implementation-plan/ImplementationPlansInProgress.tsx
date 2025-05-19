@@ -18,9 +18,10 @@ interface ImplementationPlansInProgressProps {
   isLoading: boolean
   implementationPlans: ImplementationPlan[],
   error: string | null
+  userRole: UserRole
 }
 
-export default function ImplementationPlansInProgress({ isLoading, implementationPlans, error }: ImplementationPlansInProgressProps) {
+export default function ImplementationPlansInProgress({ isLoading, implementationPlans, error, userRole }: ImplementationPlansInProgressProps) {
 
   const inProgressPlans = isLoading ? [] : implementationPlans.filter(isInProgress);
 
@@ -89,7 +90,7 @@ export default function ImplementationPlansInProgress({ isLoading, implementatio
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {inProgressPlans.map((plan) => (
-              <ImplementationPlanPreview key={plan.id} plan={plan} />
+              <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole}/>
             ))}
           </div>
         )}
