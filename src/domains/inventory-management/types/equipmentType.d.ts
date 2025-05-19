@@ -7,9 +7,9 @@ type Equipment = {
     serialNumber: string,
     unitCost: number,
     totalCost: number,
-    datePurchased: Date,
+    datePurchased: string,
     supplier: string;
-    dateReceived: Date,
+    dateReceived: string,
     status: EquipmentStatus
     location: string,
     department: string,
