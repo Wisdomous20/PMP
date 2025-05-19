@@ -17,11 +17,16 @@ export default function Dashboard() {
     enabled: !!session?.user.id,
   });
 
-  const { data: dashboardData, isLoading, error: dashboardError } = useQuery({
+  const { data: dashboardData, isLoading, error: dashboardError, refetch } = useQuery({
     queryKey: ["dashboardData", session?.user.id],
     queryFn: () => fetchDashboardData(session?.user.id as string),
     enabled: !!session?.user.id,
   });
+
+  const handlePlansUpdate = async () => {
+    await refetch();
+  };
+
 
   const errorMessage = dashboardError instanceof Error ? dashboardError.message : null;
 
@@ -38,7 +43,7 @@ export default function Dashboard() {
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 mt-6">
         <div className="lg:col-span-3 space-y-6">
-          <ImplementationPlansInProgress implementationPlans={dashboardData?.implementationPlans} isLoading={isLoading || userRoleLoading} error={errorMessage} userRole={userRole as UserRole} />
+          <ImplementationPlansInProgress onUpdate={handlePlansUpdate} implementationPlans={dashboardData?.implementationPlans} isLoading={isLoading || userRoleLoading} error={errorMessage} userRole={userRole as UserRole} />
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
             <NewServiceRequests newServiceRequests={dashboardData?.newServiceRequests} isLoading={isLoading || userRoleLoading} error={errorMessage} />

@@ -3,9 +3,10 @@ import EditImplementationPlan from "./EditImplementationPlanMyk";
 interface ImplementationPlanPreviewProps {
   plan: ImplementationPlan;
   userRole: UserRole
+  onUpdate: () => Promise<void>
 }
 
-const ImplementationPlanPreview: React.FC<ImplementationPlanPreviewProps> = ({ plan, userRole }) => {
+const ImplementationPlanPreview: React.FC<ImplementationPlanPreviewProps> = ({ plan, userRole, onUpdate }) => {
   const tasksInitial = plan.tasks.map((t) => ({
     id: t.id,
     name: t.name,
@@ -22,7 +23,7 @@ const ImplementationPlanPreview: React.FC<ImplementationPlanPreviewProps> = ({ p
   const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   return (
-    <EditImplementationPlan userRole={userRole} serviceRequest={sr} tasksInitial={tasksInitial} progress={progress} plan={plan}/>
+    <EditImplementationPlan onUpdate={onUpdate} userRole={userRole} serviceRequest={sr} tasksInitial={tasksInitial} progress={progress} plan={plan}/>
   );
 };
 

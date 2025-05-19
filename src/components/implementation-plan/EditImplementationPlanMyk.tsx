@@ -25,6 +25,7 @@ interface EditImplementationPlanProps {
   plan: ImplementationPlan;
   progress: number;
   userRole: UserRole
+  onUpdate: () => Promise<void>
 }
 
 export default function EditImplementationPlan({
@@ -32,7 +33,8 @@ export default function EditImplementationPlan({
   tasksInitial,
   plan,
   progress,
-  userRole
+  userRole,
+  onUpdate
 }: EditImplementationPlanProps) {
   const [tasks, setTasks] = useState<Task[]>(tasksInitial);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -120,8 +122,9 @@ export default function EditImplementationPlan({
     } catch (error) {
       console.error("Failed to update implementation plan:", error);
     } finally {
+      await onUpdate();
       setIsUpdating(false);
-      window.location.reload()
+      setIsDialogOpen(false)
     }
   }
 
