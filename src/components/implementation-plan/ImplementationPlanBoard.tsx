@@ -4,9 +4,19 @@ import ImplementationPlanPreview from "./ImplementationPlanPreview";
 import ImplementationPlansHeader from "./ImplementationPlansHeader";
 import useGetImplementationPlans from "@/domains/implementation-plan/hooks/useGetImplementationPlans";
 import { Skeleton } from "@/components/ui/skeleton";
+import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 
 const ImplementationPlansBoard: React.FC = () => {
   const { implementationPlans, loading, error } = useGetImplementationPlans();
+  const { data: session } = useSession();
+
+  const { data: userRole, isLoading } = useQuery({
+    queryKey: ["userRole", session?.user.id],
+    queryFn: () => fetchUserRole(session?.user.id as string),
+    enabled: !!session?.user.id,
+  });
 
   const categorizePlan = (plan: ImplementationPlan) => {
     const totalTasks = plan.tasks.length;
@@ -26,7 +36,7 @@ const ImplementationPlansBoard: React.FC = () => {
     (plan) => categorizePlan(plan) === "done"
   );
 
-  if (loading) {
+  if (loading || isLoading) {
     return (
       <div className="p-4 w-full">
         <ImplementationPlansHeader />
@@ -71,7 +81,7 @@ const ImplementationPlansBoard: React.FC = () => {
           </div>
           <div className="flex flex-col gap-3 rounded-lg bg-gray-50 p-3 min-h-[500px]">
             {pendingPlans.map((plan) => (
-              <ImplementationPlanPreview key={plan.id} plan={plan} />
+              <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole as UserRole} />
             ))}
           </div>
         </div>
@@ -88,7 +98,7 @@ const ImplementationPlansBoard: React.FC = () => {
           </div>
           <div className="flex flex-col gap-3 rounded-lg bg-blue-50 p-3 min-h-[500px]">
             {inProgressPlans.map((plan) => (
-              <ImplementationPlanPreview key={plan.id} plan={plan} />
+              <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole as UserRole} />
             ))}
           </div>
         </div>
@@ -105,7 +115,7 @@ const ImplementationPlansBoard: React.FC = () => {
           </div>
           <div className="flex flex-col gap-3 rounded-lg bg-green-50 p-3 min-h-[500px]">
             {donePlans.map((plan) => (
-              <ImplementationPlanPreview key={plan.id} plan={plan} />
+              <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole as UserRole} />
             ))}
           </div>
         </div>
