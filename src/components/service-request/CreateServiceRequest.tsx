@@ -47,7 +47,7 @@ const predefinedConcerns = [
 
 const MAX_LENGTH = {
   customConcern: 100,
-  details: 500,
+  details: 2000,
 };
 
 export default function CreateServiceRequest() {

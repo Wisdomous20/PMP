@@ -50,12 +50,7 @@ export default function Footer() {
 
             <li className="flex items-center">
               <Mail className="h-4 w-4 mr-2" />
-              <a
-                href="mailto:ovpa@cpu.edu.ph"
-                className="hover:text-blue-100 transition-all duration-300"
-              >
                 ovpa@cpu.edu.ph
-              </a>
             </li>
           </ul>
         </div>
