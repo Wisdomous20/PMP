@@ -16,6 +16,7 @@ import { useSession } from "next-auth/react";
 export default function Page() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const { data: session } = useSession();
+  const [search, setSearch] = useState('');
 
   const { data: userRole, isLoading: roleLoading } = useQuery({
     queryKey: ["userRole", session?.user.id],
@@ -29,7 +30,7 @@ export default function Page() {
     enabled: !!session?.user.id,
   });
 
-  const filteredRequests : ServiceRequest[] = serviceRequests ? serviceRequests.filter(
+  const filteredRequests: ServiceRequest[] = serviceRequests ? serviceRequests.filter(
     (request: ServiceRequest) => !request.status.some((status) => status.status === "archived")
   ) : []
   const sortedRequests = [...filteredRequests].sort((a, b) => {
@@ -41,23 +42,28 @@ export default function Page() {
     return dateB.getTime() - dateA.getTime();
   });
 
+  const filteredBySearch = sortedRequests.filter(request =>
+    request.concern.toLowerCase().includes(search.toLowerCase()) ||
+    request.requesterName.toLowerCase().includes(search.toLowerCase())
+  );
+
   if (srLoading || roleLoading) {
     return (
       <div className="w-full min-h-screen h-full flex">
-   
+
         {userRole !== "USER" && <LeftTab />}
         <div className={userRole !== "USER" ? "flex-1 flex flex-col p-4 gap-4" : "w-full h-full p-4"}>
-   
+
           <Skeleton className="h-12 mb-2 rounded-md" />
           <Skeleton className="flex-1 rounded-md" />
-  
-          
+
+
           <Skeleton className="flex-1 rounded-md" />
         </div>
       </div>
     );
   }
-  
+
 
   const isAdmin = userRole !== "USER";
 
@@ -68,9 +74,11 @@ export default function Page() {
         {isAdmin ? (
           <>
             <ServiceRequestList
-              serviceRequests={sortedRequests}
+              serviceRequests={filteredBySearch}
               setServiceRequestIndex={setSelectedIndex}
               loading={srLoading}
+              search={search}
+              setSearch={setSearch}
             />
             <div className="flex-1">
               {(!serviceRequests || serviceRequests.length === 0) ? (
@@ -79,7 +87,7 @@ export default function Page() {
                 </Card>
               ) : (
                 <ServiceRequestDetails
-                  serviceRequest={serviceRequests ? sortedRequests[selectedIndex] : undefined}
+                  serviceRequest={serviceRequests ? filteredBySearch[selectedIndex] : undefined}
                 />
               )}
             </div>
