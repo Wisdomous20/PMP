@@ -46,19 +46,14 @@ export default function PersonnelManagement() {
     }
   };
 
-  // const handleDelete = async () => {
-  //   try {
-  //     await Promise.all(
-  //       selectedIds.map((id) =>
-  //         fetch(`/api/manpower-management/${id}`, { method: "DELETE" })
-  //       )
-  //     );
-  //     setPersonnel((prev) => prev.filter((person) => !selectedIds.includes(person.id)));
-  //     setSelectedIds([]);
-  //   } catch (error) {
-  //     console.error("Error deleting personnel:", error);
-  //   }
-  // };
+const handleSingleDelete = async (personId: string) => {
+  try {
+    await fetch(`/api/manpower-management/${personId}`, { method: "DELETE" });
+    setPersonnel((prev) => prev.filter((person) => person.id !== personId));
+  } catch (error) {
+    console.error("Error deleting personnel:", error);
+  }
+};
 
   const openUpdateDialog = (person: Personnel) => {
     setCurrentPersonnel(person);
@@ -72,7 +67,9 @@ export default function PersonnelManagement() {
   return (
     <div className="p-4 flex flex-col w-screen">
       <div className="w-full max-w-10xl">
-        <h1 className="text-md sm:text-2xl font-semibold text-indigo-text py-3">Personnel Management</h1>
+        <h1 className="text-md sm:text-2xl font-semibold text-indigo-text py-3">
+          Personnel Management
+        </h1>
 
         <div className="flex items-center justify-between mb-6">
           <div className="flex items-center space-x-2 w-1/3">
@@ -135,6 +132,7 @@ export default function PersonnelManagement() {
                 // selectedIds={selectedIds}
                 // setSelectedIds={setSelectedIds}
                 openUpdateDialog={openUpdateDialog}
+                onDelete={handleSingleDelete}
               />
             ))
           ) : (
