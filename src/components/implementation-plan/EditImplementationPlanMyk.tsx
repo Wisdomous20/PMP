@@ -71,25 +71,35 @@ export default function EditImplementationPlan({
 
       await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks);
 
-      const transformedAssignments = assignments.map((assignment) => {
-        const task = tasks.find((t) => t.id === assignment.taskId);
-        if (!task) {
-          throw new Error(
-            `Task with id ${assignment.taskId} not found for assignment`
-          );
-        }
-        return {
-          task: {
-            name: task.name,
-            startTime: task.startTime.toISOString(),
-            endTime: task.endTime.toISOString(),
-          },
-          personnelId: assignment.personnelId,
-          assignedAt: assignment.assignedAt.toISOString(),
-        };
+      const initialAssignmentTaskIds = tasksInitial.map(task => {
+        const assignment = assignments.find(a => a.taskId === task.id);
+        return assignment ? task.id : null;
+      }).filter(id => id !== null);
+
+      const newAssignments = assignments.filter(assignment => {
+        const taskIsNew = !initialAssignmentTaskIds.includes(assignment.taskId);
+        return taskIsNew;
       });
 
-      if (transformedAssignments.length > 0) {
+      if (newAssignments.length > 0) {
+        const transformedAssignments = newAssignments.map((assignment) => {
+          const task = tasks.find((t) => t.id === assignment.taskId);
+          if (!task) {
+            throw new Error(
+              `Task with id ${assignment.taskId} not found for assignment`
+            );
+          }
+          return {
+            task: {
+              name: task.name,
+              startTime: task.startTime.toISOString(),
+              endTime: task.endTime.toISOString(),
+            },
+            personnelId: assignment.personnelId,
+            assignedAt: assignment.assignedAt.toISOString(),
+          };
+        });
+
         await fetch("/api/implementation-plan/assign-personnel", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -100,7 +110,6 @@ export default function EditImplementationPlan({
         });
       }
 
-      // Auto-complete the implementation plan if all tasks are checked
       const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.checked);
       if (allTasksCompleted) {
         await fetchUpdateImplementationPlanStatus(serviceRequest.id, "completed");
@@ -112,6 +121,7 @@ export default function EditImplementationPlan({
       console.error("Failed to update implementation plan:", error);
     } finally {
       setIsUpdating(false);
+      window.location.reload()
     }
   }
 
