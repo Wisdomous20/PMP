@@ -174,7 +174,7 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
         </div>
       </div>
       <Textarea
-        placeholder="Additional feedback..."
+        placeholder="Remarks..."
         value={formState.feedback}
         onChange={(e) => handleInputChange("feedback", e.target.value)}
         className="w-full border-gray-300 rounded-md p-2 mt-4"
