@@ -267,11 +267,11 @@ function TaskCard({
           aria-label="Confirm task"
         />
       )}
-      <div className="flex-grow p-1 rounded">
-        <div className={`text-sm font-medium ${task.checked ? "line-through text-gray-400" : ""}`}>
+      <div className="flex-grow p-1 rounded max-w-full">
+        <div className={`text-sm font-medium break-words whitespace-normal ${task.checked ? "line-through text-gray-400" : ""}`}>
           {task.name}
         </div>
-        <div className={`text-xs text-muted-foreground ${task.checked ? "line-through text-gray-400" : ""}`}>
+        <div className={`text-xs text-muted-foreground break-words whitespace-normal ${task.checked ? "line-through text-gray-400" : ""}`}>
           Start: {task.startTime.toLocaleString()} | End:{" "}
           {task.endTime.toLocaleString()}
         </div>

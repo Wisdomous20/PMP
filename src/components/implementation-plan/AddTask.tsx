@@ -147,7 +147,7 @@ export default function AddTask({
             <Input
               type="text"
               value={taskName}
-              maxLength={500}
+              maxLength={250}
               onChange={(e) => setTaskName(e.target.value)}
               className={attemptedSubmit && errors.name ? "border-red-500" : ""}
             />

@@ -204,9 +204,11 @@ function TaskCard({ task, onUpdate, onDelete, personnel, assignments, setAssignm
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <div className="flex-grow p-1 rounded">
-        <div className="text-sm font-medium">{task.name}</div>
-        <div className="text-xs text-muted-foreground">
+      <div className="flex-grow p-1 rounded max-w-full">
+        <div className={`text-sm font-medium break-words whitespace-normal ${task.checked ? "line-through text-gray-400" : ""}`}>
+          {task.name}
+        </div>
+        <div className={`text-xs text-muted-foreground break-words whitespace-normal ${task.checked ? "line-through text-gray-400" : ""}`}>
           Start: {task.startTime.toLocaleString()} | End:{" "}
           {task.endTime.toLocaleString()}
         </div>
