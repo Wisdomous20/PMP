@@ -247,7 +247,7 @@ export default function InventoryManagement() {
               <TableHead>Status</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Department</TableHead>
-              {userRole === "ADMIN" && <TableHead>Actions</TableHead>}
+              {(userRole === "ADMIN" || userRole === "SECRETARY")  && <TableHead>Actions</TableHead>}
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -283,7 +283,7 @@ export default function InventoryManagement() {
                   <TableCell>{item.department}</TableCell>
 
                   <TableCell>
-                    {userRole === "ADMIN" && (
+                    {(userRole === "ADMIN" || userRole === "SECRETARY") && (
                       <div className="flex space-x-2">
                         <EditEquipment
                           equipment={item}
