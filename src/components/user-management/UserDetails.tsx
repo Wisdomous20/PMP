@@ -19,6 +19,8 @@ interface UserDetailsModalProps {
   onClose: () => void;
 }
 
+const MAX_PENDING_LIMIT = 50
+
 const roles: LimitedUserRole[] = ["USER", "SUPERVISOR", "SECRETARY"];
 
 export default function UserDetailsModal({ user, open, onClose }: UserDetailsModalProps) {
@@ -81,6 +83,7 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
             <input
               type="number"
               min={1}
+              max={MAX_PENDING_LIMIT}
               value={pendingLimit}
               onChange={(e) => setPendingLimit(parseInt(e.target.value, 10))}
               className="border border-gray-300 rounded-md px-3 py-1 w-20 focus:outline-none"

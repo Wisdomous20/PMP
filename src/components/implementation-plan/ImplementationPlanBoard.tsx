@@ -12,17 +12,26 @@ const ImplementationPlansBoard: React.FC = () => {
   const [searchQuery, setSearchQuery] = useState("");
   const { data: session } = useSession();
 
-  const { data: userRole, isLoading } = useQuery({
+  const { data: userRole, isLoading: userRoleLoading } = useQuery({
     queryKey: ["userRole", session?.user.id],
     queryFn: () => fetchUserRole(session?.user.id as string),
     enabled: !!session?.user.id,
   });
 
-  const { data: implementationPlans, isLoading: loading, error } = useQuery({
+  const {
+    data: implementationPlans,
+    isLoading: plansLoading,
+    error,
+    refetch,
+  } = useQuery({
     queryKey: ["ImplementationPlans", session?.user.id],
     queryFn: () => fetchGetImplementationPlans(session?.user.id as string),
     enabled: !!session?.user.id,
   });
+
+  const handlePlansUpdate = async () => {
+    await refetch();
+  };
 
   const categorizePlan = (plan: ImplementationPlan) => {
     const totalTasks = plan.tasks.length;
@@ -31,30 +40,30 @@ const ImplementationPlansBoard: React.FC = () => {
     if (completedTasks < totalTasks) return "in_progress";
     return "done";
   };
-  
+
   const filterPlans = (plans: ImplementationPlan[] | undefined) => {
     if (!plans) return [];
     if (!searchQuery.trim()) return plans;
-    
-    return plans.filter(plan => 
-      plan.serviceRequest.concern?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+
+    return plans.filter((plan) =>
+      plan.serviceRequest.concern?.toLowerCase().includes(searchQuery.toLowerCase()) ||
       plan.serviceRequest.details?.toLowerCase().includes(searchQuery.toLowerCase())
     );
   };
 
   const filteredPlans = filterPlans(implementationPlans);
-  
-  const pendingPlans = filteredPlans ? filteredPlans.filter(
-    (plan) => categorizePlan(plan) === "pending"
-  ) : [];
-  const inProgressPlans = filteredPlans ? filteredPlans.filter(
-    (plan) => categorizePlan(plan) === "in_progress"
-  ) : [];
-  const donePlans = filteredPlans ? filteredPlans.filter(
-    (plan) => categorizePlan(plan) === "done"
-  ) : [];
 
-  if (loading || isLoading) {
+  const pendingPlans = filteredPlans.filter(
+    (plan) => categorizePlan(plan) === "pending"
+  );
+  const inProgressPlans = filteredPlans.filter(
+    (plan) => categorizePlan(plan) === "in_progress"
+  );
+  const donePlans = filteredPlans.filter(
+    (plan) => categorizePlan(plan) === "done"
+  );
+
+  if (plansLoading || userRoleLoading) {
     return (
       <div className="p-4 w-full">
         <ImplementationPlansHeader onSearchChange={setSearchQuery} />
@@ -99,7 +108,12 @@ const ImplementationPlansBoard: React.FC = () => {
           </div>
           <div className="flex flex-col gap-3 rounded-lg bg-gray-50 p-3 h-[500px] overflow-y-scroll">
             {pendingPlans.map((plan) => (
-              <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole as UserRole} />
+              <ImplementationPlanPreview
+                key={plan.id}
+                plan={plan}
+                userRole={userRole as UserRole}
+                onUpdate={handlePlansUpdate}
+              />
             ))}
           </div>
         </div>
@@ -116,7 +130,12 @@ const ImplementationPlansBoard: React.FC = () => {
           </div>
           <div className="flex flex-col gap-3 rounded-lg bg-blue-50 p-3 min-h-[500px]">
             {inProgressPlans.map((plan) => (
-              <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole as UserRole} />
+              <ImplementationPlanPreview
+                key={plan.id}
+                plan={plan}
+                userRole={userRole as UserRole}
+                onUpdate={handlePlansUpdate}
+              />
             ))}
           </div>
         </div>
@@ -133,7 +152,12 @@ const ImplementationPlansBoard: React.FC = () => {
           </div>
           <div className="flex flex-col gap-3 rounded-lg bg-green-50 p-3 h-[500px] overflow-y-scroll">
             {donePlans.map((plan) => (
-              <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole as UserRole} />
+              <ImplementationPlanPreview
+                key={plan.id}
+                plan={plan}
+                userRole={userRole as UserRole}
+                onUpdate={handlePlansUpdate}
+              />
             ))}
           </div>
         </div>

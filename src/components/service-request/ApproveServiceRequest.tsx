@@ -93,7 +93,7 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
             </SelectTrigger>
             <SelectContent>
               {supervisors.map((sup) => (
-                <SelectItem key={sup.id} value={sup.id}>
+                <SelectItem key={sup.id} value={sup.id} className="hover:cursor-pointer border border-transparent hover:border-gray-800">
                   {sup.firstName} {sup.lastName}
                 </SelectItem>
               ))}

@@ -37,13 +37,18 @@ function getNotificationDateGroup(createdAt: string) {
 }
 
 interface RecentNotificationsProps {
-  notifications: AdminNotification[],
-  isLoading: boolean,
+  notifications: AdminNotification[]
+  isLoading: boolean
   error: string | null
 }
 
-export default function RecentNotifications({notifications, isLoading, error} : RecentNotificationsProps) {
-  const [selectedNotification, setSelectedNotification] = useState<AdminNotification | null>(null)
+export default function RecentNotifications({
+  notifications,
+  isLoading,
+  error,
+}: RecentNotificationsProps) {
+  const [selectedNotification, setSelectedNotification] =
+    useState<AdminNotification | null>(null)
 
   const handleSelectNotification = (notification: AdminNotification) => {
     setSelectedNotification(notification)
@@ -60,31 +65,34 @@ export default function RecentNotifications({notifications, isLoading, error} : 
     }
   }
 
-  const groupedNotifications = isLoading ? [] : notifications.reduce<Record<string, AdminNotification[]>>((acc, notification) => {
-    const dateLabel = getNotificationDateGroup(notification.createdAt)
-    if (!acc[dateLabel]) {
-      acc[dateLabel] = []
-    }
-    acc[dateLabel].push(notification)
-    return acc
-  }, {})
+  const groupedNotifications = isLoading
+    ? []
+    : notifications.reduce<Record<string, AdminNotification[]>>((acc, notification) => {
+        const dateLabel = getNotificationDateGroup(notification.createdAt)
+        if (!acc[dateLabel]) {
+          acc[dateLabel] = []
+        }
+        acc[dateLabel].push(notification)
+        return acc
+      }, {})
 
   if (isLoading) {
     return (
-      <Card className="h-full max-h-screen">
+      <Card className="h-full flex flex-col">
         <CardHeader className="border-b p-4">
           <Skeleton className="h-6 w-1/3" />
         </CardHeader>
-        <CardContent className="flex flex-col h-full p-0">
-          <ScrollArea className="flex-1">
+        <CardContent className="flex-1 p-0 overflow-hidden">
+          <ScrollArea className="h-full">
             <div className="p-4 space-y-6">
-              {/* Render 3 groups as skeletons */}
               {Array.from({ length: 3 }).map((_, groupIndex) => (
                 <div key={groupIndex} className="space-y-3">
                   <Skeleton className="h-4 w-20 mb-1" />
-                  {/* Render 2 skeleton items per group */}
                   {Array.from({ length: 2 }).map((_, itemIndex) => (
-                    <div key={itemIndex} className="p-3 mb-2 rounded-md bg-gray-50">
+                    <div
+                      key={itemIndex}
+                      className="p-3 mb-2 rounded-md bg-gray-50"
+                    >
                       <div className="flex justify-between items-center mb-1">
                         <Skeleton className="h-3 w-12" />
                         <Skeleton className="h-3 w-8" />
@@ -106,15 +114,15 @@ export default function RecentNotifications({notifications, isLoading, error} : 
   }
 
   return (
-    <Card className="h-full">
+    <Card className="h-full flex flex-col">
       <CardHeader className="border-b p-4">
         <CardTitle>Notifications</CardTitle>
       </CardHeader>
-      <CardContent className="flex flex-col h-full max-h-screen p-0">
-        <ScrollArea className="flex-1 h-full">
-          <div className="p-4">
+      <CardContent className="flex-1 p-0 overflow-hidden">
+        <ScrollArea className="h-full">
+          <div className="p-4 space-y-2">
             {Object.entries(groupedNotifications).map(([date, items]) => (
-              <div key={date} className="mb-4">
+              <div key={date}>
                 <h3 className="text-xs font-medium text-gray-500 mb-1">{date}</h3>
                 {items.map((notification) => (
                   <div
@@ -138,7 +146,9 @@ export default function RecentNotifications({notifications, isLoading, error} : 
                         })}
                       </span>
                     </div>
-                    <p className="text-xs text-gray-700">{notification.message}</p>
+                    <p className="text-xs text-gray-700">
+                      {notification.message}
+                    </p>
                   </div>
                 ))}
               </div>
@@ -148,7 +158,10 @@ export default function RecentNotifications({notifications, isLoading, error} : 
       </CardContent>
 
       {selectedNotification && (
-        <Dialog open={!!selectedNotification} onOpenChange={() => setSelectedNotification(null)}>
+        <Dialog
+          open={!!selectedNotification}
+          onOpenChange={() => setSelectedNotification(null)}
+        >
           <DialogContent>
             <DialogHeader>
               <DialogTitle>{selectedNotification.type.toUpperCase()}</DialogTitle>

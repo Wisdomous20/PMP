@@ -282,6 +282,7 @@ export default function CreateServiceRequest() {
                 className="w-full h-full max-h-[300px] min-h-[150px] resize-none overflow-auto"
                 maxLength={MAX_LENGTH.details}
               />
+              <p className="text-xs text-gray-500">{reduxDetails.length}/{MAX_LENGTH.details}</p>
             </div>
 
             <div className="bg-blue-50 rounded-lg p-4 border border-blue-200">

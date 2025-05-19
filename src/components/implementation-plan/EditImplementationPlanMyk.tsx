@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useState } from "react";
+import { useState } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -16,6 +16,8 @@ import fetchUpdateImplementationPlanStatus from "@/domains/implementation-plan/s
 import { Progress } from "@/components/ui/progress";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
+import { useQuery } from "@tanstack/react-query";
+import fetchGetpersonnel from "@/domains/personnel-management/service/fetchGetPersonnel";
 
 interface EditImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -23,6 +25,7 @@ interface EditImplementationPlanProps {
   plan: ImplementationPlan;
   progress: number;
   userRole: UserRole
+  onUpdate: () => Promise<void>
 }
 
 export default function EditImplementationPlan({
@@ -30,30 +33,18 @@ export default function EditImplementationPlan({
   tasksInitial,
   plan,
   progress,
-  userRole
+  userRole,
+  onUpdate
 }: EditImplementationPlanProps) {
   const [tasks, setTasks] = useState<Task[]>(tasksInitial);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [personnel, setPersonnel] = useState<Personnel[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchPersonnel = async () => {
-      try {
-        const response = await fetch("/api/manpower-management");
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setPersonnel(data);
-        } else {
-          console.error("Fetched data is not an array:", data);
-        }
-      } catch (error) {
-        console.error("Error fetching personnel:", error);
-      }
-    };
-    fetchPersonnel();
-  }, []);
+  const { data: personnel } = useQuery({
+    queryKey: ["personnel"],
+    queryFn: () => fetchGetpersonnel()
+  });
 
   const handleAddTask = (task: Task) => {
     setTasks((prev) => [...prev, task]);
@@ -82,25 +73,35 @@ export default function EditImplementationPlan({
 
       await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks);
 
-      const transformedAssignments = assignments.map((assignment) => {
-        const task = tasks.find((t) => t.id === assignment.taskId);
-        if (!task) {
-          throw new Error(
-            `Task with id ${assignment.taskId} not found for assignment`
-          );
-        }
-        return {
-          task: {
-            name: task.name,
-            startTime: task.startTime.toISOString(),
-            endTime: task.endTime.toISOString(),
-          },
-          personnelId: assignment.personnelId,
-          assignedAt: assignment.assignedAt.toISOString(),
-        };
+      const initialAssignmentTaskIds = tasksInitial.map(task => {
+        const assignment = assignments.find(a => a.taskId === task.id);
+        return assignment ? task.id : null;
+      }).filter(id => id !== null);
+
+      const newAssignments = assignments.filter(assignment => {
+        const taskIsNew = !initialAssignmentTaskIds.includes(assignment.taskId);
+        return taskIsNew;
       });
 
-      if (transformedAssignments.length > 0) {
+      if (newAssignments.length > 0) {
+        const transformedAssignments = newAssignments.map((assignment) => {
+          const task = tasks.find((t) => t.id === assignment.taskId);
+          if (!task) {
+            throw new Error(
+              `Task with id ${assignment.taskId} not found for assignment`
+            );
+          }
+          return {
+            task: {
+              name: task.name,
+              startTime: task.startTime.toISOString(),
+              endTime: task.endTime.toISOString(),
+            },
+            personnelId: assignment.personnelId,
+            assignedAt: assignment.assignedAt.toISOString(),
+          };
+        });
+
         await fetch("/api/implementation-plan/assign-personnel", {
           method: "POST",
           headers: { "Content-Type": "application/json" },
@@ -111,7 +112,6 @@ export default function EditImplementationPlan({
         });
       }
 
-      // Auto-complete the implementation plan if all tasks are checked
       const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.checked);
       if (allTasksCompleted) {
         await fetchUpdateImplementationPlanStatus(serviceRequest.id, "completed");
@@ -122,7 +122,9 @@ export default function EditImplementationPlan({
     } catch (error) {
       console.error("Failed to update implementation plan:", error);
     } finally {
+      await onUpdate();
       setIsUpdating(false);
+      setIsDialogOpen(false)
     }
   }
 
@@ -170,7 +172,7 @@ export default function EditImplementationPlan({
             {(userRole == "ADMIN" || userRole == "SUPERVISOR") &&
               <AddTask
                 onAdd={handleAddTask}
-                personnel={personnel}
+                personnel={personnel ? personnel : []}
                 assignments={assignments}
                 setAssignments={setAssignments}
               />
@@ -190,7 +192,7 @@ export default function EditImplementationPlan({
                   task={task}
                   onUpdate={handleUpdateTask}
                   onDelete={removeTask}
-                  personnel={personnel}
+                  personnel={personnel ? personnel : []}
                   assignments={assignments}
                   setAssignments={setAssignments}
                   hasCheckbox={true}
@@ -258,18 +260,18 @@ function TaskCard({
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      {(hasCheckbox && (userRole == "ADMIN" || userRole == "SUPERVISOR"))  && (
+      {(hasCheckbox && (userRole == "ADMIN" || userRole == "SUPERVISOR")) && (
         <Checkbox
           checked={task.checked}
           onCheckedChange={onCheckChange}
           aria-label="Confirm task"
         />
       )}
-      <div className="flex-grow p-1 rounded">
-        <div className={`text-sm font-medium ${task.checked ? "line-through text-gray-400" : ""}`}>
+      <div className="flex-grow p-1 rounded max-w-full">
+        <div className={`text-sm font-medium break-words whitespace-normal ${task.checked ? "line-through text-gray-400" : ""}`}>
           {task.name}
         </div>
-        <div className={`text-xs text-muted-foreground ${task.checked ? "line-through text-gray-400" : ""}`}>
+        <div className={`text-xs text-muted-foreground break-words whitespace-normal ${task.checked ? "line-through text-gray-400" : ""}`}>
           Start: {task.startTime.toLocaleString()} | End:{" "}
           {task.endTime.toLocaleString()}
         </div>

@@ -9,8 +9,8 @@ interface Equipment {
   supplier: string;
   unitCost: number;
   totalCost: number;
-  datePurchased: Date;
-  dateReceived: Date;
+  datePurchased: string;
+  dateReceived: string;
   status: string;
   location: string;
   department: string; // This is used for the departmentName parameter
