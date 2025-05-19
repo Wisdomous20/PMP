@@ -28,6 +28,18 @@ export default function Page() {
     enabled: !!session?.user.id,
   });
 
+  const filteredRequests : ServiceRequest[] = serviceRequests ? serviceRequests.filter(
+    (request: ServiceRequest) => !request.status.some((status) => status.status === "archived")
+  ) : []
+  const sortedRequests = [...filteredRequests].sort((a, b) => {
+    const dateA = a.createdOn ? new Date(a.createdOn) : null;
+    const dateB = b.createdOn ? new Date(b.createdOn) : null;
+    if (dateA === null && dateB === null) return 0;
+    if (dateA === null) return 1;
+    if (dateB === null) return -1;
+    return dateB.getTime() - dateA.getTime();
+  });
+
   if (srLoading || roleLoading) {
     return (
       <div className="w-screen h-screen flex items-center justify-center">
@@ -45,7 +57,7 @@ export default function Page() {
         {isAdmin ? (
           <>
             <ServiceRequestList
-              serviceRequests={serviceRequests ? serviceRequests : []}
+              serviceRequests={sortedRequests}
               setServiceRequestIndex={setSelectedIndex}
               loading={srLoading}
             />
@@ -56,14 +68,14 @@ export default function Page() {
                 </Card>
               ) : (
                 <ServiceRequestDetails
-                  serviceRequest={serviceRequests ? serviceRequests[selectedIndex] : undefined}
+                  serviceRequest={serviceRequests ? sortedRequests[selectedIndex] : undefined}
                 />
               )}
             </div>
           </>
         ) : (
           <UserServiceRequestList
-            serviceRequests={serviceRequests ? serviceRequests : []}
+            serviceRequests={sortedRequests}
             loading={srLoading}
           />
         )}
