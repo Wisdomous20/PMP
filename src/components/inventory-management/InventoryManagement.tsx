@@ -1,10 +1,10 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useState } from "react";
-import { jsPDF } from 'jspdf';
-import autoTable from 'jspdf-autotable';
-import * as XLSX from 'xlsx';
-import { saveAs } from 'file-saver';
+import { jsPDF } from "jspdf";
+import autoTable from "jspdf-autotable";
+import * as XLSX from "xlsx";
+import { saveAs } from "file-saver";
 import {
   Table,
   TableBody,
@@ -198,9 +198,6 @@ export default function InventoryManagement() {
                 ))}
             </SelectContent>
           </Select>
-          <span className="text-sm text-muted-foreground">
-            {totalItems} items {isLoading && "(Loading...)"}
-          </span>
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
@@ -219,13 +216,17 @@ export default function InventoryManagement() {
         </Dialog>
         <div className="flex gap-2">
           <Button onClick={downloadPDF}>Download PDF</Button>
-          <Button onClick={() =>
-            createInventoryExcel(
-              selectedDepartment === 'all' ? 'ALL DEPARTMENTS' : selectedDepartment,
-              new Date(),
-              equipment
-            )
-          }>
+          <Button
+            onClick={() =>
+              createInventoryExcel(
+                selectedDepartment === "all"
+                  ? "ALL DEPARTMENTS"
+                  : selectedDepartment,
+                new Date(),
+                equipment
+              )
+            }
+          >
             Download Excel
           </Button>
         </div>
@@ -247,7 +248,9 @@ export default function InventoryManagement() {
               <TableHead>Status</TableHead>
               <TableHead>Location</TableHead>
               <TableHead>Department</TableHead>
-              {(userRole === "ADMIN" || userRole === "SECRETARY")  && <TableHead>Actions</TableHead>}
+              {(userRole === "ADMIN" || userRole === "SECRETARY") && (
+                <TableHead>Actions</TableHead>
+              )}
             </TableRow>
           </TableHeader>
           <TableBody>
