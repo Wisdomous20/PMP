@@ -16,6 +16,8 @@ import fetchUpdateImplementationPlanStatus from "@/domains/implementation-plan/s
 import { Progress } from "@/components/ui/progress";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
+import { useQuery } from "@tanstack/react-query";
+import fetchGetpersonnel from "@/domains/personnel-management/service/fetchGetPersonnel";
 
 interface EditImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -34,26 +36,13 @@ export default function EditImplementationPlan({
 }: EditImplementationPlanProps) {
   const [tasks, setTasks] = useState<Task[]>(tasksInitial);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [personnel, setPersonnel] = useState<Personnel[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  useEffect(() => {
-    const fetchPersonnel = async () => {
-      try {
-        const response = await fetch("/api/manpower-management");
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setPersonnel(data);
-        } else {
-          console.error("Fetched data is not an array:", data);
-        }
-      } catch (error) {
-        console.error("Error fetching personnel:", error);
-      }
-    };
-    fetchPersonnel();
-  }, []);
+  const { data: personnel } = useQuery({
+    queryKey: ["personnel"],
+    queryFn: () => fetchGetpersonnel()
+  });
 
   const handleAddTask = (task: Task) => {
     setTasks((prev) => [...prev, task]);
@@ -170,7 +159,7 @@ export default function EditImplementationPlan({
             {(userRole == "ADMIN" || userRole == "SUPERVISOR") &&
               <AddTask
                 onAdd={handleAddTask}
-                personnel={personnel}
+                personnel={personnel ? personnel : []}
                 assignments={assignments}
                 setAssignments={setAssignments}
               />
@@ -190,7 +179,7 @@ export default function EditImplementationPlan({
                   task={task}
                   onUpdate={handleUpdateTask}
                   onDelete={removeTask}
-                  personnel={personnel}
+                  personnel={personnel ? personnel : []}
                   assignments={assignments}
                   setAssignments={setAssignments}
                   hasCheckbox={true}
@@ -258,7 +247,7 @@ function TaskCard({
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      {(hasCheckbox && (userRole == "ADMIN" || userRole == "SUPERVISOR"))  && (
+      {(hasCheckbox && (userRole == "ADMIN" || userRole == "SUPERVISOR")) && (
         <Checkbox
           checked={task.checked}
           onCheckedChange={onCheckChange}
