@@ -109,8 +109,10 @@ export default function Login() {
             const session = await response.json();
             const userRole = await getUserRoleFetch(session?.user.id)
 
-            if (userRole.userRole !== "USER") {
+            if (userRole.userRole === "ADMIN" || userRole.userRole === "SECRETARY") {
               router.push("/dashboard");
+            } else if (userRole.userRole === "SUPERVISOR") {
+              router.push("/projects");
             } else {
               router.push(callbackUrl);
             }
