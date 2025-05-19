@@ -18,7 +18,7 @@ export default function RecentInventoryLogs({isLoading, equipment, error} : Rece
           <CardTitle>Latest Equipment Logs</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
-          <div className="space-y-3">
+          <div>
             {[...Array(5)].map((_, i) => (
               <Skeleton key={i} className="h-12 w-full rounded-md" />
             ))}
@@ -42,14 +42,14 @@ export default function RecentInventoryLogs({isLoading, equipment, error} : Rece
   }
 
   return (
-    <Card className="w-full">
+    <Card className="w-full h-full">
       <CardHeader className="border-b">
         <CardTitle className="text-lg font-semibold text-gray-800">
           Latest Equipment Logs
         </CardTitle>
       </CardHeader>
       <CardContent className="p-0">
-        <ul className="space-y-3">
+        <ul>
           {equipment.map((equipment) => (
             <li key={equipment.id} className="border p-3 rounded-md">
               <div className="font-medium text-sm">{equipment.description}</div>
