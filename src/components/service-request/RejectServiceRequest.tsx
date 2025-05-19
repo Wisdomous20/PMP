@@ -74,6 +74,7 @@ export default function RejectServiceRequest({ serviceRequestId }: RejectService
             id="note"
             ref={textareaRef}
             value={note}
+            maxLength={2000}
             onChange={(e) => setNote(e.target.value)}
             placeholder="Type reason..."
             rows={1}

@@ -2,6 +2,8 @@
 import { ArrowUpRight, CheckCircle2, Clock, Package, BarChart } from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link"; 
+
 
 interface DashboardStatsProps {
   isLoading: boolean
@@ -73,7 +75,11 @@ export default function DashboardStats({isLoading, stats, error} : DashboardStat
     },
     {
       title: "Pending Requests",
-      icon: <ArrowUpRight className="h-4 w-4 text-muted-foreground" />,
+      icon: (
+        <Link href="/service-request">
+          <ArrowUpRight className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors cursor-pointer" />
+        </Link>
+      ),
       value: stats.pendingRequests,
       delta: stats.pendingRequestsDelta,
       percentage: "Requires attention",

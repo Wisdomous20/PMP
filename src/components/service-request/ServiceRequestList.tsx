@@ -1,7 +1,6 @@
 "use client"
 import ServiceRequestPreview from "./ServiceRequestPreview";
 // import Empty from "../ui/empty";
-import { useState } from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 import { Skeleton } from "../ui/skeleton"
@@ -10,15 +9,10 @@ interface ServiceRequestProps {
   serviceRequests: ServiceRequest[];
   setServiceRequestIndex: React.Dispatch<React.SetStateAction<number>>;
   loading: boolean;
+  search: string;
+  setSearch: React.Dispatch<React.SetStateAction<string>>;
 }
-  
-export default function ServiceRequestList({ serviceRequests, setServiceRequestIndex, loading }: ServiceRequestProps) {
-  const [search, setSearch] = useState('');
-
-  const filteredRequests = serviceRequests.filter(request =>
-    request.concern.toLowerCase().includes(search.toLowerCase()) ||
-    request.requesterName.toLowerCase().includes(search.toLowerCase())
-  );
+export default function ServiceRequestList({ serviceRequests, setServiceRequestIndex, loading, search, setSearch }: ServiceRequestProps) {
 
   if (loading) {
     return (
@@ -51,7 +45,7 @@ export default function ServiceRequestList({ serviceRequests, setServiceRequestI
       </div>
 
       <div className="overflow-y-auto">
-        {filteredRequests.map((request, index) => (
+        {serviceRequests.map((request, index) => (
           <ServiceRequestPreview
             key={index}
             index={index}
@@ -59,7 +53,7 @@ export default function ServiceRequestList({ serviceRequests, setServiceRequestI
             setServiceRequestIndex={setServiceRequestIndex}
           />
         ))}
-        {filteredRequests.length === 0 && (
+        {serviceRequests.length === 0 && (
           <div className="p-4 text-center text-gray-500">No service requests found.</div>
         )}
       </div>

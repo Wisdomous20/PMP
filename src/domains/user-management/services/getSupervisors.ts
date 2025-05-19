@@ -1,6 +1,4 @@
-import { PrismaClient } from '@prisma/client'
-
-const prisma = new PrismaClient()
+import { prisma } from "@/lib/prisma"
 
 async function getSupervisors() : Promise<Supervisor[]> {
   try {
@@ -20,8 +18,6 @@ async function getSupervisors() : Promise<Supervisor[]> {
   } catch (error) {
     console.error('Error fetching supervisors:', error)
     throw error
-  } finally {
-    await prisma.$disconnect()
   }
 }
 

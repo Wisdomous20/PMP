@@ -18,10 +18,11 @@ interface ImplementationPlansInProgressProps {
   isLoading: boolean
   implementationPlans: ImplementationPlan[],
   error: string | null
-  userRole: UserRole
+  userRole: UserRole;
+  onUpdate: () => Promise<void>
 }
 
-export default function ImplementationPlansInProgress({ isLoading, implementationPlans, error, userRole }: ImplementationPlansInProgressProps) {
+export default function ImplementationPlansInProgress({ isLoading, implementationPlans, error, userRole, onUpdate }: ImplementationPlansInProgressProps) {
 
   const inProgressPlans = isLoading ? [] : implementationPlans.filter(isInProgress);
 
@@ -71,6 +72,7 @@ export default function ImplementationPlansInProgress({ isLoading, implementatio
   }
 
 
+
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between border-b p-4">
@@ -90,7 +92,7 @@ export default function ImplementationPlansInProgress({ isLoading, implementatio
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {inProgressPlans.map((plan) => (
-              <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole}/>
+              <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole} onUpdate={onUpdate}/>
             ))}
           </div>
         )}

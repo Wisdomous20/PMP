@@ -10,8 +10,6 @@ import { Trash } from "lucide-react";
 import {
   Dialog,
   DialogContent,
-  DialogHeader,
-  DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
 import fetchCreateImplementationPlan from "@/domains/implementation-plan/services/fetchCreateImplementationPlan";
@@ -19,6 +17,8 @@ import { fetchInProgressStatus } from "@/domains/service-request/services/status
 import refreshPage from "@/utils/refreshPage";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
+import { useQuery } from "@tanstack/react-query";
+import fetchGetpersonnel from "@/domains/personnel-management/service/fetchGetPersonnel";
 
 interface CreateImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -29,26 +29,13 @@ export default function CreateImplementationPlan({
 }: CreateImplementationPlanProps) {
   const [tasks, setTasks] = useState<Task[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
-  const [personnel, setPersonnel] = useState<Personnel[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
 
-  useEffect(() => {
-    const fetchPersonnel = async () => {
-      try {
-        const response = await fetch("/api/manpower-management");
-        const data = await response.json();
-        if (Array.isArray(data)) {
-          setPersonnel(data);
-        } else {
-          console.error("Fetched data is not an array:", data);
-        }
-      } catch (error) {
-        console.error("Error fetching personnel:", error);
-      }
-    };
-    fetchPersonnel();
-  }, []);
+  const { data: personnel } = useQuery({
+    queryKey: ["personnel"],
+    queryFn: () => fetchGetpersonnel()
+  });
 
   const handleAddTask = (task: Task) => {
     setTasks((prev) => [...prev, task]);
@@ -155,7 +142,7 @@ export default function CreateImplementationPlan({
             <p className="font-semibold text-gray-800">Tasks</p>
             <AddTask
               onAdd={handleAddTask}
-              personnel={personnel}
+              personnel={personnel ? personnel : []}
               assignments={assignments}
               setAssignments={setAssignments} />
           </div>
@@ -173,7 +160,7 @@ export default function CreateImplementationPlan({
                   task={task}
                   onUpdate={handleUpdateTask}
                   onDelete={removeTask}
-                  personnel={personnel}
+                  personnel={personnel ? personnel : []}
                   assignments={assignments}
                   setAssignments={setAssignments}
                 />
@@ -217,9 +204,11 @@ function TaskCard({ task, onUpdate, onDelete, personnel, assignments, setAssignm
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      <div className="flex-grow p-1 rounded">
-        <div className="text-sm font-medium">{task.name}</div>
-        <div className="text-xs text-muted-foreground">
+      <div className="flex-grow p-1 rounded max-w-full">
+        <div className={`text-sm font-medium break-words whitespace-normal ${task.checked ? "line-through text-gray-400" : ""}`}>
+          {task.name}
+        </div>
+        <div className={`text-xs text-muted-foreground break-words whitespace-normal ${task.checked ? "line-through text-gray-400" : ""}`}>
           Start: {task.startTime.toLocaleString()} | End:{" "}
           {task.endTime.toLocaleString()}
         </div>

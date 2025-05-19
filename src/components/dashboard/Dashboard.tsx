@@ -17,11 +17,15 @@ export default function Dashboard() {
     enabled: !!session?.user.id,
   });
 
-  const { data: dashboardData, isLoading, error: dashboardError } = useQuery({
+  const { data: dashboardData, isLoading, error: dashboardError, refetch } = useQuery({
     queryKey: ["dashboardData", session?.user.id],
     queryFn: () => fetchDashboardData(session?.user.id as string),
     enabled: !!session?.user.id,
   });
+
+  const handlePlansUpdate = async () => {
+    await refetch();
+  };
 
   const errorMessage = dashboardError instanceof Error ? dashboardError.message : null;
 
@@ -36,17 +40,25 @@ export default function Dashboard() {
 
       <DashboardStats stats={dashboardData?.dashboardStats} isLoading={isLoading || userRoleLoading} error={errorMessage} />
 
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 mt-6">
+      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 py-6 max-h-[900px]">
         <div className="lg:col-span-3 space-y-6">
-          <ImplementationPlansInProgress implementationPlans={dashboardData?.implementationPlans} isLoading={isLoading || userRoleLoading} error={errorMessage} userRole={userRole as UserRole} />
+          <div className="overflow-y-scroll">
+            <ImplementationPlansInProgress onUpdate={handlePlansUpdate} implementationPlans={dashboardData?.implementationPlans} isLoading={isLoading || userRoleLoading} error={errorMessage} userRole={userRole as UserRole} />
+          </div>
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <NewServiceRequests newServiceRequests={dashboardData?.newServiceRequests} isLoading={isLoading || userRoleLoading} error={errorMessage} />
-            <RecentInventoryLogs equipment={dashboardData?.equipment} isLoading={isLoading || userRoleLoading} error={errorMessage} />
+            <div className="overflow-y-scroll">
+              <NewServiceRequests newServiceRequests={dashboardData?.newServiceRequests} isLoading={isLoading || userRoleLoading} error={errorMessage} />
+            </div>
+            <div className="overflow-y-scroll">
+              <RecentInventoryLogs equipment={dashboardData?.equipment} isLoading={isLoading || userRoleLoading} error={errorMessage} />
+            </div>
           </div>
         </div>
 
-        <NotificationsPanel notifications={dashboardData?.notifications} isLoading={isLoading || userRoleLoading} error={errorMessage} />
+        <div className="overflow-y-scroll">
+          <NotificationsPanel notifications={dashboardData?.notifications} isLoading={isLoading || userRoleLoading} error={errorMessage} />
+        </div>
       </div>
     </div>
   );

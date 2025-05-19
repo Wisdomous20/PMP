@@ -48,10 +48,10 @@ export default function LeftTab() {
   return (
     <div className="w-20 border-r bg-indigo-Background flex flex-col items-center py-4 space-y-5">
       {/* Logo */}
-      <Button variant="gold" size="icon" className="w-10 h-10">
+      {/* <Button variant="gold" size="icon" className="w-10 h-10"> */}
         <img src="/images/cpu-logo.png" alt="CPU Logo" className="w-10 h-10" />
         <span className="sr-only">CPU Logo</span>
-      </Button>
+      {/* </Button> */}
 
       {/* Create Service Request */}
       {userRole === "USER" && (
