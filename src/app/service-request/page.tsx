@@ -7,6 +7,7 @@ import ServiceRequestDetails from "@/components/service-request/ServiceRequestDe
 import UserServiceRequestList from "@/components/service-request/UserServiceRequestList";
 import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
 import fetchGetServiceRequest from "@/domains/service-request/services/fetchGetServiceRequest";
+import { Skeleton } from "@/components/ui/skeleton";
 
 import { Card } from "@/components/ui/card";
 import { useQuery } from "@tanstack/react-query";
@@ -42,11 +43,21 @@ export default function Page() {
 
   if (srLoading || roleLoading) {
     return (
-      <div className="w-screen h-screen flex items-center justify-center">
-        <span>Loading...</span>
+      <div className="w-full min-h-screen h-full flex">
+   
+        {userRole !== "USER" && <LeftTab />}
+        <div className={userRole !== "USER" ? "flex-1 flex flex-col p-4 gap-4" : "w-full h-full p-4"}>
+   
+          <Skeleton className="h-12 mb-2 rounded-md" />
+          <Skeleton className="flex-1 rounded-md" />
+  
+          
+          <Skeleton className="flex-1 rounded-md" />
+        </div>
       </div>
     );
   }
+  
 
   const isAdmin = userRole !== "USER";
 
