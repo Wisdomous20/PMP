@@ -22,13 +22,15 @@ interface EditImplementationPlanProps {
   tasksInitial: Task[];
   plan: ImplementationPlan;
   progress: number;
+  userRole: UserRole
 }
 
 export default function EditImplementationPlan({
   serviceRequest,
   tasksInitial,
   plan,
-  progress
+  progress,
+  userRole
 }: EditImplementationPlanProps) {
   const [tasks, setTasks] = useState<Task[]>(tasksInitial);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
@@ -165,12 +167,14 @@ export default function EditImplementationPlan({
         <div className="mt-2">
           <div className="flex flex-row w-full items-center justify-between">
             <p className="font-semibold text-gray-800">Tasks</p>
-            <AddTask
-              onAdd={handleAddTask}
-              personnel={personnel}
-              assignments={assignments}
-              setAssignments={setAssignments}
-            />
+            {(userRole == "ADMIN" || userRole == "SUPERVISOR") &&
+              <AddTask
+                onAdd={handleAddTask}
+                personnel={personnel}
+                assignments={assignments}
+                setAssignments={setAssignments}
+              />
+            }
           </div>
           <Separator className="my-2" />
           {tasks.length === 0 ? (
@@ -190,6 +194,7 @@ export default function EditImplementationPlan({
                   assignments={assignments}
                   setAssignments={setAssignments}
                   hasCheckbox={true}
+                  userRole={userRole}
                   onCheckChange={() =>
                     setTasks((prev) =>
                       prev.map((t) =>
@@ -202,15 +207,17 @@ export default function EditImplementationPlan({
             </div>
           )}
         </div>
-        <div className="flex justify-end gap-2 mt-4">
-          <Button
-            onClick={handleUpdateImplementationPlan}
-            className="bg-yellow-400 hover:bg-yellow-500 text-white"
-            disabled={isUpdating}
-          >
-            {isUpdating ? "Updating..." : "Update Implementation Plan"}
-          </Button>
-        </div>
+        {(userRole == "ADMIN" || userRole == "SUPERVISOR") &&
+          <div className="flex justify-end gap-2 mt-4">
+            <Button
+              onClick={handleUpdateImplementationPlan}
+              className="bg-yellow-400 hover:bg-yellow-500 text-white"
+              disabled={isUpdating}
+            >
+              {isUpdating ? "Updating..." : "Update Implementation Plan"}
+            </Button>
+          </div>
+        }
       </DialogContent>
     </Dialog>
   );
@@ -225,6 +232,7 @@ interface TaskCardProps {
   setAssignments: React.Dispatch<React.SetStateAction<Assignment[]>>;
   hasCheckbox?: boolean;
   onCheckChange?: () => void;
+  userRole: UserRole
 }
 
 function TaskCard({
@@ -235,7 +243,8 @@ function TaskCard({
   assignments,
   setAssignments,
   hasCheckbox = false,
-  onCheckChange
+  onCheckChange,
+  userRole
 }: TaskCardProps) {
   const [hover, setHover] = useState(false);
 
@@ -249,7 +258,7 @@ function TaskCard({
       onMouseEnter={() => setHover(true)}
       onMouseLeave={() => setHover(false)}
     >
-      {hasCheckbox && (
+      {(hasCheckbox && (userRole == "ADMIN" || userRole == "SUPERVISOR"))  && (
         <Checkbox
           checked={task.checked}
           onCheckedChange={onCheckChange}

@@ -6,6 +6,8 @@ import RecentInventoryLogs from "../inventory-management/RecentInventoryLogs";
 import NotificationsPanel from "../notifications/RecentNotifications";
 import NewServiceRequests from "../service-request/NewServiceRequests";
 import { fetchDashboardData } from "@/domains/dashboard/services/fetchDashboardData";
+import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
+import { useQuery } from "@tanstack/react-query";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -13,6 +15,12 @@ export default function Dashboard() {
   const [dashboardData, setDashboardData] = useState<any>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
+
+  const { data: userRole, isLoading : userRoleLoading } = useQuery({
+    queryKey: ["userRole", session?.user.id],
+    queryFn: () => fetchUserRole(session?.user.id as string),
+    enabled: !!session?.user.id,
+  });
 
   useEffect(() => {
     async function loadDashboardData() {
@@ -44,20 +52,20 @@ export default function Dashboard() {
           <p className="text-muted-foreground">Monitor implementation plans, service requests, and equipment logs</p>
         </div>
       </div>
-      
-      <DashboardStats stats={dashboardData?.dashboardStats} isLoading={isLoading} error={error}/>
-      
+
+      <DashboardStats stats={dashboardData?.dashboardStats} isLoading={isLoading || userRoleLoading} error={error} />
+
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 mt-6">
         <div className="lg:col-span-3 space-y-6">
-          <ImplementationPlansInProgress implementationPlans={dashboardData?.implementationPlans} isLoading={isLoading} error={error}/>
+          <ImplementationPlansInProgress implementationPlans={dashboardData?.implementationPlans} isLoading={isLoading || userRoleLoading} error={error} userRole={userRole as UserRole} />
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <NewServiceRequests newServiceRequests={dashboardData?.newServiceRequests} isLoading={isLoading} error={error}/>
-            <RecentInventoryLogs equipment={dashboardData?.equipment} isLoading={isLoading} error={error}/>
+            <NewServiceRequests newServiceRequests={dashboardData?.newServiceRequests} isLoading={isLoading || userRoleLoading} error={error} />
+            <RecentInventoryLogs equipment={dashboardData?.equipment} isLoading={isLoading || userRoleLoading} error={error} />
           </div>
         </div>
 
-        <NotificationsPanel notifications={dashboardData?.notifications} isLoading={isLoading} error={error}/>
+        <NotificationsPanel notifications={dashboardData?.notifications} isLoading={isLoading || userRoleLoading} error={error} />
       </div>
     </div>
   );
