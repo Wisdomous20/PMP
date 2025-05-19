@@ -43,18 +43,21 @@ export default function AddPersonnel({ onAdd, isOpen, onOpenChange }: AddPersonn
         <form onSubmit={handleAddPersonnel}>
           <Input
             value={name}
+            maxLength={500}
             onChange={(e) => setName(e.target.value)}
             placeholder="Name"
             className="mb-2"
           />
           <Input
             value={department}
+            maxLength={500}
             onChange={(e) => setDepartment(e.target.value)}
             placeholder="Department"
             className="mb-2"
           />
           <Input
             value={position}
+            maxLength={500}
             onChange={(e) => setPosition(e.target.value)}
             placeholder="Position"
             className="mb-2"

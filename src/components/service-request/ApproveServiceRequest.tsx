@@ -110,6 +110,7 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
             rows={3}
             placeholder="Add extra information..."
             value={note}
+            maxLength={2000}
             onChange={(e) => setNote(e.target.value)}
             className="mt-2 w-full"
           />

@@ -20,6 +20,7 @@ interface AddTaskProps {
   setAssignments: React.Dispatch<React.SetStateAction<Assignment[]>>;
 }
 
+
 export default function AddTask({
   onAdd,
   personnel,
@@ -79,6 +80,7 @@ export default function AddTask({
             <Input
               type="text"
               value={taskName}
+              maxLength={500}
               onChange={(e) => setTaskName(e.target.value)}
             />
           </div>

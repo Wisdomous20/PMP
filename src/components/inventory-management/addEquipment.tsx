@@ -196,6 +196,9 @@ export default function AddEquipment({
     },
   ];
 
+  const TEXT_FIELD_MAX_LENGTH = 500;
+
+
   return (
     <Card>
       <CardContent className="p-6">
@@ -231,6 +234,7 @@ export default function AddEquipment({
                   onChange={(e) =>
                     handleInputChange(e, id as keyof EquipmentFormData)
                   }
+                  maxLength={type === "text" ? TEXT_FIELD_MAX_LENGTH : undefined}
                   className={
                     errors[id as keyof EquipmentFormData]
                       ? "border-red-500"
