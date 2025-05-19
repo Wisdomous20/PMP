@@ -5,19 +5,30 @@ import LeftTab from "@/components/layouts/LeftTab";
 import ServiceRequestList from "@/components/service-request/ServiceRequestList";
 import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
 import UserServiceRequestList from "@/components/service-request/UserServiceRequestList";
-import useGetServiceRequestList from "@/domains/service-request/hooks/useGetServiceRequestList";
-import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
+import fetchGetServiceRequest from "@/domains/service-request/services/fetchGetServiceRequest";
+
 import { Card } from "@/components/ui/card";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
 
 export default function Page() {
-  const [ selectedIndex, setSelectedIndex ] = useState(0);
-  const { serviceRequests, loading: srLoading } = useGetServiceRequestList();
-  const { userRole, loading: roleLoading } = useGetUserRole();
-  const loading = srLoading || roleLoading;
+  const [selectedIndex, setSelectedIndex] = useState(0);
+  const { data: session } = useSession();
 
-  console.log(serviceRequests)
+  const { data: userRole, isLoading: roleLoading } = useQuery({
+    queryKey: ["userRole", session?.user.id],
+    queryFn: () => fetchUserRole(session?.user.id as string),
+    enabled: !!session?.user.id,
+  });
 
-  if (loading) {
+  const { data: serviceRequests, isLoading: srLoading } = useQuery({
+    queryKey: ["ServiceRequests", session?.user.id],
+    queryFn: () => fetchGetServiceRequest(session?.user.id as string),
+    enabled: !!session?.user.id,
+  });
+
+  if (srLoading || roleLoading) {
     return (
       <div className="w-screen h-screen flex items-center justify-center">
         <span>Loading...</span>
@@ -34,25 +45,25 @@ export default function Page() {
         {isAdmin ? (
           <>
             <ServiceRequestList
-              serviceRequests={serviceRequests}
+              serviceRequests={serviceRequests ? serviceRequests : []}
               setServiceRequestIndex={setSelectedIndex}
               loading={srLoading}
             />
             <div className="flex-1">
-              {serviceRequests.length === 0 ? (
+              {(!serviceRequests || serviceRequests.length === 0) ? (
                 <Card className="w-full h-full flex items-center justify-center">
                   <span className="text-gray-400">No requests found</span>
                 </Card>
               ) : (
                 <ServiceRequestDetails
-                  serviceRequest={serviceRequests[selectedIndex]}
+                  serviceRequest={serviceRequests ? serviceRequests[selectedIndex] : undefined}
                 />
               )}
             </div>
           </>
         ) : (
           <UserServiceRequestList
-            serviceRequests={serviceRequests}
+            serviceRequests={serviceRequests ? serviceRequests : []}
             loading={srLoading}
           />
         )}

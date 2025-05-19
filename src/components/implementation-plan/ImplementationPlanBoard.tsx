@@ -2,19 +2,24 @@
 import React from "react";
 import ImplementationPlanPreview from "./ImplementationPlanPreview";
 import ImplementationPlansHeader from "./ImplementationPlansHeader";
-import useGetImplementationPlans from "@/domains/implementation-plan/hooks/useGetImplementationPlans";
 import { Skeleton } from "@/components/ui/skeleton";
 import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
+import fetchGetImplementationPlans from "@/domains/implementation-plan/services/fetchGetImplementationPlans";
 
 const ImplementationPlansBoard: React.FC = () => {
-  const { implementationPlans, loading, error } = useGetImplementationPlans();
   const { data: session } = useSession();
 
   const { data: userRole, isLoading } = useQuery({
     queryKey: ["userRole", session?.user.id],
     queryFn: () => fetchUserRole(session?.user.id as string),
+    enabled: !!session?.user.id,
+  });
+
+  const { data: implementationPlans, isLoading: loading, error } = useQuery({
+    queryKey: ["ImplementationPlans", session?.user.id],
+    queryFn: () => fetchGetImplementationPlans(session?.user.id as string),
     enabled: !!session?.user.id,
   });
 
@@ -26,15 +31,15 @@ const ImplementationPlansBoard: React.FC = () => {
     return "done";
   };
 
-  const pendingPlans = implementationPlans.filter(
+  const pendingPlans = implementationPlans ? implementationPlans.filter(
     (plan) => categorizePlan(plan) === "pending"
-  );
-  const inProgressPlans = implementationPlans.filter(
+  ) : []
+  const inProgressPlans = implementationPlans ? implementationPlans.filter(
     (plan) => categorizePlan(plan) === "in_progress"
-  );
-  const donePlans = implementationPlans.filter(
+  ) : []
+  const donePlans = implementationPlans ? implementationPlans.filter(
     (plan) => categorizePlan(plan) === "done"
-  );
+  ) : []
 
   if (loading || isLoading) {
     return (
@@ -62,7 +67,7 @@ const ImplementationPlansBoard: React.FC = () => {
     );
   }
 
-  if (error) return <div>Error: {error}</div>;
+  if (error) return <div>Error: {error.message}</div>;
 
   return (
     <div className="p-4 w-full">

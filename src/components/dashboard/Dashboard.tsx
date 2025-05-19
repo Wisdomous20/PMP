@@ -1,5 +1,4 @@
 import { useSession } from "next-auth/react";
-import { useEffect, useState } from "react";
 import DashboardStats from "./DashboardStats";
 import ImplementationPlansInProgress from "../implementation-plan/ImplementationPlansInProgress";
 import RecentInventoryLogs from "../inventory-management/RecentInventoryLogs";
@@ -11,38 +10,20 @@ import { useQuery } from "@tanstack/react-query";
 
 export default function Dashboard() {
   const { data: session } = useSession();
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
-  const [dashboardData, setDashboardData] = useState<any>(null);
-  const [isLoading, setIsLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
 
-  const { data: userRole, isLoading : userRoleLoading } = useQuery({
+  const { data: userRole, isLoading: userRoleLoading } = useQuery({
     queryKey: ["userRole", session?.user.id],
     queryFn: () => fetchUserRole(session?.user.id as string),
     enabled: !!session?.user.id,
   });
 
-  useEffect(() => {
-    async function loadDashboardData() {
-      if (!session?.user?.id) {
-        setIsLoading(false);
-        return;
-      }
+  const { data: dashboardData, isLoading, error: dashboardError } = useQuery({
+    queryKey: ["dashboardData", session?.user.id],
+    queryFn: () => fetchDashboardData(session?.user.id as string),
+    enabled: !!session?.user.id,
+  });
 
-      try {
-        setIsLoading(true);
-        const data = await fetchDashboardData(session.user.id);
-        setDashboardData(data);
-      } catch (err) {
-        console.error("Error loading dashboard data:", err);
-        setError(err instanceof Error ? err.message : "Failed to load dashboard data");
-      } finally {
-        setIsLoading(false);
-      }
-    }
-
-    loadDashboardData();
-  }, [session?.user?.id]);
+  const errorMessage = dashboardError instanceof Error ? dashboardError.message : null;
 
   return (
     <div className="flex flex-col w-full min-h-screen p-8 overflow-y-auto">
@@ -53,19 +34,19 @@ export default function Dashboard() {
         </div>
       </div>
 
-      <DashboardStats stats={dashboardData?.dashboardStats} isLoading={isLoading || userRoleLoading} error={error} />
+      <DashboardStats stats={dashboardData?.dashboardStats} isLoading={isLoading || userRoleLoading} error={errorMessage} />
 
       <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 mt-6">
         <div className="lg:col-span-3 space-y-6">
-          <ImplementationPlansInProgress implementationPlans={dashboardData?.implementationPlans} isLoading={isLoading || userRoleLoading} error={error} userRole={userRole as UserRole} />
+          <ImplementationPlansInProgress implementationPlans={dashboardData?.implementationPlans} isLoading={isLoading || userRoleLoading} error={errorMessage} userRole={userRole as UserRole} />
 
           <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <NewServiceRequests newServiceRequests={dashboardData?.newServiceRequests} isLoading={isLoading || userRoleLoading} error={error} />
-            <RecentInventoryLogs equipment={dashboardData?.equipment} isLoading={isLoading || userRoleLoading} error={error} />
+            <NewServiceRequests newServiceRequests={dashboardData?.newServiceRequests} isLoading={isLoading || userRoleLoading} error={errorMessage} />
+            <RecentInventoryLogs equipment={dashboardData?.equipment} isLoading={isLoading || userRoleLoading} error={errorMessage} />
           </div>
         </div>
 
-        <NotificationsPanel notifications={dashboardData?.notifications} isLoading={isLoading || userRoleLoading} error={error} />
+        <NotificationsPanel notifications={dashboardData?.notifications} isLoading={isLoading || userRoleLoading} error={errorMessage} />
       </div>
     </div>
   );
