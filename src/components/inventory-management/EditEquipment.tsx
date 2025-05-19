@@ -190,6 +190,7 @@ export function EditEquipment({
                   <Label htmlFor={id}>{label} *</Label>
                   <Input
                     id={id}
+                    // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     type={type as any}
                     value={String(formData[id as keyof EquipmentInput])}
                     onChange={e => handleInputChange(e as ChangeEvent<HTMLInputElement>, id as keyof EquipmentInput)}
