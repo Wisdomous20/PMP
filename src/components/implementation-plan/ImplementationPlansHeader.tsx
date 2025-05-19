@@ -2,7 +2,11 @@ import React from "react";
 import { Input } from "@/components/ui/input";
 import { Search } from "lucide-react";
 
-const ImplementationPlansHeader: React.FC = () => {
+interface ImplementationPlansHeaderProps {
+  onSearchChange: (query: string) => void;
+}
+
+const ImplementationPlansHeader: React.FC<ImplementationPlansHeaderProps> = ({ onSearchChange }) => {
   return (
     <div className="mb-6">
       <div className="flex items-center mb-4">
@@ -16,29 +20,11 @@ const ImplementationPlansHeader: React.FC = () => {
           <div className="relative w-full sm:w-auto">
             <Search className="absolute left-2.5 top-2.5 h-4 w-4 text-muted-foreground" />
             <Input
-              type="search"
               placeholder="Search plans..."
               className="w-full pl-8 md:w-[200px] lg:w-[250px] h-9"
+              onChange={(e) => onSearchChange(e.target.value)}
             />
           </div>
-          {/* <div className="flex items-center gap-2">
-            <Select defaultValue="all">
-              <SelectTrigger className="w-[130px] h-9">
-                <Filter className="h-3.5 w-3.5 mr-2" />
-                <SelectValue placeholder="Filter" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Plans</SelectItem>
-                <SelectItem value="high">High Priority</SelectItem>
-                <SelectItem value="medium">Medium Priority</SelectItem>
-                <SelectItem value="low">Low Priority</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button size="sm" className="h-9">
-              <Plus className="h-4 w-4 mr-1" />
-              New Plan
-            </Button>
-          </div> */}
         </div>
       </div>
     </div>

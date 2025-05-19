@@ -1,5 +1,5 @@
 "use client";
-import React from "react";
+import React, { useState } from "react";
 import ImplementationPlanPreview from "./ImplementationPlanPreview";
 import ImplementationPlansHeader from "./ImplementationPlansHeader";
 import { Skeleton } from "@/components/ui/skeleton";
@@ -9,6 +9,7 @@ import { useSession } from "next-auth/react";
 import fetchGetImplementationPlans from "@/domains/implementation-plan/services/fetchGetImplementationPlans";
 
 const ImplementationPlansBoard: React.FC = () => {
+  const [searchQuery, setSearchQuery] = useState("");
   const { data: session } = useSession();
 
   const { data: userRole, isLoading } = useQuery({
@@ -30,21 +31,33 @@ const ImplementationPlansBoard: React.FC = () => {
     if (completedTasks < totalTasks) return "in_progress";
     return "done";
   };
+  
+  const filterPlans = (plans: ImplementationPlan[] | undefined) => {
+    if (!plans) return [];
+    if (!searchQuery.trim()) return plans;
+    
+    return plans.filter(plan => 
+      plan.serviceRequest.concern?.toLowerCase().includes(searchQuery.toLowerCase()) || 
+      plan.serviceRequest.details?.toLowerCase().includes(searchQuery.toLowerCase())
+    );
+  };
 
-  const pendingPlans = implementationPlans ? implementationPlans.filter(
+  const filteredPlans = filterPlans(implementationPlans);
+  
+  const pendingPlans = filteredPlans ? filteredPlans.filter(
     (plan) => categorizePlan(plan) === "pending"
-  ) : []
-  const inProgressPlans = implementationPlans ? implementationPlans.filter(
+  ) : [];
+  const inProgressPlans = filteredPlans ? filteredPlans.filter(
     (plan) => categorizePlan(plan) === "in_progress"
-  ) : []
-  const donePlans = implementationPlans ? implementationPlans.filter(
+  ) : [];
+  const donePlans = filteredPlans ? filteredPlans.filter(
     (plan) => categorizePlan(plan) === "done"
-  ) : []
+  ) : [];
 
   if (loading || isLoading) {
     return (
       <div className="p-4 w-full">
-        <ImplementationPlansHeader />
+        <ImplementationPlansHeader onSearchChange={setSearchQuery} />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
           {["Pending", "In Progress", "Done"].map((status, idx) => (
             <div key={idx} className="flex flex-col">
@@ -71,7 +84,7 @@ const ImplementationPlansBoard: React.FC = () => {
 
   return (
     <div className="p-4 w-full">
-      <ImplementationPlansHeader />
+      <ImplementationPlansHeader onSearchChange={setSearchQuery} />
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         {/* Pending Column */}
         <div className="flex flex-col">
@@ -84,7 +97,7 @@ const ImplementationPlansBoard: React.FC = () => {
               {pendingPlans.length}
             </div>
           </div>
-          <div className="flex flex-col gap-3 rounded-lg bg-gray-50 p-3 min-h-[500px]">
+          <div className="flex flex-col gap-3 rounded-lg bg-gray-50 p-3 h-[500px] overflow-y-scroll">
             {pendingPlans.map((plan) => (
               <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole as UserRole} />
             ))}
@@ -118,7 +131,7 @@ const ImplementationPlansBoard: React.FC = () => {
               {donePlans.length}
             </div>
           </div>
-          <div className="flex flex-col gap-3 rounded-lg bg-green-50 p-3 min-h-[500px]">
+          <div className="flex flex-col gap-3 rounded-lg bg-green-50 p-3 h-[500px] overflow-y-scroll">
             {donePlans.map((plan) => (
               <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole as UserRole} />
             ))}
