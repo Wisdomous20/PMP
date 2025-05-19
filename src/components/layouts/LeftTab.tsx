@@ -67,7 +67,7 @@ export default function LeftTab() {
       )}
 
       {/* Dashboard (Admin and Secretary) */}
-      {(userRole === "ADMIN" || userRole === "SECRETARY") && (
+      {(userRole === "SUPERVISOR" || userRole === "ADMIN" || userRole === "SECRETARY") && (
         <Link href="/dashboard">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -108,15 +108,17 @@ export default function LeftTab() {
       </Link>
 
       {/* Archive */}
-      <Link href="/service-request/archive">
-        <div className="flex flex-col items-center gap-1">
-          <Button variant="gold" size="icon" className="w-10 h-10">
-            <Archive className="w-6 h-6" />
-            <span className="sr-only">Archive</span>
-          </Button>
-          <span className="text-xs text-white mt-[-6px] font-bold">Archives</span>
-        </div>
-      </Link>
+      {(userRole === "ADMIN" || userRole === "SECRETARY") &&
+        <Link href="/service-request/archive">
+          <div className="flex flex-col items-center gap-1">
+            <Button variant="gold" size="icon" className="w-10 h-10">
+              <Archive className="w-6 h-6" />
+              <span className="sr-only">Archive</span>
+            </Button>
+            <span className="text-xs text-white mt-[-6px] font-bold">Archives</span>
+          </div>
+        </Link>
+      }
 
 
       {(userRole === "SUPERVISOR" || userRole === "ADMIN" || userRole === "SECRETARY") && (

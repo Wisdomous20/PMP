@@ -7,7 +7,10 @@ import { Card } from "@/components/ui/card";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
 import fetchGetServiceRequestById from "@/domains/service-request/services/fetchGetServiceRequestById";
-import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+import LeftTab from "@/components/layouts/LeftTab";
+import { useQuery } from "@tanstack/react-query";
+import { useSession } from "next-auth/react";
+import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
 
 export default function ServiceRequestDetailsPage() {
   const params = useParams();
@@ -15,7 +18,13 @@ export default function ServiceRequestDetailsPage() {
   const [serviceRequest, setServiceRequest] = useState<ServiceRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { userRole, loading: roleLoading } = useGetUserRole();
+  const { data: session } = useSession(); 
+
+  const { data: userRole, isLoading : roleLoading } = useQuery({
+    queryKey: ["userRole", session?.user.id],
+    queryFn: () => fetchUserRole(session?.user.id as string),
+    enabled: !!session?.user.id,
+  });
 
   useEffect(() => {
     if (serviceRequestId) {
@@ -102,8 +111,9 @@ export default function ServiceRequestDetailsPage() {
   };
 
   return (
-    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-blue-50 px-4 py-8">
-      <div className="max-w-6xl mx-auto h-full">
+    <div className="min-h-screen bg-gradient-to-b from-yellow-50 to-blue-50 flex flex-row">
+      {userRole !== "USER" && <LeftTab />}
+      <div className="max-w-6xl w-full mx-auto h-full px-4 py-8">
         <div className="mb-6">
           <Link
             href={"/service-request"}

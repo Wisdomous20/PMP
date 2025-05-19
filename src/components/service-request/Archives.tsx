@@ -3,24 +3,17 @@
 
 import React, { useState } from "react";
 import { Search, X } from "lucide-react";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
-import { toast } from "@/hooks/use-toast";
 import useGetArchivedServiceRequests from "@/domains/service-request/hooks/useGetArchivedServiceRequests";
-import fetchDeleteSelectedServiceRequestArchive from "@/domains/service-request/services/fetchDeleteSelectedServiceRequestArchive";
 import ArchiveDetailsModal from "./ArchiveDetailsModal";
 
 export default function Archives() {
-  const { archivedRequests, loading, error, refreshArchives } =
+  const { archivedRequests, loading, error } =
     useGetArchivedServiceRequests();
-  const [selectedItems, setSelectedItems] = useState<string[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  const [isDeleting, setIsDeleting] = useState(false);
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
 
-  // Enhanced search to include both title and requestor name
   const filteredRequests =
     archivedRequests?.filter((request) =>
       searchTerm === ""
@@ -28,51 +21,6 @@ export default function Archives() {
         : request.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           request.name.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
-
-  const toggleSelectItem = (id: string) => {
-    if (selectedItems.includes(id)) {
-      setSelectedItems(selectedItems.filter((itemId) => itemId !== id));
-    } else {
-      setSelectedItems([...selectedItems, id]);
-    }
-  };
-
-  const handleDelete = async () => {
-    if (selectedItems.length === 0) {
-      toast({
-        title: "No items selected",
-        description: "Please select at least one item to delete.",
-        variant: "destructive",
-      });
-      return;
-    }
-
-    if (
-      window.confirm(
-        `Are you sure you want to delete ${selectedItems.length} selected item(s)?`
-      )
-    ) {
-      try {
-        setIsDeleting(true);
-        await fetchDeleteSelectedServiceRequestArchive(selectedItems);
-        toast({
-          title: "Success",
-          description: `Successfully deleted ${selectedItems.length} item(s)`,
-        });
-        setSelectedItems([]);
-        refreshArchives();
-      // eslint-disable-next-line @typescript-eslint/no-unused-vars
-      } catch (error) {
-        toast({
-          title: "Error",
-          description: "Failed to delete selected items. Please try again.",
-          variant: "destructive",
-        });
-      } finally {
-        setIsDeleting(false);
-      }
-    }
-  };
 
   const handleRequestClick = (request: any) => {
     console.log("Selected request:", request);
@@ -168,23 +116,11 @@ export default function Archives() {
             </button>
           )}
         </div>
-
-        <div className="flex space-x-4">
-          <Button
-            variant="outline"
-            className="bg-red-600 text-white"
-            onClick={handleDelete}
-            disabled={selectedItems.length === 0 || isDeleting}
-          >
-            {isDeleting ? "Deleting..." : "Delete"}
-          </Button>
-        </div>
       </div>
 
       <div className="overflow-y-auto flex-1 pr-2">
       <div className="sticky top-0 z-10 bg-yellow-300 rounded-t-md shadow-md mb-1">
           <div className="grid grid-cols-12 gap-4 px-6 py-5 text-base">
-            <div className="col-span-1 flex items-center justify-center" />
             <div className="col-span-3 font-bold">Name of Requestor</div>
             <div className="col-span-3 items-center justify-center font-bold">
               Title
@@ -210,15 +146,6 @@ export default function Archives() {
                 className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md hover:bg-gray-300 transition-colors cursor-pointer"
                 onClick={() => handleRequestClick(request)}
               >
-                <div
-                  className="col-span-1 flex"
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  <Checkbox
-                    checked={selectedItems.includes(request.id)}
-                    onCheckedChange={() => toggleSelectItem(request.id)}
-                  />
-                </div>
                 <div className="col-span-3 flex items-center pl-2">
                   {request.name}
                 </div>

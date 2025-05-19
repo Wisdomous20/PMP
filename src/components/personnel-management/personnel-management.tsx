@@ -1,24 +1,35 @@
 "use client";
 import { useEffect, useState } from "react";
 import { Button } from "../ui/button";
-import { Plus, ListFilter } from "lucide-react";
+import { Plus } from "lucide-react";
 import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
-// import { Checkbox } from "../ui/checkbox";
 import PersonnelCalendar from "./PersonnelCalendar";
 
 export default function PersonnelManagement() {
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
+  const [filteredPersonnel, setFilteredPersonnel] = useState<Personnel[]>([]);
   const [searchTerm, setSearchTerm] = useState("");
-  // const [selectedIds, setSelectedIds] = useState<string[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const [isUpdateDialogOpen, setIsUpdateDialogOpen] = useState(false);
   const [currentPersonnel, setCurrentPersonnel] = useState<Personnel | null>(null);
-  // const [visibleCount, setVisibleCount] = useState(5); // Start with 5 items
-
+  
   useEffect(() => {
     fetchPersonnel();
   }, []);
+
+  useEffect(() => {
+    if (searchTerm.trim() === "") {
+      setFilteredPersonnel(personnel);
+    } else {
+      const filtered = personnel.filter(person => 
+        person.name?.toLowerCase().includes(searchTerm.toLowerCase()) || 
+        person.position?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+        person.department?.toLowerCase().includes(searchTerm.toLowerCase())
+      );
+      setFilteredPersonnel(filtered);
+    }
+  }, [searchTerm, personnel]);
 
   const fetchPersonnel = async () => {
     try {
@@ -26,6 +37,7 @@ export default function PersonnelManagement() {
       const data = await response.json();
       if (Array.isArray(data)) {
         setPersonnel(data);
+        setFilteredPersonnel(data);
       } else {
         console.error("Fetched data is not an array:", data);
       }
@@ -48,6 +60,10 @@ const handleSingleDelete = async (personId: string) => {
     setIsUpdateDialogOpen(true);
   };
 
+  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    setSearchTerm(e.target.value);
+  };
+
   return (
     <div className="p-4 flex flex-col w-screen">
       <div className="w-full max-w-10xl">
@@ -62,14 +78,8 @@ const handleSingleDelete = async (personId: string) => {
               placeholder="Search"
               className="border border-gray-300 rounded-md hidden sm:block w-full px-4 py-2"
               value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
+              onChange={handleSearchChange}
             />
-            <Button
-              variant={"gold"}
-              className="bg-indigo-Background text-primary-foreground px-4 py-2 rounded-md"
-            >
-              <ListFilter className="inline-block mr-2 w-4 h-4" /> Sort by
-            </Button>
           </div>
           <div className="flex justify-end space-x-2">
             <Button
@@ -114,14 +124,22 @@ const handleSingleDelete = async (personId: string) => {
         </div>
 
         <div className="mt-4">
-          {personnel.map((person) => (
-            <PersonnelCalendar
-              key={person.id}
-              person={person}
-              openUpdateDialog={openUpdateDialog}
-              onDelete={handleSingleDelete}
-            />
-          ))}
+          {filteredPersonnel.length > 0 ? (
+            filteredPersonnel.map((person) => (
+              <PersonnelCalendar
+                key={person.id}
+                person={person}
+                // selectedIds={selectedIds}
+                // setSelectedIds={setSelectedIds}
+                openUpdateDialog={openUpdateDialog}
+                onDelete={handleSingleDelete}
+              />
+            ))
+          ) : (
+            <div className="text-center py-8 text-gray-500">
+              {searchTerm ? "No personnel found matching your search" : "No personnel available"}
+            </div>
+          )}
         </div>
       </div>
 

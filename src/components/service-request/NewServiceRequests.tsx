@@ -4,6 +4,7 @@ import { Skeleton } from "@/components/ui/skeleton"
 import ServiceRequestPreview from "./ServiceRequestPreview"
 import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
 import { Inbox } from "lucide-react"
+import Link from "next/link"
 
 interface NewServiceRequestsProps {
   newServiceRequests: ServiceRequest[],
@@ -11,7 +12,7 @@ interface NewServiceRequestsProps {
   error: string | null
 }
 
-export default function NewServiceRequests({newServiceRequests, isLoading, error} : NewServiceRequestsProps) {
+export default function NewServiceRequests({ newServiceRequests, isLoading, error }: NewServiceRequestsProps) {
 
   const sortedRequests = isLoading ? [] : [...newServiceRequests].sort((a, b) => {
     const aTime = a.createdOn ? new Date(a.createdOn).getTime() : 0
@@ -71,12 +72,13 @@ export default function NewServiceRequests({newServiceRequests, isLoading, error
       <CardContent className="p-0">
         <div className="overflow-y-auto">
           {sortedRequests.map((request, index) => (
-            <ServiceRequestPreview
-              key={request.id}
-              index={index}
-              serviceRequest={request}
-              setServiceRequestIndex={() => null}
-            />
+            <Link key={request.id} href={`/service-request/${request.id}`}>
+              <ServiceRequestPreview
+                index={index}
+                serviceRequest={request}
+                setServiceRequestIndex={() => null}
+              />
+            </Link>
           ))}
         </div>
       </CardContent>

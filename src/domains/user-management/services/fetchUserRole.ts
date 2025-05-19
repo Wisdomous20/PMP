@@ -1,4 +1,4 @@
-export async function fetchUserRole(userId: string): Promise<string> {
+export async function fetchUserRole(userId: string): Promise<UserRole> {
     const response = await fetch(`/api/auth/user-role`, {
       method: "POST",
       headers: {
