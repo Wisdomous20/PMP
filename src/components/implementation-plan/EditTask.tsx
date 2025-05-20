@@ -39,6 +39,7 @@ interface EditTaskProps {
   personnel: Personnel[];
   assignments: Assignment[];
   setAssignments: React.Dispatch<React.SetStateAction<Assignment[]>>;
+  currentAssignment?: Assignment;
 }
 
 export default function EditTask({
@@ -47,7 +48,8 @@ export default function EditTask({
   onDelete,
   personnel,
   assignments,
-  setAssignments
+  setAssignments,
+  currentAssignment
 }: EditTaskProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [taskName, setTaskName] = useState(task.name);
@@ -56,9 +58,9 @@ export default function EditTask({
   const [taskStart, setTaskStart] = useState(initialStart);
   const [taskEnd, setTaskEnd] = useState(initialEnd);
 
-  const currentAssignment = assignments.find(a => a.taskId === task.id);
-  console.log(currentAssignment)
-  const [selectedPersonnelId, setSelectedPersonnelId] = useState(currentAssignment?.personnelId || "");
+  const [selectedPersonnelId, setSelectedPersonnelId] = useState(
+    currentAssignment?.personnelId || ""
+  );
 
   const [errors, setErrors] = useState<{
     name?: string;
@@ -73,24 +75,35 @@ export default function EditTask({
       name?: string;
       start?: string;
       end?: string;
+      personnel?: string;
       timespan?: string;
     } = {};
 
     if (!taskName) newErrors.name = "Task name is required";
     if (!taskStart) newErrors.start = "Start time is required";
     if (!taskEnd) newErrors.end = "End time is required";
+    if (!selectedPersonnelId) newErrors.personnel = "Personnel selection is required";
 
     if (taskStart && taskEnd) {
       const startDate = new Date(taskStart);
       const endDate = new Date(taskEnd);
       const now = new Date();
 
-      if (startDate < now && startDate.getTime() !== new Date(task.startTime).getTime()) {
+      if (startDate < now) {
         newErrors.start = "Start time cannot be in the past";
       }
 
       if (endDate <= startDate) {
         newErrors.end = "End time must be after start time";
+      }
+
+      // Ensure start and end are on the same calendar day
+      if (
+        startDate.getFullYear() !== endDate.getFullYear() ||
+        startDate.getMonth() !== endDate.getMonth() ||
+        startDate.getDate() !== endDate.getDate()
+      ) {
+        newErrors.end = "Start and end time must be on the same day";
       }
 
       const duration = endDate.getTime() - startDate.getTime();
@@ -119,10 +132,18 @@ export default function EditTask({
     };
     onUpdate(updatedTask);
 
-    if (currentAssignment && currentAssignment.personnelId !== selectedPersonnelId) {
+    // Handle personnel assignment change
+    const hasCurrentAssignment = Boolean(currentAssignment);
+    const hasSelectedPersonnel = Boolean(selectedPersonnelId);
+
+    // Case 1: Assignment exists and personnel has changed or been removed
+    if (hasCurrentAssignment &&
+      (!hasSelectedPersonnel || currentAssignment?.personnelId !== selectedPersonnelId)) {
+      // First, remove the existing assignment from the array
       const filteredAssignments = assignments.filter(a => a.taskId !== task.id);
 
-      if (selectedPersonnelId) {
+      // If a new personnel is selected, add the new assignment
+      if (hasSelectedPersonnel) {
         const newAssignment: Assignment = {
           taskId: task.id,
           personnelId: selectedPersonnelId,
@@ -130,10 +151,12 @@ export default function EditTask({
         };
         setAssignments([...filteredAssignments, newAssignment]);
       } else {
+        // Just update with the filtered list (removing the assignment)
         setAssignments(filteredAssignments);
       }
     }
-    else if (!currentAssignment && selectedPersonnelId) {
+    // Case 2: No current assignment but personnel has been selected
+    else if (!hasCurrentAssignment && hasSelectedPersonnel) {
       const newAssignment: Assignment = {
         taskId: task.id,
         personnelId: selectedPersonnelId,

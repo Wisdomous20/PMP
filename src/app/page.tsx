@@ -99,7 +99,7 @@ export default function Page() {
             <div className="bg-white rounded-xl p-5 shadow-xl transform transition-all duration-300 hover:-translate-y-1 hover:shadow-2xl border border-gray-100">
               <div className="flex items-center justify-between mb-4">
                 <h3 className="text-blue-900 font-medium text-lg">Implementation Plan</h3>
-                <Badge className="bg-yellow-400 hover:bg-yellow-500 text-blue-900">In Progress</Badge>
+                <Badge className="bg-yellow-400 hover:bg-yellow-500 text-white">In Progress</Badge>
               </div>
               <div className="bg-blue-50 rounded-lg p-3 mb-3">
                 <div className="flex items-center justify-between mb-2">
@@ -138,7 +138,7 @@ export default function Page() {
             </div>
             <div className="flex justify-between items-center mb-4">
               <h3 className="font-semibold text-blue-900">Computer Hardware Repair</h3>
-              <Badge className="bg-yellow-100 text-yellow-800">In Progress</Badge>
+              <Badge className="bg-yellow-400 hover:bg-yellow-500 text-white">In Progress</Badge>
             </div>
             <div className="space-y-3">
               <div className="flex items-center gap-2">

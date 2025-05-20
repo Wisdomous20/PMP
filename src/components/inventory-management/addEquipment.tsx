@@ -13,6 +13,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import DEPARTMENTS from "@/lib/departments";
 
 interface EquipmentFormData {
   quantity: number;
@@ -75,30 +76,31 @@ export default function AddEquipment({
     setFormData(prev => ({ ...prev, totalCost: Number(total.toFixed(2)) }));
   }, [formData.quantity, formData.unitCost]);
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-    [
-      "description",
-      "brand",
-      "serialNumber",
-      "supplier",
-      "location",
-      "department",
-    ].forEach(key => {
-      const val = formData[key as keyof EquipmentFormData] as string;
-      if (!val.trim()) newErrors[key as keyof EquipmentFormData] = "This field is required.";
-    });
-    if (formData.quantity <= 0) newErrors.quantity = "Quantity must be greater than 0";
-    if (formData.unitCost < 0) newErrors.unitCost = "Unit cost cannot be negative";
-    const today = new Date();
-    const purchase = new Date(formData.datePurchased);
-    const receive = new Date(formData.dateReceived);
-    if (purchase > today) newErrors.datePurchased = "Purchase date cannot be in the future";
-    if (receive > today) newErrors.dateReceived = "Receive date cannot be in the future";
-    if (receive < purchase) newErrors.dateReceived = "Receive date cannot be before purchase date";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+const validateForm = (): boolean => {
+  const newErrors: FormErrors = {};
+  [
+    "description",
+    "brand",
+    "serialNumber",
+    "supplier",
+    "location",
+    "department",
+  ].forEach(key => {
+    const val = formData[key as keyof EquipmentFormData] as string;
+    if (!val.trim()) newErrors[key as keyof EquipmentFormData] = "This field is required.";
+  });
+  if (formData.quantity <= 0) newErrors.quantity = "Quantity must be greater than 0";
+  if (formData.unitCost < 0) newErrors.unitCost = "Unit cost cannot be negative";
+  if (formData.unitCost === 0) newErrors.unitCost = "Unit cost cannot be zero";
+  const today = new Date();
+  const purchase = new Date(formData.datePurchased);
+  const receive = new Date(formData.dateReceived);
+  if (purchase > today) newErrors.datePurchased = "Purchase date cannot be in the future";
+  if (receive > today) newErrors.dateReceived = "Receive date cannot be in the future";
+  if (receive < purchase) newErrors.dateReceived = "Receive date cannot be before purchase date";
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement>,
@@ -164,7 +166,6 @@ export default function AddEquipment({
             { id: "datePurchased", label: "Date Purchased", type: "date", max: todayISO },
             { id: "dateReceived", label: "Date Received", type: "date", max: todayISO },
             { id: "location", label: "Location", type: "text" },
-            { id: "department", label: "Department", type: "text" },
           ].map(({ id, label, type, ...props }) => (
             <div key={id} className="space-y-2">
               <Label htmlFor={id}>{label} *</Label>
@@ -197,8 +198,8 @@ export default function AddEquipment({
                 <SelectValue placeholder="Select status" />
               </SelectTrigger>
               <SelectContent>
-                {( ["Operational", "Repairable", "Scrap"] as EquipmentStatus[] ).map(status => (
-                  <SelectItem key={status} value={status}>
+                {(["Operational", "Repairable", "Scrap"] as EquipmentStatus[]).map(status => (
+                  <SelectItem key={status} value={status} className="hover:cursor-pointer border border-transparent hover:border-gray-800">
                     {status}
                   </SelectItem>
                 ))}
@@ -206,6 +207,36 @@ export default function AddEquipment({
             </Select>
             {errors.status && (
               <p className="text-red-500 text-sm mt-1">{errors.status}</p>
+            )}
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="department">Department *</Label>
+            <Select
+              value={formData.department}
+              onValueChange={(value) =>
+                setFormData((prev) => ({ ...prev, department: value }))
+              }>
+              <SelectTrigger
+                id="department"
+              >
+                <SelectValue placeholder="Select department" />
+              </SelectTrigger>
+
+              <SelectContent>
+                {DEPARTMENTS.map((dept) => (
+                  <SelectItem
+                    key={dept}
+                    value={dept}
+                    className="hover:cursor-pointer border border-transparent hover:border-gray-800"
+                  >
+                    {dept}
+                  </SelectItem>
+                ))}
+              </SelectContent>
+            </Select>
+
+            {errors.department && (
+              <p className="text-red-500 text-sm mt-1">{errors.department}</p>
             )}
           </div>
         </div>

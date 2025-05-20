@@ -55,43 +55,52 @@ export default function AddTask({
       personnel?: string;
       timespan?: string;
     } = {};
-    
+
     if (!taskName) newErrors.name = "Task name is required";
     if (!taskStart) newErrors.start = "Start time is required";
     if (!taskEnd) newErrors.end = "End time is required";
     if (!selectedPersonnelId) newErrors.personnel = "Personnel selection is required";
-    
+
     if (taskStart && taskEnd) {
       const startDate = new Date(taskStart);
       const endDate = new Date(taskEnd);
       const now = new Date();
-      
+
       if (startDate < now) {
         newErrors.start = "Start time cannot be in the past";
       }
-      
+
       if (endDate <= startDate) {
         newErrors.end = "End time must be after start time";
       }
-      
+
+      if (
+        startDate.getFullYear() !== endDate.getFullYear() ||
+        startDate.getMonth() !== endDate.getMonth() ||
+        startDate.getDate() !== endDate.getDate()
+      ) {
+        newErrors.end = "Start and end time must be on the same day";
+      }
+
       const duration = endDate.getTime() - startDate.getTime();
       const hoursDuration = duration / (1000 * 60 * 60);
-      
+
       if (hoursDuration > 72) {
         newErrors.timespan = "Task duration cannot exceed 72 hours (3 days)";
       }
     }
-    
+
     return { errors: newErrors, isValid: Object.keys(newErrors).length === 0 };
   };
+
 
   const handleSubmit = () => {
     setAttemptedSubmit(true);
     const { errors: validationErrors, isValid } = validateForm();
     setErrors(validationErrors);
-    
+
     if (!isValid) return;
-    
+
     const newTask: Task = {
       id: Date.now().toString(),
       name: taskName,
@@ -99,16 +108,16 @@ export default function AddTask({
       endTime: new Date(taskEnd),
       checked: false,
     };
-    
+
     const newAssignment: Assignment = {
       taskId: newTask.id,
       personnelId: selectedPersonnelId,
       assignedAt: new Date(),
     };
-    
+
     setAssignments([...assignments, newAssignment]);
     onAdd(newTask);
-    
+
     resetForm();
     setIsOpen(false);
   };
@@ -123,8 +132,8 @@ export default function AddTask({
   };
 
   return (
-    <Dialog 
-      open={isOpen} 
+    <Dialog
+      open={isOpen}
       onOpenChange={(open) => {
         setIsOpen(open);
         if (!open) resetForm();
@@ -155,7 +164,7 @@ export default function AddTask({
               <p className="text-sm text-red-500 mt-1">{errors.name}</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-1">
               Start Date &amp; Time
@@ -170,7 +179,7 @@ export default function AddTask({
               <p className="text-sm text-red-500 mt-1">{errors.start}</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-1">
               End Date &amp; Time
@@ -185,7 +194,7 @@ export default function AddTask({
               <p className="text-sm text-red-500 mt-1">{errors.end}</p>
             )}
           </div>
-          
+
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-1">
               Select Personnel
@@ -209,13 +218,13 @@ export default function AddTask({
               <p className="text-sm text-red-500 mt-1">{errors.personnel}</p>
             )}
           </div>
-          
+
           {attemptedSubmit && errors.timespan && (
             <Alert variant="destructive">
               <AlertDescription>{errors.timespan}</AlertDescription>
             </Alert>
           )}
-          
+
           <div className="flex justify-end space-x-2 pt-4">
             <Button variant="outline" onClick={() => setIsOpen(false)}>
               Cancel

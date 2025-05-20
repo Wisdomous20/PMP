@@ -1,9 +1,11 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
-// import { useRouter } from "next/navigation";
 import { Separator } from "@/components/ui/separator";
 import { Progress } from "@/components/ui/progress";
 import { Card, CardContent, CardHeader } from "@/components/ui/card";
+import { format } from "date-fns";
 import formatTimestamp from "@/utils/formatTimestamp";
 import ServiceRequestRating from "@/components/service-request/ServiceRequestRatings";
 import { Skeleton } from "../ui/skeleton";
@@ -15,7 +17,8 @@ interface ServiceRequestStatusProps {
 
 function getStatusInfo(
   status: Status[],
-  // implementationPlanStatus: string
+
+  implementationPlan: any = null
 ): { message: string; progress: number[] } {
   const lastStatus = status[status.length - 1]?.status;
 
@@ -27,14 +30,19 @@ function getStatusInfo(
       };
     case "approved":
       return {
-        message:
-          "Your request has been approved. An implementation plan is being created.",
+        message: "Your request has been approved. An implementation plan is being created.",
         progress: [100, 0, 0],
       };
     case "in_progress":
+      let taskProgress = 0;
+      if (implementationPlan && implementationPlan.tasks && implementationPlan.tasks.length > 0) {
+        const completedTasks = implementationPlan.tasks.filter((task: { checked: boolean; }) => task.checked).length;
+        taskProgress = (completedTasks / implementationPlan.tasks.length) * 100;
+      }
+      
       return {
         message: "Your request is in progress.",
-        progress: [100, 100, 0],
+        progress: [100, 100, taskProgress],
       };
     case "rejected":
       return {
@@ -54,17 +62,14 @@ export default function ServiceRequestStatus({
 }: ServiceRequestStatusProps) {
   const { concern, details, createdOn, status, id } = serviceRequest;
   const { data: session } = useSession();
-  // const router = useRouter();
   const userId = session?.user?.id;
-
-  // const [implementationPlanStatus, setImplementationPlanStatus] =
-  //   useState<string>("");
-  // eslint-disable-next-line @typescript-eslint/no-explicit-any
+  const [implPlanData, setImplPlanData] = useState<any>(null);
   const [existingRating, setExistingRating] = useState<any>(null);
   const [isRatingSubmitted, setIsRatingSubmitted] = useState(false);
   const [isLoading, setIsLoading] = useState(true);
-  const { message, progress } = getStatusInfo(status);
+  const { message, progress } = getStatusInfo(status, implPlanData);
   const isCompleted = status[status.length - 1]?.status === "completed";
+  const isInProgress = status[status.length - 1]?.status === "in_progress";
   const archiveTimeoutRef = useRef<NodeJS.Timeout | null>(null);
   const hasArchivedRef = useRef(false);
 
@@ -72,16 +77,14 @@ export default function ServiceRequestStatus({
     const fetchData = async () => {
       setIsLoading(true);
       try {
-        // Fetch implementation plan status
-        if (userId) {
-          // const implPlanResponse = await fetch(
-          //   `/api/implementation-plan/${id}?userId=${userId}`
-          // );
-          // const implPlanData = await implPlanResponse.json();
-          // setImplementationPlanStatus(implPlanData.status);
+        if (userId && (isInProgress || isCompleted)) {
+          const implPlanResponse = await fetch(
+            `/api/implementation-plan/${id}?userId=${userId}`
+          );
+          const data = await implPlanResponse.json();
+          setImplPlanData(data);
         }
 
-        // Fetch existing rating if request is completed
         if (isCompleted) {
           const ratingResponse = await fetch(
             `/api/service-request/rating/${id}`
@@ -99,7 +102,7 @@ export default function ServiceRequestStatus({
     };
 
     fetchData();
-  }, [userId, id, isCompleted]);
+  }, [userId, id, isCompleted, isInProgress]);
 
   const archiveServiceRequest = async () => {
     if (hasArchivedRef.current) return;
@@ -124,11 +127,7 @@ export default function ServiceRequestStatus({
 
       archiveTimeoutRef.current = setTimeout(async () => {
         await archiveServiceRequest();
-      }, 3000);
-
-      // const handleRouteChange = async () => {
-      //   await archiveServiceRequest();
-      // };
+      }, 500);
 
       return () => {
         window.removeEventListener("beforeunload", handleBeforeUnload);
@@ -154,6 +153,45 @@ export default function ServiceRequestStatus({
 
   const handleRatingSubmit = async () => {
     setIsRatingSubmitted(true);
+  };
+
+  const renderTaskList = () => {
+    if (!implPlanData || !implPlanData.tasks || implPlanData.tasks.length === 0) {
+      return null;
+    }
+
+    return (
+      <div className="mt-6">
+        <h3 className="text-xl font-semibold mb-4">Implementation Tasks</h3>
+        <ul className="list-disc pl-5 space-y-4">
+          {implPlanData.tasks.map((task: any) => (
+            <li key={task.id} className="text-sm">
+              <div className="flex items-center gap-2">
+                <p className={`font-medium ${task.checked ? "line-through text-gray-500" : ""}`}>
+                  {task.name}
+                </p>
+                <span className={`${task.checked ? "bg-green-100 text-green-800" : "bg-amber-100 text-amber-800"} px-2 py-0.5 rounded-full text-xs font-medium ml-2`}>
+                  {task.checked ? "Completed" : "Pending"}
+                </span>
+              </div>
+              <p className="text-xs text-gray-500">
+                {format(new Date(task.startTime), "MMM d, yyyy h:mm a")} –{" "}
+                {format(new Date(task.endTime), "MMM d, yyyy h:mm a")}
+              </p>
+            </li>
+          ))}
+        </ul>
+        
+        {isInProgress && (
+          <div className="mt-4 flex items-center gap-2">
+            <div className="h-2 w-2 rounded-full bg-amber-500"></div>
+            <p className="text-sm text-gray-600">
+              Progress: {implPlanData.tasks.filter((task: any) => task.checked).length} of {implPlanData.tasks.length} tasks completed
+            </p>
+          </div>
+        )}
+      </div>
+    );
   };
 
   const renderRatingSection = () => {
@@ -263,6 +301,16 @@ export default function ServiceRequestStatus({
         <div className="prose max-w-none">
           <p>{details}</p>
         </div>
+
+        {(isInProgress || isCompleted) && renderTaskList()}
+        
+        {isLoading && (isInProgress || isCompleted) && (
+          <div className="space-y-2 mt-6">
+            <Skeleton className="h-6 w-48" />
+            <Skeleton className="h-16 w-full" />
+            <Skeleton className="h-16 w-full" />
+          </div>
+        )}
 
         {renderRatingSection()}
       </CardContent>

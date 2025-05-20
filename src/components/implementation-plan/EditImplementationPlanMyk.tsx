@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Checkbox } from "@/components/ui/checkbox";
@@ -13,11 +13,13 @@ import {
 } from "@/components/ui/dialog";
 import fetchUpdateImplementationPlan from "@/domains/implementation-plan/services/fetchUpdateImplementationPlan";
 import fetchUpdateImplementationPlanStatus from "@/domains/implementation-plan/services/fetchUpdateImplementationPlanStatus";
+import fetchGetPersonnelAssignments from "@/domains/personnel-management/service/fetchPersonnelAssignmentsByImplementationPlanId";
 import { Progress } from "@/components/ui/progress";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
 import { useQuery } from "@tanstack/react-query";
 import fetchGetpersonnel from "@/domains/personnel-management/service/fetchGetPersonnel";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface EditImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -41,10 +43,29 @@ export default function EditImplementationPlan({
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
 
-  const { data: personnel } = useQuery({
+  const { data: personnel, isLoading: isLoadingPersonnel } = useQuery({
     queryKey: ["personnel"],
     queryFn: () => fetchGetpersonnel()
   });
+
+  const { data: personnelAssignments, isLoading: isLoadingAssignments } = useQuery({
+    queryKey: [`personnelAssignments-${plan.id}`, plan.id],
+    queryFn: () => fetchGetPersonnelAssignments(plan.id)
+  });
+
+  console.log(isLoadingAssignments)
+
+  useEffect(() => {
+    if (personnelAssignments && !isLoadingAssignments) {
+      const formattedAssignments = personnelAssignments.map(assignment => ({
+        taskId: assignment.taskId,
+        personnelId: assignment.personnelId,
+        assignedAt: new Date(assignment.assignedAt),
+      }));
+
+      setAssignments(formattedAssignments);
+    }
+  }, [personnelAssignments, isLoadingAssignments]);
 
   const handleAddTask = (task: Task) => {
     setTasks((prev) => [...prev, task]);
@@ -73,43 +94,59 @@ export default function EditImplementationPlan({
 
       await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks);
 
-      const initialAssignmentTaskIds = tasksInitial.map(task => {
-        const assignment = assignments.find(a => a.taskId === task.id);
-        return assignment ? task.id : null;
-      }).filter(id => id !== null);
+      const initialAssignmentMap = new Map();
+      if (personnelAssignments) {
+        personnelAssignments.forEach(assignment => {
+          initialAssignmentMap.set(assignment.taskId, assignment.personnelId);
+        });
+      }
 
-      const newAssignments = assignments.filter(assignment => {
-        const taskIsNew = !initialAssignmentTaskIds.includes(assignment.taskId);
-        return taskIsNew;
+      const modifiedOrNewAssignments = assignments.filter(assignment => {
+        const initialPersonnelId = initialAssignmentMap.get(assignment.taskId);
+        return initialPersonnelId !== assignment.personnelId;
       });
 
-      if (newAssignments.length > 0) {
-        const transformedAssignments = newAssignments.map((assignment) => {
-          const task = tasks.find((t) => t.id === assignment.taskId);
-          if (!task) {
-            throw new Error(
-              `Task with id ${assignment.taskId} not found for assignment`
-            );
-          }
-          return {
-            task: {
-              name: task.name,
-              startTime: task.startTime.toISOString(),
-              endTime: task.endTime.toISOString(),
-            },
-            personnelId: assignment.personnelId,
-            assignedAt: assignment.assignedAt.toISOString(),
-          };
-        });
+      const removedAssignments: { taskId: string; personnelId: string; }[] = [];
+      initialAssignmentMap.forEach((personnelId, taskId) => {
+        const stillExists = assignments.some(a =>
+          a.taskId === taskId && a.personnelId === personnelId
+        );
+        if (!stillExists) {
+          removedAssignments.push({ taskId, personnelId });
+        }
+      });
 
-        await fetch("/api/implementation-plan/assign-personnel", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            implementationPlanId: plan.id,
-            assignments: transformedAssignments,
-          }),
-        });
+      for (const { taskId, personnelId } of removedAssignments) {
+        try {
+          await fetch("/api/implementation-plan/remove-personnel", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              taskId,
+              personnelId
+            }),
+          });
+        } catch (error) {
+          console.error(`Failed to remove personnel from task ${taskId}:`, error);
+        }
+      }
+
+      for (const assignment of modifiedOrNewAssignments) {
+        const task = tasks.find(t => t.id === assignment.taskId);
+        if (!task) continue;
+
+        try {
+          await fetch("/api/implementation-plan/assign-personnel", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              taskId: assignment.taskId,
+              personnelId: assignment.personnelId
+            }),
+          });
+        } catch (error) {
+          console.error(`Failed to assign personnel to task ${assignment.taskId}:`, error);
+        }
       }
 
       const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.checked);
@@ -124,7 +161,7 @@ export default function EditImplementationPlan({
     } finally {
       await onUpdate();
       setIsUpdating(false);
-      setIsDialogOpen(false)
+      setIsDialogOpen(false);
     }
   }
 
@@ -169,17 +206,37 @@ export default function EditImplementationPlan({
         <div className="mt-2">
           <div className="flex flex-row w-full items-center justify-between">
             <p className="font-semibold text-gray-800">Tasks</p>
-            {(userRole == "ADMIN" || userRole == "SUPERVISOR") &&
-              <AddTask
-                onAdd={handleAddTask}
-                personnel={personnel ? personnel : []}
-                assignments={assignments}
-                setAssignments={setAssignments}
-              />
-            }
+            {/* Show loading state for AddTask button */}
+            {isLoadingAssignments || isLoadingPersonnel ? (
+              <Skeleton className="h-9 w-[120px]" />
+            ) : (
+              (userRole === "ADMIN" || userRole === "SUPERVISOR") && (
+                <AddTask
+                  onAdd={handleAddTask}
+                  personnel={personnel ? personnel : []}
+                  assignments={assignments}
+                  setAssignments={setAssignments}
+                />
+              )
+            )}
           </div>
           <Separator className="my-2" />
-          {tasks.length === 0 ? (
+
+          {isLoadingAssignments || isLoadingPersonnel ? (
+            // Loading state for tasks with skeleton components
+            <div className="space-y-3">
+              {[1, 2, 3].map((i) => (
+                <div key={i} className="flex items-center space-x-2 p-2 border border-gray-100 rounded-md">
+                  <Skeleton className="h-4 w-4 rounded-sm" />
+                  <div className="w-full space-y-2">
+                    <Skeleton className="h-5 w-3/4" />
+                    <Skeleton className="h-4 w-2/3" />
+                  </div>
+                  <Skeleton className="h-8 w-8 rounded-full" />
+                </div>
+              ))}
+            </div>
+          ) : tasks.length === 0 ? (
             <div className="flex flex-col items-center justify-center py-8 text-center bg-gray-50 rounded-lg">
               <p className="text-gray-500 mb-2">No tasks added yet</p>
               <p className="text-sm text-gray-400">Create tasks to build your implementation plan</p>
@@ -209,17 +266,24 @@ export default function EditImplementationPlan({
             </div>
           )}
         </div>
-        {(userRole == "ADMIN" || userRole == "SUPERVISOR") &&
+        {/* Improved loading state for action buttons */}
+        {isLoadingAssignments || isLoadingPersonnel ? (
           <div className="flex justify-end gap-2 mt-4">
-            <Button
-              onClick={handleUpdateImplementationPlan}
-              className="bg-yellow-400 hover:bg-yellow-500 text-white"
-              disabled={isUpdating}
-            >
-              {isUpdating ? "Updating..." : "Update Implementation Plan"}
-            </Button>
+            <Skeleton className="h-10 w-[200px]" />
           </div>
-        }
+        ) : (
+          (userRole === "ADMIN" || userRole === "SUPERVISOR") && (
+            <div className="flex justify-end gap-2 mt-4">
+              <Button
+                onClick={handleUpdateImplementationPlan}
+                className="bg-yellow-400 hover:bg-yellow-500 text-white"
+                disabled={isUpdating}
+              >
+                {isUpdating ? "Updating..." : "Update Implementation Plan"}
+              </Button>
+            </div>
+          )
+        )}
       </DialogContent>
     </Dialog>
   );
@@ -248,7 +312,9 @@ function TaskCard({
   onCheckChange,
   userRole
 }: TaskCardProps) {
-  const [hover, setHover] = useState(false);
+  const currentAssignment = assignments.find(a => a.taskId === task.id);
+  console.log(assignments)
+  console.log(currentAssignment)
 
   return (
     <motion.div
@@ -257,8 +323,6 @@ function TaskCard({
       animate={{ opacity: 1, y: 0 }}
       transition={{ duration: 0.3 }}
       className="flex items-center space-x-2"
-      onMouseEnter={() => setHover(true)}
-      onMouseLeave={() => setHover(false)}
     >
       {(hasCheckbox && (userRole == "ADMIN" || userRole == "SUPERVISOR")) && (
         <Checkbox
@@ -276,16 +340,15 @@ function TaskCard({
           {task.endTime.toLocaleString()}
         </div>
       </div>
-      {hover && (
-        <EditTask
-          task={task}
-          onUpdate={onUpdate}
-          onDelete={onDelete}
-          personnel={personnel}
-          assignments={assignments}
-          setAssignments={setAssignments}
-        />
-      )}
+      <EditTask
+        task={task}
+        onUpdate={onUpdate}
+        onDelete={onDelete}
+        personnel={personnel}
+        assignments={assignments}
+        setAssignments={setAssignments}
+        currentAssignment={currentAssignment}
+      />
     </motion.div>
   );
 }
