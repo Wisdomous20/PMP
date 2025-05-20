@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import { useState, useEffect } from "react";
 import LeftTab from "@/components/layouts/LeftTab";
 import ServiceRequestList from "@/components/service-request/ServiceRequestList";
 import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
@@ -16,7 +16,8 @@ import { useSession } from "next-auth/react";
 export default function Page() {
   const [selectedIndex, setSelectedIndex] = useState(0);
   const { data: session } = useSession();
-  const [search, setSearch] = useState('');
+  const [search, setSearch] = useState("");
+  const [isLoading, setIsLoading] = useState(true)
 
   const { data: userRole, isLoading: roleLoading } = useQuery({
     queryKey: ["userRole", session?.user.id],
@@ -24,55 +25,78 @@ export default function Page() {
     enabled: !!session?.user.id,
   });
 
-  const { data: serviceRequests, isLoading: srLoading } = useQuery({
+  const {
+    data: serviceRequests,
+    isLoading: srLoading,
+  } = useQuery({
     queryKey: ["ServiceRequests", session?.user.id],
     queryFn: () => fetchGetServiceRequest(session?.user.id as string),
     enabled: !!session?.user.id,
   });
 
-  const sortedRequests = serviceRequests ? [...serviceRequests].sort((a, b) => {
-    const dateA = a.createdOn ? new Date(a.createdOn) : null;
-    const dateB = b.createdOn ? new Date(b.createdOn) : null;
-    if (dateA === null && dateB === null) return 0;
-    if (dateA === null) return 1;
-    if (dateB === null) return -1;
-    return dateB.getTime() - dateA.getTime();
-  }) : []
+  useEffect(() => {
+    setIsLoading(roleLoading || srLoading && !(userRole || serviceRequests))
+  }, [roleLoading, srLoading])
 
-  const filteredBySearch = sortedRequests.filter(request =>
-    request.concern.toLowerCase().includes(search.toLowerCase()) ||
-    request.requesterName.toLowerCase().includes(search.toLowerCase())
-  );
+  console.log(isLoading)
+  const isUser = userRole === "USER";
 
-  const filteredRequests: ServiceRequest[] = filteredBySearch.filter(
-    (request: ServiceRequest) => !request.status.some((status) => status.status === "archived")
-  )
-
-  if (srLoading || roleLoading) {
+  if (isLoading) {
     return (
-      <div className="w-full min-h-screen h-full flex">
-
-        {userRole !== "USER" && <LeftTab />}
-        <div className={userRole !== "USER" ? "flex-1 flex flex-col p-4 gap-4" : "w-full h-full p-4"}>
-
-          <Skeleton className="h-12 mb-2 rounded-md" />
-          <Skeleton className="flex-1 rounded-md" />
-
-
-          <Skeleton className="flex-1 rounded-md" />
+      <div className="w-full min-h-screen flex bg-gradient-to-b from-yellow-50 to-blue-50">
+        <div className="flex-1 p-6 max-w-3xl mx-auto">
+          {/* Header */}
+          <div className="flex justify-between items-center mb-6">
+            <Skeleton className="h-6 w-1/3 rounded-md" />
+            <Skeleton className="h-8 w-1/5 rounded-full" />
+          </div>
+          {/* Search & Tabs */}
+          <div className="space-y-4 mb-6">
+            <Skeleton className="h-10 w-full rounded-md" />
+            <Skeleton className="h-8 w-1/2 rounded-full" />
+          </div>
+          {/* List items */}
+          <Skeleton className="space-y-4 p-8">
+            {[...Array(4)].map((_, i) => (
+              <div key={i} className="space-y-2">
+                <Skeleton className="h-4 w-3/4 rounded-md" />
+                <Skeleton className="h-12 w-full rounded-md" />
+              </div>
+            ))}
+          </Skeleton>
         </div>
       </div>
     );
   }
 
+  const sortedRequests = serviceRequests
+    ? [...serviceRequests].sort((a, b) => {
+      const dateA = a.createdOn ? new Date(a.createdOn) : null;
+      const dateB = b.createdOn ? new Date(b.createdOn) : null;
+      if (dateA === null && dateB === null) return 0;
+      if (dateA === null) return 1;
+      if (dateB === null) return -1;
+      return dateB.getTime() - dateA.getTime();
+    })
+    : [];
 
-  const isAdmin = userRole !== "USER";
+  const filteredBySearch = sortedRequests.filter((request) =>
+    request.concern.toLowerCase().includes(search.toLowerCase()) ||
+    request.requesterName.toLowerCase().includes(search.toLowerCase())
+  );
+
+  const filteredRequests: ServiceRequest[] = filteredBySearch.filter(
+    (request: ServiceRequest) =>
+      !request.status.some((status) => status.status === "archived")
+  );
 
   return (
-    <div className="w-full min-h-screen h-full flex bg-gradient-to-b from-yellow-50 to-blue-50">
-      {isAdmin && <LeftTab />}
-      <div className={isAdmin ? "flex-1 flex" : "w-full h-full"}>
-        {isAdmin ? (
+    <div className="w-full min-h-screen flex bg-gradient-to-b from-yellow-50 to-blue-50">
+      {!isUser && <LeftTab />}
+      <div className={isUser ? "w-full" : "flex-1 flex"}>
+        {isUser ? (
+          <UserServiceRequestList serviceRequests={sortedRequests} loading={srLoading} />
+        ) : (
           <>
             <ServiceRequestList
               serviceRequests={filteredRequests}
@@ -82,22 +106,15 @@ export default function Page() {
               setSearch={setSearch}
             />
             <div className="flex-1">
-              {(!serviceRequests || serviceRequests.length === 0) ? (
+              {filteredRequests.length === 0 ? (
                 <Card className="w-full h-full flex items-center justify-center">
                   <span className="text-gray-400">No requests found</span>
                 </Card>
               ) : (
-                <ServiceRequestDetails
-                  serviceRequest={serviceRequests ? filteredRequests[selectedIndex] : undefined}
-                />
+                <ServiceRequestDetails serviceRequest={filteredRequests[selectedIndex]} />
               )}
             </div>
           </>
-        ) : (
-          <UserServiceRequestList
-            serviceRequests={sortedRequests}
-            loading={srLoading}
-          />
         )}
       </div>
     </div>

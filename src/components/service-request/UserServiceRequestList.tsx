@@ -50,6 +50,8 @@ export default function UserServiceRequestList({
   const [dialogOpen, setDialogOpen] = useState(false)
   const [mounted, setMounted] = useState(false)
 
+  console.log(serviceRequests)
+
   useEffect(() => {
     setMounted(true)
   }, [])
