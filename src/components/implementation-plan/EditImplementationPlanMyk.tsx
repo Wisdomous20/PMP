@@ -106,7 +106,7 @@ export default function EditImplementationPlan({
         return initialPersonnelId !== assignment.personnelId;
       });
 
-      const removedAssignments: { taskId: any; personnelId: any; }[] = [];
+      const removedAssignments: { taskId: string; personnelId: string; }[] = [];
       initialAssignmentMap.forEach((personnelId, taskId) => {
         const stillExists = assignments.some(a =>
           a.taskId === taskId && a.personnelId === personnelId

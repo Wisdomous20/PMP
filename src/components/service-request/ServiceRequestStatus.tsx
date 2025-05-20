@@ -1,3 +1,5 @@
+/* eslint-disable @typescript-eslint/no-explicit-any */
+
 import { useState, useEffect, useRef } from "react";
 import { useSession } from "next-auth/react";
 import { Separator } from "@/components/ui/separator";
@@ -15,6 +17,7 @@ interface ServiceRequestStatusProps {
 
 function getStatusInfo(
   status: Status[],
+
   implementationPlan: any = null
 ): { message: string; progress: number[] } {
   const lastStatus = status[status.length - 1]?.status;
@@ -60,8 +63,6 @@ export default function ServiceRequestStatus({
   const { concern, details, createdOn, status, id } = serviceRequest;
   const { data: session } = useSession();
   const userId = session?.user?.id;
-
-  const [implementationPlanStatus, setImplementationPlanStatus] = useState<string>("");
   const [implPlanData, setImplPlanData] = useState<any>(null);
   const [existingRating, setExistingRating] = useState<any>(null);
   const [isRatingSubmitted, setIsRatingSubmitted] = useState(false);
@@ -81,7 +82,6 @@ export default function ServiceRequestStatus({
             `/api/implementation-plan/${id}?userId=${userId}`
           );
           const data = await implPlanResponse.json();
-          setImplementationPlanStatus(data.status);
           setImplPlanData(data);
         }
 

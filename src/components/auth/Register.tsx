@@ -10,7 +10,6 @@ import validator from "validator";
 import { fetchVerificationToken } from "@/domains/user-management/services/fetchVerificationToken";
 import { fetchSendUserVerificationEmail } from "@/domains/notification/services/fetchSendUserVerificationEmail";
 import DEPARTMENTS from "@/lib/departments";
-import { Label } from "../ui/label";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
 
 const MAX_LENGTH = {
