@@ -49,6 +49,7 @@ export default function CreateImplementationPlan({
 
   const removeTask = (id: string) => {
     setTasks(tasks.filter((t) => t.id !== id));
+    setAssignments(assignments.filter((a) => a.taskId !== id)); // Also remove associated assignments
   };
 
   async function handleCreateImplementationPlan() {
@@ -67,34 +68,25 @@ export default function CreateImplementationPlan({
         formattedTasks
       );
       const planId = planResponse.id;
+      const backendTasks = planResponse.tasks;
 
-      const transformedAssignments = assignments.map((assignment) => {
-        const task = tasks.find((t) => t.id === assignment.taskId);
-        if (!task) {
-          throw new Error(
-            `Task with id ${assignment.taskId} not found for assignment`
-          );
+      for (const assignment of assignments) {
+        const backendTask = backendTasks.find(
+          (bt) => bt.name === tasks.find((t) => t.id === assignment.taskId)?.name
+        );
+
+        if (backendTask) {
+          await fetch("/api/implementation-plan/assign-personnel", {
+            method: "POST",
+            headers: { "Content-Type": "application/json" },
+            body: JSON.stringify({
+              taskId: backendTask.id,
+              personnelId: assignment.personnelId,
+            }),
+          });
+        } else {
+          console.warn(`Could not find backend task for assignment with client-side ID: ${assignment.taskId}`);
         }
-        return {
-          task: {
-            name: task.name,
-            startTime: task.startTime.toISOString(),
-            endTime: task.endTime.toISOString(),
-          },
-          personnelId: assignment.personnelId,
-          assignedAt: assignment.assignedAt.toISOString(),
-        };
-      });
-
-      if (transformedAssignments.length > 0) {
-        await fetch("/api/implementation-plan/assign-personnel", {
-          method: "POST",
-          headers: { "Content-Type": "application/json" },
-          body: JSON.stringify({
-            implementationPlanId: planId,
-            assignments: transformedAssignments,
-          }),
-        });
       }
 
       await fetchInProgressStatus(
@@ -193,6 +185,7 @@ interface TaskCardProps {
 
 function TaskCard({ task, onUpdate, onDelete, personnel, assignments, setAssignments }: TaskCardProps) {
   const [hover, setHover] = useState(false);
+  const currentAssignment = assignments.find(a => a.taskId === task.id);
 
   return (
     <motion.div
@@ -213,7 +206,7 @@ function TaskCard({ task, onUpdate, onDelete, personnel, assignments, setAssignm
           {task.endTime.toLocaleString()}
         </div>
       </div>
-      {hover &&
+      {(hover) && (
         <EditTask
           task={task}
           onUpdate={onUpdate}
@@ -221,8 +214,9 @@ function TaskCard({ task, onUpdate, onDelete, personnel, assignments, setAssignm
           personnel={personnel}
           assignments={assignments}
           setAssignments={setAssignments}
+          currentAssignment={currentAssignment}
         />
-      }
+      )}
     </motion.div>
   )
 }
