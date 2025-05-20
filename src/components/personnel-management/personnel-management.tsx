@@ -1,7 +1,8 @@
 "use client";
+import React from "react";
 import { useEffect, useState } from "react";
-import { Button } from "../ui/button";
-import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Plus, Pencil, Trash2 } from "lucide-react";
 import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
 import PersonnelCalendar from "./PersonnelCalendar";
@@ -12,6 +13,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+import { Input } from "@/components/ui/input";
+
+interface Personnel {
+  id: string;
+  name: string;
+  position: string;
+  department: string;
+  tasks: CalendarTask[];
+}
 
 export default function PersonnelManagement() {
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
@@ -93,18 +111,18 @@ export default function PersonnelManagement() {
   };
 
   return (
-    <div className="p-4 flex flex-col w-screen">
-      <div className="w-full max-w-10xl">
+    <div className="p-4 flex flex-col w-full">
+      <div className="w-full max-w-7xl mx-auto">
         <h1 className="text-md sm:text-2xl font-semibold text-indigo-text py-3">
           Personnel Management
         </h1>
 
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4 w-2/3">
-            <input
+        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+            <Input
               type="text"
               placeholder="Search"
-              className="border border-gray-300 rounded-md hidden sm:block w-1/2 px-4 py-2"
+              className="w-full sm:w-[280px]"
               value={searchTerm}
               onChange={handleSearchChange}
             />
@@ -113,7 +131,7 @@ export default function PersonnelManagement() {
               value={selectedDepartment}
               onValueChange={handleDepartmentChange}
             >
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-full sm:w-[180px]">
                 <SelectValue placeholder="Filter by department" />
               </SelectTrigger>
               <SelectContent>
@@ -128,56 +146,94 @@ export default function PersonnelManagement() {
             </Select>
           </div>
 
-          <div className="flex justify-end space-x-2">
-            <Button
-              variant={"gold"}
-              onClick={() => setIsDialogOpen(true)}
-              className="bg-indigo-Background text-primary-foreground px-4 py-2 rounded-md"
-            >
-              <Plus className="inline-block mr-2 w-4 h-4" /> Add Personnel
-            </Button>
+          <Button
+            variant={"default"}
+            onClick={() => setIsDialogOpen(true)}
+            className="bg-indigo-Background text-primary-foreground w-full sm:w-auto"
+          >
+            <Plus className="mr-2 h-4 w-4" /> Add Personnel
+          </Button>
+        </div>
+
+        <AddPersonnel
+          onAdd={fetchPersonnel}
+          isOpen={isDialogOpen}
+          onOpenChange={setIsDialogOpen}
+        />
+
+        <UpdatePersonnel
+          onUpdate={fetchPersonnel}
+          isOpen={isUpdateDialogOpen}
+          onOpenChange={setIsUpdateDialogOpen}
+          currentPersonnel={currentPersonnel}
+        />
+
+        <div className="rounded-md border shadow-sm overflow-hidden">
+          <div className="overflow-y-auto max-h-[500px]">
+            <Table>
+              <TableHeader>
+                <TableRow>
+                  <TableHead className="text-center">Name</TableHead>
+                  <TableHead className="text-center">Position</TableHead>
+                  <TableHead className="text-center">Department</TableHead>
+                  <TableHead className="w-[100px]">Actions</TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {filteredPersonnel.length > 0 ? (
+                  filteredPersonnel.map((person) => (
+                    <TableRow key={person.id} className="bg-muted/50">
+                      <TableCell className="text-center">
+                        {person.name}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {person.position}
+                      </TableCell>
+                      <TableCell className="text-center">
+                        {person.department}
+                      </TableCell>
+                      <TableCell className="text-right">
+                        <div className="flex justify-end gap-2">
+                          <PersonnelCalendar
+                            person={person}
+                            buttonOnly={true}
+                          />
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => openUpdateDialog(person)}
+                            title="Edit"
+                          >
+                            <Pencil className="h-4 w-4" />
+                          </Button>
+                          <Button
+                            variant="ghost"
+                            size="icon"
+                            onClick={() => handleSingleDelete(person.id)}
+                            title="Delete"
+                            className="text-destructive"
+                          >
+                            <Trash2 className="h-4 w-4" />
+                          </Button>
+                        </div>
+                      </TableCell>
+                    </TableRow>
+                  ))
+                ) : (
+                  <TableRow>
+                    <TableCell
+                      colSpan={4}
+                      className="text-center py-8 text-gray-500"
+                    >
+                      {searchTerm
+                        ? "No personnel found matching your search"
+                        : "No personnel available"}
+                    </TableCell>
+                  </TableRow>
+                )}
+              </TableBody>
+            </Table>
           </div>
-        </div>
-      </div>
-
-      <AddPersonnel
-        onAdd={fetchPersonnel}
-        isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
-      />
-
-      <UpdatePersonnel
-        onUpdate={fetchPersonnel}
-        isOpen={isUpdateDialogOpen}
-        onOpenChange={setIsUpdateDialogOpen}
-        currentPersonnel={currentPersonnel}
-      />
-
-      <div className="rounded-md shadow-md overflow-y-auto h-[500px] mx-auto w-full max-w-7xl mt-6 border p-4">
-        <div className="bg-transparent grid grid-cols-[1fr_1fr_1fr_30px] items-center gap-4 px-4 py-2 font-semibold">
-          <div className="text-center">Name</div>
-          <div className="text-center">Position</div>
-          <div className="text-center">Department</div>
-          <div className="text-center"></div>
-        </div>
-
-        <div className="mt-4">
-          {filteredPersonnel.length > 0 ? (
-            filteredPersonnel.map((person) => (
-              <PersonnelCalendar
-                key={person.id}
-                person={person}
-                openUpdateDialog={openUpdateDialog}
-                onDelete={handleSingleDelete}
-              />
-            ))
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              {searchTerm
-                ? "No personnel found matching your search"
-                : "No personnel available"}
-            </div>
-          )}
         </div>
       </div>
     </div>
