@@ -75,30 +75,31 @@ export default function AddEquipment({
     setFormData(prev => ({ ...prev, totalCost: Number(total.toFixed(2)) }));
   }, [formData.quantity, formData.unitCost]);
 
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-    [
-      "description",
-      "brand",
-      "serialNumber",
-      "supplier",
-      "location",
-      "department",
-    ].forEach(key => {
-      const val = formData[key as keyof EquipmentFormData] as string;
-      if (!val.trim()) newErrors[key as keyof EquipmentFormData] = "This field is required.";
-    });
-    if (formData.quantity <= 0) newErrors.quantity = "Quantity must be greater than 0";
-    if (formData.unitCost < 0) newErrors.unitCost = "Unit cost cannot be negative";
-    const today = new Date();
-    const purchase = new Date(formData.datePurchased);
-    const receive = new Date(formData.dateReceived);
-    if (purchase > today) newErrors.datePurchased = "Purchase date cannot be in the future";
-    if (receive > today) newErrors.dateReceived = "Receive date cannot be in the future";
-    if (receive < purchase) newErrors.dateReceived = "Receive date cannot be before purchase date";
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
+const validateForm = (): boolean => {
+  const newErrors: FormErrors = {};
+  [
+    "description",
+    "brand",
+    "serialNumber",
+    "supplier",
+    "location",
+    "department",
+  ].forEach(key => {
+    const val = formData[key as keyof EquipmentFormData] as string;
+    if (!val.trim()) newErrors[key as keyof EquipmentFormData] = "This field is required.";
+  });
+  if (formData.quantity <= 0) newErrors.quantity = "Quantity must be greater than 0";
+  if (formData.unitCost < 0) newErrors.unitCost = "Unit cost cannot be negative";
+  if (formData.unitCost === 0) newErrors.unitCost = "Unit cost cannot be zero";
+  const today = new Date();
+  const purchase = new Date(formData.datePurchased);
+  const receive = new Date(formData.dateReceived);
+  if (purchase > today) newErrors.datePurchased = "Purchase date cannot be in the future";
+  if (receive > today) newErrors.dateReceived = "Receive date cannot be in the future";
+  if (receive < purchase) newErrors.dateReceived = "Receive date cannot be before purchase date";
+  setErrors(newErrors);
+  return Object.keys(newErrors).length === 0;
+};
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement>,

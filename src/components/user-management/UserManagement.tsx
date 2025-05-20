@@ -1,20 +1,11 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Search, X, Trash2 } from "lucide-react";
+import { Search, X} from "lucide-react";
 import { User } from "@prisma/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import fetchGetAllUsers from "@/domains/user-management/services/fetchGetAllUsers";
 import UserDetails from "@/components/user-management/UserDetails";
-import fetchDeleteUser from "@/domains/user-management/services/fetchDeleteUser";
-import {
-  Dialog,
-  DialogTrigger,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogDescription,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
+
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -22,25 +13,25 @@ export default function UserManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  const [deleteDialogUser, setDeleteDialogUser] = useState<User | null>(null);
+  // const [deleteDialogUser, setDeleteDialogUser] = useState<User | null>(null);
 
   const handleUserClick = (user: User) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
 
-  const handleDeleteUser = async (user: User) => {
-    try {
-      await fetchDeleteUser(user.id);
-      setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
-      setSelectedUser(null);
-      setIsModalOpen(false);
-    } catch (error) {
-      console.error("Error deleting user:", error);
-    } finally {
-      setDeleteDialogUser(null);
-    }
-  };
+  // const handleDeleteUser = async (user: User) => {
+  //   try {
+  //     await fetchDeleteUser(user.id);
+  //     setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
+  //     setSelectedUser(null);
+  //     setIsModalOpen(false);
+  //   } catch (error) {
+  //     console.error("Error deleting user:", error);
+  //   } finally {
+  //     setDeleteDialogUser(null);
+  //   }
+  // };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -116,7 +107,7 @@ export default function UserManagement() {
             <div className="col-span-4">Full Name</div>
             <div className="col-span-5">Email</div>
             <div className="col-span-3">User Type</div>
-            <div className="col-span-6"></div>
+            {/* <div className="col-span-6"></div> */}
 
           </div>
         </div>
@@ -139,10 +130,12 @@ export default function UserManagement() {
               >
                 {user.email}
               </div>
-              <div className="col-span-3 flex items-center text-gray-600">
+              <div className="col-span-3 flex items-center text-gray-600"
+            onClick={() => handleUserClick(user)}
+            >
                 {user.user_type}
               </div>
-              <div className="col-span-1 flex items-center justify-center">
+              {/* <div className="col-span-1 flex items-center justify-center">
                 <Dialog open={deleteDialogUser?.id === user.id} onOpenChange={open => setDeleteDialogUser(open ? user : null)}>
                   <DialogTrigger asChild>
                     <button
@@ -176,7 +169,7 @@ export default function UserManagement() {
                     </div>
                   </DialogContent>
                 </Dialog>
-              </div>
+              </div> */}
             </div>
           ))}
         </div>
