@@ -6,7 +6,6 @@ import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
 import fetchGetImplementationPlanByServiceRequestId from "@/domains/implementation-plan/services/fetchGetImplementationPlanByServiceRequestId";
 
-
 interface ServiceRequestDetailsModalProps {
   request: any;
   onClose: () => void;
@@ -28,7 +27,9 @@ export default function ArchiveDetailsModal({
       setError(null);
 
       try {
-        const data = await fetchGetImplementationPlanByServiceRequestId(request.id);
+        const data = await fetchGetImplementationPlanByServiceRequestId(
+          request.id
+        );
         setImplementationPlan(data);
       } catch (err) {
         console.error("Error fetching implementation plan:", err);
@@ -52,8 +53,6 @@ export default function ArchiveDetailsModal({
   }
 
   const tasks = implementationPlan?.tasks || [];
-
-
 
   console.log("FULL REQUEST DATA:", JSON.stringify(request, null, 2));
   console.log("TASK DATA:", request.Task);
@@ -170,6 +169,26 @@ export default function ArchiveDetailsModal({
             </div>
           </div>
         )}
+        {request.ServiceRequestRating?.questions &&
+          request.ServiceRequestRating.questions.some((q: any) => q.answer) && (
+            <div className="mb-4">
+              <p className="text-sm text-gray-500 mb-1">
+                Rating Questions & Answers
+              </p>
+              <div className="p-3 bg-gray-50 rounded-md space-y-2">
+                {request.ServiceRequestRating.questions
+                  .filter((q: any) => q.answer)
+                  .map((q: any, idx: number) => (
+                    <div key={idx} className="mb-2">
+                      <div className="font-medium text-gray-700">
+                        {q.question}
+                      </div>
+                      <div className="text-gray-800 ml-2">{q.answer}</div>
+                    </div>
+                  ))}
+              </div>
+            </div>
+          )}
 
         {request.ServiceRequestRating?.description && (
           <div className="mb-2">
@@ -178,7 +197,7 @@ export default function ArchiveDetailsModal({
               <span>{request.ServiceRequestRating.description}</span>
             </div>
           </div>
-        )}  
+        )}
       </Card>
     </div>
   );

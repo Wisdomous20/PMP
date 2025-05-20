@@ -36,7 +36,8 @@ export default async function getArchivedServiceRequests() {
       ServiceRequestRating: {
         select: {
           ratings: true,
-          description: true
+          description: true,
+          questions: true
         }
       }
     },
