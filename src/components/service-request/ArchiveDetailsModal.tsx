@@ -121,7 +121,7 @@ export default function ArchiveDetailsModal({
                     {format(new Date(task.startTime), "MMM d, yyyy h:mm a")} –{" "}
                     {format(new Date(task.endTime), "MMM d, yyyy h:mm a")}
                   </p>
-                  <div className="text-xs text-gray-600 mt-1">
+                  {/* <div className="text-xs text-gray-600 mt-1">
                     <span className="font-semibold">Assigned Personnel:</span>{" "}
                     {task.personnel && task.personnel.length > 0 ? (
                       task.personnel.map((person: any, index: number) => (
@@ -135,7 +135,7 @@ export default function ArchiveDetailsModal({
                         No personnel assigned
                       </span>
                     )}
-                  </div>
+                  </div> */}
                 </li>
               ))}
             </ul>
