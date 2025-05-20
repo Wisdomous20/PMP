@@ -1,11 +1,19 @@
 "use client";
+
 import { useEffect, useState } from "react";
-import { Search, X} from "lucide-react";
-import { User } from "@prisma/client";
+import { Search, X } from "lucide-react";
+import type { User } from "@prisma/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import fetchGetAllUsers from "@/domains/user-management/services/fetchGetAllUsers";
 import UserDetails from "@/components/user-management/UserDetails";
-
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -61,17 +69,39 @@ export default function UserManagement() {
           <Skeleton className="h-10 w-6 rounded" />
           <Skeleton className="h-10 w-80 rounded" />
         </div>
-        <Skeleton className="h-10 w-32 mb-2" />
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md mb-2"
-          >
-            <Skeleton className="col-span-4 h-4" />
-            <Skeleton className="col-span-5 h-4" />
-            <Skeleton className="col-span-3 h-4" />
-          </div>
-        ))}
+
+        <div className="w-full">
+          <Table>
+            <TableHeader>
+              <TableRow className="bg-gray-100">
+                <TableHead className="w-[33%]">
+                  <Skeleton className="h-4 w-full" />
+                </TableHead>
+                <TableHead className="w-[42%]">
+                  <Skeleton className="h-4 w-full" />
+                </TableHead>
+                <TableHead className="w-[25%]">
+                  <Skeleton className="h-4 w-full" />
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {[...Array(6)].map((_, i) => (
+                <TableRow key={i}>
+                  <TableCell>
+                    <Skeleton className="h-4 w-full" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-full" />
+                  </TableCell>
+                  <TableCell>
+                    <Skeleton className="h-4 w-full" />
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
       </div>
     );
   }
@@ -102,77 +132,36 @@ export default function UserManagement() {
       </div>
 
       <div className="overflow-y-auto flex-1 pr-2">
-        <div className="sticky top-0 z-10 bg-yellow-300 rounded-t-md shadow-md mb-1">
-          <div className="grid grid-cols-12 gap-4 px-6 py-5 text-base font-bold">
-            <div className="col-span-4">Full Name</div>
-            <div className="col-span-5">Email</div>
-            <div className="col-span-3">User Type</div>
-            {/* <div className="col-span-6"></div> */}
-
-          </div>
-        </div>
-
-        <div className="space-y-2 mt-2">
-          {filteredUsers.map((user) => (
-            <div
-              key={user.id}
-              className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md hover:bg-gray-300 transition-colors cursor-pointer group"
-            >
-              <div
-                className="col-span-4 flex items-center"
+        <Table>
+          <TableHeader>
+            <TableRow className="bg-yellow-300 rounded-t-md shadow-md hover:bg-yellow-300">
+              <TableHead className="w-[33%] py-5 text-base font-bold">
+                Full Name
+              </TableHead>
+              <TableHead className="w-[42%] py-5 text-base font-bold">
+                Email
+              </TableHead>
+              <TableHead className="w-[25%] py-5 text-base font-bold">
+                User Type
+              </TableHead>
+            </TableRow>
+          </TableHeader>
+          <TableBody>
+            {filteredUsers.map((user) => (
+              <TableRow
+                key={user.id}
+                className="bg-gray-100 hover:bg-gray-300 transition-colors cursor-pointer group"
                 onClick={() => handleUserClick(user)}
               >
-                {`${user.firstName} ${user.lastName}`}
-              </div>
-              <div
-                className="col-span-5 flex items-center"
-                onClick={() => handleUserClick(user)}
-              >
-                {user.email}
-              </div>
-              <div className="col-span-3 flex items-center text-gray-600"
-            onClick={() => handleUserClick(user)}
-            >
-                {user.user_type}
-              </div>
-              {/* <div className="col-span-1 flex items-center justify-center">
-                <Dialog open={deleteDialogUser?.id === user.id} onOpenChange={open => setDeleteDialogUser(open ? user : null)}>
-                  <DialogTrigger asChild>
-                    <button
-                      onClick={e => {
-                        e.stopPropagation();
-                        setDeleteDialogUser(user);
-                      }}
-                      className="p-1 text-red-500 hover:text-red-700"
-                      title="Delete user"
-                    >
-                      <Trash2 size={18} />
-                    </button>
-                  </DialogTrigger>
-                  <DialogContent>
-                    <DialogHeader>
-                      <DialogTitle>Delete User</DialogTitle>
-                      <DialogDescription>
-                        Are you sure you want to delete <b>{user.firstName} {user.lastName}</b>? This action cannot be undone.
-                      </DialogDescription>
-                    </DialogHeader>
-                    <div className="flex justify-end gap-2 mt-4">
-                      <Button variant="outline" onClick={() => setDeleteDialogUser(null)}>
-                        Cancel
-                      </Button>
-                      <Button
-                        variant="destructive"
-                        onClick={() => handleDeleteUser(user)}
-                      >
-                        Delete
-                      </Button>
-                    </div>
-                  </DialogContent>
-                </Dialog>
-              </div> */}
-            </div>
-          ))}
-        </div>
+                <TableCell className="py-3">{`${user.firstName} ${user.lastName}`}</TableCell>
+                <TableCell className="py-3">{user.email}</TableCell>
+                <TableCell className="py-3 text-gray-600">
+                  {user.user_type}
+                </TableCell>
+              </TableRow>
+            ))}
+          </TableBody>
+        </Table>
       </div>
 
       <UserDetails
