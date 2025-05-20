@@ -7,7 +7,15 @@ export default async function getImplementationPlanByServiceRequestId(
     const impl = await prisma.implementationPlan.findFirst({
       where: { serviceRequestId },
       include: {
-        tasks: true,
+        tasks: {
+          include: {
+            assignments: {
+              include: {
+                personnel: true,
+              },
+            },
+          },
+        },
         serviceRequest: {
           include: {
             user: true,
@@ -48,6 +56,9 @@ export default async function getImplementationPlanByServiceRequestId(
         startTime: t.startTime,
         endTime: t.endTime,
         checked: t.checked,
+        personnel: t.assignments
+          ? t.assignments.map((a) => a.personnel)
+          : [],
       })),
     };
   } catch (error) {
