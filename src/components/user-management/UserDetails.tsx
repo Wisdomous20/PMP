@@ -19,8 +19,7 @@ interface UserDetailsModalProps {
   onClose: () => void;
 }
 
-const MAX_PENDING_LIMIT = 50
-
+const MAX_PENDING_LIMIT = 50;
 const roles: LimitedUserRole[] = ["USER", "SUPERVISOR", "SECRETARY"];
 
 export default function UserDetailsModal({ user, open, onClose }: UserDetailsModalProps) {
@@ -28,18 +27,38 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
     (user?.user_type || "USER") as LimitedUserRole
   );
   const [pendingLimit, setPendingLimit] = useState<number>(5);
+  const [error, setError] = useState<string>("");
   const [working, setWorking] = useState(false);
 
   useEffect(() => {
     if (user) {
       setSelectedRole(user.user_type as LimitedUserRole);
-      setPendingLimit(user.pendingLimit ?? 5);
+      const initial = user.pendingLimit ?? 5;
+      setPendingLimit(initial);
+      setError(
+        initial > MAX_PENDING_LIMIT
+          ? `Maximum pending limit is ${MAX_PENDING_LIMIT}`
+          : ""
+      );
     }
   }, [user]);
 
   if (!user) return null;
 
+  const handlePendingChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const value = parseInt(e.target.value, 10);
+    setPendingLimit(value);
+    if (isNaN(value) || value < 1) {
+      setError("Pending limit must be at least 1");
+    } else if (value > MAX_PENDING_LIMIT) {
+      setError(`Maximum pending limit is ${MAX_PENDING_LIMIT}`);
+    } else {
+      setError("");
+    }
+  };
+
   const handleSave = async () => {
+    if (error) return;
     setWorking(true);
     try {
       await fetchUpdateUser(user.id, selectedRole, pendingLimit);
@@ -78,16 +97,21 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
               ))}
             </select>
           </div>
-          <div className="flex justify-between items-center">
-            <span className="font-medium">Pending Limit:</span>
-            <input
-              type="number"
-              min={1}
-              max={MAX_PENDING_LIMIT}
-              value={pendingLimit}
-              onChange={(e) => setPendingLimit(parseInt(e.target.value, 10))}
-              className="border border-gray-300 rounded-md px-3 py-1 w-20 focus:outline-none"
-            />
+          <div className="flex flex-col">
+            <div className="flex justify-between items-center">
+              <span className="font-medium">Pending Limit:</span>
+              <input
+                type="number"
+                min={1}
+                max={MAX_PENDING_LIMIT}
+                value={pendingLimit}
+                onChange={handlePendingChange}
+                className={`border rounded-md px-3 py-1 w-20 focus:outline-none ${error ? 'border-red-500' : 'border-gray-300'}`}
+              />
+            </div>
+            {error && (
+              <span className="text-red-500 text-sm mt-1">{error}</span>
+            )}
           </div>
           <div className="flex justify-between">
             <span className="font-medium">Department:</span>
@@ -106,7 +130,7 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
           <Button onClick={onClose} disabled={working} variant="secondary">
             Cancel
           </Button>
-          <Button onClick={handleSave} disabled={working} variant="default">
+          <Button onClick={handleSave} disabled={working || !!error} variant="default">
             {working ? "Saving..." : "Save"}
           </Button>
         </DialogFooter>
