@@ -2,7 +2,14 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2, Filter } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Filter,
+  ChevronLeft,
+  ChevronRight,
+} from "lucide-react";
 import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
 import PersonnelCalendar from "./PersonnelCalendar";
@@ -42,6 +49,8 @@ export default function PersonnelManagement() {
   );
   const [departments, setDepartments] = useState<string[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchPersonnel();
@@ -66,6 +75,7 @@ export default function PersonnelManagement() {
     }
 
     setFilteredPersonnel(filtered);
+    setCurrentPage(1); // Reset to first page when filters change
   }, [searchTerm, personnel, selectedDepartment]);
 
   const fetchPersonnel = async () => {
@@ -108,6 +118,23 @@ export default function PersonnelManagement() {
 
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
+  };
+
+  const totalPages = Math.ceil(filteredPersonnel.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const displayedPersonnel = filteredPersonnel.slice(startIndex, endIndex);
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
   };
 
   return (
@@ -170,7 +197,7 @@ export default function PersonnelManagement() {
         />
 
         <div className="rounded-md border shadow-sm overflow-hidden">
-          <div className="overflow-y-auto max-h-[500px]">
+          <div className="overflow-y-visible">
             <Table>
               <TableHeader>
                 <TableRow>
@@ -181,8 +208,8 @@ export default function PersonnelManagement() {
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPersonnel.length > 0 ? (
-                  filteredPersonnel.map((person) => (
+                {displayedPersonnel.length > 0 ? (
+                  displayedPersonnel.map((person) => (
                     <TableRow key={person.id} className="bg-muted/50">
                       <TableCell className="text-center">
                         {person.name}
@@ -226,7 +253,7 @@ export default function PersonnelManagement() {
                       colSpan={4}
                       className="text-center py-8 text-gray-500"
                     >
-                      {searchTerm
+                      {searchTerm || selectedDepartment !== "all"
                         ? "No personnel found matching your search"
                         : "No personnel available"}
                     </TableCell>
@@ -236,6 +263,35 @@ export default function PersonnelManagement() {
             </Table>
           </div>
         </div>
+
+        {filteredPersonnel.length > 0 && (
+          <div className="flex items-center justify-between mt-4 py-2">
+            <div className="text-sm text-gray-600"></div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="text-sm">
+                Page {currentPage} of {totalPages || 1}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToNextPage}
+                disabled={currentPage >= totalPages}
+                aria-label="Next page"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
