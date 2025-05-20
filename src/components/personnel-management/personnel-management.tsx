@@ -9,6 +9,7 @@ import {
   Filter,
   ChevronLeft,
   ChevronRight,
+  Search,
 } from "lucide-react";
 import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
@@ -75,7 +76,7 @@ export default function PersonnelManagement() {
     }
 
     setFilteredPersonnel(filtered);
-    setCurrentPage(1); // Reset to first page when filters change
+    setCurrentPage(1);
   }, [searchTerm, personnel, selectedDepartment]);
 
   const fetchPersonnel = async () => {
@@ -145,11 +146,12 @@ export default function PersonnelManagement() {
         </h1>
 
         <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+          <div className="flex flex-col sm:flex-row items-start sm:items-center space-x-2 w-full sm:w-auto">
+            <Search className="text-gray-500" size={20} />
             <Input
               type="text"
-              placeholder="Search"
-              className="w-full sm:w-[280px]"
+              placeholder="Search by name or position..."
+              className="w-full sm:w-[280px] text-gray-500"
               value={searchTerm}
               onChange={handleSearchChange}
             />

@@ -1,14 +1,7 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import {
-  Search,
-  X,
-  ChevronLeft,
-  ChevronRight,
-  Filter,
-  ChevronDown,
-} from "lucide-react";
+import { Search, X, ChevronLeft, ChevronRight, Filter } from "lucide-react";
 import type { User } from "@prisma/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
