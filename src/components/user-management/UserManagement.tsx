@@ -1,9 +1,10 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, X } from "lucide-react";
+import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import type { User } from "@prisma/client";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import fetchGetAllUsers from "@/domains/user-management/services/fetchGetAllUsers";
 import UserDetails from "@/components/user-management/UserDetails";
 import {
@@ -22,6 +23,9 @@ export default function UserManagement() {
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
   // const [deleteDialogUser, setDeleteDialogUser] = useState<User | null>(null);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const handleUserClick = (user: User) => {
     setSelectedUser(user);
@@ -52,6 +56,10 @@ export default function UserManagement() {
     fetchUsers();
   }, []);
 
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
   const filteredUsers = users
     .filter((u) => u.user_type !== "ADMIN")
     .filter(
@@ -60,6 +68,23 @@ export default function UserManagement() {
         u.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
         u.email.toLowerCase().includes(searchTerm.toLowerCase())
     );
+
+  const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const currentUsers = filteredUsers.slice(startIndex, endIndex);
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   if (loading) {
     return (
@@ -147,7 +172,7 @@ export default function UserManagement() {
             </TableRow>
           </TableHeader>
           <TableBody>
-            {filteredUsers.map((user) => (
+            {currentUsers.map((user) => (
               <TableRow
                 key={user.id}
                 className="bg-gray-100 hover:bg-gray-300 transition-colors cursor-pointer group"
@@ -162,6 +187,41 @@ export default function UserManagement() {
             ))}
           </TableBody>
         </Table>
+
+        {filteredUsers.length > 0 && (
+          <div className="flex items-center justify-between mt-4 py-2">
+            <div className="text-sm text-gray-600"></div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="text-sm">
+                Page {currentPage} of {totalPages || 1}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToNextPage}
+                disabled={currentPage >= totalPages}
+                aria-label="Next page"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
+
+        {filteredUsers.length === 0 && (
+          <div className="text-center py-8 text-gray-500">
+            No users found matching your search criteria.
+          </div>
+        )}
       </div>
 
       <UserDetails
