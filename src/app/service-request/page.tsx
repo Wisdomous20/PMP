@@ -30,22 +30,23 @@ export default function Page() {
     enabled: !!session?.user.id,
   });
 
-  const filteredRequests: ServiceRequest[] = serviceRequests ? serviceRequests.filter(
-    (request: ServiceRequest) => !request.status.some((status) => status.status === "archived")
-  ) : []
-  const sortedRequests = [...filteredRequests].sort((a, b) => {
+  const sortedRequests = serviceRequests ? [...serviceRequests].sort((a, b) => {
     const dateA = a.createdOn ? new Date(a.createdOn) : null;
     const dateB = b.createdOn ? new Date(b.createdOn) : null;
     if (dateA === null && dateB === null) return 0;
     if (dateA === null) return 1;
     if (dateB === null) return -1;
     return dateB.getTime() - dateA.getTime();
-  });
+  }) : []
 
   const filteredBySearch = sortedRequests.filter(request =>
     request.concern.toLowerCase().includes(search.toLowerCase()) ||
     request.requesterName.toLowerCase().includes(search.toLowerCase())
   );
+
+  const filteredRequests: ServiceRequest[] = filteredBySearch.filter(
+    (request: ServiceRequest) => !request.status.some((status) => status.status === "archived")
+  )
 
   if (srLoading || roleLoading) {
     return (
@@ -74,7 +75,7 @@ export default function Page() {
         {isAdmin ? (
           <>
             <ServiceRequestList
-              serviceRequests={filteredBySearch}
+              serviceRequests={filteredRequests}
               setServiceRequestIndex={setSelectedIndex}
               loading={srLoading}
               search={search}
@@ -87,7 +88,7 @@ export default function Page() {
                 </Card>
               ) : (
                 <ServiceRequestDetails
-                  serviceRequest={serviceRequests ? filteredBySearch[selectedIndex] : undefined}
+                  serviceRequest={serviceRequests ? filteredRequests[selectedIndex] : undefined}
                 />
               )}
             </div>
