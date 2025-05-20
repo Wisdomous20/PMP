@@ -5,6 +5,7 @@ import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
 import * as XLSX from "xlsx";
 import { saveAs } from "file-saver";
+import { Filter } from "lucide-react";
 import {
   Table,
   TableBody,
@@ -186,6 +187,7 @@ export default function InventoryManagement() {
             onValueChange={handleDepartmentChange}
           >
             <SelectTrigger className="w-[180px]">
+              <Filter size={16} />
               <SelectValue placeholder="Filter by department" />
             </SelectTrigger>
             <SelectContent>

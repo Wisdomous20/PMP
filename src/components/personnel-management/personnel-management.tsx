@@ -2,7 +2,7 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Plus, Pencil, Trash2, Filter } from "lucide-react";
 import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
 import PersonnelCalendar from "./PersonnelCalendar";
@@ -132,6 +132,7 @@ export default function PersonnelManagement() {
               onValueChange={handleDepartmentChange}
             >
               <SelectTrigger className="w-full sm:w-[180px]">
+                <Filter size={16} />
                 <SelectValue placeholder="Filter by department" />
               </SelectTrigger>
               <SelectContent>

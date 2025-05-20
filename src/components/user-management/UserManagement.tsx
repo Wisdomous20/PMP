@@ -1,7 +1,14 @@
 "use client";
 
 import { useEffect, useState } from "react";
-import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
+import {
+  Search,
+  X,
+  ChevronLeft,
+  ChevronRight,
+  Filter,
+  ChevronDown,
+} from "lucide-react";
 import type { User } from "@prisma/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
@@ -15,6 +22,13 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -26,6 +40,7 @@ export default function UserManagement() {
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+  const [userTypeFilter, setUserTypeFilter] = useState<string>("ALL");
 
   const handleUserClick = (user: User) => {
     setSelectedUser(user);
@@ -58,15 +73,16 @@ export default function UserManagement() {
 
   useEffect(() => {
     setCurrentPage(1);
-  }, [searchTerm]);
+  }, [searchTerm, userTypeFilter]);
 
   const filteredUsers = users
     .filter((u) => u.user_type !== "ADMIN")
     .filter(
       (u) =>
-        u.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
-        u.email.toLowerCase().includes(searchTerm.toLowerCase())
+        (userTypeFilter === "ALL" || u.user_type === userTypeFilter) &&
+        (u.firstName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          u.lastName.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          u.email.toLowerCase().includes(searchTerm.toLowerCase()))
     );
 
   const totalPages = Math.ceil(filteredUsers.length / itemsPerPage);
@@ -136,23 +152,42 @@ export default function UserManagement() {
       <h1 className="text-2xl font-bold mb-6 shrink-0">User Management</h1>
 
       <div className="flex justify-between mb-6 shrink-0">
-        <div className="relative flex items-center space-x-2">
-          <Search className="text-gray-500" size={20} />
-          <input
-            type="text"
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-            placeholder="Search by name or email..."
-            className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-          />
-          {searchTerm && (
-            <button
-              className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-              onClick={() => setSearchTerm("")}
-            >
-              <X size={18} />
-            </button>
-          )}
+        <div className="flex items-center space-x-3">
+          <div className="relative flex items-center space-x-2">
+            <Search className="text-gray-500" size={20} />
+            <input
+              type="text"
+              value={searchTerm}
+              onChange={(e) => setSearchTerm(e.target.value)}
+              placeholder="Search by name or email..."
+              className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            />
+            {searchTerm && (
+              <button
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                onClick={() => setSearchTerm("")}
+              >
+                <X size={18} />
+              </button>
+            )}
+          </div>
+
+          <Select value={userTypeFilter} onValueChange={setUserTypeFilter}>
+            <SelectTrigger className="w-[180px]">
+              <Filter size={16} />
+              <SelectValue
+                placeholder={
+                  userTypeFilter === "ALL" ? "All Users" : userTypeFilter
+                }
+              />
+            </SelectTrigger>
+            <SelectContent>
+              <SelectItem value="ALL">All Users</SelectItem>
+              <SelectItem value="USER">User</SelectItem>
+              <SelectItem value="SUPERVISOR">Supervisor</SelectItem>
+              <SelectItem value="SECRETARY">Secretary</SelectItem>
+            </SelectContent>
+          </Select>
         </div>
       </div>
 
