@@ -14,8 +14,6 @@ interface PersonnelCalendarProps {
 
 export default function PersonnelCalendar({
   person,
-  openUpdateDialog,
-  onDelete,
   buttonOnly = false,
 }: PersonnelCalendarProps) {
   const [calendarOpen, setCalendarOpen] = useState(false);
