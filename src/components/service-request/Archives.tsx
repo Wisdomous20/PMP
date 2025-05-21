@@ -2,17 +2,27 @@
 "use client";
 
 import React, { useState } from "react";
-import { Search, X } from "lucide-react";
+import { Search, X, ChevronLeft, ChevronRight } from "lucide-react";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
+import { Button } from "@/components/ui/button";
 import useGetArchivedServiceRequests from "@/domains/service-request/hooks/useGetArchivedServiceRequests";
 import ArchiveDetailsModal from "./ArchiveDetailsModal";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
 
 export default function Archives() {
-  const { archivedRequests, loading, error } =
-    useGetArchivedServiceRequests();
+  const { archivedRequests, loading, error } = useGetArchivedServiceRequests();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   const filteredRequests =
     archivedRequests?.filter((request) =>
@@ -21,6 +31,28 @@ export default function Archives() {
         : request.title.toLowerCase().includes(searchTerm.toLowerCase()) ||
           request.name.toLowerCase().includes(searchTerm.toLowerCase())
     ) || [];
+
+  // Reset to first page when search term changes
+  React.useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm]);
+
+  const totalPages = Math.ceil(filteredRequests.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const displayedRequests = filteredRequests.slice(startIndex, endIndex);
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
 
   const handleRequestClick = (request: any) => {
     console.log("Selected request:", request);
@@ -33,7 +65,7 @@ export default function Archives() {
 
   if (loading) {
     return (
-      <div className="flex-1 p-8 relative overflow-hidden flex flex-col">
+      <div className="flex-1 p-8 relative overflow-hidden flex flex-col h-full">
         <Skeleton className="h-8 w-32 mb-6 shrink-0" />
 
         <div className="flex justify-between mb-6 shrink-0">
@@ -41,42 +73,47 @@ export default function Archives() {
             <Skeleton className="h-10 w-6 rounded" />
             <Skeleton className="h-10 w-80 rounded" />
           </div>
-          <Skeleton className="h-10 w-24 rounded" />
         </div>
 
-        <div className="bg-gray-200 rounded-t-md">
-          <div className="grid grid-cols-12 gap-4 px-6 py-5">
-            <div className="col-span-1" />
-            <Skeleton className="col-span-2 h-6" />
-            <Skeleton className="col-span-3 h-6" />
-            <Skeleton className="col-span-3 h-6" />
-            <Skeleton className="col-span-2 h-6" />
+        <div className="flex-1 overflow-y-auto pr-2">
+          <div className="rounded-md border shadow-sm overflow-hidden">
+            <Table>
+              <TableHeader>
+                <TableRow className="bg-gray-100">
+                  <TableHead className="w-[30%]">
+                    <Skeleton className="h-4 w-full" />
+                  </TableHead>
+                  <TableHead className="w-[30%]">
+                    <Skeleton className="h-4 w-full" />
+                  </TableHead>
+                  <TableHead className="w-[25%]">
+                    <Skeleton className="h-4 w-full" />
+                  </TableHead>
+                  <TableHead className="w-[15%]">
+                    <Skeleton className="h-4 w-full" />
+                  </TableHead>
+                </TableRow>
+              </TableHeader>
+              <TableBody>
+                {[...Array(9)].map((_, idx) => (
+                  <TableRow key={idx}>
+                    <TableCell>
+                      <Skeleton className="h-4 w-full" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-full" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-full" />
+                    </TableCell>
+                    <TableCell>
+                      <Skeleton className="h-4 w-full" />
+                    </TableCell>
+                  </TableRow>
+                ))}
+              </TableBody>
+            </Table>
           </div>
-        </div>
-
-        <div className="space-y-2 mt-2 overflow-y-auto flex-1 pr-2">
-          {[...Array(9)].map((_, idx) => (
-            <div
-              key={idx}
-              className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md"
-            >
-              <div className="col-span-1 flex items-center justify-center">
-                <Skeleton className="h-5 w-5 rounded-sm" />
-              </div>
-              <div className="col-span-3">
-                <Skeleton className="h-4 w-40" />
-              </div>
-              <div className="col-span-3">
-                <Skeleton className="h-4 w-48" />
-              </div>
-              <div className="col-span-3">
-                <Skeleton className="h-4 w-32" />
-              </div>
-              <div className="col-span-2">
-                <Skeleton className="h-4 w-20" />
-              </div>
-            </div>
-          ))}
         </div>
       </div>
     );
@@ -84,8 +121,10 @@ export default function Archives() {
 
   if (error) {
     return (
-      <div className="flex-1 p-8">
-        <h1 className="text-2xl font-bold mb-6 text-indigo-dark tracking-tight">Archives</h1>
+      <div className="flex-1 p-8 flex flex-col h-full">
+        <h1 className="text-2xl font-bold mb-6 text-indigo-dark tracking-tight shrink-0">
+          Archives
+        </h1>
         <div className="bg-red-100 p-4 rounded-md text-red-700">
           Error loading archived service requests: {error}
         </div>
@@ -94,77 +133,118 @@ export default function Archives() {
   }
 
   return (
-    <div className="flex-1 p-8 relative overflow-y-auto overflow-hidden flex flex-col">
-      <h1 className="text-2xl font-bold mb-6 shrink-0">Archives</h1>
+    <div className="flex-1 p-8 flex flex-col w-full h-full">
+      <div className="shrink-0">
+        <h1 className="text-2xl font-bold mb-6">Archives</h1>
 
-      <div className="flex justify-between mb-6 shrink-0">
-        <div className="relative flex items-center space-x-2">
-          <Search className="text-gray-500" size={20} />{" "}
-          <input
-            type="text"
-            className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            placeholder="Search requests..."
-            value={searchTerm}
-            onChange={(e) => setSearchTerm(e.target.value)}
-          />
-          {searchTerm && (
-            <button
-              className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-              onClick={() => setSearchTerm("")}
-            >
-              <X size={18} />
-            </button>
-          )}
-        </div>
-      </div>
-
-      <div className="overflow-y-auto flex-1 pr-2">
-      <div className="sticky top-0 z-10 bg-yellow-300 rounded-t-md shadow-md mb-1">
-          <div className="grid grid-cols-12 gap-4 px-6 py-5 text-base">
-            <div className="col-span-3 font-bold">Name of Requestor</div>
-            <div className="col-span-3 items-center justify-center font-bold">
-              Title
-            </div>
-            <div className="col-span-3 font-bold ">Request Date</div>
-            <div className="col-span-2 items-center justify-center font-bold">
-              Status
+        <div className="flex justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="relative flex items-center space-x-2">
+              <Search className="text-gray-500" size={20} />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search requests..."
+                className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              />
+              {searchTerm && (
+                <button
+                  className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                  onClick={() => setSearchTerm("")}
+                >
+                  <X size={18} />
+                </button>
+              )}
             </div>
           </div>
         </div>
+      </div>
 
-        <div className="space-y-2 mt-2">
-          {filteredRequests.length === 0 ? (
-            <div className="text-center py-8 bg-white rounded-md">
-              {searchTerm
-                ? "No matching service requests found"
-                : "No archived service requests found"}
-            </div>
-          ) : (
-            filteredRequests.map((request) => (
-              <div
-                key={request.id}
-                className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md hover:bg-gray-300 transition-colors cursor-pointer"
-                onClick={() => handleRequestClick(request)}
-              >
-                <div className="col-span-3 flex items-center pl-2">
-                  {request.name}
-                </div>
-                <div className="col-span-3 flex items-center">
-                  {request.title}
-                </div>
-                <div className="col-span-3 flex items-center">
-                  {request.requestDate
-                    ? format(new Date(request.requestDate), "MMM d, yyyy")
-                    : "N/A"}
-                </div>
-                <div className="col-span-2 flex items-center text-green-600 font-semibold">
-                  Completed
-                </div>
-              </div>
-            ))
-          )}
+      <div className="flex-1 overflow-y-auto pr-2">
+        <div className="rounded-md border shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="rounded-t-md shadow-md">
+                <TableHead className="py-5 text-base font-bold">
+                  Name of Requestor
+                </TableHead>
+                <TableHead className="py-5 text-base font-bold">
+                  Title
+                </TableHead>
+                <TableHead className="py-5 text-base font-bold">
+                  Request Date
+                </TableHead>
+                <TableHead className="py-5 text-base font-bold">
+                  Status
+                </TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {displayedRequests.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="text-center py-8 text-gray-500"
+                  >
+                    {searchTerm
+                      ? "No matching service requests found"
+                      : "No archived service requests found"}
+                  </TableCell>
+                </TableRow>
+              ) : (
+                displayedRequests.map((request) => (
+                  <TableRow
+                    key={request.id}
+                    className="bg-gray-100 hover:bg-gray-300 transition-colors cursor-pointer"
+                    onClick={() => handleRequestClick(request)}
+                  >
+                    <TableCell>{request.name}</TableCell>
+                    <TableCell>{request.title}</TableCell>
+                    <TableCell>
+                      {request.requestDate
+                        ? format(new Date(request.requestDate), "MMM d, yyyy")
+                        : "N/A"}
+                    </TableCell>
+                    <TableCell className="text-green-600 font-semibold">
+                      Completed
+                    </TableCell>
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
+
+      {filteredRequests.length > 0 && (
+        <div className="flex items-center justify-between mt-4 py-2 shrink-0">
+          <div className="text-sm text-gray-600"></div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToPreviousPage}
+              disabled={currentPage === 1}
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="text-sm">
+              Page {currentPage} of {totalPages || 1}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToNextPage}
+              disabled={currentPage >= totalPages}
+              aria-label="Next page"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       {selectedRequest && (
         <ArchiveDetailsModal
