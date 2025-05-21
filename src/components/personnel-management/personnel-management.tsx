@@ -2,7 +2,16 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import { Plus, Pencil, Trash2 } from "lucide-react";
+import {
+  Plus,
+  Pencil,
+  Trash2,
+  Filter,
+  ChevronLeft,
+  ChevronRight,
+  Search,
+  X,
+} from "lucide-react";
 import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
 import PersonnelCalendar from "./PersonnelCalendar";
@@ -42,6 +51,8 @@ export default function PersonnelManagement() {
   );
   const [departments, setDepartments] = useState<string[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
 
   useEffect(() => {
     fetchPersonnel();
@@ -66,6 +77,7 @@ export default function PersonnelManagement() {
     }
 
     setFilteredPersonnel(filtered);
+    setCurrentPage(1);
   }, [searchTerm, personnel, selectedDepartment]);
 
   const fetchPersonnel = async () => {
@@ -110,49 +122,84 @@ export default function PersonnelManagement() {
     setSelectedDepartment(value);
   };
 
+  const totalPages = Math.ceil(filteredPersonnel.length / itemsPerPage);
+  const startIndex = (currentPage - 1) * itemsPerPage;
+  const endIndex = startIndex + itemsPerPage;
+  const displayedPersonnel = filteredPersonnel.slice(startIndex, endIndex);
+
+  const goToNextPage = () => {
+    if (currentPage < totalPages) {
+      setCurrentPage(currentPage + 1);
+    }
+  };
+
+  const goToPreviousPage = () => {
+    if (currentPage > 1) {
+      setCurrentPage(currentPage - 1);
+    }
+  };
+
   return (
-    <div className="p-4 flex flex-col w-full">
-      <div className="w-full max-w-7xl mx-auto">
-        <h1 className="text-md sm:text-2xl font-semibold text-indigo-text py-3">
-          Personnel Management
-        </h1>
+    <div className="p-4 flex flex-col w-full h-full">
+      <div className="w-full max-w-7xl mx-auto flex flex-col h-full">
+        <div className="shrink-0">
+          <h1 className="text-2xl font-bold mb-6">Personnel Management</h1>
 
-        <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
-          <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
-            <Input
-              type="text"
-              placeholder="Search"
-              className="w-full sm:w-[280px]"
-              value={searchTerm}
-              onChange={handleSearchChange}
-            />
+          <div className="flex justify-between mb-6">
+            <div className="flex items-center space-x-3">
+              <div className="relative flex items-center space-x-2">
+                <Search className="text-gray-500" size={20} />
+                <input
+                  type="text"
+                  value={searchTerm}
+                  onChange={handleSearchChange}
+                  placeholder="Search by name or position..."
+                  className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+                />
+                {searchTerm && (
+                  <button
+                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                    onClick={() => setSearchTerm("")}
+                  >
+                    <X size={18} />
+                  </button>
+                )}
+              </div>
 
-            <Select
-              value={selectedDepartment}
-              onValueChange={handleDepartmentChange}
+              <Select
+                value={selectedDepartment}
+                onValueChange={handleDepartmentChange}
+              >
+                <SelectTrigger className="w-[180px]">
+                  <Filter size={16} />
+                  <SelectValue
+                    placeholder={
+                      selectedDepartment === "all"
+                        ? "All Departments"
+                        : selectedDepartment
+                    }
+                  />
+                </SelectTrigger>
+                <SelectContent>
+                  <SelectItem value="all">All Departments</SelectItem>
+                  {Array.isArray(departments) &&
+                    departments.map((dept) => (
+                      <SelectItem key={dept} value={dept}>
+                        {dept}
+                      </SelectItem>
+                    ))}
+                </SelectContent>
+              </Select>
+            </div>
+
+            <Button
+              variant={"default"}
+              onClick={() => setIsDialogOpen(true)}
+              className="bg-indigo-Background text-primary-foreground"
             >
-              <SelectTrigger className="w-full sm:w-[180px]">
-                <SelectValue placeholder="Filter by department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
-                {Array.isArray(departments) &&
-                  departments.map((dept) => (
-                    <SelectItem key={dept} value={dept}>
-                      {dept}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+              <Plus className="mr-2 h-4 w-4" /> Add Personnel
+            </Button>
           </div>
-
-          <Button
-            variant={"default"}
-            onClick={() => setIsDialogOpen(true)}
-            className="bg-indigo-Background text-primary-foreground w-full sm:w-auto"
-          >
-            <Plus className="mr-2 h-4 w-4" /> Add Personnel
-          </Button>
         </div>
 
         <AddPersonnel
@@ -168,20 +215,28 @@ export default function PersonnelManagement() {
           currentPersonnel={currentPersonnel}
         />
 
-        <div className="rounded-md border shadow-sm overflow-hidden">
-          <div className="overflow-y-auto max-h-[500px]">
+        <div className="flex-1 overflow-y-auto pr-2">
+          <div className="rounded-md border shadow-sm overflow-hidden">
             <Table>
               <TableHeader>
-                <TableRow>
-                  <TableHead className="text-center">Name</TableHead>
-                  <TableHead className="text-center">Position</TableHead>
-                  <TableHead className="text-center">Department</TableHead>
-                  <TableHead className="w-[100px]">Actions</TableHead>
+                <TableRow className="rounded-t-md shadow-md">
+                  <TableHead className="w-[33%] py-5 text-base font-bold text-center">
+                    Full Name
+                  </TableHead>
+                  <TableHead className="w-[33%] py-5 text-base font-bold text-center">
+                    Position
+                  </TableHead>
+                  <TableHead className="w-[33%] py-5 text-base font-bold text-center">
+                    Department
+                  </TableHead>
+                  <TableHead className="w-[33%] py-5 text-base font-bold text-center">
+                    Actions
+                  </TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
-                {filteredPersonnel.length > 0 ? (
-                  filteredPersonnel.map((person) => (
+                {displayedPersonnel.length > 0 ? (
+                  displayedPersonnel.map((person) => (
                     <TableRow key={person.id} className="bg-muted/50">
                       <TableCell className="text-center">
                         {person.name}
@@ -225,7 +280,7 @@ export default function PersonnelManagement() {
                       colSpan={4}
                       className="text-center py-8 text-gray-500"
                     >
-                      {searchTerm
+                      {searchTerm || selectedDepartment !== "all"
                         ? "No personnel found matching your search"
                         : "No personnel available"}
                     </TableCell>
@@ -235,6 +290,35 @@ export default function PersonnelManagement() {
             </Table>
           </div>
         </div>
+
+        {filteredPersonnel.length > 0 && (
+          <div className="flex items-center justify-between mt-4 py-2 shrink-0">
+            <div className="text-sm text-gray-600"></div>
+            <div className="flex items-center space-x-2">
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToPreviousPage}
+                disabled={currentPage === 1}
+                aria-label="Previous page"
+              >
+                <ChevronLeft className="h-4 w-4" />
+              </Button>
+              <div className="text-sm">
+                Page {currentPage} of {totalPages || 1}
+              </div>
+              <Button
+                variant="outline"
+                size="sm"
+                onClick={goToNextPage}
+                disabled={currentPage >= totalPages}
+                aria-label="Next page"
+              >
+                <ChevronRight className="h-4 w-4" />
+              </Button>
+            </div>
+          </div>
+        )}
       </div>
     </div>
   );
