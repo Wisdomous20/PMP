@@ -97,14 +97,14 @@ export default function UserManagement() {
 
   if (loading) {
     return (
-      <div className="flex-1 p-8 relative overflow-hidden flex flex-col">
+      <div className="flex-1 p-8 relative overflow-hidden flex flex-col h-full">
         <Skeleton className="h-8 w-40 mb-6 shrink-0" />
-        <div className="flex items-center space-x-2 mb-6">
+        <div className="flex items-center space-x-2 mb-6 shrink-0">
           <Skeleton className="h-10 w-6 rounded" />
           <Skeleton className="h-10 w-80 rounded" />
         </div>
 
-        <div className="w-full">
+        <div className="flex-1 overflow-y-auto pr-2">
           <Table>
             <TableHeader>
               <TableRow className="bg-gray-100">
@@ -141,109 +141,84 @@ export default function UserManagement() {
   }
 
   return (
-    <div className="flex-1 p-8 relative overflow-y-auto overflow-hidden flex flex-col">
-      <h1 className="text-2xl font-bold mb-6 shrink-0">User Management</h1>
+    <div className="flex-1 p-8 relative flex flex-col w-full h-full">
+      <div className="shrink-0">
+        <h1 className="text-2xl font-bold mb-6">User Management</h1>
 
-      <div className="flex justify-between mb-6 shrink-0">
-        <div className="flex items-center space-x-3">
-          <div className="relative flex items-center space-x-2">
-            <Search className="text-gray-500" size={20} />
-            <input
-              type="text"
-              value={searchTerm}
-              onChange={(e) => setSearchTerm(e.target.value)}
-              placeholder="Search by name or email..."
-              className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-            />
-            {searchTerm && (
-              <button
-                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-                onClick={() => setSearchTerm("")}
-              >
-                <X size={18} />
-              </button>
-            )}
-          </div>
-
-          <Select value={userTypeFilter} onValueChange={setUserTypeFilter}>
-            <SelectTrigger className="w-[180px]">
-              <Filter size={16} />
-              <SelectValue
-                placeholder={
-                  userTypeFilter === "ALL" ? "All Users" : userTypeFilter
-                }
+        <div className="flex justify-between mb-6">
+          <div className="flex items-center space-x-3">
+            <div className="relative flex items-center space-x-2">
+              <Search className="text-gray-500" size={20} />
+              <input
+                type="text"
+                value={searchTerm}
+                onChange={(e) => setSearchTerm(e.target.value)}
+                placeholder="Search by name or email..."
+                className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
               />
-            </SelectTrigger>
-            <SelectContent>
-              <SelectItem value="ALL">All Users</SelectItem>
-              <SelectItem value="USER">User</SelectItem>
-              <SelectItem value="SUPERVISOR">Supervisor</SelectItem>
-              <SelectItem value="SECRETARY">Secretary</SelectItem>
-            </SelectContent>
-          </Select>
+              {searchTerm && (
+                <button
+                  className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                  onClick={() => setSearchTerm("")}
+                >
+                  <X size={18} />
+                </button>
+              )}
+            </div>
+
+            <Select value={userTypeFilter} onValueChange={setUserTypeFilter}>
+              <SelectTrigger className="w-[180px]">
+                <Filter size={16} />
+                <SelectValue
+                  placeholder={
+                    userTypeFilter === "ALL" ? "All Users" : userTypeFilter
+                  }
+                />
+              </SelectTrigger>
+              <SelectContent>
+                <SelectItem value="ALL">All Users</SelectItem>
+                <SelectItem value="USER">User</SelectItem>
+                <SelectItem value="SUPERVISOR">Supervisor</SelectItem>
+                <SelectItem value="SECRETARY">Secretary</SelectItem>
+              </SelectContent>
+            </Select>
+          </div>
         </div>
       </div>
 
-      <div className="overflow-y-auto flex-1 pr-2">
-        <Table>
-          <TableHeader>
-            <TableRow className="bg-yellow-300 rounded-t-md shadow-md hover:bg-yellow-300">
-              <TableHead className="w-[33%] py-5 text-base font-bold">
-                Full Name
-              </TableHead>
-              <TableHead className="w-[42%] py-5 text-base font-bold">
-                Email
-              </TableHead>
-              <TableHead className="w-[25%] py-5 text-base font-bold">
-                User Type
-              </TableHead>
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {currentUsers.map((user) => (
-              <TableRow
-                key={user.id}
-                className="bg-gray-100 hover:bg-gray-300 transition-colors cursor-pointer group"
-                onClick={() => handleUserClick(user)}
-              >
-                <TableCell className="py-3">{`${user.firstName} ${user.lastName}`}</TableCell>
-                <TableCell className="py-3">{user.email}</TableCell>
-                <TableCell className="py-3 text-gray-600">
-                  {user.user_type}
-                </TableCell>
+      <div className="flex-1 overflow-y-auto pr-2">
+        <div className="rounded-md border shadow-sm overflow-hidden">
+          <Table>
+            <TableHeader>
+              <TableRow className="rounded-t-md shadow-md">
+                <TableHead className="w-[33%] py-5 text-base font-bold">
+                  Full Name
+                </TableHead>
+                <TableHead className="w-[42%] py-5 text-base font-bold">
+                  Email
+                </TableHead>
+                <TableHead className="w-[25%] py-5 text-base font-bold">
+                  User Type
+                </TableHead>
               </TableRow>
-            ))}
-          </TableBody>
-        </Table>
-
-        {filteredUsers.length > 0 && (
-          <div className="flex items-center justify-between mt-4 py-2">
-            <div className="text-sm text-gray-600"></div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToPreviousPage}
-                disabled={currentPage === 1}
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="text-sm">
-                Page {currentPage} of {totalPages || 1}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToNextPage}
-                disabled={currentPage >= totalPages}
-                aria-label="Next page"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
+            </TableHeader>
+            <TableBody>
+              {currentUsers.map((user) => (
+                <TableRow
+                  key={user.id}
+                  className="bg-gray-100 hover:bg-gray-300 transition-colors cursor-pointer group"
+                  onClick={() => handleUserClick(user)}
+                >
+                  <TableCell className="py-3">{`${user.firstName} ${user.lastName}`}</TableCell>
+                  <TableCell className="py-3">{user.email}</TableCell>
+                  <TableCell className="py-3 text-gray-600">
+                    {user.user_type}
+                  </TableCell>
+                </TableRow>
+              ))}
+            </TableBody>
+          </Table>
+        </div>
 
         {filteredUsers.length === 0 && (
           <div className="text-center py-8 text-gray-500">
@@ -251,6 +226,35 @@ export default function UserManagement() {
           </div>
         )}
       </div>
+
+      {filteredUsers.length > 0 && (
+        <div className="flex items-center justify-between mt-4 py-2 shrink-0">
+          <div className="text-sm text-gray-600"></div>
+          <div className="flex items-center space-x-2">
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToPreviousPage}
+              disabled={currentPage === 1}
+              aria-label="Previous page"
+            >
+              <ChevronLeft className="h-4 w-4" />
+            </Button>
+            <div className="text-sm">
+              Page {currentPage} of {totalPages || 1}
+            </div>
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={goToNextPage}
+              disabled={currentPage >= totalPages}
+              aria-label="Next page"
+            >
+              <ChevronRight className="h-4 w-4" />
+            </Button>
+          </div>
+        </div>
+      )}
 
       <UserDetails
         user={selectedUser}
