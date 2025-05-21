@@ -43,7 +43,8 @@ const config: Config = {
 			indigo:{
 				Background: '#3730a3',
 				dark:'#172554',
-				text:'#1e1b4b'
+				text:'#1e1b4b',
+				muted: '#dbeafe'
 			},
 			gold:{
 				Background: '#fbbf24',

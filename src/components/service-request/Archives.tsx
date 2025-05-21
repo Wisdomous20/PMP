@@ -85,7 +85,7 @@ export default function Archives() {
   if (error) {
     return (
       <div className="flex-1 p-8">
-        <h1 className="text-2xl font-bold mb-6">Archives</h1>
+        <h1 className="text-2xl font-bold mb-6 text-indigo-dark tracking-tight">Archives</h1>
         <div className="bg-red-100 p-4 rounded-md text-red-700">
           Error loading archived service requests: {error}
         </div>
