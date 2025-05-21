@@ -51,7 +51,7 @@ export default function RecentInventoryLogs({isLoading, equipment, error} : Rece
       <CardContent className="p-0">
         <ul>
           {equipment.map((equipment) => (
-            <li key={equipment.id} className="border p-3 rounded-md">
+            <li key={equipment.id} className="border pt-4 pl-6 pr-4 pb-4">
               <div className="font-medium text-sm">{equipment.description}</div>
               <div className="text-xs text-gray-600">
                 Brand: {equipment.brand} | Department: {equipment.department}

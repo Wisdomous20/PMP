@@ -115,12 +115,12 @@ export default function RecentNotifications({
 
   return (
     <Card className="h-full flex flex-col">
-      <CardHeader className="border-b p-4">
-        <CardTitle>Notifications</CardTitle>
+      <CardHeader className="border-b">
+        <CardTitle className="text-md">Notifications</CardTitle>
       </CardHeader>
       <CardContent className="flex-1 p-0 overflow-hidden">
         <ScrollArea className="h-full">
-          <div className="p-4 space-y-2">
+          <div className="p-5 space-y-2">
             {Object.entries(groupedNotifications).map(([date, items]) => (
               <div key={date}>
                 <h3 className="text-xs font-medium text-gray-500 mb-1">{date}</h3>
