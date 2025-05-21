@@ -132,7 +132,7 @@ export default function RecentNotifications({
                     }`}
                     onClick={() => handleSelectNotification(notification)}
                   >
-                    <div className="flex justify-between items-center mb-1">
+                    <div className="flex justify-between items-center mb-2">
                       <Badge
                         variant="outline"
                         className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-[10px]"

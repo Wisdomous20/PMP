@@ -39,7 +39,7 @@ export default function Dashboard() {
     <div className="flex flex-col w-full min-h-screen p-6 md:p-8 overflow-y-auto">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
         <div>
-          <h1 className="text-2xl text-indigo-dark font-bold tracking-tight mb-1">
+          <h1 className="text-2xl text-indigo-dark font-bold tracking-tight mb-3">
             Operations Dashboard
           </h1>
           <p className="text-sm text-muted-foreground">
@@ -70,7 +70,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white rounded-lg shadow overflow-hidden h-full">
               <NewServiceRequests
-                newServiceRequests={dashboardData?.newServiceRequests?.slice(0,3)}
+                newServiceRequests={dashboardData?.newServiceRequests?.slice(0,5)}
                 isLoading={isLoading || userRoleLoading}
                 error={errorMessage}
               />
@@ -78,7 +78,7 @@ export default function Dashboard() {
 
             <div className="bg-white rounded-lg shadow overflow-hidden h-full">
               <RecentInventoryLogs
-                equipment={dashboardData?.equipment?.slice(0,5)}
+                equipment={dashboardData?.equipment?.slice(0,6)}
                 isLoading={isLoading || userRoleLoading}
                 error={errorMessage}
               />
@@ -88,7 +88,7 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-lg shadow overflow-hidden h-full">
           <NotificationsPanel
-            notifications={dashboardData?.notifications?.slice(0, 5)}
+            notifications={dashboardData?.notifications?.slice(0, 8)}
             isLoading={isLoading || userRoleLoading}
             error={errorMessage}
           />
