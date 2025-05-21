@@ -1,11 +1,10 @@
 "use client";
 import { useEffect, useState } from "react";
-import { Search, X} from "lucide-react";
+import { Search, X } from "lucide-react";
 import { User } from "@prisma/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import fetchGetAllUsers from "@/domains/user-management/services/fetchGetAllUsers";
 import UserDetails from "@/components/user-management/UserDetails";
-
 
 export default function UserManagement() {
   const [users, setUsers] = useState<User[]>([]);
@@ -56,28 +55,56 @@ export default function UserManagement() {
   if (loading) {
     return (
       <div className="flex-1 p-8 relative overflow-hidden flex flex-col">
-        <Skeleton className="h-8 w-40 mb-6 shrink-0" />
-        <div className="flex items-center space-x-2 mb-6">
-          <Skeleton className="h-10 w-6 rounded" />
-          <Skeleton className="h-10 w-80 rounded" />
-        </div>
-        <Skeleton className="h-10 w-32 mb-2" />
-        {[...Array(6)].map((_, i) => (
-          <div
-            key={i}
-            className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md mb-2"
-          >
-            <Skeleton className="col-span-4 h-4" />
-            <Skeleton className="col-span-5 h-4" />
-            <Skeleton className="col-span-3 h-4" />
+        <Skeleton className="h-8 w-32 mb-6 shrink-0" />
+
+        <div className="flex justify-between mb-6 shrink-0">
+          <div className="flex items-center space-x-2">
+            <Skeleton className="h-10 w-6 rounded" />
+            <Skeleton className="h-10 w-80 rounded" />
           </div>
-        ))}
+          <Skeleton className="h-10 w-24 rounded" />
+        </div>
+
+        <div className="bg-gray-200 rounded-t-md">
+          <div className="grid grid-cols-12 gap-4 px-6 py-5">
+            <div className="col-span-1" />
+            <Skeleton className="col-span-2 h-6" />
+            <Skeleton className="col-span-3 h-6" />
+            <Skeleton className="col-span-3 h-6" />
+            <Skeleton className="col-span-2 h-6" />
+          </div>
+        </div>
+
+        <div className="space-y-2 mt-2 overflow-y-auto flex-1 pr-2">
+          {[...Array(9)].map((_, idx) => (
+            <div
+              key={idx}
+              className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md"
+            >
+              <div className="col-span-1 flex items-center justify-center">
+                <Skeleton className="h-5 w-5 rounded-sm" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-40" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-48" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <div className="col-span-2">
+                <Skeleton className="h-4 w-20" />
+              </div>
+            </div>
+          ))}
+        </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 p-8 relative overflow-y-auto overflow-hidden flex flex-col">
+    <div className="flex-1 p-8 relative overflow-y-auto overflow-hidden flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 ">
       <h1 className="text-2xl font-bold mb-6 shrink-0">User Management</h1>
 
       <div className="flex justify-between mb-6 shrink-0">
@@ -108,7 +135,6 @@ export default function UserManagement() {
             <div className="col-span-5">Email</div>
             <div className="col-span-3">User Type</div>
             {/* <div className="col-span-6"></div> */}
-
           </div>
         </div>
 
@@ -130,9 +156,10 @@ export default function UserManagement() {
               >
                 {user.email}
               </div>
-              <div className="col-span-3 flex items-center text-gray-600"
-            onClick={() => handleUserClick(user)}
-            >
+              <div
+                className="col-span-3 flex items-center text-gray-600"
+                onClick={() => handleUserClick(user)}
+              >
                 {user.user_type}
               </div>
               {/* <div className="col-span-1 flex items-center justify-center">

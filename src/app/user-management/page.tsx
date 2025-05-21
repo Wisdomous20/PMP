@@ -3,11 +3,9 @@ import UserManagement from "@/components/user-management/UserManagement";
 
 export default function Page() {
   return (
-    <div className="w-screen h-screen flex">
+    <div className="w-screen h-screen flex flex-row">
       <LeftTab />
-      <div className="w-screen max-h-screen flex p-4 overflow-y-auto">
-        <UserManagement />
-      </div>
+      <UserManagement />
     </div>
   );
 }

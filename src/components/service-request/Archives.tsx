@@ -9,8 +9,7 @@ import useGetArchivedServiceRequests from "@/domains/service-request/hooks/useGe
 import ArchiveDetailsModal from "./ArchiveDetailsModal";
 
 export default function Archives() {
-  const { archivedRequests, loading, error } =
-    useGetArchivedServiceRequests();
+  const { archivedRequests, loading, error } = useGetArchivedServiceRequests();
   const [searchTerm, setSearchTerm] = useState("");
   const [selectedRequest, setSelectedRequest] = useState<any>(null);
 
@@ -94,7 +93,7 @@ export default function Archives() {
   }
 
   return (
-    <div className="flex-1 p-8 relative overflow-y-auto overflow-hidden flex flex-col">
+    <div className="flex-1 p-8 relative overflow-y-auto flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 rounded-md overflow-hidden">
       <h1 className="text-2xl font-bold mb-6 shrink-0">Archives</h1>
 
       <div className="flex justify-between mb-6 shrink-0">
@@ -119,7 +118,7 @@ export default function Archives() {
       </div>
 
       <div className="overflow-y-auto flex-1 pr-2">
-      <div className="sticky top-0 z-10 bg-yellow-300 rounded-t-md shadow-md mb-1">
+        <div className="sticky top-0 z-10 bg-yellow-400 rounded-t-md shadow-md mb-1">
           <div className="grid grid-cols-12 gap-4 px-6 py-5 text-base">
             <div className="col-span-3 font-bold">Name of Requestor</div>
             <div className="col-span-3 items-center justify-center font-bold">
