@@ -2,16 +2,9 @@
 import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
-import {
-  Plus,
-  Pencil,
-  Trash2,
-  Filter,
-  ChevronLeft,
-  ChevronRight,
-  Search,
-  X,
-} from "lucide-react";
+import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Search, X, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
 import PersonnelCalendar from "./PersonnelCalendar";
@@ -51,8 +44,21 @@ export default function PersonnelManagement() {
   );
   const [departments, setDepartments] = useState<string[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
+  const [loading, setLoading] = useState(false);
+
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedDepartment]);
+
+  const totalPages = Math.ceil(filteredPersonnel.length / itemsPerPage);
+
+  const paginatedPersonnel = filteredPersonnel.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   useEffect(() => {
     fetchPersonnel();
@@ -77,10 +83,10 @@ export default function PersonnelManagement() {
     }
 
     setFilteredPersonnel(filtered);
-    setCurrentPage(1);
   }, [searchTerm, personnel, selectedDepartment]);
 
   const fetchPersonnel = async () => {
+    setLoading(true);
     try {
       const response = await fetch("/api/manpower-management");
       const data = await response.json();
@@ -97,6 +103,8 @@ export default function PersonnelManagement() {
       }
     } catch (error) {
       console.error("Error fetching personnel:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -114,212 +122,236 @@ export default function PersonnelManagement() {
     setIsUpdateDialogOpen(true);
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+  const handleSearchChange = (
+    e: React.ChangeEvent<HTMLInputElement> | string
+  ) => {
+    if (typeof e === "string") {
+      setSearchTerm(e);
+    } else {
+      setSearchTerm(e.target.value);
+    }
   };
 
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
   };
 
-  const totalPages = Math.ceil(filteredPersonnel.length / itemsPerPage);
-  const startIndex = (currentPage - 1) * itemsPerPage;
-  const endIndex = startIndex + itemsPerPage;
-  const displayedPersonnel = filteredPersonnel.slice(startIndex, endIndex);
+  if (loading) {
+    return (
+      <div className="flex-1 p-8 relative overflow-hidden flex flex-col">
+        <Skeleton className="h-8 w-32 mb-6 shrink-0" />
 
-  const goToNextPage = () => {
-    if (currentPage < totalPages) {
-      setCurrentPage(currentPage + 1);
-    }
-  };
+        <div className="flex justify-between mb-6 shrink-0">
+          <div className="flex items-center space-x-2">
+            <Skeleton className="h-10 w-6 rounded" />
+            <Skeleton className="h-10 w-80 rounded" />
+          </div>
+          <Skeleton className="h-10 w-24 rounded" />
+        </div>
 
-  const goToPreviousPage = () => {
-    if (currentPage > 1) {
-      setCurrentPage(currentPage - 1);
-    }
-  };
+        <div className="bg-gray-200 rounded-t-md">
+          <div className="grid grid-cols-12 gap-4 px-6 py-5">
+            <div className="col-span-1" />
+            <Skeleton className="col-span-2 h-6" />
+            <Skeleton className="col-span-3 h-6" />
+            <Skeleton className="col-span-3 h-6" />
+            <Skeleton className="col-span-2 h-6" />
+          </div>
+        </div>
+
+        <div className="space-y-2 mt-2 overflow-y-auto flex-1 pr-2">
+          {[...Array(9)].map((_, idx) => (
+            <div
+              key={idx}
+              className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md"
+            >
+              <div className="col-span-1 flex items-center justify-center">
+                <Skeleton className="h-5 w-5 rounded-sm" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-40" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-48" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <div className="col-span-2">
+                <Skeleton className="h-4 w-20" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
 
   return (
-    <div className="p-4 flex flex-col w-full h-full">
-      <div className="w-full max-w-7xl mx-auto flex flex-col h-full">
-        <div className="shrink-0">
-          <h1 className="text-2xl font-bold mb-6">Personnel Management</h1>
+    <div className="flex-1 p-8 flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 rounded-md overflow-hidden">
+      <h1 className="text-2xl font-bold mb-6 shrink-0">Personnel Management</h1>
 
-          <div className="flex justify-between mb-6">
-            <div className="flex items-center space-x-3">
-              <div className="relative flex items-center space-x-2">
-                <Search className="text-gray-500" size={20} />
-                <input
-                  type="text"
-                  value={searchTerm}
-                  onChange={handleSearchChange}
-                  placeholder="Search by name or position..."
-                  className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-                />
-                {searchTerm && (
-                  <button
-                    className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-                    onClick={() => setSearchTerm("")}
-                  >
-                    <X size={18} />
-                  </button>
-                )}
-              </div>
-
-              <Select
-                value={selectedDepartment}
-                onValueChange={handleDepartmentChange}
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+          <div className="relative flex items-center space-x-2">
+            <Search className="text-gray-500" size={20} />
+            <input
+              type="text"
+              placeholder="Search Personnel..."
+              className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+              value={searchTerm}
+              onChange={handleSearchChange}
+            />
+            {searchTerm && (
+              <button
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                onClick={() => handleSearchChange("")}
               >
-                <SelectTrigger className="w-[180px]">
-                  <Filter size={16} />
-                  <SelectValue
-                    placeholder={
-                      selectedDepartment === "all"
-                        ? "All Departments"
-                        : selectedDepartment
-                    }
-                  />
-                </SelectTrigger>
-                <SelectContent>
-                  <SelectItem value="all">All Departments</SelectItem>
-                  {Array.isArray(departments) &&
-                    departments.map((dept) => (
-                      <SelectItem key={dept} value={dept}>
-                        {dept}
-                      </SelectItem>
-                    ))}
-                </SelectContent>
-              </Select>
-            </div>
+                <X size={18} />
+              </button>
+            )}
+          </div>
 
+          <Select
+            value={selectedDepartment}
+            onValueChange={handleDepartmentChange}
+          >
+            <SelectTrigger className="w-full sm:w-[180px] border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 bg-white">
+              <Filter size={16} />
+              <SelectValue placeholder="Filter by department" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectItem value="all">All Departments</SelectItem>
+              {departments.map((dept) => (
+                <SelectItem key={dept} value={dept}>
+                  {dept}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
+        </div>
+
+        <Button
+          variant={"default"}
+          onClick={() => setIsDialogOpen(true)}
+          className="bg-indigo-Background text-white w-full sm:w-auto hover:bg-indigo-900"
+        >
+          <Plus className="mr-2 h-4 w-4 font" /> Add Personnel
+        </Button>
+      </div>
+
+      <AddPersonnel
+        onAdd={fetchPersonnel}
+        isOpen={isDialogOpen}
+        onOpenChange={setIsDialogOpen}
+      />
+
+      <UpdatePersonnel
+        onUpdate={fetchPersonnel}
+        isOpen={isUpdateDialogOpen}
+        onOpenChange={setIsUpdateDialogOpen}
+        currentPersonnel={currentPersonnel}
+      />
+
+      {/* Content wrapper to push pagination to bottom */}
+      <div className="flex-1 overflow-y-auto pr-2">
+        <div className="rounded-md border shadow-sm overflow-hidden">
+          <Table className="table-fixed w-full">
+            <TableHeader>
+              <TableRow className="rounded-t-md shadow-md bg-yellow-500 hover:bg-yellow-500 h-16">
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
+                  Name
+                </TableHead>
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
+                  Position
+                </TableHead>
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
+                  Department
+                </TableHead>
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedPersonnel.length > 0 ? (
+                paginatedPersonnel.map((person) => (
+                  <TableRow
+                    key={person.id}
+                    className="hover:bg-gray-100 cursor-pointer"
+                  >
+                    <TableCell className="w-1/3 text-center">
+                      {person.name}
+                    </TableCell>
+                    <TableCell className="w-1/3 text-center">
+                      {person.position}
+                    </TableCell>
+                    <TableCell className="w-1/3 text-center">
+                      {person.department}
+                    </TableCell>
+                    <TableCell className="text-center flex justify-center gap-2">
+                      <PersonnelCalendar person={person} buttonOnly={true} />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openUpdateDialog(person)}
+                        title="Edit"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleSingleDelete(person.id)}
+                        title="Delete"
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="text-center py-8 text-gray-500"
+                  >
+                    {searchTerm
+                      ? "No personnel found matching your search"
+                      : "No personnel available"}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
+        </div>
+      </div>
+
+      {totalPages > 1 && (
+        <div className="sticky bottom-0 left-0 right-0 bg-gradient-to-b from-yellow-50 to-blue-50 p-4 z-10">
+          <div className="flex justify-center gap-4">
             <Button
-              variant={"default"}
-              onClick={() => setIsDialogOpen(true)}
-              className="bg-indigo-Background text-primary-foreground"
+              variant="outline"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
             >
-              <Plus className="mr-2 h-4 w-4" /> Add Personnel
+              <ChevronLeft className="h-4 w-4 mr-1" />
+            </Button>
+            <span className="flex items-center text-sm font-medium">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4 ml-1" />
             </Button>
           </div>
         </div>
-
-        <AddPersonnel
-          onAdd={fetchPersonnel}
-          isOpen={isDialogOpen}
-          onOpenChange={setIsDialogOpen}
-        />
-
-        <UpdatePersonnel
-          onUpdate={fetchPersonnel}
-          isOpen={isUpdateDialogOpen}
-          onOpenChange={setIsUpdateDialogOpen}
-          currentPersonnel={currentPersonnel}
-        />
-
-        <div className="flex-1 overflow-y-auto pr-2">
-          <div className="rounded-md border shadow-sm overflow-hidden">
-            <Table>
-              <TableHeader>
-                <TableRow className="rounded-t-md shadow-md">
-                  <TableHead className="w-[33%] py-5 text-base font-bold text-center">
-                    Full Name
-                  </TableHead>
-                  <TableHead className="w-[33%] py-5 text-base font-bold text-center">
-                    Position
-                  </TableHead>
-                  <TableHead className="w-[33%] py-5 text-base font-bold text-center">
-                    Department
-                  </TableHead>
-                  <TableHead className="w-[33%] py-5 text-base font-bold text-center">
-                    Actions
-                  </TableHead>
-                </TableRow>
-              </TableHeader>
-              <TableBody>
-                {displayedPersonnel.length > 0 ? (
-                  displayedPersonnel.map((person) => (
-                    <TableRow key={person.id} className="bg-muted/50">
-                      <TableCell className="text-center">
-                        {person.name}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {person.position}
-                      </TableCell>
-                      <TableCell className="text-center">
-                        {person.department}
-                      </TableCell>
-                      <TableCell className="text-right">
-                        <div className="flex justify-end gap-2">
-                          <PersonnelCalendar
-                            person={person}
-                            buttonOnly={true}
-                          />
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => openUpdateDialog(person)}
-                            title="Edit"
-                          >
-                            <Pencil className="h-4 w-4" />
-                          </Button>
-                          <Button
-                            variant="ghost"
-                            size="icon"
-                            onClick={() => handleSingleDelete(person.id)}
-                            title="Delete"
-                            className="text-destructive"
-                          >
-                            <Trash2 className="h-4 w-4" />
-                          </Button>
-                        </div>
-                      </TableCell>
-                    </TableRow>
-                  ))
-                ) : (
-                  <TableRow>
-                    <TableCell
-                      colSpan={4}
-                      className="text-center py-8 text-gray-500"
-                    >
-                      {searchTerm || selectedDepartment !== "all"
-                        ? "No personnel found matching your search"
-                        : "No personnel available"}
-                    </TableCell>
-                  </TableRow>
-                )}
-              </TableBody>
-            </Table>
-          </div>
-        </div>
-
-        {filteredPersonnel.length > 0 && (
-          <div className="flex items-center justify-between mt-4 py-2 shrink-0">
-            <div className="text-sm text-gray-600"></div>
-            <div className="flex items-center space-x-2">
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToPreviousPage}
-                disabled={currentPage === 1}
-                aria-label="Previous page"
-              >
-                <ChevronLeft className="h-4 w-4" />
-              </Button>
-              <div className="text-sm">
-                Page {currentPage} of {totalPages || 1}
-              </div>
-              <Button
-                variant="outline"
-                size="sm"
-                onClick={goToNextPage}
-                disabled={currentPage >= totalPages}
-                aria-label="Next page"
-              >
-                <ChevronRight className="h-4 w-4" />
-              </Button>
-            </div>
-          </div>
-        )}
-      </div>
+      )}
     </div>
   );
 }

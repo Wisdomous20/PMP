@@ -97,51 +97,57 @@ export default function UserManagement() {
 
   if (loading) {
     return (
-      <div className="flex-1 p-8 relative overflow-hidden flex flex-col h-full">
-        <Skeleton className="h-8 w-40 mb-6 shrink-0" />
-        <div className="flex items-center space-x-2 mb-6 shrink-0">
-          <Skeleton className="h-10 w-6 rounded" />
-          <Skeleton className="h-10 w-80 rounded" />
+      <div className="flex-1 p-8 relative overflow-hidden flex flex-col">
+        <Skeleton className="h-8 w-32 mb-6 shrink-0" />
+
+        <div className="flex justify-between mb-6 shrink-0">
+          <div className="flex items-center space-x-2">
+            <Skeleton className="h-10 w-6 rounded" />
+            <Skeleton className="h-10 w-80 rounded" />
+          </div>
+          <Skeleton className="h-10 w-24 rounded" />
         </div>
 
-        <div className="flex-1 overflow-y-auto pr-2">
-          <Table>
-            <TableHeader>
-              <TableRow className="bg-gray-100">
-                <TableHead className="w-[33%]">
-                  <Skeleton className="h-4 w-full" />
-                </TableHead>
-                <TableHead className="w-[42%]">
-                  <Skeleton className="h-4 w-full" />
-                </TableHead>
-                <TableHead className="w-[25%]">
-                  <Skeleton className="h-4 w-full" />
-                </TableHead>
-              </TableRow>
-            </TableHeader>
-            <TableBody>
-              {[...Array(6)].map((_, i) => (
-                <TableRow key={i}>
-                  <TableCell>
-                    <Skeleton className="h-4 w-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-full" />
-                  </TableCell>
-                  <TableCell>
-                    <Skeleton className="h-4 w-full" />
-                  </TableCell>
-                </TableRow>
-              ))}
-            </TableBody>
-          </Table>
+        <div className="bg-gray-200 rounded-t-md">
+          <div className="grid grid-cols-12 gap-4 px-6 py-5">
+            <div className="col-span-1" />
+            <Skeleton className="col-span-2 h-6" />
+            <Skeleton className="col-span-3 h-6" />
+            <Skeleton className="col-span-3 h-6" />
+            <Skeleton className="col-span-2 h-6" />
+          </div>
+        </div>
+
+        <div className="space-y-2 mt-2 overflow-y-auto flex-1 pr-2">
+          {[...Array(9)].map((_, idx) => (
+            <div
+              key={idx}
+              className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md"
+            >
+              <div className="col-span-1 flex items-center justify-center">
+                <Skeleton className="h-5 w-5 rounded-sm" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-40" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-48" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <div className="col-span-2">
+                <Skeleton className="h-4 w-20" />
+              </div>
+            </div>
+          ))}
         </div>
       </div>
     );
   }
 
   return (
-    <div className="flex-1 p-8 relative flex flex-col w-full h-full">
+    <div className="flex-1 p-8 relative flex flex-col w-full h-full bg-gradient-to-b from-yellow-50 to-blue-50 ">
       <div className="shrink-0">
         <h1 className="text-2xl font-bold mb-6">User Management</h1>
 
@@ -167,7 +173,7 @@ export default function UserManagement() {
             </div>
 
             <Select value={userTypeFilter} onValueChange={setUserTypeFilter}>
-              <SelectTrigger className="w-[180px]">
+              <SelectTrigger className="w-[180px] bg-white">
                 <Filter size={16} />
                 <SelectValue
                   placeholder={
@@ -188,16 +194,16 @@ export default function UserManagement() {
 
       <div className="flex-1 overflow-y-auto pr-2">
         <div className="rounded-md border shadow-sm overflow-hidden">
-          <Table>
+          <Table className="table-fixed w-full">
             <TableHeader>
-              <TableRow className="rounded-t-md shadow-md">
-                <TableHead className="w-[33%] py-5 text-base font-bold">
+              <TableRow className="rounded-t-md shadow-md bg-yellow-500 hover:bg-yellow-500 h-16">
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
                   Full Name
                 </TableHead>
-                <TableHead className="w-[42%] py-5 text-base font-bold">
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
                   Email
                 </TableHead>
-                <TableHead className="w-[25%] py-5 text-base font-bold">
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
                   User Type
                 </TableHead>
               </TableRow>
@@ -206,12 +212,14 @@ export default function UserManagement() {
               {currentUsers.map((user) => (
                 <TableRow
                   key={user.id}
-                  className="bg-gray-100 hover:bg-gray-300 transition-colors cursor-pointer group"
+                  className="hover:bg-gray-100 cursor-pointer"
                   onClick={() => handleUserClick(user)}
                 >
-                  <TableCell className="py-3">{`${user.firstName} ${user.lastName}`}</TableCell>
-                  <TableCell className="py-3">{user.email}</TableCell>
-                  <TableCell className="py-3 text-gray-600">
+                  <TableCell className="text-center py-3">{`${user.firstName} ${user.lastName}`}</TableCell>
+                  <TableCell className="text-center py-3">
+                    {user.email}
+                  </TableCell>
+                  <TableCell className="text-center py-3 text-gray-600">
                     {user.user_type}
                   </TableCell>
                 </TableRow>
@@ -219,7 +227,8 @@ export default function UserManagement() {
             </TableBody>
           </Table>
         </div>
-
+      </div>
+      <div>
         {filteredUsers.length === 0 && (
           <div className="text-center py-8 text-gray-500">
             No users found matching your search criteria.
@@ -227,25 +236,22 @@ export default function UserManagement() {
         )}
       </div>
 
-      {filteredUsers.length > 0 && (
-        <div className="flex items-center justify-between mt-4 py-2 shrink-0">
-          <div className="text-sm text-gray-600"></div>
-          <div className="flex items-center space-x-2">
+      {totalPages > 1 && (
+        <div className="sticky bottom-0 left-0 right-0 bg-gradient-to-b from-yellow-50 to-blue-50 p-4 z-10">
+          <div className="flex justify-center gap-4">
             <Button
               variant="outline"
-              size="sm"
               onClick={goToPreviousPage}
               disabled={currentPage === 1}
               aria-label="Previous page"
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <div className="text-sm">
-              Page {currentPage} of {totalPages || 1}
-            </div>
+            <span className="flex items-center text-sm font-medium">
+              Page {currentPage} of {totalPages}
+            </span>
             <Button
               variant="outline"
-              size="sm"
               onClick={goToNextPage}
               disabled={currentPage >= totalPages}
               aria-label="Next page"
@@ -255,7 +261,6 @@ export default function UserManagement() {
           </div>
         </div>
       )}
-
       <UserDetails
         user={selectedUser}
         open={isModalOpen}

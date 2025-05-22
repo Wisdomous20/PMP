@@ -133,29 +133,40 @@ export default function Archives() {
   }
 
   return (
-    <div className="flex-1 p-8 flex flex-col w-full h-full">
-      <div className="shrink-0">
-        <h1 className="text-2xl font-bold mb-6">Archives</h1>
+    <div className="flex-1 p-8 relative overflow-y-auto flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 rounded-md overflow-hidden">
+      <h1 className="text-2xl font-bold mb-6 shrink-0">Archives</h1>
 
-        <div className="flex justify-between mb-6">
-          <div className="flex items-center space-x-3">
-            <div className="relative flex items-center space-x-2">
-              <Search className="text-gray-500" size={20} />
-              <input
-                type="text"
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                placeholder="Search requests..."
-                className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
-              />
-              {searchTerm && (
-                <button
-                  className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
-                  onClick={() => setSearchTerm("")}
-                >
-                  <X size={18} />
-                </button>
-              )}
+      <div className="flex justify-between mb-6 shrink-0">
+        <div className="relative flex items-center space-x-2">
+          <Search className="text-gray-500" size={20} />{" "}
+          <input
+            type="text"
+            className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
+            placeholder="Search requests..."
+            value={searchTerm}
+            onChange={(e) => setSearchTerm(e.target.value)}
+          />
+          {searchTerm && (
+            <button
+              className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+              onClick={() => setSearchTerm("")}
+            >
+              <X size={18} />
+            </button>
+          )}
+        </div>
+      </div>
+
+      <div className="overflow-y-auto flex-1 pr-2">
+        <div className="sticky top-0 z-10 bg-yellow-400 rounded-t-md shadow-md mb-1">
+          <div className="grid grid-cols-12 gap-4 px-6 py-5 text-base">
+            <div className="col-span-3 font-bold">Name of Requestor</div>
+            <div className="col-span-3 items-center justify-center font-bold">
+              Title
+            </div>
+            <div className="col-span-3 font-bold ">Request Date</div>
+            <div className="col-span-2 items-center justify-center font-bold">
+              Status
             </div>
           </div>
         </div>
