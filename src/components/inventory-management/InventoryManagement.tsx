@@ -1,10 +1,8 @@
 /* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
-import { useEffect, useState } from "react";
+import { useEffect, useState, useCallback } from "react";
 import { jsPDF } from "jspdf";
 import autoTable from "jspdf-autotable";
-import * as XLSX from "xlsx";
-import { saveAs } from "file-saver";
 import { Filter } from "lucide-react";
 import {
   Table,
@@ -44,6 +42,11 @@ import { createInventoryExcel } from "@/domains/inventory-management/services/cr
 
 const ITEMS_PER_PAGE = 50;
 
+interface FilterState {
+  department: string;
+  page: number;
+}
+
 export default function InventoryManagement() {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [isLoading, setLoading] = useState(false);
@@ -51,20 +54,25 @@ export default function InventoryManagement() {
   const { data: session } = useSession();
   const [userRole, setUserRole] = useState<UserRole>();
   const [departments, setDepartments] = useState<string[]>([]);
-  const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
-
-  const [currentPage, setCurrentPage] = useState(1);
+  
+  const [filters, setFilters] = useState<FilterState>({
+    department: "all",
+    page: 1
+  });
+  
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
 
-  const loadEquipment = async (page = 1, department = "all") => {
+  const loadEquipment = useCallback(async (filterOverrides?: Partial<FilterState>) => {
     try {
       setLoading(true);
 
+      const effectiveFilters = { ...filters, ...filterOverrides };
+      
       const response = await fetchPaginatedEquipment({
-        page,
+        page: effectiveFilters.page,
         pageSize: ITEMS_PER_PAGE,
-        department: department === "all" ? undefined : department,
+        department: effectiveFilters.department === "all" ? undefined : effectiveFilters.department,
       });
 
       const { data: paginatedData, meta } = response;
@@ -72,18 +80,21 @@ export default function InventoryManagement() {
       setTotalItems(meta.total);
       setTotalPages(meta.pageCount);
 
-      if (page === 1) {
+      if (effectiveFilters.page === 1 && departments.length === 0) {
         const deptList = await fetchDepartment();
         setDepartments(deptList);
       }
     } catch (error) {
       console.error("Failed to load equipment:", error);
+      setEquipment([]);
+      setTotalItems(0);
+      setTotalPages(1);
     } finally {
       setLoading(false);
     }
-  };
+  }, [filters, departments.length]);
 
-  const loadUserRole = async () => {
+  const loadUserRole = useCallback(async () => {
     try {
       if (session?.user?.id) {
         const { userRole } = await getUserRoleFetch(session.user.id);
@@ -92,35 +103,65 @@ export default function InventoryManagement() {
     } catch (error) {
       console.error("Failed to load user role:", error);
     }
-  };
+  }, [session?.user?.id]);
 
   useEffect(() => {
-    loadEquipment(currentPage, selectedDepartment);
+    if (session) {
+      loadEquipment();
+    }
+  }, [filters, session, loadEquipment]);
+
+  useEffect(() => {
     loadUserRole();
-  }, [currentPage, selectedDepartment, session]);
+  }, [loadUserRole]);
+
+  const handleDepartmentChange = (value: string) => {
+    setFilters({
+      department: value,
+      page: 1
+    });
+  };
+
+  const handlePageChange = (page: number) => {
+    setFilters(prev => ({
+      ...prev,
+      page
+    }));
+  };
 
   const handleEquipmentDeleted = async () => {
-    await loadEquipment(currentPage, selectedDepartment);
+    const remainingItems = totalItems - 1;
+    const maxPage = Math.ceil(remainingItems / ITEMS_PER_PAGE) || 1;
+    
+    if (filters.page > maxPage) {
+      const newFilters = { ...filters, page: maxPage };
+      setFilters(newFilters);
+      await loadEquipment(newFilters);
+    } else {
+      await loadEquipment();
+    }
   };
 
   const handleEquipmentAdded = async () => {
     setIsDialogOpen(false);
-    await loadEquipment(1, selectedDepartment);
-    setCurrentPage(1);
+    const newFilters = { ...filters, page: 1 };
+    setFilters(newFilters);
+    await loadEquipment(newFilters);
   };
 
-  const handleDepartmentChange = (value: string) => {
-    setSelectedDepartment(value);
-    setCurrentPage(1);
-  };
-
-  const handlePageChange = (page: number) => {
-    setCurrentPage(page);
+  const handleEquipmentUpdated = async () => {
+    await loadEquipment();
   };
 
   const downloadPDF = () => {
     const doc = new jsPDF({ orientation: "landscape" });
-    doc.text("Equipment Report", 14, 10);
+    
+    let title = "Equipment Report";
+    if (filters.department !== "all") {
+      title += ` - ${filters.department} Department`;
+    }
+    
+    doc.text(title, 14, 10);
 
     const tableColumnHeaders = [
       "Qty",
@@ -183,7 +224,7 @@ export default function InventoryManagement() {
       <div className="flex justify-between items-center mb-4 pt-3">
         <div className="flex items-center gap-2">
           <Select
-            value={selectedDepartment}
+            value={filters.department}
             onValueChange={handleDepartmentChange}
           >
             <SelectTrigger className="w-[180px]">
@@ -216,15 +257,16 @@ export default function InventoryManagement() {
             <AddEquipment onSuccess={handleEquipmentAdded} />
           </DialogContent>
         </Dialog>
-        {userRole === "ADMIN" &&
+        
+        {userRole === "ADMIN" && (
           <div className="flex gap-2">
             <Button onClick={downloadPDF}>Download PDF</Button>
             <Button
               onClick={() =>
                 createInventoryExcel(
-                  selectedDepartment === "all"
+                  filters.department === "all"
                     ? "ALL DEPARTMENTS"
-                    : selectedDepartment,
+                    : filters.department,
                   new Date(),
                   equipment
                 )
@@ -233,7 +275,7 @@ export default function InventoryManagement() {
               Download Excel
             </Button>
           </div>
-        }
+        )}
       </div>
 
       <div className="rounded-md border">
@@ -264,12 +306,17 @@ export default function InventoryManagement() {
                   colSpan={13}
                   className="text-center py-6 text-muted-foreground"
                 >
-                  No equipment found for this department
+                  {isLoading 
+                    ? "Loading..." 
+                    : filters.department !== "all"
+                      ? "No equipment found for this department"
+                      : "No equipment found"
+                  }
                 </TableCell>
               </TableRow>
             ) : (
               equipment.map((item: Equipment, index: number) => (
-                <TableRow key={index}>
+                <TableRow key={item.id}>
                   <TableCell>{item.quantity}</TableCell>
                   <TableCell>{item.description}</TableCell>
                   <TableCell>{item.brand}</TableCell>
@@ -294,9 +341,7 @@ export default function InventoryManagement() {
                       <div className="flex space-x-2">
                         <EditEquipment
                           equipment={item}
-                          onUpdate={() =>
-                            loadEquipment(currentPage, selectedDepartment)
-                          }
+                          onUpdate={handleEquipmentUpdated}
                         />
                         <DeleteEquipment
                           equipmentId={item.id}
@@ -314,7 +359,7 @@ export default function InventoryManagement() {
       </div>
 
       <EquipmentPagination
-        currentPage={currentPage}
+        currentPage={filters.page}
         totalPages={totalPages}
         onPageChange={handlePageChange}
       />
