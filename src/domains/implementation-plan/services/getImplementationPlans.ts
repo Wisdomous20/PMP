@@ -1,23 +1,20 @@
 import { prisma } from "@/lib/prisma";
 import { Prisma } from "@prisma/client";
 
-export default async function getImplementationPlans(
-  userId: string,
-  department?: string
-) {
+export default async function getImplementationPlans(userId: string) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
-      select: { user_type: true },
+      select: { user_type: true, department: true },
     });
 
     if (!user) {
       throw new Error("User not found");
     }
 
-    const userType = user.user_type
-    // Example filter logic for different user roles
-let where: Prisma.ImplementationPlanWhereInput = {};
+    const userType = user.user_type;
+    const department = user.department;
+    let where: Prisma.ImplementationPlanWhereInput = {};
 
     if (userType === "SUPERVISOR" && department) {
       where = {
@@ -34,7 +31,6 @@ let where: Prisma.ImplementationPlanWhereInput = {};
         },
       };
     }
-    // Add more role-based filters as needed
 
     const plans = await prisma.implementationPlan.findMany({
       where,
@@ -47,7 +43,8 @@ let where: Prisma.ImplementationPlanWhereInput = {};
         serviceRequest: {
           select: {
             id: true,
-            concern: true, // <-- Ensure this is included!
+            concern: true,
+            details: true,
             user: {
               select: {
                 id: true,
@@ -56,14 +53,23 @@ let where: Prisma.ImplementationPlanWhereInput = {};
                 department: true,
               },
             },
-            status: true,
+            status: {
+              orderBy: {
+                timestamp: 'desc'
+              }
+            },
             supervisorAssignment: true,
           },
         },
       },
     });
 
-    return plans;
+    const nonArchivedPlans = plans.filter(plan => {
+      const mostRecentStatus = plan.serviceRequest.status[0];
+      return !mostRecentStatus || mostRecentStatus.status !== "archived";
+    });
+
+    return nonArchivedPlans;
   } catch (error) {
     console.error("Error retrieving implementation plans:", error);
     throw error;
