@@ -51,12 +51,12 @@ export default function RecentInventoryLogs({isLoading, equipment, error} : Rece
       <CardContent className="p-0">
         <ul>
           {equipment.map((equipment) => (
-            <li key={equipment.id} className="border p-3 rounded-md">
-              <div className="font-medium text-sm">{equipment.description}</div>
-              <div className="text-xs text-gray-600">
+            <li key={equipment.id} className="border pt-4 pl-6 pb-6">
+              <div className="font-medium text-md pb-1">{equipment.description}</div>
+              <div className="text-sm text-gray-600">
                 Brand: {equipment.brand} | Department: {equipment.department}
               </div>
-              <div className="text-xs text-gray-500">
+              <div className="text-sm text-gray-500">
                 Quantity: {equipment.quantity} | Purchased:{" "}
                 {new Date(equipment.datePurchased).toLocaleDateString()}
               </div>
