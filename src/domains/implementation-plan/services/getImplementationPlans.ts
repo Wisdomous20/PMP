@@ -1,82 +1,71 @@
 import { prisma } from "@/lib/prisma";
 
-export default async function getImplementationPlans(userId: string) {
+export default async function getImplementationPlans(userId: string, userType: string, department?: string) {
   try {
-    const user = await prisma.user.findUnique({
-      where: { id: userId },
-      select: { user_type: true },
+    // Build the filter for supervisor or admin
+    let where: Record<string, unknown> = {};
+
+    if (userType === "ADMIN") {
+      // Admin: get all non-archived implementation plans
+      where = {
+        serviceRequest: {
+          OR: [
+            { status: null },
+            {
+              status: {
+                some: {
+                  status: { not: "archived" }
+                }
+              }
+            }
+          ]
+        }
+      };
+    } else if (userType === "SUPERVISOR") {
+      // Supervisor: get non-archived plans for their department
+      where = {
+        serviceRequest: {
+          OR: [
+            { status: null },
+            {
+              status: {
+                some: {
+                  status: { not: "archived" }
+                }
+              }
+            }
+          ],
+          user: {
+            department: department
+          }
+        }
+      };
+    }
+
+    const implementationPlans = await prisma.implementationPlan.findMany({
+      where,
+      select: {
+        id: true,
+        description: true,
+        createdAt: true,
+        tasks: true,
+        files: true,
+        serviceRequest: {
+          select: {
+            id: true,
+            user: true,
+            status: true,
+            supervisorAssignment: true
+          }
+        }
+      }
     });
 
-    if (!user) {
-      throw new Error("User not found");
-    }
-
-    let implementationPlans;
-
-    if (user.user_type === "ADMIN" || user.user_type === "SECRETARY") {
-      implementationPlans = await prisma.implementationPlan.findMany({
-        where: {
-          serviceRequest: {
-            status: {
-              none: { status: "archived" },
-            },
-          },
-        },
-        include: {
-          tasks: true,
-          files: true,
-          serviceRequest: { include: { user: true, status: true } },
-        },
-      });
-    } else if (user.user_type === "SUPERVISOR") {
-      implementationPlans = await prisma.implementationPlan.findMany({
-        where: {
-          AND: [
-            {
-              serviceRequest: {
-                status: {
-                  none: { status: "archived" },
-                },
-              },
-            },
-            {
-              serviceRequest: {
-                supervisorAssignment: { supervisorId: userId },
-              },
-            },
-          ],
-        },
-        include: {
-          tasks: true,
-          files: true,
-          serviceRequest: { include: { user: true, status: true } },
-        },
-      });
-    } else if (user.user_type === "USER") {
-      implementationPlans = await prisma.implementationPlan.findMany({
-        where: {
-          AND: [
-            {
-              serviceRequest: {
-                status: {
-                  none: { status: "archived" },
-                },
-              },
-            },
-            { serviceRequest: { userId } },
-          ],
-        },
-        include: {
-          tasks: true,
-          files: true,
-          serviceRequest: { include: { user: true, status: true } },
-        },
-      });
-    } else {
-      throw new Error("Invalid user type");
-    }
-
-    return implementationPlans;
+    // Defensive: ensure tasks is always an array
+    return implementationPlans.map(plan => ({
+      ...plan,
+      tasks: plan.tasks ?? [],
+    }));
   } catch (error) {
     console.error("Error retrieving implementation plans:", error);
     throw error;
