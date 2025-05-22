@@ -1,6 +1,10 @@
 import { prisma } from "@/lib/prisma";
+import { Prisma } from "@prisma/client";
 
-export default async function getImplementationPlans(userId: string) {
+export default async function getImplementationPlans(
+  userId: string,
+  department?: string
+) {
   try {
     const user = await prisma.user.findUnique({
       where: { id: userId },
@@ -11,72 +15,55 @@ export default async function getImplementationPlans(userId: string) {
       throw new Error("User not found");
     }
 
-    let implementationPlans;
+    const userType = user.user_type
+    // Example filter logic for different user roles
+let where: Prisma.ImplementationPlanWhereInput = {};
 
-    if (user.user_type === "ADMIN" || user.user_type === "SECRETARY") {
-      implementationPlans = await prisma.implementationPlan.findMany({
-        where: {
-          serviceRequest: {
-            status: {
-              none: { status: "archived" },
-            },
+    if (userType === "SUPERVISOR" && department) {
+      where = {
+        serviceRequest: {
+          user: {
+            department: department,
           },
         },
-        include: {
-          tasks: true,
-          files: true,
-          serviceRequest: { include: { user: true, status: true } },
+      };
+    } else if (userType === "USER") {
+      where = {
+        serviceRequest: {
+          userId: userId,
         },
-      });
-    } else if (user.user_type === "SUPERVISOR") {
-      implementationPlans = await prisma.implementationPlan.findMany({
-        where: {
-          AND: [
-            {
-              serviceRequest: {
-                status: {
-                  none: { status: "archived" },
-                },
-              },
-            },
-            {
-              serviceRequest: {
-                supervisorAssignment: { supervisorId: userId },
-              },
-            },
-          ],
-        },
-        include: {
-          tasks: true,
-          files: true,
-          serviceRequest: { include: { user: true, status: true } },
-        },
-      });
-    } else if (user.user_type === "USER") {
-      implementationPlans = await prisma.implementationPlan.findMany({
-        where: {
-          AND: [
-            {
-              serviceRequest: {
-                status: {
-                  none: { status: "archived" },
-                },
-              },
-            },
-            { serviceRequest: { userId } },
-          ],
-        },
-        include: {
-          tasks: true,
-          files: true,
-          serviceRequest: { include: { user: true, status: true } },
-        },
-      });
-    } else {
-      throw new Error("Invalid user type");
+      };
     }
+    // Add more role-based filters as needed
 
-    return implementationPlans;
+    const plans = await prisma.implementationPlan.findMany({
+      where,
+      select: {
+        id: true,
+        description: true,
+        tasks: true,
+        files: true,
+        createdAt: true,
+        serviceRequest: {
+          select: {
+            id: true,
+            concern: true, // <-- Ensure this is included!
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                department: true,
+              },
+            },
+            status: true,
+            supervisorAssignment: true,
+          },
+        },
+      },
+    });
+
+    return plans;
   } catch (error) {
     console.error("Error retrieving implementation plans:", error);
     throw error;
