@@ -78,11 +78,14 @@ export default function Register() {
       submit: "",
     };
 
+    const nameRegex = new RegExp("^\\p{L}[\\p{L}\\s'-]*$", "u");
+
     if (validator.isEmpty(firstName)) {
       newErrors.firstName = "First name is required.";
       isValid = false;
-    } else if (!validator.isAlpha(firstName, 'en-US', { ignore: " -" })) {
-      newErrors.firstName = "First name must contain only letters.";
+    } else if (!nameRegex.test(firstName)) {
+      newErrors.firstName =
+        "First name may only include letters (including ñ, é, etc.), spaces, hyphens or apostrophes.";
       isValid = false;
     } else if (firstName.length > MAX_LENGTH.firstName) {
       newErrors.firstName = `First name cannot exceed ${MAX_LENGTH.firstName} characters.`;
@@ -92,8 +95,9 @@ export default function Register() {
     if (validator.isEmpty(lastName)) {
       newErrors.lastName = "Last name is required.";
       isValid = false;
-    } else if (!validator.isAlpha(lastName, 'en-US', { ignore: " -" })) {
-      newErrors.lastName = "Last name must contain only letters.";
+    } else if (!nameRegex.test(lastName)) {
+      newErrors.lastName =
+        "Last name may only include letters (including ñ, é, etc.), spaces, hyphens or apostrophes.";
       isValid = false;
     } else if (lastName.length > MAX_LENGTH.lastName) {
       newErrors.lastName = `Last name cannot exceed ${MAX_LENGTH.lastName} characters.`;
@@ -326,7 +330,7 @@ export default function Register() {
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
-              <PopoverContent   className="p-0 min-w-[var(--radix-popover-trigger-width)] max-w-[var(--radix-popover-trigger-width)] w-auto overflow-auto">
+              <PopoverContent className="p-0 min-w-[var(--radix-popover-trigger-width)] max-w-[var(--radix-popover-trigger-width)] w-auto overflow-auto">
                 <Command className="w-full">
                   <CommandInput placeholder="Search department..." />
                   <CommandList className="w-full">
@@ -356,7 +360,7 @@ export default function Register() {
               </PopoverContent>
             </Popover>
             {errors.department && (
-              <p className="text-red-500 text-sm mt-1">{errors.department}</p>
+              <p className="text-red-500 text-xs mt-1">{errors.department}</p>
             )}
           </div>
 
