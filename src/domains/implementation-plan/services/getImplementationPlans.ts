@@ -1,5 +1,6 @@
 import { prisma } from "@/lib/prisma";
 
+
 export default async function getImplementationPlans(
   userId: string,
   department?: string
@@ -16,7 +17,7 @@ export default async function getImplementationPlans(
 
     const userType = user.user_type
     // Example filter logic for different user roles
-let where: Prisma.ImplementationPlanWhereInput = {};
+let where: prisma.ImplementationPlanWhereInput = {};
 
     if (userType === "SUPERVISOR" && department) {
       where = {
