@@ -149,7 +149,7 @@ export default function UserManagement() {
   return (
     <div className="flex-1 p-8 relative flex flex-col w-full h-full bg-gradient-to-b from-yellow-50 to-blue-50 ">
       <div className="shrink-0">
-        <h1 className="text-2xl font-bold mb-6">User Management</h1>
+        <h1 className="text-2xl font-semibold mb-6  text-indigo-dark">User Management</h1>
 
         <div className="flex justify-between mb-6">
           <div className="flex items-center space-x-3">
@@ -193,17 +193,17 @@ export default function UserManagement() {
       </div>
 
       <div className="flex-1 overflow-y-auto pr-2">
-        <div className="rounded-md border shadow-sm overflow-hidden">
+        <div className="rounded-md border shadow-sm overflow-hidden bg-gray-100">
           <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow className="rounded-t-md shadow-md bg-yellow-500 hover:bg-yellow-500 h-16">
-                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold  text-indigo-dark">
                   Full Name
                 </TableHead>
-                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold  text-indigo-dark">
                   Email
                 </TableHead>
-                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold  text-indigo-dark">
                   User Type
                 </TableHead>
               </TableRow>
@@ -212,7 +212,7 @@ export default function UserManagement() {
               {currentUsers.map((user) => (
                 <TableRow
                   key={user.id}
-                  className="hover:bg-gray-100 cursor-pointer"
+                  className="hover:bg-gray-200 cursor-pointer"
                   onClick={() => handleUserClick(user)}
                 >
                   <TableCell className="text-center py-3">{`${user.firstName} ${user.lastName}`}</TableCell>
@@ -247,7 +247,7 @@ export default function UserManagement() {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="flex items-center text-sm font-medium">
+            <span className="flex items-center text-sm font-semibold  text-indigo-dark">
               Page {currentPage} of {totalPages}
             </span>
             <Button
