@@ -1,71 +1,59 @@
 import { prisma } from "@/lib/prisma";
 
-export default async function getImplementationPlans(userId: string, userType: string, department?: string) {
+export default async function getImplementationPlans(
+  userId: string,
+  userType: string,
+  department?: string
+) {
   try {
-    // Build the filter for supervisor or admin
-    let where: Record<string, unknown> = {};
+    // Example filter logic for different user roles
+let where: Prisma.ImplementationPlanWhereInput = {};
 
-    if (userType === "ADMIN") {
-      // Admin: get all non-archived implementation plans
+    if (userType === "SUPERVISOR" && department) {
       where = {
         serviceRequest: {
-          OR: [
-            { status: null },
-            {
-              status: {
-                some: {
-                  status: { not: "archived" }
-                }
-              }
-            }
-          ]
-        }
-      };
-    } else if (userType === "SUPERVISOR") {
-      // Supervisor: get non-archived plans for their department
-      where = {
-        serviceRequest: {
-          OR: [
-            { status: null },
-            {
-              status: {
-                some: {
-                  status: { not: "archived" }
-                }
-              }
-            }
-          ],
           user: {
-            department: department
-          }
-        }
+            department: department,
+          },
+        },
+      };
+    } else if (userType === "USER") {
+      where = {
+        serviceRequest: {
+          userId: userId,
+        },
       };
     }
+    // Add more role-based filters as needed
 
-    const implementationPlans = await prisma.implementationPlan.findMany({
+    const plans = await prisma.implementationPlan.findMany({
       where,
       select: {
         id: true,
         description: true,
-        createdAt: true,
         tasks: true,
         files: true,
+        createdAt: true,
         serviceRequest: {
           select: {
             id: true,
-            user: true,
+            concern: true, // <-- Ensure this is included!
+            user: {
+              select: {
+                id: true,
+                firstName: true,
+                lastName: true,
+                department: true,
+              },
+            },
             status: true,
-            supervisorAssignment: true
-          }
-        }
-      }
+            supervisorAssignment: true,
+          },
+        },
+      },
     });
 
-    // Defensive: ensure tasks is always an array
-    return implementationPlans.map(plan => ({
-      ...plan,
-      tasks: plan.tasks ?? [],
-    }));
+    return plans;
   } catch (error) {
     console.error("Error retrieving implementation plans:", error);
     throw error;
