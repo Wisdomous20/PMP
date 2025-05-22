@@ -216,22 +216,24 @@ export default function InventoryManagement() {
             <AddEquipment onSuccess={handleEquipmentAdded} />
           </DialogContent>
         </Dialog>
-        <div className="flex gap-2">
-          <Button onClick={downloadPDF}>Download PDF</Button>
-          <Button
-            onClick={() =>
-              createInventoryExcel(
-                selectedDepartment === "all"
-                  ? "ALL DEPARTMENTS"
-                  : selectedDepartment,
-                new Date(),
-                equipment
-              )
-            }
-          >
-            Download Excel
-          </Button>
-        </div>
+        {userRole === "ADMIN" &&
+          <div className="flex gap-2">
+            <Button onClick={downloadPDF}>Download PDF</Button>
+            <Button
+              onClick={() =>
+                createInventoryExcel(
+                  selectedDepartment === "all"
+                    ? "ALL DEPARTMENTS"
+                    : selectedDepartment,
+                  new Date(),
+                  equipment
+                )
+              }
+            >
+              Download Excel
+            </Button>
+          </div>
+        }
       </div>
 
       <div className="rounded-md border">
