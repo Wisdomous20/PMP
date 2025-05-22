@@ -3,7 +3,7 @@ import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Plus, Pencil, Trash2 } from "lucide-react";
-import { Search, X } from "lucide-react";
+import { Search, X, Filter, ChevronLeft, ChevronRight } from "lucide-react";
 import { Skeleton } from "@/components/ui/skeleton";
 import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
@@ -45,6 +45,20 @@ export default function PersonnelManagement() {
   const [departments, setDepartments] = useState<string[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
   const [loading, setLoading] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedDepartment]);
+
+  const totalPages = Math.ceil(filteredPersonnel.length / itemsPerPage);
+
+  const paginatedPersonnel = filteredPersonnel.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   useEffect(() => {
     fetchPersonnel();
@@ -174,8 +188,9 @@ export default function PersonnelManagement() {
   }
 
   return (
-    <div className="flex-1 p-8 relative overflow-y-auto flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 rounded-md overflow-hidden">
+    <div className="flex-1 p-8 flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 rounded-md overflow-hidden">
       <h1 className="text-2xl font-bold mb-6 shrink-0">Personnel Management</h1>
+
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
           <div className="relative flex items-center space-x-2">
@@ -202,16 +217,17 @@ export default function PersonnelManagement() {
             onValueChange={handleDepartmentChange}
           >
             <SelectTrigger className="w-full sm:w-[180px] border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 bg-white">
+              <Filter size={16} />
               <SelectValue placeholder="Filter by department" />
             </SelectTrigger>
+
             <SelectContent>
               <SelectItem value="all">All Departments</SelectItem>
-              {Array.isArray(departments) &&
-                departments.map((dept) => (
-                  <SelectItem key={dept} value={dept}>
-                    {dept}
-                  </SelectItem>
-                ))}
+              {departments.map((dept) => (
+                <SelectItem key={dept} value={dept}>
+                  {dept}
+                </SelectItem>
+              ))}
             </SelectContent>
           </Select>
         </div>
@@ -238,61 +254,104 @@ export default function PersonnelManagement() {
         currentPersonnel={currentPersonnel}
       />
 
-      <div className="rounded-t-md bg-yellow-400 shadow-md mb-1">
-        <div className="grid grid-cols-12 gap-4 px-6 py-5 text-base font-bold text-gray-900">
-          <div className="col-span-3 text-center">Name</div>
-          <div className="col-span-3 text-center">Position</div>
-          <div className="col-span-3 text-center">Department</div>
-          <div className="col-span-3 text-center">Actions</div>
+      {/* Content wrapper to push pagination to bottom */}
+      <div className="flex-1 overflow-y-auto pr-2">
+        <div className="rounded-md border shadow-sm overflow-hidden">
+          <Table className="table-fixed w-full">
+            <TableHeader>
+              <TableRow className="rounded-t-md shadow-md bg-yellow-500 hover:bg-yellow-500 h-16">
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
+                  Name
+                </TableHead>
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
+                  Position
+                </TableHead>
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
+                  Department
+                </TableHead>
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedPersonnel.length > 0 ? (
+                paginatedPersonnel.map((person) => (
+                  <TableRow
+                    key={person.id}
+                    className="hover:bg-gray-100 cursor-pointer"
+                  >
+                    <TableCell className="w-1/3 text-center">
+                      {person.name}
+                    </TableCell>
+                    <TableCell className="w-1/3 text-center">
+                      {person.position}
+                    </TableCell>
+                    <TableCell className="w-1/3 text-center">
+                      {person.department}
+                    </TableCell>
+                    <TableCell className="text-center flex justify-center gap-2">
+                      <PersonnelCalendar person={person} buttonOnly={true} />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openUpdateDialog(person)}
+                        title="Edit"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleSingleDelete(person.id)}
+                        title="Delete"
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="text-center py-8 text-gray-500"
+                  >
+                    {searchTerm
+                      ? "No personnel found matching your search"
+                      : "No personnel available"}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
 
-      <div className="overflow-y-auto max-h-[500px] space-y-2">
-        {filteredPersonnel.length > 0 ? (
-          filteredPersonnel.map((person) => (
-            <div
-              key={person.id}
-              className="grid grid-cols-12 gap-4 px-6 py-3 bg-gray-100 rounded-md hover:bg-gray-300 transition-colors cursor-pointer"
+      {totalPages > 1 && (
+        <div className="sticky bottom-0 left-0 right-0 bg-gradient-to-b from-yellow-50 to-blue-50 p-4 z-10">
+          <div className="flex justify-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
             >
-              <div className="col-span-3 flex items-center justify-center">
-                {person.name}
-              </div>
-              <div className="col-span-3 flex items-center justify-center">
-                {person.position}
-              </div>
-              <div className="col-span-3 flex items-center justify-center">
-                {person.department}
-              </div>
-              <div className="col-span-3 flex items-center justify-center gap-2">
-                <PersonnelCalendar person={person} buttonOnly={true} />
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => openUpdateDialog(person)}
-                  title="Edit"
-                >
-                  <Pencil className="h-4 w-4" />
-                </Button>
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  onClick={() => handleSingleDelete(person.id)}
-                  title="Delete"
-                  className="text-destructive"
-                >
-                  <Trash2 className="h-4 w-4" />
-                </Button>
-              </div>
-            </div>
-          ))
-        ) : (
-          <div className="text-center py-8 bg-white rounded-md text-gray-500">
-            {searchTerm
-              ? "No personnel found matching your search"
-              : "No personnel available"}
+              <ChevronLeft className="h-4 w-4 mr-1" />
+            </Button>
+            <span className="flex items-center text-sm font-medium">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
           </div>
-        )}
-      </div>
+        </div>
+      )}
     </div>
   );
 }
