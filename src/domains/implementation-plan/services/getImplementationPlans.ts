@@ -1,13 +1,23 @@
 import { prisma } from "@/lib/prisma";
 
+
 export default async function getImplementationPlans(
   userId: string,
-  userType: string,
   department?: string
 ) {
   try {
+    const user = await prisma.user.findUnique({
+      where: { id: userId },
+      select: { user_type: true },
+    });
+
+    if (!user) {
+      throw new Error("User not found");
+    }
+
+    const userType = user.user_type
     // Example filter logic for different user roles
-let where: Prisma.ImplementationPlanWhereInput = {};
+let where: prisma.ImplementationPlanWhereInput = {};
 
     if (userType === "SUPERVISOR" && department) {
       where = {
