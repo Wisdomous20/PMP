@@ -149,7 +149,7 @@ export default function UserManagement() {
   return (
     <div className="flex-1 p-8 relative flex flex-col w-full h-full bg-gradient-to-b from-yellow-50 to-blue-50 ">
       <div className="shrink-0">
-        <h1 className="text-2xl font-bold mb-6">User Management</h1>
+        <h1 className="text-2xl font-semibold mb-6">User Management</h1>
 
         <div className="flex justify-between mb-6">
           <div className="flex items-center space-x-3">

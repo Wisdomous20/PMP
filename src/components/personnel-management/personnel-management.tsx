@@ -189,7 +189,7 @@ export default function PersonnelManagement() {
 
   return (
     <div className="flex-1 p-8 flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 rounded-md overflow-hidden">
-      <h1 className="text-2xl font-bold mb-6 shrink-0">Personnel Management</h1>
+      <h1 className="text-2xl font-semibold mb-6 shrink-0">Personnel Management</h1>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
@@ -254,7 +254,6 @@ export default function PersonnelManagement() {
         currentPersonnel={currentPersonnel}
       />
 
-      {/* Content wrapper to push pagination to bottom */}
       <div className="flex-1 overflow-y-auto pr-2">
         <div className="rounded-md border shadow-sm overflow-hidden">
           <Table className="table-fixed w-full">
