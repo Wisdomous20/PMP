@@ -36,7 +36,7 @@ export default function Dashboard() {
     dashboardError instanceof Error ? dashboardError.message : null;
 
   return (
-    <div className="flex flex-col w-full min-h-screen p-6 md:p-8 overflow-y-auto">
+    <div className="flex flex-col w-full min-h-screen p-6 md:p-8 overflow-y-auto bg-gradient-to-b from-yellow-50 to-blue-100">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
         <div>
           <h1 className="text-2xl text-indigo-dark font-bold tracking-tight mb-3">

@@ -189,7 +189,7 @@ export default function PersonnelManagement() {
 
   return (
     <div className="flex-1 p-8 flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 rounded-md overflow-hidden">
-      <h1 className="text-2xl font-semibold mb-6 shrink-0">Personnel Management</h1>
+      <h1 className="text-2xl font-semibold mb-6 shrink-0  text-indigo-dark">Personnel Management</h1>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
@@ -255,20 +255,20 @@ export default function PersonnelManagement() {
       />
 
       <div className="flex-1 overflow-y-auto pr-2">
-        <div className="rounded-md border shadow-sm overflow-hidden">
+        <div className="rounded-md border shadow-sm overflow-hidden bg-gray-100">
           <Table className="table-fixed w-full">
             <TableHeader>
               <TableRow className="rounded-t-md shadow-md bg-yellow-500 hover:bg-yellow-500 h-16">
-                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-indigo-dark">
                   Name
                 </TableHead>
-                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-indigo-dark">
                   Position
                 </TableHead>
-                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-indigo-dark">
                   Department
                 </TableHead>
-                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black"></TableHead>
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-indigo-dark"></TableHead>
               </TableRow>
             </TableHeader>
             <TableBody>
@@ -276,7 +276,7 @@ export default function PersonnelManagement() {
                 paginatedPersonnel.map((person) => (
                   <TableRow
                     key={person.id}
-                    className="hover:bg-gray-100 cursor-pointer"
+                    className="hover:bg-gray-200 cursor-pointer"
                   >
                     <TableCell className="w-1/3 text-center">
                       {person.name}
@@ -336,7 +336,7 @@ export default function PersonnelManagement() {
             >
               <ChevronLeft className="h-4 w-4 mr-1" />
             </Button>
-            <span className="flex items-center text-sm font-medium">
+            <span className="flex items-center text-sm font-semibold  text-indigo-dark">
               Page {currentPage} of {totalPages}
             </span>
             <Button

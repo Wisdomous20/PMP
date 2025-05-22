@@ -129,7 +129,7 @@ export default function Archives() {
 
   return (
     <div className="flex-1 p-8 flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 rounded-md overflow-hidden">
-      <h1 className="text-2xl font-semibold mb-6 shrink-0">Archives</h1>
+      <h1 className="text-2xl font-semibold mb-6 shrink-0  text-indigo-dark">Archives</h1>
 
       <div className="flex justify-between mb-6">
       <div className="flex items-center space-x-3">
@@ -154,14 +154,14 @@ export default function Archives() {
       </div>
       </div>
   
-      <div className="flex-1 overflow-y-auto border rounded-lg">
+      <div className="flex-1 overflow-y-auto border rounded-lg bg-gray-100">
         <Table>
           <TableHeader>
             <TableRow className="rounded-t-md shadow-md bg-yellow-500 hover:bg-yellow-500 h-16">
-              <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">Name of Requestor</TableHead>
-              <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">Title</TableHead>
-              <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">Request Date</TableHead>
-              <TableHead className="w-1/3 py-3 text-center text-base font-bold text-black">Status</TableHead>
+              <TableHead className="w-1/3 py-3 text-center text-base font-bold text-indigo-dark">Name of Requestor</TableHead>
+              <TableHead className="w-1/3 py-3 text-center text-base font-bold text-indigo-dark">Title</TableHead>
+              <TableHead className="w-1/3 py-3 text-center text-base font-bold text-indigo-dark">Request Date</TableHead>
+              <TableHead className="w-1/3 py-3 text-center text-base font-bold text-indigo-dark">Status</TableHead>
             </TableRow>
           </TableHeader>
           <TableBody>
@@ -177,7 +177,7 @@ export default function Archives() {
               displayedRequests.map((request) => (
                 <TableRow
                   key={request.id}
-                  className="hover:bg-gray-50 cursor-pointer transition text-center"
+                  className="hover:bg-gray-200 cursor-pointer transition text-center"
                   onClick={() => handleRequestClick(request)}
                 >
                   <TableCell className="px-3 py-4">{request.name}</TableCell>
@@ -208,7 +208,7 @@ export default function Archives() {
             >
               <ChevronLeft className="h-4 w-4" />
             </Button>
-            <span className="flex items-center text-sm font-medium">
+            <span className="flex items-center text-sm font-semibold  text-indigo-dark">
               Page {currentPage} of {totalPages}
             </span>
             <Button
