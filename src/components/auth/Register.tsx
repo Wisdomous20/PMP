@@ -3,14 +3,27 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Check, ChevronsUpDown } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import validator from "validator";
 import { fetchVerificationToken } from "@/domains/user-management/services/fetchVerificationToken";
 import { fetchSendUserVerificationEmail } from "@/domains/notification/services/fetchSendUserVerificationEmail";
 import DEPARTMENTS from "@/lib/departments";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 const MAX_LENGTH = {
   firstName: 50,
@@ -48,6 +61,8 @@ export default function Register() {
     department: "",
     submit: "",
   });
+
+  const [deptOpen, setDeptOpen] = useState(false);
 
   const validateForm = () => {
     let isValid = true;
@@ -295,21 +310,51 @@ export default function Register() {
             >
               Department
             </label>
-            <Select
-              value={department}
-              onValueChange={(value) => setDepartment(value)}
-            >
-              <SelectTrigger id="department" className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400">
-                <SelectValue placeholder="Select department" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[30vh]">
-                {DEPARTMENTS.map((dept) => (
-                  <SelectItem key={dept} value={dept}>
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={deptOpen} onOpenChange={setDeptOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  id="department"
+                  role="combobox"
+                  aria-expanded={deptOpen}
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-between bg-white bg-opacity-20 text-white placeholder-gray-400",
+                    !department && "text-gray-400"
+                  )}
+                >
+                  {department || "Select department..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent   className="p-0 min-w-[var(--radix-popover-trigger-width)] max-w-[var(--radix-popover-trigger-width)] w-auto overflow-auto">
+                <Command className="w-full">
+                  <CommandInput placeholder="Search department..." />
+                  <CommandList className="w-full">
+                    <CommandEmpty className="w-full">No department found.</CommandEmpty>
+                    <CommandGroup className="w-full">
+                      {DEPARTMENTS.map((dept) => (
+                        <CommandItem
+                          key={dept}
+                          value={dept}
+                          onSelect={(current) => {
+                            setDepartment(current);
+                            setDeptOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              department === dept ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {dept}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {errors.department && (
               <p className="text-red-500 text-sm mt-1">{errors.department}</p>
             )}
@@ -336,7 +381,7 @@ export default function Register() {
                 <p className="text-red-500 text-xs mt-1">{errors.localNumber}</p>
               )}
             </div>
-            <div>
+            <div className="mt-auto">
               <label
                 htmlFor="cellphoneNumber"
                 className="block text-sm font-medium text-gray-200 mb-1"
