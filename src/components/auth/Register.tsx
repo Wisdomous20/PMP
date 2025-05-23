@@ -29,7 +29,7 @@ const MAX_LENGTH = {
   firstName: 50,
   lastName: 50,
   department: 100,
-  localNumber: 10,
+  localNumber: 11,
   cellphoneNumber: 15,
   email: 255,
   password: 128,
@@ -116,8 +116,8 @@ export default function Register() {
       if (!validator.isNumeric(localNumber)) {
         newErrors.localNumber = "Local number must contain only numbers.";
         isValid = false;
-      } else if (!validator.isLength(localNumber, { min: 7, max: MAX_LENGTH.localNumber })) {
-        newErrors.localNumber = `Local number must be between 7 and ${MAX_LENGTH.localNumber} digits.`;
+      } else if (!(validator.isLength(localNumber, { min: 7, max: MAX_LENGTH.localNumber }) || validator.isLength(localNumber, { min: 4, max: 4 }))) {
+        newErrors.localNumber = `Local number must be 4 digits or between 7 and ${MAX_LENGTH.localNumber} digits.`;
         isValid = false;
       }
     }
@@ -382,7 +382,7 @@ export default function Register() {
                 maxLength={MAX_LENGTH.localNumber}
               />
               {errors.localNumber && (
-                <p className="text-red-500 text-xs mt-1">{errors.localNumber}</p>
+                <p className="text-red-500 text-xs mt-1 h-10 md:h-6">{errors.localNumber}</p>
               )}
             </div>
             <div className="mt-auto">
@@ -402,7 +402,7 @@ export default function Register() {
                 maxLength={MAX_LENGTH.cellphoneNumber}
               />
               {errors.cellphoneNumber && (
-                <p className="text-red-500 text-xs mt-1">{errors.cellphoneNumber}</p>
+                <p className="text-red-500 text-xs mt-1 h-10 md:h-6">{errors.cellphoneNumber}</p>
               )}
             </div>
           </div>
