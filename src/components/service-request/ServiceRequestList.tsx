@@ -29,11 +29,11 @@ export default function ServiceRequestList({ serviceRequests, setServiceRequestI
   return (
     <div className="w-[500px] h-full max-h-screen overflow-y-auto flex flex-col border-r border-gray-200 bg-white">
       <div className="items-center px-3">
-        <h2 className="text-md sm:text-2xl font-semibold text-indigo-text pt-3"> Service Requests </h2>
+        <h2 className="text-2xl font-semibold text-indigo-text pl-3 pt-6 tracking-tight"> Service Requests </h2>
       </div>
 
       {/* Search Bar */}
-      <div className="p-4 border-b border-gray-200 flex items-center space-x-3">
+      <div className="p-6 border-b border-gray-200 flex items-center space-x-3">
         <Search className="h-5 w-5 text-gray-500" />
         <Input
           type="text"

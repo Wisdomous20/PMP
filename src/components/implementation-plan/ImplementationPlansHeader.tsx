@@ -10,7 +10,7 @@ const ImplementationPlansHeader: React.FC<ImplementationPlansHeaderProps> = ({ o
   return (
     <div className="mb-6">
       <div className="flex items-center mb-4">
-        <h1 className="text-2xl font-bold tracking-tight">Implementation Plans</h1>
+        <h1 className="text-2xl font-bold text-indigo-dark tracking-tight">Implementation Plans</h1>
       </div>
       <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between">
         <p className="text-muted-foreground">

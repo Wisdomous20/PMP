@@ -1,18 +1,26 @@
 "use client";
-import { ArrowUpRight, CheckCircle2, Clock, Package, BarChart } from "lucide-react";
+import {
+  ArrowUpRight,
+  CheckCircle2,
+  Clock,
+  Package,
+  BarChart,
+} from "lucide-react";
 import { Card, CardContent, CardHeader, CardTitle } from "@/components/ui/card";
 import { Skeleton } from "@/components/ui/skeleton";
-import Link from "next/link"; 
-
+import Link from "next/link";
 
 interface DashboardStatsProps {
-  isLoading: boolean
-  stats: Stats,
-  error: string | null
+  isLoading: boolean;
+  stats: Stats;
+  error: string | null;
 }
 
-export default function DashboardStats({isLoading, stats, error} : DashboardStatsProps) {
-
+export default function DashboardStats({
+  isLoading,
+  stats,
+  error,
+}: DashboardStatsProps) {
   if (isLoading || !stats) {
     return (
       <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
@@ -35,11 +43,13 @@ export default function DashboardStats({isLoading, stats, error} : DashboardStat
     );
   }
 
-    if (error) {
+  if (error) {
     return (
       <Card className="w-full">
         <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-          <CardTitle className="text-lg font-semibold">Dashboard Statistics</CardTitle>
+          <CardTitle className="text-lg font-semibold">
+            Dashboard Statistics
+          </CardTitle>
           <BarChart className="h-5 w-5 text-muted-foreground" />
         </CardHeader>
         <CardContent className="p-4 text-red-500">
@@ -90,32 +100,56 @@ export default function DashboardStats({isLoading, stats, error} : DashboardStat
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {items.map((item) => (
         <Card key={item.title}>
-          <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-            <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
-            {item.icon}
-          </CardHeader>
-          <CardContent>
-            <div className="text-2xl font-bold">{item.value}</div>
-            <p className="text-xs text-muted-foreground">
-              {item.delta >= 0 ? `+${item.delta}` : item.delta} from last week
-            </p>
-            {item.percentage && (
-              <div className="mt-4 flex items-center gap-2">
-                <div
-                  className={`flex h-2 w-2 rounded-full ${
-                    item.title === "Completed"
-                      ? "bg-green-500"
-                      : item.title === "In Progress"
-                      ? "bg-amber-500"
-                      : "bg-blue-500"
-                  }`}
-                />
-                <div className="text-xs text-muted-foreground">
-                  {item.percentage}
-                </div>
-              </div>
-            )}
-          </CardContent>
+<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+  <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
+  {item.icon}
+</CardHeader>
+<CardContent>
+  <div className="flex flex-col h-full">
+    <div className="text-2xl font-bold mb-4">{item.value}</div>
+    <div className="flex flex-1" />
+<div className="flex flex-col items-start gap-1">
+  <span
+    className={`flex items-center text-xs ${
+      item.title === "Completed"
+        ? "text-green-600"
+        : item.title === "In Progress"
+        ? "text-amber-600"
+        : item.title === "Pending Requests"
+        ? "text-blue-600"
+        : "text-indigo-900"
+    }`}
+  >
+    {item.delta >= 0 ? (
+      <>
+        <span className="inline-flex items-center justify-center w-2 h-2 font-bold text-base leading-none">
+          +
+        </span>
+        <span className="ml-2">{item.delta} from last week</span>
+      </>
+    ) : (
+      `${item.delta} from last week`
+    )}
+  </span>
+  {item.percentage && (
+    <span className="flex items-center gap-2">
+      <span
+        className={`h-2 w-2 rounded-full inline-block align-middle ${
+          item.title === "Completed"
+            ? "bg-green-500"
+            : item.title === "In Progress"
+            ? "bg-amber-500"
+            : "bg-blue-500"
+        }`}
+      />
+      <span className="text-xs text-muted-foreground">
+        {item.percentage}
+      </span>
+    </span>
+  )}
+</div>
+  </div>
+</CardContent>
         </Card>
       ))}
     </div>

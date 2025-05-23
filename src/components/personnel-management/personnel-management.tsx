@@ -1,7 +1,10 @@
 "use client";
+import React from "react";
 import { useEffect, useState } from "react";
-import { Button } from "../ui/button";
-import { Plus } from "lucide-react";
+import { Button } from "@/components/ui/button";
+import { Plus, Pencil, Trash2 } from "lucide-react";
+import { Search, X, Filter, ChevronLeft, ChevronRight } from "lucide-react";
+import { Skeleton } from "@/components/ui/skeleton";
 import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
 import PersonnelCalendar from "./PersonnelCalendar";
@@ -12,6 +15,23 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import {
+  Table,
+  TableBody,
+  TableCell,
+  TableHead,
+  TableHeader,
+  TableRow,
+} from "@/components/ui/table";
+// import { Input } from "@/components/ui/input";
+
+interface Personnel {
+  id: string;
+  name: string;
+  position: string;
+  department: string;
+  tasks: CalendarTask[];
+}
 
 export default function PersonnelManagement() {
   const [personnel, setPersonnel] = useState<Personnel[]>([]);
@@ -24,6 +44,21 @@ export default function PersonnelManagement() {
   );
   const [departments, setDepartments] = useState<string[]>([]);
   const [selectedDepartment, setSelectedDepartment] = useState<string>("all");
+  const [loading, setLoading] = useState(false);
+
+  const [currentPage, setCurrentPage] = useState(1);
+  const itemsPerPage = 10;
+
+  useEffect(() => {
+    setCurrentPage(1);
+  }, [searchTerm, selectedDepartment]);
+
+  const totalPages = Math.ceil(filteredPersonnel.length / itemsPerPage);
+
+  const paginatedPersonnel = filteredPersonnel.slice(
+    (currentPage - 1) * itemsPerPage,
+    currentPage * itemsPerPage
+  );
 
   useEffect(() => {
     fetchPersonnel();
@@ -51,6 +86,7 @@ export default function PersonnelManagement() {
   }, [searchTerm, personnel, selectedDepartment]);
 
   const fetchPersonnel = async () => {
+    setLoading(true);
     try {
       const response = await fetch("/api/manpower-management");
       const data = await response.json();
@@ -67,6 +103,8 @@ export default function PersonnelManagement() {
       }
     } catch (error) {
       console.error("Error fetching personnel:", error);
+    } finally {
+      setLoading(false);
     }
   };
 
@@ -84,60 +122,123 @@ export default function PersonnelManagement() {
     setIsUpdateDialogOpen(true);
   };
 
-  const handleSearchChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    setSearchTerm(e.target.value);
+  const handleSearchChange = (
+    e: React.ChangeEvent<HTMLInputElement> | string
+  ) => {
+    if (typeof e === "string") {
+      setSearchTerm(e);
+    } else {
+      setSearchTerm(e.target.value);
+    }
   };
 
   const handleDepartmentChange = (value: string) => {
     setSelectedDepartment(value);
   };
 
-  return (
-    <div className="p-4 flex flex-col w-screen">
-      <div className="w-full max-w-10xl">
-        <h1 className="text-md sm:text-2xl font-semibold text-indigo-text py-3">
-          Personnel Management
-        </h1>
+  if (loading) {
+    return (
+      <div className="flex-1 p-8 relative overflow-hidden flex flex-col">
+        <Skeleton className="h-8 w-32 mb-6 shrink-0" />
 
-        <div className="flex items-center justify-between mb-6">
-          <div className="flex items-center space-x-4 w-2/3">
+        <div className="flex justify-between mb-6 shrink-0">
+          <div className="flex items-center space-x-2">
+            <Skeleton className="h-10 w-6 rounded" />
+            <Skeleton className="h-10 w-80 rounded" />
+          </div>
+          <Skeleton className="h-10 w-24 rounded" />
+        </div>
+
+        <div className="bg-gray-200 rounded-t-md">
+          <div className="grid grid-cols-12 gap-4 px-6 py-5">
+            <div className="col-span-1" />
+            <Skeleton className="col-span-2 h-6" />
+            <Skeleton className="col-span-3 h-6" />
+            <Skeleton className="col-span-3 h-6" />
+            <Skeleton className="col-span-2 h-6" />
+          </div>
+        </div>
+
+        <div className="space-y-2 mt-2 overflow-y-auto flex-1 pr-2">
+          {[...Array(9)].map((_, idx) => (
+            <div
+              key={idx}
+              className="grid grid-cols-12 gap-4 px-4 py-3 bg-gray-100 rounded-md"
+            >
+              <div className="col-span-1 flex items-center justify-center">
+                <Skeleton className="h-5 w-5 rounded-sm" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-40" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-48" />
+              </div>
+              <div className="col-span-3">
+                <Skeleton className="h-4 w-32" />
+              </div>
+              <div className="col-span-2">
+                <Skeleton className="h-4 w-20" />
+              </div>
+            </div>
+          ))}
+        </div>
+      </div>
+    );
+  }
+
+  return (
+    <div className="flex-1 p-8 flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 rounded-md overflow-hidden">
+      <h1 className="text-2xl font-semibold mb-6 shrink-0  text-indigo-dark">Personnel Management</h1>
+
+      <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
+        <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
+          <div className="relative flex items-center space-x-2">
+            <Search className="text-gray-500" size={20} />
             <input
               type="text"
-              placeholder="Search"
-              className="border border-gray-300 rounded-md hidden sm:block w-1/2 px-4 py-2"
+              placeholder="Search Personnel..."
+              className="border border-gray-300 rounded-md px-4 py-2 w-80 focus:outline-none focus:ring-2 focus:ring-indigo-300"
               value={searchTerm}
               onChange={handleSearchChange}
             />
-
-            <Select
-              value={selectedDepartment}
-              onValueChange={handleDepartmentChange}
-            >
-              <SelectTrigger className="w-[180px]">
-                <SelectValue placeholder="Filter by department" />
-              </SelectTrigger>
-              <SelectContent>
-                <SelectItem value="all">All Departments</SelectItem>
-                {Array.isArray(departments) &&
-                  departments.map((dept) => (
-                    <SelectItem key={dept} value={dept}>
-                      {dept}
-                    </SelectItem>
-                  ))}
-              </SelectContent>
-            </Select>
+            {searchTerm && (
+              <button
+                className="absolute right-3 top-2.5 text-gray-400 hover:text-gray-600"
+                onClick={() => handleSearchChange("")}
+              >
+                <X size={18} />
+              </button>
+            )}
           </div>
 
-          <div className="flex justify-end space-x-2">
-            <Button
-              variant={"gold"}
-              onClick={() => setIsDialogOpen(true)}
-              className="bg-indigo-Background text-primary-foreground px-4 py-2 rounded-md"
-            >
-              <Plus className="inline-block mr-2 w-4 h-4" /> Add Personnel
-            </Button>
-          </div>
+          <Select
+            value={selectedDepartment}
+            onValueChange={handleDepartmentChange}
+          >
+            <SelectTrigger className="w-full sm:w-[180px] border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 bg-white">
+              <Filter size={16} />
+              <SelectValue placeholder="Filter by department" />
+            </SelectTrigger>
+
+            <SelectContent>
+              <SelectItem value="all">All Departments</SelectItem>
+              {departments.map((dept) => (
+                <SelectItem key={dept} value={dept}>
+                  {dept}
+                </SelectItem>
+              ))}
+            </SelectContent>
+          </Select>
         </div>
+
+        <Button
+          variant={"default"}
+          onClick={() => setIsDialogOpen(true)}
+          className="bg-indigo-Background text-white w-full sm:w-auto hover:bg-indigo-900"
+        >
+          <Plus className="mr-2 h-4 w-4 font" /> Add Personnel
+        </Button>
       </div>
 
       <AddPersonnel
@@ -153,33 +254,103 @@ export default function PersonnelManagement() {
         currentPersonnel={currentPersonnel}
       />
 
-      <div className="rounded-md shadow-md overflow-y-auto h-[500px] mx-auto w-full max-w-7xl mt-6 border p-4">
-        <div className="bg-transparent grid grid-cols-[1fr_1fr_1fr_30px] items-center gap-4 px-4 py-2 font-semibold">
-          <div className="text-center">Name</div>
-          <div className="text-center">Position</div>
-          <div className="text-center">Department</div>
-          <div className="text-center"></div>
-        </div>
-
-        <div className="mt-4">
-          {filteredPersonnel.length > 0 ? (
-            filteredPersonnel.map((person) => (
-              <PersonnelCalendar
-                key={person.id}
-                person={person}
-                openUpdateDialog={openUpdateDialog}
-                onDelete={handleSingleDelete}
-              />
-            ))
-          ) : (
-            <div className="text-center py-8 text-gray-500">
-              {searchTerm
-                ? "No personnel found matching your search"
-                : "No personnel available"}
-            </div>
-          )}
+      <div className="flex-1 overflow-y-auto pr-2">
+        <div className="rounded-md border shadow-sm overflow-hidden bg-gray-100">
+          <Table className="table-fixed w-full">
+            <TableHeader>
+              <TableRow className="rounded-t-md shadow-md bg-yellow-500 hover:bg-yellow-500 h-16">
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-indigo-dark">
+                  Name
+                </TableHead>
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-indigo-dark">
+                  Position
+                </TableHead>
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-indigo-dark">
+                  Department
+                </TableHead>
+                <TableHead className="w-1/3 py-3 text-center text-base font-bold text-indigo-dark"></TableHead>
+              </TableRow>
+            </TableHeader>
+            <TableBody>
+              {paginatedPersonnel.length > 0 ? (
+                paginatedPersonnel.map((person) => (
+                  <TableRow
+                    key={person.id}
+                    className="hover:bg-gray-200 cursor-pointer"
+                  >
+                    <TableCell className="w-1/3 text-center">
+                      {person.name}
+                    </TableCell>
+                    <TableCell className="w-1/3 text-center">
+                      {person.position}
+                    </TableCell>
+                    <TableCell className="w-1/3 text-center">
+                      {person.department}
+                    </TableCell>
+                    <TableCell className="text-center flex justify-center gap-2">
+                      <PersonnelCalendar person={person} buttonOnly={true} />
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => openUpdateDialog(person)}
+                        title="Edit"
+                      >
+                        <Pencil className="h-4 w-4" />
+                      </Button>
+                      <Button
+                        variant="ghost"
+                        size="icon"
+                        onClick={() => handleSingleDelete(person.id)}
+                        title="Delete"
+                        className="text-destructive"
+                      >
+                        <Trash2 className="h-4 w-4" />
+                      </Button>
+                    </TableCell>
+                  </TableRow>
+                ))
+              ) : (
+                <TableRow>
+                  <TableCell
+                    colSpan={4}
+                    className="text-center py-8 text-gray-500"
+                  >
+                    {searchTerm
+                      ? "No personnel found matching your search"
+                      : "No personnel available"}
+                  </TableCell>
+                </TableRow>
+              )}
+            </TableBody>
+          </Table>
         </div>
       </div>
+
+      {totalPages > 1 && (
+        <div className="sticky bottom-0 left-0 right-0 bg-gradient-to-b from-yellow-50 to-blue-50 p-4 z-10">
+          <div className="flex justify-center gap-4">
+            <Button
+              variant="outline"
+              onClick={() => setCurrentPage((prev) => Math.max(prev - 1, 1))}
+              disabled={currentPage === 1}
+            >
+              <ChevronLeft className="h-4 w-4 mr-1" />
+            </Button>
+            <span className="flex items-center text-sm font-semibold  text-indigo-dark">
+              Page {currentPage} of {totalPages}
+            </span>
+            <Button
+              variant="outline"
+              onClick={() =>
+                setCurrentPage((prev) => Math.min(prev + 1, totalPages))
+              }
+              disabled={currentPage === totalPages}
+            >
+              <ChevronRight className="h-4 w-4 ml-1" />
+            </Button>
+          </div>
+        </div>
+      )}
     </div>
   );
 }

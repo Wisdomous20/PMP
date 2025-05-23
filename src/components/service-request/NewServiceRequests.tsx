@@ -23,8 +23,8 @@ export default function NewServiceRequests({ newServiceRequests, isLoading, erro
   if (isLoading) {
     return (
       <Card className="w-full">
-        <CardHeader className="border-b">
-          <CardTitle>Recent Pending Requests</CardTitle>
+        <CardHeader className="border-b p-4">
+          <CardTitle className="text-indigo-dark">Recent Pending Requests</CardTitle>
         </CardHeader>
         <CardContent className="p-4">
           {[...Array(5)].map((_, i) => (

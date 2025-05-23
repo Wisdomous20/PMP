@@ -17,7 +17,12 @@ export default function Dashboard() {
     enabled: !!session?.user.id,
   });
 
-  const { data: dashboardData, isLoading, error: dashboardError, refetch } = useQuery({
+  const {
+    data: dashboardData,
+    isLoading,
+    error: dashboardError,
+    refetch,
+  } = useQuery({
     queryKey: ["dashboardData", session?.user.id],
     queryFn: () => fetchDashboardData(session?.user.id as string),
     enabled: !!session?.user.id,
@@ -27,37 +32,66 @@ export default function Dashboard() {
     await refetch();
   };
 
-  const errorMessage = dashboardError instanceof Error ? dashboardError.message : null;
+  const errorMessage =
+    dashboardError instanceof Error ? dashboardError.message : null;
 
   return (
-    <div className="flex flex-col w-full min-h-screen p-8 overflow-y-auto">
-      <div className="flex flex-col gap-4 md:flex-row md:items-center md:justify-between mb-6">
+    <div className="flex flex-col w-full min-h-screen p-6 md:p-8 overflow-y-auto bg-gradient-to-b from-yellow-50 to-blue-100">
+      <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
         <div>
-          <h1 className="text-2xl font-bold tracking-tight">Operations Dashboard</h1>
-          <p className="text-muted-foreground">Monitor implementation plans, service requests, and equipment logs</p>
+          <h1 className="text-2xl text-indigo-dark font-bold tracking-tight mb-3">
+            Operations Dashboard
+          </h1>
+          <p className="text-sm text-muted-foreground">
+            Monitor implementation plans, service requests, and equipment logs
+          </p>
         </div>
       </div>
+      <div className="mb-6">
+        <DashboardStats
+          stats={dashboardData?.dashboardStats}
+          isLoading={isLoading || userRoleLoading}
+          error={errorMessage}
+        />
+      </div>
 
-      <DashboardStats stats={dashboardData?.dashboardStats} isLoading={isLoading || userRoleLoading} error={errorMessage} />
-
-      <div className="grid grid-cols-1 gap-6 lg:grid-cols-4 py-6 max-h-[900px]">
-        <div className="lg:col-span-3 space-y-6">
-          <div className="overflow-y-scroll">
-            <ImplementationPlansInProgress onUpdate={handlePlansUpdate} implementationPlans={dashboardData?.implementationPlans} isLoading={isLoading || userRoleLoading} error={errorMessage} userRole={userRole as UserRole} />
+      <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
+        <div className="lg:col-span-3 flex flex-col gap-6">
+          <div className="bg-white rounded-lg shadow overflow-hidden">
+            <ImplementationPlansInProgress
+              onUpdate={handlePlansUpdate}
+              implementationPlans={dashboardData?.implementationPlans}
+              isLoading={isLoading || userRoleLoading}
+              error={errorMessage}
+              userRole={userRole as UserRole}
+            />
           </div>
 
-          <div className="grid grid-cols-1 gap-6 md:grid-cols-2">
-            <div className="overflow-y-scroll">
-              <NewServiceRequests newServiceRequests={dashboardData?.newServiceRequests} isLoading={isLoading || userRoleLoading} error={errorMessage} />
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+            <div className="bg-white rounded-lg shadow overflow-hidden h-full">
+              <NewServiceRequests
+                newServiceRequests={dashboardData?.newServiceRequests?.slice(0,5)}
+                isLoading={isLoading || userRoleLoading}
+                error={errorMessage}
+              />
             </div>
-            <div className="overflow-y-scroll">
-              <RecentInventoryLogs equipment={dashboardData?.equipment} isLoading={isLoading || userRoleLoading} error={errorMessage} />
+
+            <div className="bg-white rounded-lg shadow overflow-hidden h-full">
+              <RecentInventoryLogs
+                equipment={dashboardData?.equipment?.slice(0,6)}
+                isLoading={isLoading || userRoleLoading}
+                error={errorMessage}
+              />
             </div>
           </div>
         </div>
 
-        <div className="overflow-y-scroll">
-          <NotificationsPanel notifications={dashboardData?.notifications} isLoading={isLoading || userRoleLoading} error={errorMessage} />
+        <div className="bg-white rounded-lg shadow overflow-hidden h-full">
+          <NotificationsPanel
+            notifications={dashboardData?.notifications?.slice(0, 8)}
+            isLoading={isLoading || userRoleLoading}
+            error={errorMessage}
+          />
         </div>
       </div>
     </div>
