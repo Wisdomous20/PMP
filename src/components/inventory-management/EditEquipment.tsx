@@ -21,6 +21,7 @@ import {
   SelectValue,
 } from "@/components/ui/select";
 import DEPARTMENTS from "@/lib/departments";
+import { Pencil } from "lucide-react";
 
 interface Equipment {
   id: string;
@@ -164,8 +165,13 @@ export function EditEquipment({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="outline" size="sm">Edit</Button>
-      </DialogTrigger>
+  <button
+    className="p-2 rounded-lg hover:bg-white transition-colors"
+    title="Edit"
+  >
+    <Pencil className="w-4 h-4 text-black" />
+  </button>
+</DialogTrigger>
       <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Equipment</DialogTitle>

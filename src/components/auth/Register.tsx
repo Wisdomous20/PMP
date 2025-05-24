@@ -3,20 +3,33 @@ import { useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
-import { Eye, EyeOff } from "lucide-react";
+import { Eye, EyeOff, Check, ChevronsUpDown } from "lucide-react";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import validator from "validator";
 import { fetchVerificationToken } from "@/domains/user-management/services/fetchVerificationToken";
 import { fetchSendUserVerificationEmail } from "@/domains/notification/services/fetchSendUserVerificationEmail";
 import DEPARTMENTS from "@/lib/departments";
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "../ui/select";
+import { cn } from "@/lib/utils";
+import {
+  Popover,
+  PopoverTrigger,
+  PopoverContent,
+} from "@/components/ui/popover";
+import {
+  Command,
+  CommandEmpty,
+  CommandGroup,
+  CommandInput,
+  CommandItem,
+  CommandList,
+} from "@/components/ui/command";
 
 const MAX_LENGTH = {
   firstName: 50,
   lastName: 50,
   department: 100,
-  localNumber: 10,
+  localNumber: 11,
   cellphoneNumber: 15,
   email: 255,
   password: 128,
@@ -49,6 +62,8 @@ export default function Register() {
     submit: "",
   });
 
+  const [deptOpen, setDeptOpen] = useState(false);
+
   const validateForm = () => {
     let isValid = true;
     const newErrors = {
@@ -63,11 +78,14 @@ export default function Register() {
       submit: "",
     };
 
+    const nameRegex = new RegExp("^\\p{L}[\\p{L}\\s'-]*$", "u");
+
     if (validator.isEmpty(firstName)) {
       newErrors.firstName = "First name is required.";
       isValid = false;
-    } else if (!validator.isAlpha(firstName, 'en-US', { ignore: " -" })) {
-      newErrors.firstName = "First name must contain only letters.";
+    } else if (!nameRegex.test(firstName)) {
+      newErrors.firstName =
+        "First name may only include letters (including ñ, é, etc.), spaces, hyphens or apostrophes.";
       isValid = false;
     } else if (firstName.length > MAX_LENGTH.firstName) {
       newErrors.firstName = `First name cannot exceed ${MAX_LENGTH.firstName} characters.`;
@@ -77,8 +95,9 @@ export default function Register() {
     if (validator.isEmpty(lastName)) {
       newErrors.lastName = "Last name is required.";
       isValid = false;
-    } else if (!validator.isAlpha(lastName, 'en-US', { ignore: " -" })) {
-      newErrors.lastName = "Last name must contain only letters.";
+    } else if (!nameRegex.test(lastName)) {
+      newErrors.lastName =
+        "Last name may only include letters (including ñ, é, etc.), spaces, hyphens or apostrophes.";
       isValid = false;
     } else if (lastName.length > MAX_LENGTH.lastName) {
       newErrors.lastName = `Last name cannot exceed ${MAX_LENGTH.lastName} characters.`;
@@ -97,8 +116,8 @@ export default function Register() {
       if (!validator.isNumeric(localNumber)) {
         newErrors.localNumber = "Local number must contain only numbers.";
         isValid = false;
-      } else if (!validator.isLength(localNumber, { min: 7, max: MAX_LENGTH.localNumber })) {
-        newErrors.localNumber = `Local number must be between 7 and ${MAX_LENGTH.localNumber} digits.`;
+      } else if (!(validator.isLength(localNumber, { min: 7, max: MAX_LENGTH.localNumber }) || validator.isLength(localNumber, { min: 4, max: 4 }))) {
+        newErrors.localNumber = `Local number must be 4 digits or between 7 and ${MAX_LENGTH.localNumber} digits.`;
         isValid = false;
       }
     }
@@ -295,23 +314,53 @@ export default function Register() {
             >
               Department
             </label>
-            <Select
-              value={department}
-              onValueChange={(value) => setDepartment(value)}
-            >
-              <SelectTrigger id="department" className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400">
-                <SelectValue placeholder="Select department" />
-              </SelectTrigger>
-              <SelectContent className="max-h-[30vh]">
-                {DEPARTMENTS.map((dept) => (
-                  <SelectItem key={dept} value={dept}>
-                    {dept}
-                  </SelectItem>
-                ))}
-              </SelectContent>
-            </Select>
+            <Popover open={deptOpen} onOpenChange={setDeptOpen}>
+              <PopoverTrigger asChild>
+                <Button
+                  id="department"
+                  role="combobox"
+                  aria-expanded={deptOpen}
+                  variant="outline"
+                  className={cn(
+                    "w-full justify-between bg-white bg-opacity-20 text-white placeholder-gray-400",
+                    !department && "text-gray-400"
+                  )}
+                >
+                  {department || "Select department..."}
+                  <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
+                </Button>
+              </PopoverTrigger>
+              <PopoverContent className="p-0 min-w-[var(--radix-popover-trigger-width)] max-w-[var(--radix-popover-trigger-width)] w-auto overflow-auto">
+                <Command className="w-full">
+                  <CommandInput placeholder="Search department..." />
+                  <CommandList className="w-full">
+                    <CommandEmpty className="w-full">No department found.</CommandEmpty>
+                    <CommandGroup className="w-full">
+                      {DEPARTMENTS.map((dept) => (
+                        <CommandItem
+                          key={dept}
+                          value={dept}
+                          onSelect={(current) => {
+                            setDepartment(current);
+                            setDeptOpen(false);
+                          }}
+                        >
+                          <Check
+                            className={cn(
+                              "mr-2 h-4 w-4",
+                              department === dept ? "opacity-100" : "opacity-0"
+                            )}
+                          />
+                          {dept}
+                        </CommandItem>
+                      ))}
+                    </CommandGroup>
+                  </CommandList>
+                </Command>
+              </PopoverContent>
+            </Popover>
             {errors.department && (
-              <p className="text-red-500 text-sm mt-1">{errors.department}</p>
+              <p className="text-red-500 text-xs mt-1">{errors.department}</p>
             )}
           </div>
 
@@ -333,10 +382,10 @@ export default function Register() {
                 maxLength={MAX_LENGTH.localNumber}
               />
               {errors.localNumber && (
-                <p className="text-red-500 text-xs mt-1">{errors.localNumber}</p>
+                <p className="text-red-500 text-xs mt-1 h-10 md:h-6">{errors.localNumber}</p>
               )}
             </div>
-            <div>
+            <div className="mt-auto">
               <label
                 htmlFor="cellphoneNumber"
                 className="block text-sm font-medium text-gray-200 mb-1"
@@ -353,7 +402,7 @@ export default function Register() {
                 maxLength={MAX_LENGTH.cellphoneNumber}
               />
               {errors.cellphoneNumber && (
-                <p className="text-red-500 text-xs mt-1">{errors.cellphoneNumber}</p>
+                <p className="text-red-500 text-xs mt-1 h-10 md:h-6">{errors.cellphoneNumber}</p>
               )}
             </div>
           </div>

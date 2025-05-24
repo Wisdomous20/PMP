@@ -97,9 +97,8 @@ export default function UserManagement() {
 
   if (loading) {
     return (
-      <div className="flex-1 p-8 relative overflow-hidden flex flex-col">
+      <div className="flex-1 p-8 relative overflow-hidden flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50">
         <Skeleton className="h-8 w-32 mb-6 shrink-0" />
-
         <div className="flex justify-between mb-6 shrink-0">
           <div className="flex items-center space-x-2">
             <Skeleton className="h-10 w-6 rounded" />
@@ -195,7 +194,7 @@ export default function UserManagement() {
       <div className="flex-1 overflow-y-auto pr-2">
         <div className="rounded-md border shadow-sm overflow-hidden bg-gray-100">
           <Table className="table-fixed w-full">
-            <TableHeader>
+            <TableHeader className="bg-yellow-500">
               <TableRow className="rounded-t-md shadow-md bg-yellow-500 hover:bg-yellow-500 h-16">
                 <TableHead className="w-1/3 py-3 text-center text-base font-bold  text-indigo-dark">
                   Full Name
