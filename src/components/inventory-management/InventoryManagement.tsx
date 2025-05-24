@@ -235,71 +235,75 @@ export default function InventoryManagement() {
 
   return (
     <div className="flex-1 pl-4 pr-8 pt-8 pb-8 relative flex flex-col w-full h-full">
-    <h1 className="text-2xl font-semibold -mt-4 mb-6 text-indigo-dark">
-      Inventory Report Summary
-    </h1>
+      <h1 className="text-2xl font-semibold -mt-4 mb-6 text-indigo-dark">
+        Inventory Report Summary
+      </h1>
 
-    <div className="flex justify-between items-center mb-4 pt-3">
-      <div className="flex items-center gap-3">
-        <Select
-          value={filters.department}
-          onValueChange={handleDepartmentChange}
-        >
-          <SelectTrigger className="w-[180px] bg-white">
-            <Filter size={16} />
-            <SelectValue placeholder="Filter by department" />
-          </SelectTrigger>
-          <SelectContent>
-            <SelectItem value="all">All Departments</SelectItem>
-            {Array.isArray(departments) &&
-              departments.map((dept) => (
-                <SelectItem key={dept} value={dept}>
-                  {dept}
-                </SelectItem>
-              ))}
-          </SelectContent>
-        </Select>
+      <div className="flex justify-between items-center mb-4 pt-3">
+        <div className="flex items-center gap-3">
+          <Select
+            value={filters.department}
+            onValueChange={handleDepartmentChange}
+          >
+            <SelectTrigger className="w-[240px] bg-white flex items-center gap-2">
+              <span className="flex-shrink-0">
+                <Filter size={16} />
+              </span>
+              <SelectValue placeholder="Filter by department" />
+            </SelectTrigger>
 
-        {userRole === "ADMIN" && (
-          <div className="flex gap-2">
-            <Button 
-            onClick={downloadPDF}
-            className="bg-orange-600 hover:bg-orange-800"
-            
-            >Download PDF</Button>
-            <Button
-               className="bg-green-600 hover:bg-green-800"
-              onClick={() =>
-                createInventoryExcel(
-                  filters.department === "all"
-                    ? "ALL DEPARTMENTS"
-                    : filters.department,
-                  new Date(),
-                  equipment
-                )
-              }
-            >
-              Download Excel
+            <SelectContent>
+              <SelectItem value="all">All Departments</SelectItem>
+              {Array.isArray(departments) &&
+                departments.map((dept) => (
+                  <SelectItem key={dept} value={dept}>
+                    {dept}
+                  </SelectItem>
+                ))}
+            </SelectContent>
+          </Select>
+
+          {userRole === "ADMIN" && (
+            <div className="flex gap-2">
+              <Button
+                onClick={downloadPDF}
+                className="bg-orange-600 hover:bg-orange-800"
+              >
+                Download PDF
+              </Button>
+              <Button
+                className="bg-green-600 hover:bg-green-800"
+                onClick={() =>
+                  createInventoryExcel(
+                    filters.department === "all"
+                      ? "ALL DEPARTMENTS"
+                      : filters.department,
+                    new Date(),
+                    equipment
+                  )
+                }
+              >
+                Download Excel
+              </Button>
+            </div>
+          )}
+        </div>
+
+        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+          <DialogTrigger asChild>
+            <Button className="bg-indigo-Background">
+              <Plus className="w-4 h-4 mr-2" />
+              Add Equipment
             </Button>
-          </div>
-        )}
+          </DialogTrigger>
+          <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-y-auto">
+            <DialogHeader>
+              <DialogTitle>Add New Equipment</DialogTitle>
+            </DialogHeader>
+            <AddEquipment onSuccess={handleEquipmentAdded} />
+          </DialogContent>
+        </Dialog>
       </div>
-
-      <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-        <DialogTrigger asChild>
-          <Button className="bg-indigo-Background">
-            <Plus className="w-4 h-4 mr-2" />
-            Add Equipment
-          </Button>
-        </DialogTrigger>
-        <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-y-auto">
-          <DialogHeader>
-            <DialogTitle>Add New Equipment</DialogTitle>
-          </DialogHeader>
-          <AddEquipment onSuccess={handleEquipmentAdded} />
-        </DialogContent>
-      </Dialog>
-    </div>
 
       <div className="w-full">
         <div className="w-full rounded-md border shadow-sm bg-gray-100 overflow-hidden">
@@ -420,7 +424,7 @@ export default function InventoryManagement() {
         </div>
       </div>
 
-      <div >
+      <div>
         <EquipmentPagination
           currentPage={filters.page}
           totalPages={totalPages}
