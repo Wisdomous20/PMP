@@ -1,3 +1,4 @@
+"use client";
 import {
   Dialog,
   DialogContent,
@@ -9,6 +10,7 @@ import {
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
 import { fetchDeleteEquipmentById } from "@/domains/inventory-management/services/fetchDeleteEquipmentById";
+import { Trash2 } from "lucide-react";
 
 interface DeleteEquipmentDialogProps {
   equipmentId: string;
@@ -31,7 +33,7 @@ export function DeleteEquipment({
       onDelete();
       setIsOpen(false);
     } catch (error) {
-      console.error('Error deleting equipment:', error);
+      console.error("Error deleting equipment:", error);
     } finally {
       setIsDeleting(false);
     }
@@ -40,27 +42,39 @@ export function DeleteEquipment({
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="destructive" size="sm">
-          Delete
-        </Button>
+        <button
+          className="p-2 rounded-lg hover:bg-white transition-colors"
+          title="Delete"
+        >
+          <Trash2 className="w-4 h-4 text-red-500" />
+        </button>
       </DialogTrigger>
-      <DialogContent>
+
+  
+      <DialogContent className="max-w-md">
         <DialogHeader>
-          <DialogTitle>Delete Equipment</DialogTitle>
-          <DialogDescription>
-            Are you sure you want to delete {description}? This action cannot be undone.
+          <DialogTitle className="text-lg">Delete Equipment</DialogTitle>
+          <DialogDescription className="text-sm text-gray-600 break-all">
+            Are you sure you want to delete{" "}
+            <span className="text-gray-600 font-semibold break-all"> '{description}' </span>? <br />
+            This action cannot be undone.
           </DialogDescription>
         </DialogHeader>
-        <div className="flex justify-end space-x-2">
-          <Button variant="outline" onClick={() => setIsOpen(false)} disabled={isDeleting}>
-            Cancel
-          </Button>
-          <Button 
-            variant="destructive" 
-            onClick={handleDelete} 
+
+        <div className="mt-6 flex justify-end space-x-2">
+          <Button
+            variant="outline"
+            onClick={() => setIsOpen(false)}
             disabled={isDeleting}
           >
-            {isDeleting ? "Deleting..." : "Delete"}
+            Cancel
+          </Button>
+          <Button
+            variant="destructive"
+            onClick={handleDelete}
+            disabled={isDeleting}
+          >
+            {isDeleting ? "Deleting..." : "Confirm"}
           </Button>
         </div>
       </DialogContent>
