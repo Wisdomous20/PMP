@@ -138,7 +138,7 @@ export default function PersonnelManagement() {
 
   if (loading) {
     return (
-      <div className="flex-1 p-8 relative overflow-hidden flex flex-col">
+      <div className="flex-1 p-8 relative overflow-hidden flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50">
         <Skeleton className="h-8 w-32 mb-6 shrink-0" />
 
         <div className="flex justify-between mb-6 shrink-0">
