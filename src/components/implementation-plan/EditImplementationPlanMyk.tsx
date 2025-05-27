@@ -343,16 +343,18 @@ function TaskCard({
           {task.endTime.toLocaleString()}
         </div>
       </div>
-      <EditTask
-        task={task}
-        implementationPlan={plan}
-        onUpdate={onUpdate}
-        onDelete={onDelete}
-        personnel={personnel}
-        assignments={assignments}
-        setAssignments={setAssignments}
-        currentAssignment={currentAssignment}
-      />
+      {(userRole === "SUPERVISOR" || userRole === "ADMIN") &&
+        <EditTask
+          task={task}
+          implementationPlan={plan}
+          onUpdate={onUpdate}
+          onDelete={onDelete}
+          personnel={personnel}
+          assignments={assignments}
+          setAssignments={setAssignments}
+          currentAssignment={currentAssignment}
+        />
+      }
     </motion.div>
   );
 }

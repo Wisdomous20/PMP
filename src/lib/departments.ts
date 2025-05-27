@@ -25,6 +25,15 @@ const DEPARTMENTS = [
   "Library",
   "University Computer Service Center",
   "Student Development Programs",
+  "Buildings Upkeep and Maintenance",
+  "Campus Traffic",
+  "Security and Safety",
+  "Electrical & Mechanical Systems",
+  "Facilities Maintenance and Services",
+  "Grounds Upkeep and Maintenance",
+  "Occupational Safety and Health Officer",
+  "Pollution Control",
+  "Swimming Pool",
 ];
 
-export default DEPARTMENTS
+export default DEPARTMENTS;
