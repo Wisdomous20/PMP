@@ -144,7 +144,7 @@ const ImplementationPlansBoard: React.FC = () => {
           <div className="mb-3 flex items-center justify-between">
             <div className="flex items-center">
               <div className="h-3 w-3 rounded-full bg-green-500 mr-2"></div>
-              <h2 className="font-medium text-gray-800">Done</h2>
+              <h2 className="font-medium text-gray-800">Pending Work Evaluation</h2>
             </div>
             <div className="flex h-6 w-6 items-center justify-center rounded-full bg-gray-100 text-xs font-medium">
               {donePlans.length}
