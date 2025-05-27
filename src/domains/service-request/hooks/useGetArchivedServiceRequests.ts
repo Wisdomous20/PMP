@@ -1,6 +1,6 @@
-import { useState, useEffect } from 'react';
-import useGetSessionData from '@/domains/user-management/hooks/useGetSessionData';
-import fetchGetArchivedServiceRequests from '@/domains/service-request/services/fetchGetArchivedServiceRequests';
+import { useState, useEffect } from "react";
+import useGetSessionData from "@/domains/user-management/hooks/useGetSessionData";
+import fetchGetArchivedServiceRequests from "@/domains/service-request/services/fetchGetArchivedServiceRequests";
 
 export interface ArchivedServiceRequest {
   id: string;
@@ -20,7 +20,9 @@ export interface ArchivedServiceRequest {
 }
 
 export default function useGetArchivedServiceRequests() {
-  const [archivedRequests, setArchivedRequests] = useState<ArchivedServiceRequest[]>([]);
+  const [archivedRequests, setArchivedRequests] = useState<
+    ArchivedServiceRequest[]
+  >([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const { sessionData } = useGetSessionData();
@@ -31,12 +33,24 @@ export default function useGetArchivedServiceRequests() {
       if (sessionData?.user?.id) {
         try {
           setLoading(true);
-          const response = await fetchGetArchivedServiceRequests(sessionData.user.id);
-          setArchivedRequests(response);
+          const response = await fetchGetArchivedServiceRequests(
+            sessionData.user.id
+          );
+
+          const sorted = response.sort((a: { requestDate: string | number | Date; }, b: { requestDate: string | number | Date; }) => {
+            if (!a.requestDate) return 1;
+            if (!b.requestDate) return -1;
+            return (
+              new Date(b.requestDate).getTime() -
+              new Date(a.requestDate).getTime()
+            );
+          });
+
+          setArchivedRequests(sorted);
           setLoading(false);
         } catch (err) {
-          console.error('Error fetching archived service requests:', err);
-          setError(err instanceof Error ? err.message : 'Unknown error');
+          console.error("Error fetching archived service requests:", err);
+          setError(err instanceof Error ? err.message : "Unknown error");
           setLoading(false);
         }
       }
@@ -47,7 +61,7 @@ export default function useGetArchivedServiceRequests() {
     }
   }, [sessionData, refreshTrigger]);
 
-  const refreshArchives = () => setRefreshTrigger(prev => prev + 1);
+  const refreshArchives = () => setRefreshTrigger((prev) => prev + 1);
 
   return { archivedRequests, loading, error, refreshArchives };
 }

@@ -4,6 +4,7 @@ type ImplementationPlan = {
     status: string;
     serviceRequest: ServiceRequest;
     tasks: Task[];
+    createdAt: Date
 };
 
 type ServiceRequest = {

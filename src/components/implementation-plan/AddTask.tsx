@@ -43,9 +43,24 @@ export default function AddTask({
     start?: string;
     end?: string;
     personnel?: string;
-    timespan?: string;
+    datespan?: string;
   }>({});
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const maxDate = new Date();
+  maxDate.setDate(maxDate.getDate() + 7);
+  const maxDateString = maxDate.toISOString().split('T')[0];
+
+  const getMaxEndDate = () => {
+    if (!taskStart) return maxDateString;
+
+    const startDate = new Date(taskStart);
+    const maxEndDate = new Date(startDate);
+    maxEndDate.setDate(startDate.getDate() + 7);
+    return maxEndDate.toISOString().split('T')[0];
+  };
 
   const validateForm = () => {
     const newErrors: {
@@ -53,46 +68,36 @@ export default function AddTask({
       start?: string;
       end?: string;
       personnel?: string;
-      timespan?: string;
+      datespan?: string;
     } = {};
 
     if (!taskName) newErrors.name = "Task name is required";
-    if (!taskStart) newErrors.start = "Start time is required";
-    if (!taskEnd) newErrors.end = "End time is required";
+    if (!taskStart) newErrors.start = "Start date is required";
+    if (!taskEnd) newErrors.end = "End date is required";
     if (!selectedPersonnelId) newErrors.personnel = "Personnel selection is required";
 
     if (taskStart && taskEnd) {
       const startDate = new Date(taskStart);
       const endDate = new Date(taskEnd);
-      const now = new Date();
+      const todayDate = new Date(today);
 
-      if (startDate < now) {
-        newErrors.start = "Start time cannot be in the past";
+      if (startDate < todayDate) {
+        newErrors.start = "Start date cannot be in the past";
       }
 
-      if (endDate <= startDate) {
-        newErrors.end = "End time must be after start time";
+      if (endDate < startDate) {
+        newErrors.end = "End date cannot be before start date";
       }
 
-      if (
-        startDate.getFullYear() !== endDate.getFullYear() ||
-        startDate.getMonth() !== endDate.getMonth() ||
-        startDate.getDate() !== endDate.getDate()
-      ) {
-        newErrors.end = "Start and end time must be on the same day";
-      }
+      const daysDifference = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
-      const duration = endDate.getTime() - startDate.getTime();
-      const hoursDuration = duration / (1000 * 60 * 60);
-
-      if (hoursDuration > 72) {
-        newErrors.timespan = "Task duration cannot exceed 72 hours (3 days)";
+      if (daysDifference > 7) {
+        newErrors.datespan = "Task duration cannot exceed 7 days";
       }
     }
 
     return { errors: newErrors, isValid: Object.keys(newErrors).length === 0 };
   };
-
 
   const handleSubmit = () => {
     setAttemptedSubmit(true);
@@ -167,11 +172,13 @@ export default function AddTask({
 
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-1">
-              Start Date &amp; Time
+              Start Date
             </label>
             <Input
-              type="datetime-local"
+              type="date"
               value={taskStart}
+              min={today}
+              max={maxDateString}
               onChange={(e) => setTaskStart(e.target.value)}
               className={attemptedSubmit && errors.start ? "border-red-500" : ""}
             />
@@ -182,11 +189,13 @@ export default function AddTask({
 
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-1">
-              End Date &amp; Time
+              End Date
             </label>
             <Input
-              type="datetime-local"
+              type="date"
               value={taskEnd}
+              min={today}
+              max={getMaxEndDate()}
               onChange={(e) => setTaskEnd(e.target.value)}
               className={attemptedSubmit && errors.end ? "border-red-500" : ""}
             />
@@ -219,9 +228,9 @@ export default function AddTask({
             )}
           </div>
 
-          {attemptedSubmit && errors.timespan && (
+          {attemptedSubmit && errors.datespan && (
             <Alert variant="destructive">
-              <AlertDescription>{errors.timespan}</AlertDescription>
+              <AlertDescription>{errors.datespan}</AlertDescription>
             </Alert>
           )}
 

@@ -1,13 +1,6 @@
 import React from "react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DataTablePaginationProps {
   currentPage: number;
@@ -31,115 +24,24 @@ export default function EquipmentPagination({
   }
 
   return (
-    <div className="mt-4 flex justify-center">
-      <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage > 1) {
-                  goToPage(currentPage - 1);
-                }
-              }}
-              className={
-                currentPage === 1 ? "pointer-events-none opacity-50" : ""
-              }
-            />
-          </PaginationItem>
-          {currentPage > 2 && (
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  goToPage(1);
-                }}
-              >
-                1
-              </PaginationLink>
-            </PaginationItem>
-          )}
-
-          {currentPage > 3 && (
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-          )}
-
-          {currentPage > 1 && (
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  goToPage(currentPage - 1);
-                }}
-              >
-                {currentPage - 1}
-              </PaginationLink>
-            </PaginationItem>
-          )}
-
-          <PaginationItem>
-            <PaginationLink href="#" isActive>
-              {currentPage}
-            </PaginationLink>
-          </PaginationItem>
-
-          {currentPage < totalPages && (
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  goToPage(currentPage + 1);
-                }}
-              >
-                {currentPage + 1}
-              </PaginationLink>
-            </PaginationItem>
-          )}
-
-          {currentPage < totalPages - 2 && (
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-          )}
-
-          {currentPage < totalPages - 1 && (
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  goToPage(totalPages);
-                }}
-              >
-                {totalPages}
-              </PaginationLink>
-            </PaginationItem>
-          )}
-
-          <PaginationItem>
-            <PaginationNext
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage < totalPages) {
-                  goToPage(currentPage + 1);
-                }
-              }}
-              className={
-                currentPage === totalPages
-                  ? "pointer-events-none opacity-50"
-                  : ""
-              }
-            />
-          </PaginationItem>
-        </PaginationContent>
-      </Pagination>
+    <div className="flex justify-center gap-4">
+      <Button
+        variant="outline"
+        onClick={() => goToPage(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        <ChevronLeft className="h-4 w-4 mr-1" />
+      </Button>
+      <span className="flex items-center text-sm font-semibold text-indigo-dark">
+        Page {currentPage} of {totalPages}
+      </span>
+      <Button
+        variant="outline"
+        onClick={() => goToPage(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        <ChevronRight className="h-4 w-4 ml-1" />
+      </Button>
     </div>
   );
 }

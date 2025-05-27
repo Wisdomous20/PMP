@@ -5,7 +5,7 @@ import { useRouter, useSearchParams } from "next/navigation";
 import { Suspense } from "react";
 import Image from "next/image";
 import { Button } from "@/components/ui/button";
-import { CheckCircle, XCircle, Loader2 } from "lucide-react";
+import { CheckCircle, Loader2 } from "lucide-react";
 
 type VerifyStatus = "idle" | "loading" | "success" | "error";
 
@@ -84,9 +84,9 @@ function VerifyUserPage() {
     router.push("/auth/login");
   };
 
-  const handleResendVerification = () => {
-    router.push("/auth/register");
-  };
+  // const handleResendVerification = () => {
+  //   router.push("/auth/register");
+  // };
 
   return (
     <div
@@ -130,7 +130,7 @@ function VerifyUserPage() {
             </>
           )}
 
-          {verifyStatus === "success" && (
+          {(verifyStatus === "success" || verifyStatus === "error") && (
             <>
               <div className="flex justify-center">
                 <div className="w-16 h-16 bg-green-500 rounded-full flex items-center justify-center">
@@ -154,7 +154,7 @@ function VerifyUserPage() {
             </>
           )}
 
-          {verifyStatus === "error" && (
+          {/* {verifyStatus === "error" && (
             <>
               <div className="flex justify-center">
                 <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center">
@@ -185,7 +185,7 @@ function VerifyUserPage() {
                 </Button>
               </div>
             </>
-          )}
+          )} */}
         </div>
 
         <div className="mt-8 text-center text-xs text-gray-400">

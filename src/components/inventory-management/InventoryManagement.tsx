@@ -14,7 +14,7 @@ import {
 } from "@/components/ui/table";
 import { Button } from "@/components/ui/button";
 import { StatusBadge } from "./StatusBadge";
-import { PlusCircle } from "lucide-react";
+import { Plus } from "lucide-react";
 import {
   Dialog,
   DialogContent,
@@ -37,13 +37,13 @@ import {
 } from "@/components/ui/select";
 import EquipmentPagination from "./EquipmentPagination";
 import fetchPaginatedEquipment from "@/domains/inventory-management/services/fetchPaginatedEquipment";
-import fetchDepartment from "@/domains/inventory-management/services/fetchDepartment";
+
 import { createInventoryExcel } from "@/domains/inventory-management/services/createinventoryExcel";
 
 const ITEMS_PER_PAGE = 50;
 
 interface FilterState {
-  department: string;
+  office: string;
   page: number;
 }
 
@@ -53,46 +53,63 @@ export default function InventoryManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { data: session } = useSession();
   const [userRole, setUserRole] = useState<UserRole>();
-  const [departments, setDepartments] = useState<string[]>([]);
-  
+  const [offices, setOffices] = useState<string[]>([]);
+
   const [filters, setFilters] = useState<FilterState>({
-    department: "all",
-    page: 1
+    office: "all",
+    page: 1,
   });
-  
+
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
 
-  const loadEquipment = useCallback(async (filterOverrides?: Partial<FilterState>) => {
-    try {
-      setLoading(true);
+  const loadEquipment = useCallback(
+    async (filterOverrides?: Partial<FilterState>) => {
+      try {
+        setLoading(true);
 
-      const effectiveFilters = { ...filters, ...filterOverrides };
-      
-      const response = await fetchPaginatedEquipment({
-        page: effectiveFilters.page,
-        pageSize: ITEMS_PER_PAGE,
-        department: effectiveFilters.department === "all" ? undefined : effectiveFilters.department,
-      });
+        const effectiveFilters = { ...filters, ...filterOverrides };
 
-      const { data: paginatedData, meta } = response;
-      setEquipment(paginatedData);
-      setTotalItems(meta.total);
-      setTotalPages(meta.pageCount);
+        const response = await fetchPaginatedEquipment({
+          page: effectiveFilters.page,
+          pageSize: ITEMS_PER_PAGE,
+          department:
+            effectiveFilters.office === "all"
+              ? undefined
+              : effectiveFilters.office,
+        });
 
-      if (effectiveFilters.page === 1 && departments.length === 0) {
-        const deptList = await fetchDepartment();
-        setDepartments(deptList);
+        const { data: paginatedData, meta } = response;
+        setEquipment(paginatedData);
+        setTotalItems(meta.total);
+        setTotalPages(meta.pageCount);
+
+        if (effectiveFilters.page === 1 && offices.length === 0) {
+          const officeList = [
+            "Buildings Upkeep and Maintenance",
+            "Campus Traffic",
+            "Security and Safety",
+            "Electrical & Mechanical Systems",
+            "Facilities Maintenance and Services",
+            "Grounds Upkeep and Maintenance",
+            "Occupational Safety and Health Officer",
+            "Pollution Control",
+            "Swimming Pool",
+            "University Computer Services Center",
+          ];
+          setOffices(officeList);
+        }
+      } catch (error) {
+        console.error("Failed to load equipment:", error);
+        setEquipment([]);
+        setTotalItems(0);
+        setTotalPages(1);
+      } finally {
+        setLoading(false);
       }
-    } catch (error) {
-      console.error("Failed to load equipment:", error);
-      setEquipment([]);
-      setTotalItems(0);
-      setTotalPages(1);
-    } finally {
-      setLoading(false);
-    }
-  }, [filters, departments.length]);
+    },
+    [filters, offices.length]
+  );
 
   const loadUserRole = useCallback(async () => {
     try {
@@ -115,24 +132,24 @@ export default function InventoryManagement() {
     loadUserRole();
   }, [loadUserRole]);
 
-  const handleDepartmentChange = (value: string) => {
+  const handleOfficeChange = (value: string) => {
     setFilters({
-      department: value,
-      page: 1
+      office: value,
+      page: 1,
     });
   };
 
   const handlePageChange = (page: number) => {
-    setFilters(prev => ({
+    setFilters((prev) => ({
       ...prev,
-      page
+      page,
     }));
   };
 
   const handleEquipmentDeleted = async () => {
     const remainingItems = totalItems - 1;
     const maxPage = Math.ceil(remainingItems / ITEMS_PER_PAGE) || 1;
-    
+
     if (filters.page > maxPage) {
       const newFilters = { ...filters, page: maxPage };
       setFilters(newFilters);
@@ -155,12 +172,12 @@ export default function InventoryManagement() {
 
   const downloadPDF = () => {
     const doc = new jsPDF({ orientation: "landscape" });
-    
+
     let title = "Equipment Report";
-    if (filters.department !== "all") {
-      title += ` - ${filters.department} Department`;
+    if (filters.office !== "all") {
+      title += ` - ${filters.office} Office`;
     }
-    
+
     doc.text(title, 14, 10);
 
     const tableColumnHeaders = [
@@ -175,7 +192,7 @@ export default function InventoryManagement() {
       "Date Received",
       "Status",
       "Location",
-      "Department",
+      "Office",
     ];
 
     const tableRows = equipment.map((item) => [
@@ -204,15 +221,23 @@ export default function InventoryManagement() {
 
   if (isLoading && equipment.length === 0) {
     return (
-      <div className="space-y-4">
-        <div className="flex justify-end">
-          <Skeleton className="h-10 w-32" />
+      <div className="fixed top-0 right-0 bottom-0 left-24 flex flex-col pl-4 pr-8 pt-8 pb-8 bg-gradient-to-b from-yellow-50 to-blue-50">
+        <Skeleton className="h-8 w-72 -mt-8 mb-6 shrink-0" />
+        <div className="flex justify-between shrink-0">
+          <div className="flex items-center space-x-2">
+            <Skeleton className="h-10 w-32 rounded" />
+          </div>
         </div>
-        <div className="rounded-md border">
-          <div className="p-4 space-y-4">
-            {[...Array(5)].map((_, i) => (
-              <Skeleton key={i} className="h-12 w-full" />
-            ))}
+        <div className="space-y-4">
+          <div className="flex justify-end">
+            <Skeleton className="h-10 w-32" />
+          </div>
+          <div className="rounded-md border">
+            <div className="p-4 space-y-4">
+              {[...Array(8)].map((_, i) => (
+                <Skeleton key={i} className="h-12 w-full" />
+              ))}
+            </div>
           </div>
         </div>
       </div>
@@ -220,33 +245,60 @@ export default function InventoryManagement() {
   }
 
   return (
-    <div>
-      <div className="flex justify-between items-center mb-4 pt-3">
-        <div className="flex items-center gap-2">
-          <Select
-            value={filters.department}
-            onValueChange={handleDepartmentChange}
-          >
-            <SelectTrigger className="w-[180px]">
-              <Filter size={16} />
-              <SelectValue placeholder="Filter by department" />
+    <div className="fixed top-0 right-0 bottom-0 left-24 flex flex-col pl-4 pr-8 pt-8 pb-8">
+      <h1 className="text-2xl font-semibold -mt-4 mb-6 text-indigo-dark flex-shrink-0">
+        Inventory Report Summary
+      </h1>
+
+      <div className="flex justify-between items-center mb-4 pt-3 flex-shrink-0">
+        <div className="flex items-center gap-3">
+          <Select value={filters.office} onValueChange={handleOfficeChange}>
+            <SelectTrigger className="w-[240px] bg-white flex items-center gap-2">
+              <span className="flex-shrink-0">
+                <Filter size={16} />
+              </span>
+              <SelectValue placeholder="Filter by office" />
             </SelectTrigger>
+
             <SelectContent>
-              <SelectItem value="all">All Departments</SelectItem>
-              {Array.isArray(departments) &&
-                departments.map((dept) => (
-                  <SelectItem key={dept} value={dept}>
-                    {dept}
+              <SelectItem value="all">All Offices</SelectItem>
+              {Array.isArray(offices) &&
+                offices.map((office) => (
+                  <SelectItem key={office} value={office}>
+                    {office}
                   </SelectItem>
                 ))}
             </SelectContent>
           </Select>
+
+          {userRole === "ADMIN" && (
+            <div className="flex gap-2">
+              <Button
+                onClick={downloadPDF}
+                className="bg-orange-600 hover:bg-orange-800"
+              >
+                Download PDF
+              </Button>
+              <Button
+                className="bg-green-600 hover:bg-green-800"
+                onClick={() =>
+                  createInventoryExcel(
+                    filters.office === "all" ? "ALL OFFICES" : filters.office,
+                    new Date(),
+                    equipment
+                  )
+                }
+              >
+                Download Excel
+              </Button>
+            </div>
+          )}
         </div>
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button>
-              <PlusCircle className="w-4 h-4 mr-2" />
+            <Button className="bg-indigo-Background hover:bg-indigo-900">
+              <Plus className="w-4 h-4 mr-2" />
               Add Equipment
             </Button>
           </DialogTrigger>
@@ -257,112 +309,134 @@ export default function InventoryManagement() {
             <AddEquipment onSuccess={handleEquipmentAdded} />
           </DialogContent>
         </Dialog>
-        
-        {userRole === "ADMIN" && (
-          <div className="flex gap-2">
-            <Button onClick={downloadPDF}>Download PDF</Button>
-            <Button
-              onClick={() =>
-                createInventoryExcel(
-                  filters.department === "all"
-                    ? "ALL DEPARTMENTS"
-                    : filters.department,
-                  new Date(),
-                  equipment
-                )
-              }
-            >
-              Download Excel
-            </Button>
-          </div>
-        )}
       </div>
 
-      <div className="rounded-md border">
-        <Table>
-          <TableHeader>
-            <TableRow>
-              <TableHead>Qty</TableHead>
-              <TableHead>Description</TableHead>
-              <TableHead>Brand/Model</TableHead>
-              <TableHead>Serial Number</TableHead>
-              <TableHead>Supplier</TableHead>
-              <TableHead>Unit Cost</TableHead>
-              <TableHead>Total Cost</TableHead>
-              <TableHead>Date Purchased</TableHead>
-              <TableHead>Date Recieved</TableHead>
-              <TableHead>Status</TableHead>
-              <TableHead>Location</TableHead>
-              <TableHead>Department</TableHead>
-              {(userRole === "ADMIN" || userRole === "SECRETARY") && (
-                <TableHead>Actions</TableHead>
-              )}
-            </TableRow>
-          </TableHeader>
-          <TableBody>
-            {equipment.length === 0 ? (
-              <TableRow>
-                <TableCell
-                  colSpan={13}
-                  className="text-center py-6 text-muted-foreground"
-                >
-                  {isLoading 
-                    ? "Loading..." 
-                    : filters.department !== "all"
-                      ? "No equipment found for this department"
-                      : "No equipment found"
-                  }
-                </TableCell>
+      <div className="flex-1 min-h-0 overflow-hidden rounded-md border shadow-sm bg-gray-100 ">
+        <div className="h-full overflow-auto">
+          <Table className="w-full">
+            <TableHeader className="sticky top-0 z-10 bg-yellow-500">
+              <TableRow className="bg-yellow-500 hover:bg-yellow-500 h-16">
+                <TableHead className="w-[40px] text-left text-indigo-dark font-semibold">
+                  Qty
+                </TableHead>
+                <TableHead className="w-[200px] break-words text-indigo-dark font-semibold">
+                  Description
+                </TableHead>
+                <TableHead className="w-[120px] break-words text-indigo-dark font-semibold">
+                  Brand/Model
+                </TableHead>
+                <TableHead className="w-[90px] break-words text-indigo-dark font-semibold">
+                  Serial Number
+                </TableHead>
+                <TableHead className="w-[96px] break-words text-indigo-dark font-semibold">
+                  Supplier
+                </TableHead>
+                <TableHead className="w-[60px] text-indigo-dark font-semibold">
+                  Unit Cost
+                </TableHead>
+                <TableHead className="w-[60px] text-indigo-dark font-semibold">
+                  Total Cost
+                </TableHead>
+                <TableHead className="w-[100px] text-indigo-dark font-semibold">
+                  Date Purchased
+                </TableHead>
+                <TableHead className="w-[100px] text-indigo-dark font-semibold">
+                  Date Received
+                </TableHead>
+                <TableHead className="w-[100px] text-indigo-dark font-semibold">
+                  Status
+                </TableHead>
+                <TableHead className="w-[100px] break-words text-indigo-dark font-semibold">
+                  Location
+                </TableHead>
+                <TableHead className="w-[120px] break-words text-indigo-dark font-semibold">
+                  Office
+                </TableHead>
+                {(userRole === "ADMIN" || userRole === "SECRETARY") && (
+                  <TableHead className="w-[40px]"></TableHead>
+                )}
               </TableRow>
-            ) : (
-              equipment.map((item: Equipment, index: number) => (
-                <TableRow key={item.id}>
-                  <TableCell>{item.quantity}</TableCell>
-                  <TableCell>{item.description}</TableCell>
-                  <TableCell>{item.brand}</TableCell>
-                  <TableCell>{item.serialNumber}</TableCell>
-                  <TableCell>{item.supplier}</TableCell>
-                  <TableCell>{item.unitCost}</TableCell>
-                  <TableCell>{item.totalCost}</TableCell>
-                  <TableCell>
-                    {new Date(item.datePurchased).toDateString()}
-                  </TableCell>
-                  <TableCell>
-                    {new Date(item.dateReceived).toDateString()}
-                  </TableCell>
-                  <TableCell>
-                    <StatusBadge status={item.status} />
-                  </TableCell>
-                  <TableCell>{item.location}</TableCell>
-                  <TableCell>{item.department}</TableCell>
+            </TableHeader>
 
-                  <TableCell>
-                    {(userRole === "ADMIN" || userRole === "SECRETARY") && (
-                      <div className="flex space-x-2">
-                        <EditEquipment
-                          equipment={item}
-                          onUpdate={handleEquipmentUpdated}
-                        />
-                        <DeleteEquipment
-                          equipmentId={item.id}
-                          description={item.description}
-                          onDelete={handleEquipmentDeleted}
-                        />
-                      </div>
-                    )}
+            <TableBody>
+              {equipment.length === 0 ? (
+                <TableRow>
+                  <TableCell
+                    colSpan={13}
+                    className="text-center py-6 text-muted-foreground"
+                  >
+                    {isLoading
+                      ? "Loading..."
+                      : filters.office !== "all"
+                      ? "No equipment found for this office"
+                      : "No equipment found"}
                   </TableCell>
                 </TableRow>
-              ))
-            )}
-          </TableBody>
-        </Table>
+              ) : (
+                equipment.map((item: Equipment, index: number) => (
+                  <TableRow key={item.id}>
+                    <TableCell className="w-12">{item.quantity}</TableCell>
+                    <TableCell className="w-[250px] break-words">
+                      {item.description}
+                    </TableCell>
+                    <TableCell className="w-[200px] break-words">
+                      {item.brand}
+                    </TableCell>
+                    <TableCell className="w-[200px] break-words">
+                      {item.serialNumber}
+                    </TableCell>
+                    <TableCell className="w-[180px] break-words">
+                      {item.supplier}
+                    </TableCell>
+                    <TableCell className="w-[120px]">{item.unitCost}</TableCell>
+                    <TableCell className="w-[120px]">
+                      {item.totalCost}
+                    </TableCell>
+                    <TableCell className="w-[160px]">
+                      {new Date(item.datePurchased).toDateString()}
+                    </TableCell>
+                    <TableCell className="w-[160px]">
+                      {new Date(item.dateReceived).toDateString()}
+                    </TableCell>
+                    <TableCell className="w-[150px]">
+                      <StatusBadge status={item.status} />
+                    </TableCell>
+                    <TableCell className="w-[180px] break-words">
+                      {item.location}
+                    </TableCell>
+                    <TableCell className="w-[180px] break-words">
+                      {item.department}
+                    </TableCell>
+                    {(userRole === "ADMIN" || userRole === "SECRETARY") && (
+                      <TableCell className="w-[40px]">
+                        <div className="flex flex-col space-y-1 items-center">
+                          <EditEquipment
+                            equipment={item}
+                            onUpdate={handleEquipmentUpdated}
+                          />
+                          <DeleteEquipment
+                            equipmentId={item.id}
+                            description={item.description}
+                            onDelete={handleEquipmentDeleted}
+                          />
+                        </div>
+                      </TableCell>
+                    )}
+                  </TableRow>
+                ))
+              )}
+            </TableBody>
+          </Table>
+        </div>
       </div>
 
-      <EquipmentPagination
-        currentPage={filters.page}
-        totalPages={totalPages}
-        onPageChange={handlePageChange}
-      />
+      <div className="mt-4 flex-shrink-0 ">
+        <EquipmentPagination
+          currentPage={filters.page}
+          totalPages={totalPages}
+          onPageChange={handlePageChange}
+        />
+      </div>
     </div>
   );
 }

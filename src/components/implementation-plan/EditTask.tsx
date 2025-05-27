@@ -40,6 +40,7 @@ interface EditTaskProps {
   assignments: Assignment[];
   setAssignments: React.Dispatch<React.SetStateAction<Assignment[]>>;
   currentAssignment?: Assignment;
+  implementationPlan?: ImplementationPlan
 }
 
 export default function EditTask({
@@ -49,12 +50,14 @@ export default function EditTask({
   personnel,
   assignments,
   setAssignments,
-  currentAssignment
+  currentAssignment,
+  implementationPlan
 }: EditTaskProps) {
   const [isOpen, setIsOpen] = useState(false);
   const [taskName, setTaskName] = useState(task.name);
-  const initialStart = new Date(task.startTime).toLocaleString("sv-SE", { timeZone: "Asia/Manila" }).slice(0, 16);
-  const initialEnd = new Date(task.endTime).toLocaleString("sv-SE", { timeZone: "Asia/Manila" }).slice(0, 16);
+
+  const initialStart = new Date(task.startTime).toISOString().split('T')[0];
+  const initialEnd = new Date(task.endTime).toISOString().split('T')[0];
   const [taskStart, setTaskStart] = useState(initialStart);
   const [taskEnd, setTaskEnd] = useState(initialEnd);
 
@@ -66,9 +69,25 @@ export default function EditTask({
     name?: string;
     start?: string;
     end?: string;
-    timespan?: string;
+    personnel?: string;
+    datespan?: string;
   }>({});
   const [attemptedSubmit, setAttemptedSubmit] = useState(false);
+
+  const today = new Date().toISOString().split('T')[0];
+
+  const maxDate = new Date();
+  maxDate.setDate(maxDate.getDate() + 120);
+  const maxDateString = maxDate.toISOString().split('T')[0];
+
+  const getMaxEndDate = () => {
+    if (!taskStart) return maxDateString;
+
+    const startDate = new Date(taskStart);
+    const maxEndDate = new Date(startDate);
+    maxEndDate.setDate(startDate.getDate() + 7);
+    return maxEndDate.toISOString().split('T')[0];
+  };
 
   const validateForm = () => {
     const newErrors: {
@@ -76,41 +95,40 @@ export default function EditTask({
       start?: string;
       end?: string;
       personnel?: string;
-      timespan?: string;
+      datespan?: string;
     } = {};
 
     if (!taskName) newErrors.name = "Task name is required";
-    if (!taskStart) newErrors.start = "Start time is required";
-    if (!taskEnd) newErrors.end = "End time is required";
-    if (!selectedPersonnelId) newErrors.personnel = "Personnel selection is required";
+    if (!taskStart) newErrors.start = "Start date is required";
+    if (!taskEnd) newErrors.end = "End date is required";
+    if (!selectedPersonnelId) newErrors.personnel = "Personnel assignment is required";
 
     if (taskStart && taskEnd) {
       const startDate = new Date(taskStart);
       const endDate = new Date(taskEnd);
-      const now = new Date();
+      const todayDate = new Date(today);
 
-      if (startDate < now) {
-        newErrors.start = "Start time cannot be in the past";
+      if (implementationPlan) {
+        const planCreatedDate = new Date(implementationPlan.createdAt);
+        const planCreatedDateString = planCreatedDate.toISOString().split('T')[0];
+
+        if (taskStart < planCreatedDateString) {
+          newErrors.start = "Start date must not be before implementation plan creation date";
+        }
+      } else {
+        if (startDate < todayDate) {
+          newErrors.start = "Start date cannot be in the past";
+        }
       }
 
-      if (endDate <= startDate) {
-        newErrors.end = "End time must be after start time";
+      if (endDate < startDate) {
+        newErrors.end = "End date cannot be before start date";
       }
 
-      // Ensure start and end are on the same calendar day
-      if (
-        startDate.getFullYear() !== endDate.getFullYear() ||
-        startDate.getMonth() !== endDate.getMonth() ||
-        startDate.getDate() !== endDate.getDate()
-      ) {
-        newErrors.end = "Start and end time must be on the same day";
-      }
+      const daysDifference = Math.ceil((endDate.getTime() - startDate.getTime()) / (1000 * 60 * 60 * 24));
 
-      const duration = endDate.getTime() - startDate.getTime();
-      const hoursDuration = duration / (1000 * 60 * 60);
-
-      if (hoursDuration > 72) {
-        newErrors.timespan = "Task duration cannot exceed 72 hours (3 days)";
+      if (daysDifference > 7) {
+        newErrors.datespan = "Task duration cannot exceed 7 days";
       }
     }
 
@@ -132,17 +150,13 @@ export default function EditTask({
     };
     onUpdate(updatedTask);
 
-    // Handle personnel assignment change
     const hasCurrentAssignment = Boolean(currentAssignment);
     const hasSelectedPersonnel = Boolean(selectedPersonnelId);
 
-    // Case 1: Assignment exists and personnel has changed or been removed
     if (hasCurrentAssignment &&
       (!hasSelectedPersonnel || currentAssignment?.personnelId !== selectedPersonnelId)) {
-      // First, remove the existing assignment from the array
       const filteredAssignments = assignments.filter(a => a.taskId !== task.id);
 
-      // If a new personnel is selected, add the new assignment
       if (hasSelectedPersonnel) {
         const newAssignment: Assignment = {
           taskId: task.id,
@@ -151,11 +165,9 @@ export default function EditTask({
         };
         setAssignments([...filteredAssignments, newAssignment]);
       } else {
-        // Just update with the filtered list (removing the assignment)
         setAssignments(filteredAssignments);
       }
     }
-    // Case 2: No current assignment but personnel has been selected
     else if (!hasCurrentAssignment && hasSelectedPersonnel) {
       const newAssignment: Assignment = {
         taskId: task.id,
@@ -185,6 +197,16 @@ export default function EditTask({
     setErrors({});
     setAttemptedSubmit(false);
   };
+
+  const getStartDateConstraints = () => {
+    if (implementationPlan) {
+      const planCreatedDate = new Date(implementationPlan.createdAt).toISOString().split('T')[0];
+      return { min: planCreatedDate, max: planCreatedDate };
+    }
+    return { min: today, max: maxDateString };
+  };
+
+  const startDateConstraints = getStartDateConstraints();
 
   return (
     <Dialog
@@ -226,11 +248,13 @@ export default function EditTask({
           </div>
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-1">
-              Start Date &amp; Time
+              Start Date
             </label>
             <Input
-              type="datetime-local"
+              type="date"
               value={taskStart}
+              min={startDateConstraints.min}
+              max={maxDateString}
               onChange={(e) => setTaskStart(e.target.value)}
               className={attemptedSubmit && errors.start ? "border-red-500" : ""}
             />
@@ -240,11 +264,13 @@ export default function EditTask({
           </div>
           <div>
             <label className="block text-sm font-medium text-muted-foreground mb-1">
-              End Date &amp; Time
+              End Date
             </label>
             <Input
-              type="datetime-local"
+              type="date"
               value={taskEnd}
+              min={taskStart || (implementationPlan ? new Date(implementationPlan.createdAt).toISOString().split('T')[0] : today)}
+              max={getMaxEndDate()}
               onChange={(e) => setTaskEnd(e.target.value)}
               className={attemptedSubmit && errors.end ? "border-red-500" : ""}
             />
@@ -260,7 +286,7 @@ export default function EditTask({
               value={selectedPersonnelId}
               onValueChange={setSelectedPersonnelId}
             >
-              <SelectTrigger>
+              <SelectTrigger className={attemptedSubmit && errors.personnel ? "border-red-500" : ""}>
                 <SelectValue placeholder="Select personnel" />
               </SelectTrigger>
               <SelectContent>
@@ -272,11 +298,14 @@ export default function EditTask({
                 ))}
               </SelectContent>
             </Select>
+            {attemptedSubmit && errors.personnel && (
+              <p className="text-sm text-red-500 mt-1">{errors.personnel}</p>
+            )}
           </div>
 
-          {attemptedSubmit && errors.timespan && (
+          {attemptedSubmit && errors.datespan && (
             <Alert variant="destructive">
-              <AlertDescription>{errors.timespan}</AlertDescription>
+              <AlertDescription>{errors.datespan}</AlertDescription>
             </Alert>
           )}
         </div>

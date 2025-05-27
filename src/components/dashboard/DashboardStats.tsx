@@ -16,6 +16,12 @@ interface DashboardStatsProps {
   error: string | null;
 }
 
+enum StatLink {
+  Projects = "/projects",
+  Completed = "/service-request/archive",
+  Pending = "/service-request",
+}
+
 export default function DashboardStats({
   isLoading,
   stats,
@@ -68,6 +74,7 @@ export default function DashboardStats({
       value: stats.totalPlans,
       delta: stats.totalPlansDelta,
       percentage: null,
+      href: StatLink.Projects,
     },
     {
       title: "Completed",
@@ -75,6 +82,7 @@ export default function DashboardStats({
       value: stats.completedPlans,
       delta: stats.completedPlansDelta,
       percentage: `${stats.completionRate}% completion rate`,
+      href: StatLink.Completed,
     },
     {
       title: "In Progress",
@@ -82,75 +90,75 @@ export default function DashboardStats({
       value: stats.inProgressPlans,
       delta: stats.inProgressPlansDelta,
       percentage: `${stats.inProgressPercentage}% of total plans`,
+      href: StatLink.Projects,
     },
     {
       title: "Pending Requests",
-      icon: (
-        <Link href="/service-request">
-          <ArrowUpRight className="h-4 w-4 text-muted-foreground hover:text-primary transition-colors cursor-pointer" />
-        </Link>
-      ),
+      icon: <ArrowUpRight className="h-4 w-4 text-muted-foreground" />,
       value: stats.pendingRequests,
       delta: stats.pendingRequestsDelta,
       percentage: "Requires attention",
+      href: StatLink.Pending,
     },
   ];
 
   return (
     <div className="grid gap-4 md:grid-cols-2 lg:grid-cols-4">
       {items.map((item) => (
-        <Card key={item.title}>
-<CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
-  <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
-  {item.icon}
-</CardHeader>
-<CardContent>
-  <div className="flex flex-col h-full">
-    <div className="text-2xl font-bold mb-4">{item.value}</div>
-    <div className="flex flex-1" />
-<div className="flex flex-col items-start gap-1">
-  <span
-    className={`flex items-center text-xs ${
-      item.title === "Completed"
-        ? "text-green-600"
-        : item.title === "In Progress"
-        ? "text-amber-600"
-        : item.title === "Pending Requests"
-        ? "text-blue-600"
-        : "text-indigo-900"
-    }`}
-  >
-    {item.delta >= 0 ? (
-      <>
-        <span className="inline-flex items-center justify-center w-2 h-2 font-bold text-base leading-none">
-          +
-        </span>
-        <span className="ml-2">{item.delta} from last week</span>
-      </>
-    ) : (
-      `${item.delta} from last week`
-    )}
-  </span>
-  {item.percentage && (
-    <span className="flex items-center gap-2">
-      <span
-        className={`h-2 w-2 rounded-full inline-block align-middle ${
-          item.title === "Completed"
-            ? "bg-green-500"
-            : item.title === "In Progress"
-            ? "bg-amber-500"
-            : "bg-blue-500"
-        }`}
-      />
-      <span className="text-xs text-muted-foreground">
-        {item.percentage}
-      </span>
-    </span>
-  )}
-</div>
-  </div>
-</CardContent>
-        </Card>
+        <Link key={item.title} href={item.href} passHref className="flex w-full">
+          <Card className="cursor-pointer transform transition hover:scale-105 hover:shadow-lg w-full">
+            <CardHeader className="flex flex-row items-center justify-between space-y-0 pb-2">
+              <CardTitle className="text-sm font-medium">{item.title}</CardTitle>
+              {item.icon}
+            </CardHeader>
+            <CardContent>
+              <div className="flex flex-col h-full">
+                <div className="text-2xl font-bold mb-4">{item.value}</div>
+                <div className="flex flex-1" />
+                <div className="flex flex-col items-start gap-1">
+                  <span
+                    className={`flex items-center text-xs ${
+                      item.title === "Completed"
+                        ? "text-green-600"
+                        : item.title === "In Progress"
+                        ? "text-amber-600"
+                        : item.title === "Pending Requests"
+                        ? "text-blue-600"
+                        : "text-indigo-900"
+                    }`}
+                  >
+                    {item.delta >= 0 ? (
+                      <>
+                        <span className="inline-flex items-center justify-center w-2 h-2 font-bold text-base leading-none">
+                          +
+                        </span>
+                        <span className="ml-2">{item.delta} from last week</span>
+                      </>
+                    ) : (
+                      `${item.delta} from last week`
+                    )}
+                  </span>
+                  {item.percentage && (
+                    <span className="flex items-center gap-2">
+                      <span
+                        className={`h-2 w-2 rounded-full inline-block align-middle ${
+                          item.title === "Completed"
+                            ? "bg-green-500"
+                            : item.title === "In Progress"
+                            ? "bg-amber-500"
+                            : "bg-blue-500"
+                        }`}
+                      />
+                      <span className="text-xs text-muted-foreground">
+                        {item.percentage}
+                      </span>
+                    </span>
+                  )}
+                </div>
+              </div>
+            </CardContent>
+          </Card>
+        </Link>
       ))}
     </div>
   );
