@@ -20,8 +20,20 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import DEPARTMENTS from "@/lib/departments";
 import { Pencil } from "lucide-react";
+
+const OFFICES = [
+  "Buildings Upkeep and Maintenance",
+  "Campus Traffic",
+  "Security and Safety",
+  "Electrical & Mechanical Systems",
+  "Facilities Maintenance and Services",
+  "Grounds Upkeep and Maintenance",
+  "Occupational Safety and Health Officer",
+  "Pollution Control",
+  "Swimming Pool",
+  "University Computer Services Center",
+];
 
 interface Equipment {
   id: string;
@@ -45,7 +57,9 @@ interface EditEquipmentDialogProps {
   onError?: (error: Error) => void;
 }
 
-type EquipmentInput = Omit<Equipment, 'id' | 'totalCost'> & { totalCost: number };
+type EquipmentInput = Omit<Equipment, "id" | "totalCost"> & {
+  totalCost: number;
+};
 
 type FormErrors = Partial<Record<keyof EquipmentInput, string>>;
 
@@ -74,7 +88,9 @@ export function EditEquipment({
     supplier: equipment.supplier,
     unitCost: equipment.unitCost,
     totalCost: equipment.totalCost,
-    datePurchased: new Date(equipment.datePurchased).toISOString().split("T")[0],
+    datePurchased: new Date(equipment.datePurchased)
+      .toISOString()
+      .split("T")[0],
     dateReceived: new Date(equipment.dateReceived).toISOString().split("T")[0],
     status: equipment.status,
     location: equipment.location,
@@ -84,7 +100,7 @@ export function EditEquipment({
   // sync totalCost
   useEffect(() => {
     const total = formData.quantity * formData.unitCost;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
       totalCost: Number(total.toFixed(2)),
     }));
@@ -93,22 +109,28 @@ export function EditEquipment({
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
     [
-      'description',
-      'brand',
-      'serialNumber',
-      'supplier',
-      'location',
-      'department',
-    ].forEach(key => {
-      const val = String(formData[key as keyof EquipmentInput] || '');
-      if (!val.trim()) newErrors[key as keyof EquipmentInput] = 'This field is required.';
+      "description",
+      "brand",
+      "serialNumber",
+      "supplier",
+      "location",
+      "department",
+    ].forEach((key) => {
+      const val = String(formData[key as keyof EquipmentInput] || "");
+      if (!val.trim())
+        newErrors[key as keyof EquipmentInput] = "This field is required.";
     });
-    if (formData.quantity <= 0) newErrors.quantity = 'Quantity must be greater than 0';
-    if (formData.unitCost < 0) newErrors.unitCost = 'Unit cost cannot be negative';
-    const today = new Date().toISOString().split('T')[0];
-    if (formData.datePurchased > today) newErrors.datePurchased = 'Purchase date cannot be in the future';
-    if (formData.dateReceived > today) newErrors.dateReceived = 'Receive date cannot be in the future';
-    if (formData.dateReceived < formData.datePurchased) newErrors.dateReceived = 'Receive date cannot be before purchase date';
+    if (formData.quantity <= 0)
+      newErrors.quantity = "Quantity must be greater than 0";
+    if (formData.unitCost < 0)
+      newErrors.unitCost = "Unit cost cannot be negative";
+    const today = new Date().toISOString().split("T")[0];
+    if (formData.datePurchased > today)
+      newErrors.datePurchased = "Purchase date cannot be in the future";
+    if (formData.dateReceived > today)
+      newErrors.dateReceived = "Receive date cannot be in the future";
+    if (formData.dateReceived < formData.datePurchased)
+      newErrors.dateReceived = "Receive date cannot be before purchase date";
 
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
@@ -119,16 +141,16 @@ export function EditEquipment({
     field: keyof EquipmentInput
   ) => {
     const { value } = e.target;
-    setFormData(prev => ({
+    setFormData((prev) => ({
       ...prev,
-      [field]: ['quantity', 'unitCost'].includes(field)
+      [field]: ["quantity", "unitCost"].includes(field)
         ? Number(value) || 0
         : value,
     }));
   };
 
   const handleStatusChange = (value: EquipmentStatus) => {
-    setFormData(prev => ({ ...prev, status: value }));
+    setFormData((prev) => ({ ...prev, status: value }));
   };
 
   const handleUpdate = async () => {
@@ -158,20 +180,20 @@ export function EditEquipment({
     formData.department.trim() &&
     formData.quantity > 0 &&
     formData.unitCost >= 0 &&
-    formData.datePurchased <= new Date().toISOString().split('T')[0];
+    formData.datePurchased <= new Date().toISOString().split("T")[0];
 
   const todayISO = new Date().toISOString().split("T")[0];
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-  <button
-    className="p-2 rounded-lg hover:bg-white transition-colors"
-    title="Edit"
-  >
-    <Pencil className="w-4 h-4 text-black" />
-  </button>
-</DialogTrigger>
+        <button
+          className="p-2 rounded-lg hover:bg-white transition-colors"
+          title="Edit"
+        >
+          <Pencil className="w-4 h-4 text-black" />
+        </button>
+      </DialogTrigger>
       <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-y-auto">
         <DialogHeader>
           <DialogTitle>Edit Equipment</DialogTitle>
@@ -181,16 +203,31 @@ export function EditEquipment({
             <div className="grid grid-cols-2 gap-4">
               {/* fields */}
               {[
-                { id: 'description', label: 'Description', type: 'text' },
-                { id: 'brand', label: 'Brand', type: 'text' },
-                { id: 'serialNumber', label: 'Serial Number', type: 'text' },
-                { id: 'supplier', label: 'Supplier', type: 'text' },
-                { id: 'quantity', label: 'Quantity', type: 'number', min: 1 },
-                { id: 'unitCost', label: 'Unit Cost', type: 'number', min: 0 },
-                { id: 'totalCost', label: 'Total Cost', type: 'number', disabled: true },
-                { id: 'datePurchased', label: 'Date Purchased', type: 'date', max: todayISO },
-                { id: 'dateReceived', label: 'Date Received', type: 'date', max: todayISO },
-                { id: 'location', label: 'Location', type: 'text' },
+                { id: "description", label: "Description", type: "text" },
+                { id: "brand", label: "Brand", type: "text" },
+                { id: "serialNumber", label: "Serial Number", type: "text" },
+                { id: "supplier", label: "Supplier", type: "text" },
+                { id: "quantity", label: "Quantity", type: "number", min: 1 },
+                { id: "unitCost", label: "Unit Cost", type: "number", min: 0 },
+                {
+                  id: "totalCost",
+                  label: "Total Cost",
+                  type: "number",
+                  disabled: true,
+                },
+                {
+                  id: "datePurchased",
+                  label: "Date Purchased",
+                  type: "date",
+                  max: todayISO,
+                },
+                {
+                  id: "dateReceived",
+                  label: "Date Received",
+                  type: "date",
+                  max: todayISO,
+                },
+                { id: "location", label: "Location", type: "text" },
               ].map(({ id, label, type, ...props }) => (
                 <div key={id} className="space-y-2">
                   <Label htmlFor={id}>{label} *</Label>
@@ -199,9 +236,20 @@ export function EditEquipment({
                     // eslint-disable-next-line @typescript-eslint/no-explicit-any
                     type={type as any}
                     value={String(formData[id as keyof EquipmentInput])}
-                    onChange={e => handleInputChange(e as ChangeEvent<HTMLInputElement>, id as keyof EquipmentInput)}
-                    maxLength={type === 'text' ? TEXT_MAX[id as keyof typeof TEXT_MAX] : undefined}
-                    className={errors[id as keyof EquipmentInput] ? 'border-red-500' : ''}
+                    onChange={(e) =>
+                      handleInputChange(
+                        e as ChangeEvent<HTMLInputElement>,
+                        id as keyof EquipmentInput
+                      )
+                    }
+                    maxLength={
+                      type === "text"
+                        ? TEXT_MAX[id as keyof typeof TEXT_MAX]
+                        : undefined
+                    }
+                    className={
+                      errors[id as keyof EquipmentInput] ? "border-red-500" : ""
+                    }
                     {...props}
                   />
                   {errors[id as keyof EquipmentInput] && (
@@ -215,46 +263,64 @@ export function EditEquipment({
               {/* status */}
               <div className="space-y-2">
                 <Label htmlFor="status">Status *</Label>
-                <Select value={formData.status} onValueChange={handleStatusChange}>
+                <Select
+                  value={formData.status}
+                  onValueChange={handleStatusChange}
+                >
                   <SelectTrigger id="status">
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(['Operational', 'Repairable', 'Scrap'] as EquipmentStatus[]).map(s => (
-                      <SelectItem key={s} value={s} className="hover:cursor-pointer border border-transparent hover:border-gray-800">{s}</SelectItem>
+                    {(
+                      [
+                        "Operational",
+                        "Repairable",
+                        "Scrap",
+                      ] as EquipmentStatus[]
+                    ).map((s) => (
+                      <SelectItem
+                        key={s}
+                        value={s}
+                        className="hover:cursor-pointer border border-transparent hover:border-gray-800"
+                      >
+                        {s}
+                      </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
-                {errors.status && <p className="text-red-500 text-sm">{errors.status}</p>}
+                {errors.status && (
+                  <p className="text-red-500 text-sm">{errors.status}</p>
+                )}
               </div>
               <div className="space-y-2">
-                <Label htmlFor="department">Department *</Label>
+                <Label htmlFor="department">Office *</Label>
                 <Select
                   value={formData.department}
                   onValueChange={(value) =>
                     setFormData((prev) => ({ ...prev, department: value }))
-                  }>
-                  <SelectTrigger
-                    id="department"
-                  >
-                    <SelectValue placeholder="Select department" />
+                  }
+                >
+                  <SelectTrigger id="department">
+                    <SelectValue placeholder="Select office" />
                   </SelectTrigger>
 
                   <SelectContent>
-                    {DEPARTMENTS.map((dept) => (
+                    {OFFICES.map((office) => (
                       <SelectItem
-                        key={dept}
-                        value={dept}
+                        key={office}
+                        value={office}
                         className="hover:cursor-pointer border border-transparent hover:border-gray-800"
                       >
-                        {dept}
+                        {office}
                       </SelectItem>
                     ))}
                   </SelectContent>
                 </Select>
 
                 {errors.department && (
-                  <p className="text-red-500 text-sm mt-1">{errors.department}</p>
+                  <p className="text-red-500 text-sm mt-1">
+                    {errors.department}
+                  </p>
                 )}
               </div>
             </div>
@@ -264,7 +330,7 @@ export function EditEquipment({
               className="w-full"
               disabled={!isComplete || isUpdating}
             >
-              {isUpdating ? 'Updating...' : 'Save Changes'}
+              {isUpdating ? "Updating..." : "Save Changes"}
             </Button>
           </CardContent>
         </Card>

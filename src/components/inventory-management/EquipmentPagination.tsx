@@ -1,5 +1,5 @@
 import React from "react";
-import { Pagination, PaginationContent } from "@/components/ui/pagination";
+import { Button } from "@/components/ui/button";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DataTablePaginationProps {
@@ -24,34 +24,24 @@ export default function EquipmentPagination({
   }
 
   return (
-    <div className="sticky bottom-0 w-full bg-gradient-to-t from-yellow-100 to-transparent py-4 flex justify-center z-10 mt-4">
-      <Pagination>
-        <PaginationContent className="flex items-center gap-4">
-          <button
-            onClick={() => goToPage(currentPage - 1)}
-            disabled={currentPage === 1}
-            className={`p-2 rounded-md border bg-white shadow-sm hover:bg-gray-100 transition ${
-              currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            <ChevronLeft className="h-4 w-4" />
-          </button>
-
-          <span className="font-semibold text-blue-900">
-            Page {currentPage} of {totalPages}
-          </span>
-
-          <button
-            onClick={() => goToPage(currentPage + 1)}
-            disabled={currentPage === totalPages}
-            className={`p-2 rounded-md border bg-white shadow-sm hover:bg-gray-100 transition ${
-              currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
-            }`}
-          >
-            <ChevronRight className="h-4 w-4" />
-          </button>
-        </PaginationContent>
-      </Pagination>
+    <div className="flex justify-center gap-4">
+      <Button
+        variant="outline"
+        onClick={() => goToPage(currentPage - 1)}
+        disabled={currentPage === 1}
+      >
+        <ChevronLeft className="h-4 w-4 mr-1" />
+      </Button>
+      <span className="flex items-center text-sm font-semibold text-indigo-dark">
+        Page {currentPage} of {totalPages}
+      </span>
+      <Button
+        variant="outline"
+        onClick={() => goToPage(currentPage + 1)}
+        disabled={currentPage === totalPages}
+      >
+        <ChevronRight className="h-4 w-4 ml-1" />
+      </Button>
     </div>
   );
 }

@@ -12,7 +12,6 @@ import {
   ListChecks,
   Star,
   Users,
-  Star,
 } from "lucide-react";
 import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
@@ -69,11 +68,13 @@ export default function ArchiveDetailsModal({
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b">
           <div>
-          <h2 className="text-xl font-bold">{request.title}</h2>
+            <h2 className="text-xl font-bold">{request.title}</h2>
             <Button
               variant="outline"
               size="sm"
-              onClick={() => createArchiveExcel({ ...request, implementationPlan })}
+              onClick={() =>
+                createArchiveExcel({ ...request, implementationPlan })
+              }
               disabled={isLoading || !implementationPlan}
             >
               Download Excel
