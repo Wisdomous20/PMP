@@ -50,13 +50,16 @@ export function DeleteEquipment({
         </button>
       </DialogTrigger>
 
-  
       <DialogContent className="max-w-md">
         <DialogHeader>
           <DialogTitle className="text-lg">Delete Equipment</DialogTitle>
           <DialogDescription className="text-sm text-gray-600 break-all">
             Are you sure you want to delete{" "}
-            <span className="text-gray-600 font-semibold break-all"> '{description}' </span>? <br />
+            <span className="text-gray-600 font-semibold break-all">
+              {" "}
+              {description}{" "}
+            </span>
+            ? <br />
             This action cannot be undone.
           </DialogDescription>
         </DialogHeader>

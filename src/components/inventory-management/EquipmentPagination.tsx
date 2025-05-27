@@ -1,30 +1,26 @@
 import React from "react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { Pagination, PaginationContent } from "@/components/ui/pagination";
 import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DataTablePaginationProps {
-  currentPage: number
-  totalPages: number
-  onPageChange: (page: number) => void
+  currentPage: number;
+  totalPages: number;
+  onPageChange: (page: number) => void;
 }
 
-export default function EquipmentPagination({ currentPage, totalPages, onPageChange }: DataTablePaginationProps) {
+export default function EquipmentPagination({
+  currentPage,
+  totalPages,
+  onPageChange,
+}: DataTablePaginationProps) {
   const goToPage = (page: number) => {
     if (page >= 1 && page <= totalPages) {
-      onPageChange(page)
+      onPageChange(page);
     }
-  }
+  };
 
   if (totalPages <= 1) {
-    return null
+    return null;
   }
 
   return (
@@ -57,5 +53,5 @@ export default function EquipmentPagination({ currentPage, totalPages, onPageCha
         </PaginationContent>
       </Pagination>
     </div>
-  )
+  );
 }
