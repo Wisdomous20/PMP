@@ -189,7 +189,9 @@ export default function PersonnelManagement() {
 
   return (
     <div className="flex-1 p-8 flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50 rounded-md overflow-hidden">
-      <h1 className="text-2xl font-semibold mb-6 shrink-0  text-indigo-dark">Personnel Management</h1>
+      <h1 className="text-2xl font-semibold mb-6 shrink-0  text-indigo-dark">
+        Personnel Management
+      </h1>
 
       <div className="flex flex-col sm:flex-row items-start sm:items-center justify-between mb-6 gap-4">
         <div className="flex flex-col sm:flex-row items-start sm:items-center gap-4 w-full sm:w-auto">
@@ -216,8 +218,8 @@ export default function PersonnelManagement() {
             value={selectedDepartment}
             onValueChange={handleDepartmentChange}
           >
-            <SelectTrigger className="w-full sm:w-[180px] border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 bg-white">
-              <Filter size={16} />
+            <SelectTrigger className="w-full sm:w-[180px] border border-gray-300 rounded-md focus:ring-2 focus:ring-indigo-300 bg-white flex items-center gap-2">
+              <Filter size={16} className="flex-shrink-0" />
               <SelectValue placeholder="Filter by department" />
             </SelectTrigger>
 

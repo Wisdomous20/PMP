@@ -291,7 +291,7 @@ export default function InventoryManagement() {
 
         <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
           <DialogTrigger asChild>
-            <Button className="bg-indigo-Background">
+            <Button className="bg-indigo-Background hover:bg-indigo-900">
               <Plus className="w-4 h-4 mr-2" />
               Add Equipment
             </Button>

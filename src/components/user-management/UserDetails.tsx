@@ -77,7 +77,7 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose}>
+    <Dialog open={open} onOpenChange={onClose} >
       <DialogContent className="max-w-md p-0 bg-white rounded-xl shadow-xl overflow-hidden">
         <DialogHeader className="p-6 border-b">
           <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center">
@@ -197,7 +197,7 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
             <Button onClick={onClose} disabled={working} variant="outline">
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={working || !!error} className="min-w-[100px]">
+            <Button onClick={handleSave} disabled={working || !!error} className="min-w-[100px] bg-indigo-Background">
               {working ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />
