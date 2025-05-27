@@ -14,75 +14,102 @@ export async function getDashboardStats(userId: string) {
   const previousWeekStart = subDays(currentWeekStart, 7);
   const previousWeekEnd = subDays(currentWeekStart, 1);
 
-  const deptFilter = user.user_type === "SUPERVISOR" 
-    ? { user: { department: user.department } }
-    : {};
+  const deptFilter =
+    user.user_type === "SUPERVISOR"
+      ? { user: { department: user.department } }
+      : {};
 
-  const planDeptFilter = user.user_type === "SUPERVISOR"
-    ? { serviceRequest: { user: { department: user.department } } }
-    : {};
+  const planDeptFilter =
+    user.user_type === "SUPERVISOR"
+      ? { serviceRequest: { user: { department: user.department } } }
+      : {};
 
-  const totalPlans = await prisma.implementationPlan.count({
+  const allPlans = await prisma.implementationPlan.findMany({
     where: planDeptFilter,
-  });
-  const completedPlans = await prisma.implementationPlan.count({
-    where: { ...planDeptFilter, status: "completed" },
-  });
-  const inProgressPlans = await prisma.implementationPlan.count({
-    where: { ...planDeptFilter, status: "in_progress" },
-  });
-
-  const currentTotalPlans = await prisma.implementationPlan.count({
-    where: {
-      ...planDeptFilter,
-      createdAt: { gte: currentWeekStart, lte: currentWeekEnd },
-    },
-  });
-  const currentCompletedPlans = await prisma.implementationPlan.count({
-    where: {
-      ...planDeptFilter,
-      status: "completed",
-      createdAt: { gte: currentWeekStart, lte: currentWeekEnd },
-    },
-  });
-  const currentInProgressPlans = await prisma.implementationPlan.count({
-    where: {
-      ...planDeptFilter,
-      status: "in_progress",
-      createdAt: { gte: currentWeekStart, lte: currentWeekEnd },
+    include: {
+      tasks: true,
     },
   });
 
-  const prevTotalPlans = await prisma.implementationPlan.count({
-    where: {
-      ...planDeptFilter,
-      createdAt: { gte: previousWeekStart, lte: previousWeekEnd },
-    },
-  });
-  const prevCompletedPlans = await prisma.implementationPlan.count({
-    where: {
-      ...planDeptFilter,
-      status: "completed",
-      createdAt: { gte: previousWeekStart, lte: previousWeekEnd },
-    },
-  });
-  const prevInProgressPlans = await prisma.implementationPlan.count({
-    where: {
-      ...planDeptFilter,
-      status: "in_progress",
-      createdAt: { gte: previousWeekStart, lte: previousWeekEnd },
-    },
+  const totalPlans = allPlans.length;
+
+  const completedPlans = allPlans.filter((plan) => {
+    const totalTasks = plan.tasks.length;
+    if (totalTasks === 0) return false;
+    const completedTasks = plan.tasks.filter((task) => task.checked).length;
+    return completedTasks === totalTasks;
+  }).length;
+
+  const inProgressPlansInitial = allPlans.filter((plan) => {
+    const totalTasks = plan.tasks.length;
+    if (totalTasks === 0) return false;
+
+    const completedTasks = plan.tasks.filter((task) => task.checked).length;
+    const isInProgress = completedTasks > 0 && completedTasks < totalTasks;
+
+    const isPending = plan.status === "pending";
+
+    return isInProgress && isPending;
   });
 
-  const pendingRequestsData = await prisma.serviceRequest.findMany({
+  console.log(inProgressPlansInitial);
+
+  const inProgressPlans = inProgressPlansInitial.length;
+
+  const currentPlans = allPlans.filter(
+    (plan) =>
+      plan.createdAt >= currentWeekStart && plan.createdAt <= currentWeekEnd
+  );
+
+  const currentTotalPlans = currentPlans.length;
+
+  const currentCompletedPlans = currentPlans.filter((plan) => {
+    const totalTasks = plan.tasks.length;
+    if (totalTasks === 0) return false;
+    const completedTasks = plan.tasks.filter((task) => task.checked).length;
+    return completedTasks === totalTasks;
+  }).length;
+
+  const currentInProgressPlansInitial = currentPlans.filter((plan) => {
+    const totalTasks = plan.tasks.length;
+    if (totalTasks === 0) return false;
+    const completedTasks = plan.tasks.filter((task) => task.checked).length;
+    return completedTasks > 0 && completedTasks < totalTasks;
+  });
+
+  const currentInProgressPlans = currentInProgressPlansInitial.length;
+
+  const prevPlans = allPlans.filter(
+    (plan) =>
+      plan.createdAt >= previousWeekStart && plan.createdAt <= previousWeekEnd
+  );
+
+  const prevTotalPlans = prevPlans.length;
+
+  const prevCompletedPlans = prevPlans.filter((plan) => {
+    const totalTasks = plan.tasks.length;
+    if (totalTasks === 0) return false;
+    const completedTasks = plan.tasks.filter((task) => task.checked).length;
+    return completedTasks === totalTasks;
+  }).length;
+
+  const prevInProgressPlans = prevPlans.filter((plan) => {
+    const totalTasks = plan.tasks.length;
+    if (totalTasks === 0) return false;
+    const completedTasks = plan.tasks.filter((task) => task.checked).length;
+    return completedTasks > 0 && completedTasks < totalTasks;
+  }).length;
+
+  const serviceRequestsWithStatus = await prisma.serviceRequest.findMany({
     where: {
       ...deptFilter,
-      status: { some: { status: "pending" } },
-      ...(user.user_type === "SUPERVISOR" ? {
-        supervisorAssignment: {
-          supervisorId: userId
-        }
-      } : {})
+      ...(user.user_type === "SUPERVISOR"
+        ? {
+            supervisorAssignment: {
+              supervisorId: userId,
+            },
+          }
+        : {}),
     },
     include: {
       status: {
@@ -92,12 +119,18 @@ export async function getDashboardStats(userId: string) {
     },
   });
 
+  const pendingRequestsData = serviceRequestsWithStatus.filter(
+    (req) => req.status.length > 0 && req.status[0].status === "pending"
+  );
+
   const pendingRequests = pendingRequestsData.length;
+
   const currentPendingRequests = pendingRequestsData.filter(
     (req) =>
       req.status[0]?.timestamp >= currentWeekStart &&
       req.status[0]?.timestamp <= currentWeekEnd
   ).length;
+
   const prevPendingRequests = pendingRequestsData.filter(
     (req) =>
       req.status[0]?.timestamp >= previousWeekStart &&
