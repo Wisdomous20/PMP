@@ -37,13 +37,13 @@ import {
 } from "@/components/ui/select";
 import EquipmentPagination from "./EquipmentPagination";
 import fetchPaginatedEquipment from "@/domains/inventory-management/services/fetchPaginatedEquipment";
-import fetchDepartment from "@/domains/inventory-management/services/fetchDepartment";
+
 import { createInventoryExcel } from "@/domains/inventory-management/services/createinventoryExcel";
 
 const ITEMS_PER_PAGE = 50;
 
 interface FilterState {
-  department: string;
+  office: string;
   page: number;
 }
 
@@ -53,10 +53,10 @@ export default function InventoryManagement() {
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { data: session } = useSession();
   const [userRole, setUserRole] = useState<UserRole>();
-  const [departments, setDepartments] = useState<string[]>([]);
+  const [offices, setOffices] = useState<string[]>([]);
 
   const [filters, setFilters] = useState<FilterState>({
-    department: "all",
+    office: "all",
     page: 1,
   });
 
@@ -74,9 +74,9 @@ export default function InventoryManagement() {
           page: effectiveFilters.page,
           pageSize: ITEMS_PER_PAGE,
           department:
-            effectiveFilters.department === "all"
+            effectiveFilters.office === "all"
               ? undefined
-              : effectiveFilters.department,
+              : effectiveFilters.office,
         });
 
         const { data: paginatedData, meta } = response;
@@ -84,9 +84,20 @@ export default function InventoryManagement() {
         setTotalItems(meta.total);
         setTotalPages(meta.pageCount);
 
-        if (effectiveFilters.page === 1 && departments.length === 0) {
-          const deptList = await fetchDepartment();
-          setDepartments(deptList);
+        if (effectiveFilters.page === 1 && offices.length === 0) {
+          const officeList = [
+            "Buildings Upkeep and Maintenance",
+            "Campus Traffic",
+            "Security and Safety",
+            "Electrical & Mechanical Systems",
+            "Facilities Maintenance and Services",
+            "Grounds Upkeep and Maintenance",
+            "Occupational Safety and Health Officer",
+            "Pollution Control",
+            "Swimming Pool",
+            "University Computer Services Center",
+          ];
+          setOffices(officeList);
         }
       } catch (error) {
         console.error("Failed to load equipment:", error);
@@ -97,7 +108,7 @@ export default function InventoryManagement() {
         setLoading(false);
       }
     },
-    [filters, departments.length]
+    [filters, offices.length]
   );
 
   const loadUserRole = useCallback(async () => {
@@ -121,9 +132,9 @@ export default function InventoryManagement() {
     loadUserRole();
   }, [loadUserRole]);
 
-  const handleDepartmentChange = (value: string) => {
+  const handleOfficeChange = (value: string) => {
     setFilters({
-      department: value,
+      office: value,
       page: 1,
     });
   };
@@ -163,8 +174,8 @@ export default function InventoryManagement() {
     const doc = new jsPDF({ orientation: "landscape" });
 
     let title = "Equipment Report";
-    if (filters.department !== "all") {
-      title += ` - ${filters.department} Department`;
+    if (filters.office !== "all") {
+      title += ` - ${filters.office} Office`;
     }
 
     doc.text(title, 14, 10);
@@ -181,7 +192,7 @@ export default function InventoryManagement() {
       "Date Received",
       "Status",
       "Location",
-      "Department",
+      "Office",
     ];
 
     const tableRows = equipment.map((item) => [
@@ -210,7 +221,7 @@ export default function InventoryManagement() {
 
   if (isLoading && equipment.length === 0) {
     return (
-      <div className="flex-1 p-8 relative overflow-hidden flex flex-col">
+      <div className="fixed top-0 right-0 bottom-0 left-24 flex flex-col pl-4 pr-8 pt-8 pb-8 bg-gradient-to-b from-yellow-50 to-blue-50">
         <Skeleton className="h-8 w-72 -mt-8 mb-6 shrink-0" />
         <div className="flex justify-between shrink-0">
           <div className="flex items-center space-x-2">
@@ -234,30 +245,27 @@ export default function InventoryManagement() {
   }
 
   return (
-    <div className="flex-1 pl-4 pr-8 pt-8 pb-8 relative flex flex-col w-full h-full">
-      <h1 className="text-2xl font-semibold -mt-4 mb-6 text-indigo-dark">
+    <div className="fixed top-0 right-0 bottom-0 left-24 flex flex-col pl-4 pr-8 pt-8 pb-8">
+      <h1 className="text-2xl font-semibold -mt-4 mb-6 text-indigo-dark flex-shrink-0">
         Inventory Report Summary
       </h1>
 
-      <div className="flex justify-between items-center mb-4 pt-3">
+      <div className="flex justify-between items-center mb-4 pt-3 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Select
-            value={filters.department}
-            onValueChange={handleDepartmentChange}
-          >
+          <Select value={filters.office} onValueChange={handleOfficeChange}>
             <SelectTrigger className="w-[240px] bg-white flex items-center gap-2">
               <span className="flex-shrink-0">
                 <Filter size={16} />
               </span>
-              <SelectValue placeholder="Filter by department" />
+              <SelectValue placeholder="Filter by office" />
             </SelectTrigger>
 
             <SelectContent>
-              <SelectItem value="all">All Departments</SelectItem>
-              {Array.isArray(departments) &&
-                departments.map((dept) => (
-                  <SelectItem key={dept} value={dept}>
-                    {dept}
+              <SelectItem value="all">All Offices</SelectItem>
+              {Array.isArray(offices) &&
+                offices.map((office) => (
+                  <SelectItem key={office} value={office}>
+                    {office}
                   </SelectItem>
                 ))}
             </SelectContent>
@@ -275,9 +283,7 @@ export default function InventoryManagement() {
                 className="bg-green-600 hover:bg-green-800"
                 onClick={() =>
                   createInventoryExcel(
-                    filters.department === "all"
-                      ? "ALL DEPARTMENTS"
-                      : filters.department,
+                    filters.office === "all" ? "ALL OFFICES" : filters.office,
                     new Date(),
                     equipment
                   )
@@ -305,11 +311,11 @@ export default function InventoryManagement() {
         </Dialog>
       </div>
 
-      <div className="w-full">
-        <div className="w-full rounded-md border shadow-sm bg-gray-100 overflow-hidden">
-          <Table className="table-fixed w-full">
-            <TableHeader className="bg-yellow-500 hover:bg-yellow-500">
-              <TableRow className="h-16 border-b-0 bg-yellow-500 hover:bg-yellow-500">
+      <div className="flex-1 min-h-0 overflow-hidden rounded-md border shadow-sm bg-gray-100 ">
+        <div className="h-full overflow-auto">
+          <Table className="w-full">
+            <TableHeader className="sticky top-0 z-10 bg-yellow-500">
+              <TableRow className="bg-yellow-500 hover:bg-yellow-500 h-16">
                 <TableHead className="w-[40px] text-left text-indigo-dark font-semibold">
                   Qty
                 </TableHead>
@@ -344,7 +350,7 @@ export default function InventoryManagement() {
                   Location
                 </TableHead>
                 <TableHead className="w-[120px] break-words text-indigo-dark font-semibold">
-                  Department
+                  Office
                 </TableHead>
                 {(userRole === "ADMIN" || userRole === "SECRETARY") && (
                   <TableHead className="w-[40px]"></TableHead>
@@ -361,8 +367,8 @@ export default function InventoryManagement() {
                   >
                     {isLoading
                       ? "Loading..."
-                      : filters.department !== "all"
-                      ? "No equipment found for this department"
+                      : filters.office !== "all"
+                      ? "No equipment found for this office"
                       : "No equipment found"}
                   </TableCell>
                 </TableRow>
@@ -424,7 +430,7 @@ export default function InventoryManagement() {
         </div>
       </div>
 
-      <div>
+      <div className="mt-4 flex-shrink-0 ">
         <EquipmentPagination
           currentPage={filters.page}
           totalPages={totalPages}
