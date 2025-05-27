@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 import { useEffect, useState, useCallback } from "react";
 import { jsPDF } from "jspdf";
@@ -28,6 +27,7 @@ import { DeleteEquipment } from "./DeleteEquipment";
 import { EditEquipment } from "./EditEquipment";
 import { useSession } from "next-auth/react";
 import getUserRoleFetch from "@/domains/user-management/services/getUserRoleFetch";
+import getUserDepartmentFetch from "@/domains/user-management/services/fetchUserDepartment";
 import {
   Select,
   SelectContent,
@@ -37,7 +37,6 @@ import {
 } from "@/components/ui/select";
 import EquipmentPagination from "./EquipmentPagination";
 import fetchPaginatedEquipment from "@/domains/inventory-management/services/fetchPaginatedEquipment";
-
 import { createInventoryExcel } from "@/domains/inventory-management/services/createinventoryExcel";
 
 const ITEMS_PER_PAGE = 50;
@@ -47,12 +46,32 @@ interface FilterState {
   page: number;
 }
 
+// Assuming UserRole and Equipment types are defined elsewhere
+// type UserRole = "ADMIN" | "SUPERVISOR" | "SECRETARY" | "STAFF";
+// interface Equipment {
+//   id: string; // or number
+//   quantity: number;
+//   description: string;
+//   brand: string;
+//   serialNumber: string;
+//   supplier: string;
+//   unitCost: number;
+//   totalCost: number;
+//   datePurchased: string | Date;
+//   dateReceived: string | Date;
+//   status: string; // Consider a more specific type e.g., "Good" | "Repair" | "Disposed"
+//   location: string;
+//   department: string;
+// }
+
+
 export default function InventoryManagement() {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const { data: session } = useSession();
   const [userRole, setUserRole] = useState<UserRole>();
+  const [userDepartment, setUserDepartment] = useState<string>("");
   const [offices, setOffices] = useState<string[]>([]);
 
   const [filters, setFilters] = useState<FilterState>({
@@ -62,6 +81,7 @@ export default function InventoryManagement() {
 
   const [totalPages, setTotalPages] = useState(1);
   const [totalItems, setTotalItems] = useState(0);
+  const [isOfficeFilterDisabled, setIsOfficeFilterDisabled] = useState(false); // New state
 
   const loadEquipment = useCallback(
     async (filterOverrides?: Partial<FilterState>) => {
@@ -111,32 +131,50 @@ export default function InventoryManagement() {
     [filters, offices.length]
   );
 
-  const loadUserRole = useCallback(async () => {
+  const loadUserRoleAndDepartment = useCallback(async () => {
     try {
       if (session?.user?.id) {
-        const { userRole } = await getUserRoleFetch(session.user.id);
-        setUserRole(userRole as UserRole);
+        const { userRole: fetchedUserRole } = await getUserRoleFetch(session.user.id);
+        setUserRole(fetchedUserRole as UserRole);
+
+        const { department } = await getUserDepartmentFetch(session.user.id);
+        setUserDepartment(department);
+
+        if (fetchedUserRole === "SUPERVISOR") {
+          setFilters({ office: department, page: 1 });
+          setIsOfficeFilterDisabled(true); // Disable filter for SUPERVISOR
+        } else {
+          setIsOfficeFilterDisabled(false); // Enable for other roles
+        }
       }
     } catch (error) {
-      console.error("Failed to load user role:", error);
+      console.error("Failed to load user role/department:", error);
+      setIsOfficeFilterDisabled(false); // Ensure it's false on error
     }
   }, [session?.user?.id]);
 
   useEffect(() => {
-    if (session) {
-      loadEquipment();
-    }
-  }, [filters, session, loadEquipment]);
+    loadUserRoleAndDepartment();
+  }, [loadUserRoleAndDepartment]);
 
   useEffect(() => {
-    loadUserRole();
-  }, [loadUserRole]);
+    if (session) {
+      // Only load equipment if user role is determined or if it's not a supervisor
+      // For supervisors, the loadEquipment will be triggered by the filter change in loadUserRoleAndDepartment
+      if (userRole && userRole !== "SUPERVISOR") {
+        loadEquipment();
+      } else if (userRole === "SUPERVISOR" && filters.office !== "all") { // Ensure supervisor's department filter is set
+        loadEquipment();
+      } else if (!userRole && filters.office === "all") { // Initial load for non-supervisors or if role not yet fetched
+         loadEquipment();
+      }
+    }
+  }, [filters, session, loadEquipment, userRole]);
+
 
   const handleOfficeChange = (value: string) => {
-    setFilters({
-      office: value,
-      page: 1,
-    });
+    if (isOfficeFilterDisabled) return; // Prevent change if disabled
+    setFilters({ office: value, page: 1 });
   };
 
   const handlePageChange = (page: number) => {
@@ -161,9 +199,16 @@ export default function InventoryManagement() {
 
   const handleEquipmentAdded = async () => {
     setIsDialogOpen(false);
-    const newFilters = { ...filters, page: 1 };
-    setFilters(newFilters);
-    await loadEquipment(newFilters);
+    // If supervisor, keep their department filter, otherwise reset to 'all' or keep current if admin wants to add to specific
+    const newPage = 1;
+    if (userRole === "SUPERVISOR") {
+        setFilters(prev => ({...prev, page: newPage}));
+        await loadEquipment({...filters, page: newPage});
+    } else {
+        const newFilters = { ...filters, page: newPage }; // Or consider resetting office to 'all' if desired
+        setFilters(newFilters);
+        await loadEquipment(newFilters);
+    }
   };
 
   const handleEquipmentUpdated = async () => {
@@ -219,7 +264,7 @@ export default function InventoryManagement() {
     doc.save("equipment-report.pdf");
   };
 
-  if (isLoading && equipment.length === 0) {
+  if (isLoading && equipment.length === 0 && !userDepartment) {
     return (
       <div className="fixed top-0 right-0 bottom-0 left-24 flex flex-col pl-4 pr-8 pt-8 pb-8 bg-gradient-to-b from-yellow-50 to-blue-50">
         <Skeleton className="h-8 w-72 -mt-8 mb-6 shrink-0" />
@@ -252,8 +297,12 @@ export default function InventoryManagement() {
 
       <div className="flex justify-between items-center mb-4 pt-3 flex-shrink-0">
         <div className="flex items-center gap-3">
-          <Select value={filters.office} onValueChange={handleOfficeChange}>
-            <SelectTrigger className="w-[240px] bg-white flex items-center gap-2">
+          <Select
+            value={filters.office}
+            onValueChange={handleOfficeChange}
+            disabled={isOfficeFilterDisabled} // Disable Select if user is SUPERVISOR
+          >
+            <SelectTrigger className="w-[240px] bg-white flex items-center gap-2" disabled={isOfficeFilterDisabled}>
               <span className="flex-shrink-0">
                 <Filter size={16} />
               </span>
@@ -261,13 +310,23 @@ export default function InventoryManagement() {
             </SelectTrigger>
 
             <SelectContent>
-              <SelectItem value="all">All Offices</SelectItem>
-              {Array.isArray(offices) &&
+              {/* Only show "All Offices" if not a supervisor */}
+              {!isOfficeFilterDisabled && (
+                <SelectItem value="all">All Offices</SelectItem>
+              )}
+              {/* If supervisor, only their department should be an option, or show it as selected */}
+              {isOfficeFilterDisabled && userDepartment ? (
+                 <SelectItem value={userDepartment} disabled>
+                    {userDepartment}
+                 </SelectItem>
+              ) : (
+                Array.isArray(offices) &&
                 offices.map((office) => (
                   <SelectItem key={office} value={office}>
                     {office}
                   </SelectItem>
-                ))}
+                ))
+              )}
             </SelectContent>
           </Select>
 
@@ -295,20 +354,28 @@ export default function InventoryManagement() {
           )}
         </div>
 
-        <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
-          <DialogTrigger asChild>
-            <Button className="bg-indigo-Background hover:bg-indigo-900">
-              <Plus className="w-4 h-4 mr-2" />
-              Add Equipment
-            </Button>
-          </DialogTrigger>
-          <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-y-auto">
-            <DialogHeader>
-              <DialogTitle>Add New Equipment</DialogTitle>
-            </DialogHeader>
-            <AddEquipment onSuccess={handleEquipmentAdded} />
-          </DialogContent>
-        </Dialog>
+        {/* Allow ADMIN and SECRETARY to add equipment. SUPERVISOR can also add to their own department. */}
+        {(userRole === "ADMIN" || userRole === "SECRETARY" || userRole === "SUPERVISOR") && (
+            <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
+            <DialogTrigger asChild>
+                <Button className="bg-indigo-Background hover:bg-indigo-900">
+                <Plus className="w-4 h-4 mr-2" />
+                Add Equipment
+                </Button>
+            </DialogTrigger>
+            <DialogContent className="min-w-[60vw] max-h-[90vh] overflow-y-auto">
+                <DialogHeader>
+                <DialogTitle>Add New Equipment</DialogTitle>
+                </DialogHeader>
+                {/* Pass userDepartment to AddEquipment if role is SUPERVISOR */}
+                <AddEquipment
+                    onSuccess={handleEquipmentAdded}
+                    // Optionally pass supervisorDepartment if AddEquipment needs to pre-fill it
+                    supervisorDepartment={userRole === "SUPERVISOR" ? userDepartment : undefined}
+                 />
+            </DialogContent>
+            </Dialog>
+        )}
       </div>
 
       <div className="flex-1 min-h-0 overflow-hidden rounded-md border shadow-sm bg-gray-100 ">
@@ -352,7 +419,8 @@ export default function InventoryManagement() {
                 <TableHead className="w-[120px] break-words text-indigo-dark font-semibold">
                   Office
                 </TableHead>
-                {(userRole === "ADMIN" || userRole === "SECRETARY") && (
+                {/* SUPERVISOR can also edit/delete items within their department */}
+                {(userRole === "ADMIN" || userRole === "SECRETARY" || userRole === "SUPERVISOR") && (
                   <TableHead className="w-[40px]"></TableHead>
                 )}
               </TableRow>
@@ -362,7 +430,7 @@ export default function InventoryManagement() {
               {equipment.length === 0 ? (
                 <TableRow>
                   <TableCell
-                    colSpan={13}
+                     colSpan={(userRole === "ADMIN" || userRole === "SECRETARY" || userRole === "SUPERVISOR") ? 13 : 12}
                     className="text-center py-6 text-muted-foreground"
                   >
                     {isLoading
@@ -373,7 +441,7 @@ export default function InventoryManagement() {
                   </TableCell>
                 </TableRow>
               ) : (
-                equipment.map((item: Equipment, index: number) => (
+                equipment.map((item: Equipment) => (
                   <TableRow key={item.id}>
                     <TableCell className="w-12">{item.quantity}</TableCell>
                     <TableCell className="w-[250px] break-words">
@@ -388,15 +456,15 @@ export default function InventoryManagement() {
                     <TableCell className="w-[180px] break-words">
                       {item.supplier}
                     </TableCell>
-                    <TableCell className="w-[120px]">{item.unitCost}</TableCell>
+                    <TableCell className="w-[120px]">{item.unitCost.toFixed(2)}</TableCell> {/* Added toFixed for currency */}
                     <TableCell className="w-[120px]">
-                      {item.totalCost}
+                      {item.totalCost.toFixed(2)} {/* Added toFixed for currency */}
                     </TableCell>
                     <TableCell className="w-[160px]">
-                      {new Date(item.datePurchased).toDateString()}
+                      {new Date(item.datePurchased).toLocaleDateString()} {/* More standard date format */}
                     </TableCell>
                     <TableCell className="w-[160px]">
-                      {new Date(item.dateReceived).toDateString()}
+                      {new Date(item.dateReceived).toLocaleDateString()} {/* More standard date format */}
                     </TableCell>
                     <TableCell className="w-[150px]">
                       <StatusBadge status={item.status} />

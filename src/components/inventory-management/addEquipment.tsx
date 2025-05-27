@@ -46,6 +46,7 @@ interface AddEquipmentProps {
   serviceRequestId?: string;
   onSuccess?: () => void;
   onError?: (error: Error) => void;
+  supervisorDepartment?: string; // Added prop
 }
 
 type EquipmentStatus = "Operational" | "Repairable" | "Scrap";
@@ -64,6 +65,7 @@ export default function AddEquipment({
   serviceRequestId,
   onSuccess,
   onError,
+  supervisorDepartment, // Destructure the new prop
 }: AddEquipmentProps) {
   const [isLoading, setIsLoading] = useState<boolean>(false);
   const [errors, setErrors] = useState<FormErrors>({});
@@ -79,7 +81,7 @@ export default function AddEquipment({
     dateReceived: new Date().toISOString().split("T")[0],
     location: "",
     status: "Operational",
-    department: "",
+    department: supervisorDepartment || "", // Pre-fill department if supervisorDepartment is provided
     serviceRequestId: serviceRequestId || null,
   });
 
@@ -87,6 +89,14 @@ export default function AddEquipment({
     const total = formData.quantity * formData.unitCost;
     setFormData((prev) => ({ ...prev, totalCost: Number(total.toFixed(2)) }));
   }, [formData.quantity, formData.unitCost]);
+
+  // If supervisorDepartment changes (e.g. parent component re-renders with new prop), update formData
+  // This is more relevant if the dialog could remain open while props change.
+  useEffect(() => {
+    if (supervisorDepartment) {
+      setFormData((prev) => ({ ...prev, department: supervisorDepartment }));
+    }
+  }, [supervisorDepartment]);
 
   const validateForm = (): boolean => {
     const newErrors: FormErrors = {};
@@ -106,17 +116,25 @@ export default function AddEquipment({
       newErrors.quantity = "Quantity must be greater than 0";
     if (formData.unitCost < 0)
       newErrors.unitCost = "Unit cost cannot be negative";
-    if (formData.unitCost === 0)
-      newErrors.unitCost = "Unit cost cannot be zero";
+    if (formData.unitCost === 0 && formData.status !== "Scrap") // Allow zero cost for scrap items potentially
+      newErrors.unitCost = "Unit cost cannot be zero unless status is Scrap.";
     const today = new Date();
+    today.setHours(0,0,0,0); // Compare dates only
     const purchase = new Date(formData.datePurchased);
     const receive = new Date(formData.dateReceived);
+
     if (purchase > today)
       newErrors.datePurchased = "Purchase date cannot be in the future";
     if (receive > today)
       newErrors.dateReceived = "Receive date cannot be in the future";
     if (receive < purchase)
       newErrors.dateReceived = "Receive date cannot be before purchase date";
+    
+    // Department validation should only occur if it's not pre-filled by supervisor
+    if (!supervisorDepartment && !formData.department.trim()) {
+        newErrors.department = "This field is required.";
+    }
+
     setErrors(newErrors);
     return Object.keys(newErrors).length === 0;
   };
@@ -136,6 +154,13 @@ export default function AddEquipment({
 
   const handleStatusChange = (value: EquipmentStatus) => {
     setFormData((prev) => ({ ...prev, status: value }));
+  };
+
+  const handleDepartmentChange = (value: string) => {
+    // Only allow change if not pre-filled by supervisor
+    if (!supervisorDepartment) {
+      setFormData((prev) => ({ ...prev, department: value }));
+    }
   };
 
   const handleSubmit = async () => {
@@ -163,12 +188,16 @@ export default function AddEquipment({
     formData.serialNumber.trim() &&
     formData.supplier.trim() &&
     formData.location.trim() &&
-    formData.department.trim() &&
+    (supervisorDepartment ? true : formData.department.trim()) && // Department must be valid
     formData.quantity > 0 &&
     formData.unitCost >= 0 &&
-    new Date(formData.datePurchased) <= new Date();
+    (formData.unitCost > 0 || formData.status === "Scrap") && // Ensure unit cost is > 0 unless scrap
+    new Date(formData.datePurchased) <= new Date() &&
+    new Date(formData.dateReceived) >= new Date(formData.datePurchased) &&
+    new Date(formData.dateReceived) <= new Date();
 
   const todayISO = new Date().toISOString().split("T")[0];
+  const isDepartmentDisabled = !!supervisorDepartment;
 
   return (
     <Card>
@@ -180,12 +209,13 @@ export default function AddEquipment({
             { id: "serialNumber", label: "Serial Number", type: "text" },
             { id: "supplier", label: "Supplier", type: "text" },
             { id: "quantity", label: "Quantity", type: "number", min: 1 },
-            { id: "unitCost", label: "Unit Cost", type: "number", min: 0 },
+            { id: "unitCost", label: "Unit Cost", type: "number", min: 0, step: "0.01" },
             {
               id: "totalCost",
               label: "Total Cost",
               type: "number",
               disabled: true,
+              step: "0.01",
             },
             {
               id: "datePurchased",
@@ -257,28 +287,35 @@ export default function AddEquipment({
               <p className="text-red-500 text-sm mt-1">{errors.status}</p>
             )}
           </div>
+          {/* Department (Office) Field */}
           <div className="space-y-2">
             <Label htmlFor="department">Office *</Label>
             <Select
               value={formData.department}
-              onValueChange={(value) =>
-                setFormData((prev) => ({ ...prev, department: value }))
-              }
+              onValueChange={handleDepartmentChange}
+              disabled={isDepartmentDisabled} // Disable if supervisorDepartment is present
             >
-              <SelectTrigger id="department">
+              <SelectTrigger id="department" disabled={isDepartmentDisabled}>
                 <SelectValue placeholder="Select office" />
               </SelectTrigger>
 
               <SelectContent>
-                {OFFICES.map((office) => (
-                  <SelectItem
-                    key={office}
-                    value={office}
-                    className="hover:cursor-pointer border border-transparent hover:border-gray-800"
-                  >
-                    {office}
-                  </SelectItem>
-                ))}
+                {/* If disabled and pre-filled, only show that option or all if not disabled */}
+                {isDepartmentDisabled && formData.department ? (
+                    <SelectItem value={formData.department} disabled>
+                        {formData.department}
+                    </SelectItem>
+                ) : (
+                    OFFICES.map((office) => (
+                    <SelectItem
+                        key={office}
+                        value={office}
+                        className="hover:cursor-pointer border border-transparent hover:border-gray-800"
+                    >
+                        {office}
+                    </SelectItem>
+                    ))
+                )}
               </SelectContent>
             </Select>
 
