@@ -247,6 +247,7 @@ export default function EditImplementationPlan({
                 <TaskCard
                   key={task.id}
                   task={task}
+                  plan={plan}
                   onUpdate={handleUpdateTask}
                   onDelete={removeTask}
                   personnel={personnel ? personnel : []}
@@ -299,6 +300,7 @@ interface TaskCardProps {
   hasCheckbox?: boolean;
   onCheckChange?: () => void;
   userRole: UserRole
+  plan: ImplementationPlan
 }
 
 function TaskCard({
@@ -310,7 +312,8 @@ function TaskCard({
   setAssignments,
   hasCheckbox = false,
   onCheckChange,
-  userRole
+  userRole,
+  plan
 }: TaskCardProps) {
   const currentAssignment = assignments.find(a => a.taskId === task.id);
   console.log(assignments)
@@ -342,6 +345,7 @@ function TaskCard({
       </div>
       <EditTask
         task={task}
+        implementationPlan={plan}
         onUpdate={onUpdate}
         onDelete={onDelete}
         personnel={personnel}

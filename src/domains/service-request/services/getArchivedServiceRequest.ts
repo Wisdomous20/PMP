@@ -23,7 +23,7 @@ export default async function getArchivedServiceRequests() {
       },
       status: {
         orderBy: {
-          timestamp: 'desc'
+          timestamp: 'asc'
         },
         take: 1,
         select: {

@@ -202,15 +202,8 @@ export default function ArchiveDetailsModal({
                         <div className="flex items-center mt-2 text-xs text-gray-500">
                           <Calendar size={14} className="mr-1" />
                           <span>
-                            {format(
-                              new Date(task.startTime),
-                              "MMM d, yyyy h:mm a"
-                            )}{" "}
-                            –{" "}
-                            {format(
-                              new Date(task.endTime),
-                              "MMM d, yyyy h:mm a"
-                            )}
+                            {format(new Date(task.startTime), "MMM d, yyyy")} –{" "}
+                            {format(new Date(task.endTime), "MMM d, yyyy")}
                           </span>
                         </div>
                         <div className="mt-2">
