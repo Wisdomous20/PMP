@@ -1,16 +1,19 @@
-"use client"
+"use client";
 
-import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card"
-import { Skeleton } from "@/components/ui/skeleton"
+import { Card, CardHeader, CardTitle, CardContent } from "@/components/ui/card";
+import { Skeleton } from "@/components/ui/skeleton";
 
 interface RecentInventoryLogsProps {
-  isLoading: boolean,
-  equipment: Equipment[],
-  error: string | null
+  isLoading: boolean;
+  equipment: Equipment[];
+  error: string | null;
 }
 
-export default function RecentInventoryLogs({isLoading, equipment, error} : RecentInventoryLogsProps) {
-
+export default function RecentInventoryLogs({
+  isLoading,
+  equipment,
+  error,
+}: RecentInventoryLogsProps) {
   if (isLoading) {
     return (
       <Card className="w-full">
@@ -25,7 +28,7 @@ export default function RecentInventoryLogs({isLoading, equipment, error} : Rece
           </div>
         </CardContent>
       </Card>
-    )
+    );
   }
 
   if (error) {
@@ -34,11 +37,9 @@ export default function RecentInventoryLogs({isLoading, equipment, error} : Rece
         <CardHeader className="border-b">
           <CardTitle>Latest Equipment Logs</CardTitle>
         </CardHeader>
-        <CardContent className="p-4 text-red-500">
-          Error: {error}
-        </CardContent>
+        <CardContent className="p-4 text-red-500">Error: {error}</CardContent>
       </Card>
-    )
+    );
   }
 
   return (
@@ -52,9 +53,11 @@ export default function RecentInventoryLogs({isLoading, equipment, error} : Rece
         <ul>
           {equipment.map((equipment) => (
             <li key={equipment.id} className="border pt-4 pl-6 pb-6">
-              <div className="font-medium text-md pb-1">{equipment.description}</div>
+              <div className="font-medium text-md pb-1">
+                {equipment.description}
+              </div>
               <div className="text-sm text-gray-600">
-                Brand: {equipment.brand} | Department: {equipment.department}
+                Brand: {equipment.brand} | Office: {equipment.department}
               </div>
               <div className="text-sm text-gray-500">
                 Quantity: {equipment.quantity} | Purchased:{" "}
@@ -65,5 +68,5 @@ export default function RecentInventoryLogs({isLoading, equipment, error} : Rece
         </ul>
       </CardContent>
     </Card>
-  )
+  );
 }
