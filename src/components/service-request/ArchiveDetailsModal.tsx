@@ -10,6 +10,7 @@ import {
   CheckCircle,
   FileText,
   ListChecks,
+  Star,
   Users,
   Star,
 } from "lucide-react";
@@ -17,7 +18,9 @@ import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import fetchGetImplementationPlanByServiceRequestId from "@/domains/implementation-plan/services/fetchGetImplementationPlanByServiceRequestId";
+import { createArchiveExcel } from "@/domains/service-request/services/createArchiveExcel";
 
 interface ServiceRequestDetailsModalProps {
   request: any;
@@ -58,20 +61,32 @@ export default function ArchiveDetailsModal({
   if (!request) return null;
 
   const tasks = implementationPlan?.tasks || [];
+  const supervisor = implementationPlan?.serviceRequest?.supervisor;
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in">
       <Card className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
-        <div className="flex justify-between items-center p-6 border-b relative">
+        <div className="flex justify-between items-center p-6 border-b">
+          <div>
           <h2 className="text-xl font-bold">{request.title}</h2>
-          <button
+            <Button
+              variant="outline"
+              size="sm"
+              onClick={() => createArchiveExcel({ ...request, implementationPlan })}
+              disabled={isLoading || !implementationPlan}
+            >
+              Download Excel
+            </Button>
+          </div>
+          <Button
+            variant="ghost"
+            size="icon"
             onClick={onClose}
-            className="absolute right-6 top-6 text-gray-400 hover:text-gray-700 rounded-full p-1.5 transition-colors"
+            className="rounded-full h-9 w-9 hover:bg-gray-100"
           >
-            <span className="sr-only">Close</span>
-            <X className="h-5 w-5" />
-          </button>
+            <X size={18} />
+          </Button>
         </div>
 
         {/* Content */}
@@ -95,6 +110,23 @@ export default function ArchiveDetailsModal({
                   Completed
                 </Badge>
               </div>
+              {/* Supervisor In Charge */}
+              {supervisor && (
+                <div className="flex items-start space-x-3">
+                  <User className="text-gray-400 mt-0.5" size={18} />
+                  <div>
+                    <p className="text-sm text-gray-500 font-medium">
+                      Supervisor In Charge
+                    </p>
+                    <p className="font-medium">
+                      {supervisor.firstName} {supervisor.lastName}
+                      <span className="text-xs text-gray-500 ml-2">
+                        ({supervisor.email})
+                      </span>
+                    </p>
+                  </div>
+                </div>
+              )}
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
                 <div className="flex items-start space-x-3">
@@ -179,6 +211,29 @@ export default function ArchiveDetailsModal({
                               "MMM d, yyyy h:mm a"
                             )}
                           </span>
+                        </div>
+                        <div className="mt-2">
+                          <span className="text-xs text-gray-500">
+                            Assigned Personnel:{" "}
+                          </span>
+                          {task.personnel && task.personnel.length > 0 ? (
+                            <span>
+                              {task.personnel.map(
+                                (person: any, idx: number) => (
+                                  <span key={person.id}>
+                                    {person.name}
+                                    {idx < task.personnel.length - 1
+                                      ? ", "
+                                      : ""}
+                                  </span>
+                                )
+                              )}
+                            </span>
+                          ) : (
+                            <span className="italic text-gray-400">
+                              No personnel assigned
+                            </span>
+                          )}
                         </div>
                       </div>
                     ))}
