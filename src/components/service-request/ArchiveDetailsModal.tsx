@@ -11,12 +11,14 @@ import {
   FileText,
   ListChecks,
   Star,
+  Users,
+  Star,
 } from "lucide-react";
-import { Button } from "@/components/ui/button";
 import { Card } from "@/components/ui/card";
 import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
+import { Button } from "@/components/ui/button";
 import fetchGetImplementationPlanByServiceRequestId from "@/domains/implementation-plan/services/fetchGetImplementationPlanByServiceRequestId";
 import { createArchiveExcel } from "@/domains/service-request/services/createArchiveExcel";
 
@@ -62,7 +64,7 @@ export default function ArchiveDetailsModal({
   const supervisor = implementationPlan?.serviceRequest?.supervisor;
 
   return (
-    <div className="fixed inset-0 bg-black/50  flex items-center justify-center z-50 p-4 animate-in fade-in">
+    <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in">
       <Card className="bg-white rounded-xl shadow-xl w-full max-w-3xl max-h-[85vh] overflow-hidden flex flex-col">
         {/* Header */}
         <div className="flex justify-between items-center p-6 border-b">
@@ -108,7 +110,6 @@ export default function ArchiveDetailsModal({
                   Completed
                 </Badge>
               </div>
-
               {/* Supervisor In Charge */}
               {supervisor && (
                 <div className="flex items-start space-x-3">
@@ -243,6 +244,30 @@ export default function ArchiveDetailsModal({
                   </div>
                 )}
               </div>
+
+              {request.Personnel && request.Personnel.length > 0 && (
+                <div className="space-y-2">
+                  <div className="flex items-center space-x-2">
+                    <Users className="text-gray-400" size={18} />
+                    <p className="text-sm text-gray-500 font-medium">
+                      Assigned Personnel
+                    </p>
+                  </div>
+                  <div className="p-4 bg-gray-50 rounded-lg border border-gray-100">
+                    <div className="flex flex-wrap gap-2">
+                      {request.Personnel.map((person: any) => (
+                        <Badge
+                          key={person.id}
+                          variant="outline"
+                          className="bg-white"
+                        >
+                          {person.name}
+                        </Badge>
+                      ))}
+                    </div>
+                  </div>
+                </div>
+              )}
 
               {request.ServiceRequestRating && (
                 <div className="space-y-3">

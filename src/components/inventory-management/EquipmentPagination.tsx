@@ -1,13 +1,6 @@
 import React from "react";
-import {
-  Pagination,
-  PaginationContent,
-  PaginationEllipsis,
-  PaginationItem,
-  PaginationLink,
-  PaginationNext,
-  PaginationPrevious,
-} from "@/components/ui/pagination";
+import { Pagination, PaginationContent } from "@/components/ui/pagination";
+import { ChevronLeft, ChevronRight } from "lucide-react";
 
 interface DataTablePaginationProps {
   currentPage: number;
@@ -31,113 +24,32 @@ export default function EquipmentPagination({
   }
 
   return (
-    <div className="mt-4 flex justify-center">
+    <div className="sticky bottom-0 w-full bg-gradient-to-t from-yellow-100 to-transparent py-4 flex justify-center z-10 mt-4">
       <Pagination>
-        <PaginationContent>
-          <PaginationItem>
-            <PaginationPrevious
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage > 1) {
-                  goToPage(currentPage - 1);
-                }
-              }}
-              className={
-                currentPage === 1 ? "pointer-events-none opacity-50" : ""
-              }
-            />
-          </PaginationItem>
-          {currentPage > 2 && (
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  goToPage(1);
-                }}
-              >
-                1
-              </PaginationLink>
-            </PaginationItem>
-          )}
+        <PaginationContent className="flex items-center gap-4">
+          <button
+            onClick={() => goToPage(currentPage - 1)}
+            disabled={currentPage === 1}
+            className={`p-2 rounded-md border bg-white shadow-sm hover:bg-gray-100 transition ${
+              currentPage === 1 ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
+            <ChevronLeft className="h-4 w-4" />
+          </button>
 
-          {currentPage > 3 && (
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-          )}
+          <span className="font-semibold text-blue-900">
+            Page {currentPage} of {totalPages}
+          </span>
 
-          {currentPage > 1 && (
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  goToPage(currentPage - 1);
-                }}
-              >
-                {currentPage - 1}
-              </PaginationLink>
-            </PaginationItem>
-          )}
-
-          <PaginationItem>
-            <PaginationLink href="#" isActive>
-              {currentPage}
-            </PaginationLink>
-          </PaginationItem>
-
-          {currentPage < totalPages && (
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  goToPage(currentPage + 1);
-                }}
-              >
-                {currentPage + 1}
-              </PaginationLink>
-            </PaginationItem>
-          )}
-
-          {currentPage < totalPages - 2 && (
-            <PaginationItem>
-              <PaginationEllipsis />
-            </PaginationItem>
-          )}
-
-          {currentPage < totalPages - 1 && (
-            <PaginationItem>
-              <PaginationLink
-                href="#"
-                onClick={(e) => {
-                  e.preventDefault();
-                  goToPage(totalPages);
-                }}
-              >
-                {totalPages}
-              </PaginationLink>
-            </PaginationItem>
-          )}
-
-          <PaginationItem>
-            <PaginationNext
-              href="#"
-              onClick={(e) => {
-                e.preventDefault();
-                if (currentPage < totalPages) {
-                  goToPage(currentPage + 1);
-                }
-              }}
-              className={
-                currentPage === totalPages
-                  ? "pointer-events-none opacity-50"
-                  : ""
-              }
-            />
-          </PaginationItem>
+          <button
+            onClick={() => goToPage(currentPage + 1)}
+            disabled={currentPage === totalPages}
+            className={`p-2 rounded-md border bg-white shadow-sm hover:bg-gray-100 transition ${
+              currentPage === totalPages ? "opacity-50 cursor-not-allowed" : ""
+            }`}
+          >
+            <ChevronRight className="h-4 w-4" />
+          </button>
         </PaginationContent>
       </Pagination>
     </div>
