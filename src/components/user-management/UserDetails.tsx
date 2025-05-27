@@ -9,7 +9,10 @@ import fetchUpdateUser from "@/domains/user-management/services/fetchUpdateUser"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
-import { UserIcon, Mail, UserCog, ClipboardList, Building, Phone, PhoneCall, Loader2, Pencil } from "lucide-react"
+import {
+  UserIcon, Mail, UserCog, ClipboardList, Building, Phone, PhoneCall, Loader2,
+  // Pencil
+} from "lucide-react"
 
 type LimitedUserRole = Exclude<User["user_type"], "ADMIN" | null>
 
@@ -127,7 +130,7 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
                       ))}
                     </SelectContent>
                   </Select>
-                  <Button
+                  {/* <Button
                     variant="ghost"
                     size="sm"
                     className="absolute right-1 top-1/2 -translate-y-1/2 h-8 w-8 p-0"
@@ -135,7 +138,7 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
                   >
                     <span className="sr-only">Edit role</span>
                     <Pencil className="h-4 w-4 text-gray-500 hover:text-gray-900" />
-                  </Button>
+                  </Button> */}
                 </div>
               </div>
             </div>
