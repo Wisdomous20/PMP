@@ -245,7 +245,7 @@ const validateForm = (): boolean => {
 
         <Button
           onClick={handleSubmit}
-          className="w-full"
+          className="w-full bg-indigo-Background hover:bg-indigo-900"
           disabled={!isComplete || isLoading}
         >
           {isLoading ? "Creating..." : "Create Equipment"}

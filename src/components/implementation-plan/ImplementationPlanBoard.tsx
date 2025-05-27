@@ -45,9 +45,14 @@ const ImplementationPlansBoard: React.FC = () => {
     if (!plans) return [];
     if (!searchQuery.trim()) return plans;
 
-    return plans.filter((plan) =>
-      plan.serviceRequest.concern?.toLowerCase().includes(searchQuery.toLowerCase()) ||
-      plan.serviceRequest.details?.toLowerCase().includes(searchQuery.toLowerCase())
+    return plans.filter(
+      (plan) =>
+        plan.serviceRequest.concern
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase()) ||
+        plan.serviceRequest.details
+          ?.toLowerCase()
+          .includes(searchQuery.toLowerCase())
     );
   };
 
@@ -66,7 +71,10 @@ const ImplementationPlansBoard: React.FC = () => {
   if (plansLoading || userRoleLoading) {
     return (
       <div className="p-4 w-full">
-        <ImplementationPlansHeader onSearchChange={setSearchQuery} />
+        <ImplementationPlansHeader
+          onSearchChange={setSearchQuery}
+          loading={true}
+        />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
           {["Pending", "In Progress", "Done"].map((status, idx) => (
             <div key={idx} className="flex flex-col">
@@ -92,8 +100,12 @@ const ImplementationPlansBoard: React.FC = () => {
   if (error) return <div>Error: {error.message}</div>;
 
   return (
-    <div className="p-4 w-full">
-      <ImplementationPlansHeader onSearchChange={setSearchQuery} />
+    <div className="p-4 w-full ">
+      <ImplementationPlansHeader
+        onSearchChange={setSearchQuery}
+        loading={plansLoading || userRoleLoading}
+      />
+
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
         {/* Pending Column */}
         <div className="flex flex-col">
@@ -106,7 +118,7 @@ const ImplementationPlansBoard: React.FC = () => {
               {pendingPlans.length}
             </div>
           </div>
-          <div className="flex flex-col gap-3 rounded-lg bg-gray-50 p-3 h-[500px] overflow-y-scroll">
+          <div className="flex flex-col gap-3 rounded-lg bg-gray-100 p-3 h-[500px] overflow-y-scroll">
             {pendingPlans.map((plan) => (
               <ImplementationPlanPreview
                 key={plan.id}
@@ -128,7 +140,7 @@ const ImplementationPlansBoard: React.FC = () => {
               {inProgressPlans.length}
             </div>
           </div>
-          <div className="flex flex-col gap-3 rounded-lg bg-blue-50 p-3 min-h-[500px]">
+          <div className="flex flex-col gap-3 rounded-lg bg-blue-100 p-3 min-h-[500px]">
             {inProgressPlans.map((plan) => (
               <ImplementationPlanPreview
                 key={plan.id}
@@ -150,7 +162,7 @@ const ImplementationPlansBoard: React.FC = () => {
               {donePlans.length}
             </div>
           </div>
-          <div className="flex flex-col gap-3 rounded-lg bg-green-50 p-3 h-[500px] overflow-y-scroll">
+          <div className="flex flex-col gap-3 rounded-lg bg-green-100 p-3 h-[500px] overflow-y-scroll">
             {donePlans.map((plan) => (
               <ImplementationPlanPreview
                 key={plan.id}

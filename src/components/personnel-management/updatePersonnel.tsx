@@ -94,7 +94,11 @@ export default function UpdatePersonnel({ onUpdate, isOpen, onOpenChange, curren
             <p className="text-xs text-gray-500">{position.length}/{MAX_LENGTH.position}</p>
           </div>
           <DialogFooter>
-            <Button type="submit">Update</Button>
+            <Button
+             type="submit"
+             className="bg-indigo-Background hover:bg-indigo-900"
+            >Update
+            </Button>
             <DialogClose asChild>
               <Button>Close</Button>
             </DialogClose>

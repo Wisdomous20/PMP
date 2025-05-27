@@ -41,7 +41,7 @@ export default function ServiceRequestDetailsPage() {
         setError(err.message || "Could not load service request. Please try again.");
       })
       .finally(() => setLoading(false));
-  }, [serviceRequestId]);
+  }, [serviceRequestId, serviceRequest, userRole]); 
 
   if (loading || roleLoading) {
     return (
