@@ -36,6 +36,17 @@ export default function MonthViewCalendar({ tasks }: MonthViewCalendarProps): JS
     iterDate.setDate(iterDate.getDate() + 1)
   }
 
+  const isTaskOnDate = (task: CalendarTask, date: Date): boolean => {
+    const taskStartDate = new Date(task.start)
+    const taskEndDate = new Date(task.end)
+    
+    const normalizedDate = new Date(date.getFullYear(), date.getMonth(), date.getDate())
+    const normalizedStartDate = new Date(taskStartDate.getFullYear(), taskStartDate.getMonth(), taskStartDate.getDate())
+    const normalizedEndDate = new Date(taskEndDate.getFullYear(), taskEndDate.getMonth(), taskEndDate.getDate())
+    
+    return normalizedDate >= normalizedStartDate && normalizedDate <= normalizedEndDate
+  }
+
   return (
     <div className="bg-background border border-border rounded-lg shadow-sm">
       <div className="p-6">
@@ -64,14 +75,7 @@ export default function MonthViewCalendar({ tasks }: MonthViewCalendarProps): JS
 
         <div className="grid grid-cols-7 gap-2">
           {dates.map((date, index) => {
-            const dayTasks = tasks.filter((task) => {
-              const taskDate = new Date(task.start)
-              return (
-                taskDate.getFullYear() === date.getFullYear() &&
-                taskDate.getMonth() === date.getMonth() &&
-                taskDate.getDate() === date.getDate()
-              )
-            })
+            const dayTasks = tasks.filter((task) => isTaskOnDate(task, date))
             const isCurrentMonth = date.getMonth() === month
 
             return (
@@ -83,14 +87,39 @@ export default function MonthViewCalendar({ tasks }: MonthViewCalendarProps): JS
               >
                 <div className="text-sm font-medium">{date.getDate()}</div>
                 <div className="mt-1 space-y-1">
-                  {dayTasks.slice(0, 3).map((task) => (
-                    <div
-                      key={task.id}
-                      className="bg-blue-500 text-white text-xs rounded px-1 py-0.5 truncate"
-                    >
-                      {task.title}
-                    </div>
-                  ))}
+                  {dayTasks.slice(0, 3).map((task) => {
+                    const taskStartDate = new Date(task.start)
+                    const taskEndDate = new Date(task.end)
+                    const isStartDate = taskStartDate.toDateString() === date.toDateString()
+                    const isEndDate = taskEndDate.toDateString() === date.toDateString()
+                    const isMultiDay = taskStartDate.toDateString() !== taskEndDate.toDateString()
+                    
+                    let taskClass = "bg-blue-500 text-white text-xs rounded px-1 py-0.5 truncate"
+                    let taskTitle = task.title
+                    
+                    if (isMultiDay) {
+                      if (isStartDate) {
+                        taskClass += " rounded-r-none"
+                        taskTitle = `${task.title} (start)`
+                      } else if (isEndDate) {
+                        taskClass += " rounded-l-none"
+                        taskTitle = `${task.title} (end)`
+                      } else {
+                        taskClass += " rounded-none"
+                        taskTitle = `${task.title} (cont.)`
+                      }
+                    }
+                    
+                    return (
+                      <div
+                        key={`${task.id}-${date.toDateString()}`}
+                        className={taskClass}
+                        title={`${task.title} (${taskStartDate.toLocaleDateString()} - ${taskEndDate.toLocaleDateString()})`}
+                      >
+                        {taskTitle}
+                      </div>
+                    )
+                  })}
                   {dayTasks.length > 3 && (
                     <div className="text-xs text-muted-foreground">+{dayTasks.length - 3} more</div>
                   )}
@@ -103,4 +132,3 @@ export default function MonthViewCalendar({ tasks }: MonthViewCalendarProps): JS
     </div>
   )
 }
-
