@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import getPersonnelAssignmentsByImplementationPlanId from "@/domains/personnel-management/service/GetPersonnelAssignmentByImplementationPlanId";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const params = await props.params;
   const { id } = params;
 
   if (!id) {

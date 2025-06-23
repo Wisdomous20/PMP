@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import deleteUser from "@/domains/user-management/services/deleteUser";
 
-export async function DELETE(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const params = await props.params;
   const { id } = params;
 
   if (!id) {

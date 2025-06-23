@@ -3,6 +3,8 @@
 // import WeekViewCalendar from "./WeekViewCalendar";
 import MonthViewCalendar from "./MonthViewCalendar";
 
+import type { JSX } from "react";
+
 interface CalendarViewProps {
   tasks: CalendarTask[];
   personName: string;  // Added prop for the person's name

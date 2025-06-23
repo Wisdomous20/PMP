@@ -5,10 +5,8 @@ import getImplementationPlanByServiceRequestId from "@/domains/implementation-pl
 import getServiceRequestById from "@/domains/service-request/services/getServiceRequestById";
 import { sendServiceRequestCompletedEmail } from "@/domains/notification/services/sendServiceRequestCompleteEmail"; 
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const params = await props.params;
   const { id } = params;
 
   if (!id) {
@@ -38,10 +36,8 @@ export async function GET(
   }
 }
 
-export async function PUT(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { id } = params;
   const { tasks } = await req.json();
 
@@ -71,10 +67,8 @@ export async function PUT(
   }
 }
 
-export async function PATCH(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const { id } = params;
 
   try {
