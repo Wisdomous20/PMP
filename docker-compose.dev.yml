@@ -1,0 +1,78 @@
+# To connect to self-hosted mongodb,
+# 1. run docker compose -f docker-compose.dev.yml up -d
+# 2. change the DATABASE_URL to: mongodb://localhost:27017/pmp?directConnection=true
+
+services:
+  mongo1:
+    image: mongo:8.0-noble
+    container_name: mongo1
+    volumes:
+      - mongo1-data:/data/db
+    expose:
+      - "27017"
+    ports:
+      - "27017:27017"
+    command: ["mongod", "--replSet", "pmpReplicaSet", "--bind_ip_all"]
+    networks:
+      - defaultNetwork
+      - mongoCluster
+
+  mongo2:
+    image: mongo:8.0-noble
+    container_name: mongo2
+    volumes:
+      - mongo2-data:/data/db
+    expose:
+      - "27017"
+    ports:
+      - "27018:27017"
+    command: ["mongod", "--replSet", "pmpReplicaSet", "--bind_ip_all"]
+    networks:
+      - defaultNetwork
+      - mongoCluster
+
+  mongo3:
+    image: mongo:8.0-noble
+    container_name: mongo3
+    volumes:
+      - mongo3-data:/data/db
+    expose:
+      - "27017"
+    ports:
+      - "27019:27017"
+    command: ["mongod", "--replSet", "pmpReplicaSet", "--bind_ip_all"]
+    networks:
+      - defaultNetwork
+      - mongoCluster
+
+  mongo-init:
+    image: mongo:8.0-noble
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    entrypoint: >
+      bash -c "
+      sleep 5;
+      mongosh --host mongo1 --eval '
+        rs.initiate({
+          _id: \"pmpReplicaSet\",
+          members: [
+            { _id: 0, host: \"mongo1\" },
+            { _id: 1, host: \"mongo2\" },
+            { _id: 2, host: \"mongo3\" }
+          ]
+        })
+      '"
+    networks:
+      - mongoCluster
+
+networks:
+  defaultNetwork:
+    driver: bridge
+  mongoCluster:
+
+volumes:
+  mongo1-data:
+  mongo2-data:
+  mongo3-data:
