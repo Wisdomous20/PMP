@@ -84,7 +84,6 @@ networks:
   defaultNetwork:
     driver: bridge
   mongoCluster:
-    external: true
 
 volumes:
   mongo1-data:
