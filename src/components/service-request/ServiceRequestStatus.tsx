@@ -140,6 +140,7 @@ export default function ServiceRequestStatus({
         }
       };
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [isRatingSubmitted, id]);
 
   useEffect(() => {
@@ -149,6 +150,7 @@ export default function ServiceRequestStatus({
         sessionStorage.removeItem("archiveServiceRequest");
       });
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [id]);
 
   const handleRatingSubmit = async () => {

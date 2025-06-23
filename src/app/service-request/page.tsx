@@ -36,6 +36,7 @@ export default function Page() {
 
   useEffect(() => {
     setIsLoading(roleLoading || srLoading && !(userRole || serviceRequests))
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roleLoading, srLoading])
 
   console.log(isLoading)

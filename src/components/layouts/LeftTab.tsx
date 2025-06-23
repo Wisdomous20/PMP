@@ -17,6 +17,7 @@ import {
 import Link from "next/link";
 import { Skeleton } from "../ui/skeleton";
 import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
+import Image from "next/image";
 
 export default function LeftTab() {
   const { data: session } = useSession(); // Get session data from next-auth
@@ -49,7 +50,7 @@ export default function LeftTab() {
     <div className="w-20 border-r bg-indigo-Background flex flex-col items-center py-4 space-y-5">
       {/* Logo */}
       {/* <Button variant="gold" size="icon" className="w-10 h-10"> */}
-        <img src="/images/cpu-logo.png" alt="CPU Logo" className="w-10 h-10" />
+        <Image src="/images/cpu-logo.png" alt="CPU Logo" className="w-10 h-10" />
         <span className="sr-only">CPU Logo</span>
       {/* </Button> */}
 

@@ -29,6 +29,7 @@ export default function useGetImplementationPlans() {
       fetchImplementationPlan();
     }
     fetchImplementationPlan();
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session]);
 
   return { implementationPlans, loading, error };
