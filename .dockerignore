@@ -1,0 +1,6 @@
+node_modules/
+src/prisma/
+.github/
+.idea/
+.next/
+.env

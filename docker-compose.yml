@@ -1,0 +1,90 @@
+services:
+  mongo1:
+    image: mongo:8.0-noble
+    container_name: mongo1
+    volumes:
+      - mongo1-data:/data/db
+    expose:
+      - "27017"
+    command: ["mongod", "--replSet", "pmpReplicaSet", "--bind_ip_all"]
+    networks:
+      - mongoCluster
+
+  mongo2:
+    image: mongo:8.0-noble
+    container_name: mongo2
+    volumes:
+      - mongo2-data:/data/db
+    expose:
+      - "27017"
+    command: ["mongod", "--replSet", "pmpReplicaSet", "--bind_ip_all"]
+    networks:
+      - mongoCluster
+
+  mongo3:
+    image: mongo:8.0-noble
+    container_name: mongo3
+    volumes:
+      - mongo3-data:/data/db
+    expose:
+      - "27017"
+    command: ["mongod", "--replSet", "pmpReplicaSet", "--bind_ip_all"]
+    networks:
+      - mongoCluster
+
+  mongo-init:
+    image: mongo:8.0-noble
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    entrypoint: >
+      bash -c "
+      sleep 5;
+      mongosh --host mongo1 --eval '
+        rs.initiate({
+          _id: \"pmpReplicaSet\",
+          members: [
+            { _id: 0, host: \"mongo1\" },
+            { _id: 1, host: \"mongo2\" },
+            { _id: 2, host: \"mongo3\" }
+          ]
+        })
+      '"
+    networks:
+      - mongoCluster
+
+  web:
+    build:
+      context: .
+      dockerfile: ./Dockerfile
+    environment:
+      DATABASE_URL: "mongodb://mongo1:27017,mongo2:27017,mongo3:27017/pmp?replicaSet=pmpReplicaSet"
+    ports:
+      - "3000:3000"
+    env_file:
+      - path: .env
+        required: true
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    links:
+      - mongo1
+      - mongo2
+      - mongo3
+    restart: on-failure
+    networks:
+      - defaultNetwork
+      - mongoCluster
+
+networks:
+  defaultNetwork:
+    driver: bridge
+  mongoCluster:
+    external: true
+
+volumes:
+  mongo1-data:
+  mongo2-data:
+  mongo3-data:
