@@ -9,7 +9,7 @@ import Link from "next/link";
 export default function PrivacyPolicyPage() {
   const policyRef = useRef<HTMLElement>(null);
 
-  const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
+  const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
     if (ref && ref.current) {
       ref.current.scrollIntoView({ behavior: "smooth" });
     }

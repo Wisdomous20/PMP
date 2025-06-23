@@ -24,6 +24,7 @@ export default function useGetServiceRequestDetails(serviceRequestId: string) {
 
   useEffect(() => {
     fetchServiceRequestDetails(serviceRequestId);
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, []);
 
   return { serviceRequestDetails, error, loading };

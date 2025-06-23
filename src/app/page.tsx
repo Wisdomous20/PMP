@@ -25,7 +25,7 @@ export default function Page() {
     enabled: !!session?.user?.id,
   })
 
-  const scrollToSection = (ref: React.RefObject<HTMLElement>) => {
+  const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
     if (ref && ref.current) {
       ref.current.scrollIntoView({ behavior: "smooth" })
     }

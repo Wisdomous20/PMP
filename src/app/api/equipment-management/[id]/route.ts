@@ -3,7 +3,8 @@ import getEquipmentById from "@/domains/inventory-management/services/getEquipme
 import updateEquipment from "@/domains/inventory-management/services/updateEquipment";
 import { deleteEquipmentById } from "@/domains/inventory-management/services/deleteEquipmentById";
 
-export async function GET(req: NextRequest, { params }: { params: { id: string } }) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const { id } = params;
 
@@ -26,7 +27,8 @@ export async function GET(req: NextRequest, { params }: { params: { id: string }
   }
 }
 
-export async function PATCH(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     const { id } = params;
     const {
@@ -91,10 +93,8 @@ export async function PATCH(req: NextRequest, { params }: { params: { id: string
   }
 }
 
-export async function DELETE(
-  request: Request,
-  { params }: { params: { id: string } }
-) {
+export async function DELETE(request: Request, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   try {
     await deleteEquipmentById(params.id);
     return NextResponse.json({ message: "Equipment deleted successfully" });

@@ -22,12 +22,10 @@ export async function GET() {
     return NextResponse.json({ error: 'Failed to fetch service requests' }, { status: 500 });
   }
 }
-export async function PATCH(
-  req: NextRequest, 
-  { params }: { params: { id: string } }
-) {
+export async function PATCH(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+  const params = await props.params;
   const session = await getServerSession(authOptions);
-  
+
   if (!session) {
     return NextResponse.json({ error: 'Unauthorized' }, { status: 401 });
   }

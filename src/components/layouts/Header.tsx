@@ -7,8 +7,8 @@ import { useSession, signOut } from "next-auth/react";
 import { Menu, X } from "lucide-react";
 
 interface HeaderProps {
-  scrollToSection: (ref: React.RefObject<HTMLElement>) => void;
-  howItWorksRef: RefObject<HTMLElement>;
+  scrollToSection: (ref: React.RefObject<HTMLElement | null>) => void;
+  howItWorksRef: RefObject<HTMLElement | null>;
 }
 
 export default function Header({ howItWorksRef, scrollToSection }: HeaderProps) {

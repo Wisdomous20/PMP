@@ -41,7 +41,8 @@ export default function useGetServiceRequestList() {
     if (session?.user.id) {
       fetchServiceRequests();
     }
-  }, [session]);  
+    // eslint-disable-next-line react-hooks/exhaustive-deps
+  }, [session]);
 
   return { serviceRequests, error, loading };
 }

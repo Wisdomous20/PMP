@@ -3,9 +3,8 @@ import getPersonnelById from "@/domains/personnel-management/service/getPersonne
 import deletePersonnel from "@/domains/personnel-management/service/deletePersonnel";
 import updatePersonnel from "@/domains/personnel-management/service/updatePersonnel";
 
-export async function GET(req: NextRequest,
-    { params }: { params: { id: string } }
-) {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const { id } = params;
     if (!id) {
         return NextResponse.json(
@@ -13,21 +12,20 @@ export async function GET(req: NextRequest,
             { status: 400 }
         );
     }
-        try{
-            const personnel = await getPersonnelById(id);
-            return NextResponse.json(personnel, { status: 200 });
-        }catch(error){
-            console.error("Error fetching personnel:", error);
-            return NextResponse.json(
-                { error: "Failed to retrieve personnel" },
-                { status: 500 }
-            );
-        }
+    try{
+        const personnel = await getPersonnelById(id);
+        return NextResponse.json(personnel, { status: 200 });
+    }catch(error){
+        console.error("Error fetching personnel:", error);
+        return NextResponse.json(
+            { error: "Failed to retrieve personnel" },
+            { status: 500 }
+        );
+    }
 }
 
-export async function DELETE(req: NextRequest,
-    { params }: { params: { id: string } }
-) {
+export async function DELETE(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const { id } = params;
     if (!id) {
         return NextResponse.json(
@@ -35,19 +33,20 @@ export async function DELETE(req: NextRequest,
             { status: 400 }
         );
     }
-        try{
-            const personnel = await deletePersonnel(id);
-            return NextResponse.json(personnel, { status: 200 });
-        }catch(error){
-            console.error("Error fetching personnel:", error);
-            return NextResponse.json(
-                { error: "Failed to retrieve personnel" },
-                { status: 500 }
-            );
-        }
+    try{
+        const personnel = await deletePersonnel(id);
+        return NextResponse.json(personnel, { status: 200 });
+    }catch(error){
+        console.error("Error fetching personnel:", error);
+        return NextResponse.json(
+            { error: "Failed to retrieve personnel" },
+            { status: 500 }
+        );
+    }
 }
 
-export async function PUT(req: NextRequest, { params }: { params: { id: string } }) {
+export async function PUT(req: NextRequest, props: { params: Promise<{ id: string }> }) {
+    const params = await props.params;
     const { id } = params;
 
     try {

@@ -1,10 +1,8 @@
 import { NextRequest, NextResponse } from "next/server";
 import getImplementationPlans from "@/domains/implementation-plan/services/getImplementationPlans";
 
-export async function GET(
-  req: NextRequest,
-  { params }: { params: { id: string } }
-): Promise<NextResponse> {
+export async function GET(req: NextRequest, props: { params: Promise<{ id: string }> }): Promise<NextResponse> {
+  const params = await props.params;
   const { id } = params;
 
   if (!id) {
