@@ -198,7 +198,6 @@ export default function CreateServiceRequest() {
       }
 
       const serviceRequest = await fetchCreateServiceRequest(userId, concern, details);
-      console.log("Service request created:", serviceRequest);
 
       toast({
         title: "Success",

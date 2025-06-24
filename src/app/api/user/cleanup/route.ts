@@ -10,7 +10,6 @@ function purgeExpiredTokens() {
   tokenStore.forEach(({ expires }, attendeeId) => {
     if (expires < now) {
       tokenStore.delete(attendeeId);
-      console.log(`Deleted token for ${attendeeId}`);
     }
   });
 }

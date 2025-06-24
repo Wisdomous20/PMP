@@ -10,7 +10,6 @@ export default async function addInProgressStatus(serviceRequestId: string, note
         note: note
       },
     });
-    console.log("In Progress status added:", status);
     return status;
   } catch (error) {
     console.error("Error adding In Progress status:", error);

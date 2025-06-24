@@ -52,8 +52,6 @@ export async function getDashboardStats(userId: string) {
     return isInProgress && isPending;
   });
 
-  console.log(inProgressPlansInitial);
-
   const inProgressPlans = inProgressPlansInitial.length;
 
   const currentPlans = allPlans.filter(

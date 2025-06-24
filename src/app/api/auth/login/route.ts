@@ -10,8 +10,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       where: { email },
     });
 
-    console.log(user)
-
     if (!user) {
       return NextResponse.json(
         { error: "Email not found. Please register first" },

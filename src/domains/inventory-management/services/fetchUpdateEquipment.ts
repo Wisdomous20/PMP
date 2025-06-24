@@ -1,7 +1,6 @@
 export default async function fetchUpdateEquipment(equipmentId : string, equipment : EquipmentInput) {
   const endpoint = `/api/equipment-management/${equipmentId}`;
 
-  console.log('Sending equipment data:', equipment);
   try {
     const response = await fetch(endpoint, {
       method: "PATCH",

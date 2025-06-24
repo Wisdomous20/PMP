@@ -22,9 +22,6 @@ export default async function createEquipment(
     const equipment = await prisma.equipment.create({
       data: input, 
     });
-
-    console.log("Waa?")
-
     return equipment;
   } catch (error) {
     console.error("Error creating equipment:", error);

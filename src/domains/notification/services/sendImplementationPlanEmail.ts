@@ -105,7 +105,6 @@ export async function sendImplementationPlanEmail({
 
   try {
     await transporter.sendMail(mailOptions);
-    console.log(`Implementation plan email sent to ${to}`);
   } catch (error) {
     console.error("Error sending implementation plan email:", error);
     throw new Error("Failed to send implementation plan email.");

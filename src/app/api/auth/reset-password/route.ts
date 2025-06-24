@@ -8,9 +8,6 @@ export const POST = async (req: Request) => {
     const body = await req.json(); // Parse the request body
     const { email } = body;
 
-    console.log(email)
-    console.log(body)
-
     await resetPassword(email);
 
     return NextResponse.json({ message: 'Password reset email sent' });

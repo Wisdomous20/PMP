@@ -10,7 +10,6 @@ export default async function addApprovedStatus(serviceRequestId: string, note: 
         note: note
       },
     });
-    console.log("Approved status added:", status);
     return status;
   } catch (error) {
     console.error("Error adding approved status:", error);

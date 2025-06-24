@@ -20,7 +20,6 @@ export default async function fetchCreateEquipment(
     }
 
     const responseData = await response.json();
-    console.log("Response from server:", responseData); 
     return responseData;
   } catch (error) {
     console.error("Failed to create equipment:", error);

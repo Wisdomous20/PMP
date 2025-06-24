@@ -32,8 +32,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       },
     });
 
-    console.log(newUser)
-
     return NextResponse.json(
       { message: "User registered successfully", newUser },
       { status: 201 }

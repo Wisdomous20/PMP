@@ -52,8 +52,6 @@ export async function PATCH(req: NextRequest, props: { params: Promise<{ id: str
       }
     });
 
-    console.log(newStatus)
-
     const updatedServiceRequest = await prisma.serviceRequest.findUnique({
       where: { id: serviceRequestId },
       include: {

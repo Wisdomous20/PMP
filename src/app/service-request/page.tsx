@@ -39,7 +39,6 @@ export default function Page() {
     // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [roleLoading, srLoading])
 
-  console.log(isLoading)
   const isUser = userRole === "USER";
 
   if (isLoading) {

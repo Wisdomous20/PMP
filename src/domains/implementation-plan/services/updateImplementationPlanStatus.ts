@@ -6,10 +6,9 @@ export default async function updateImplementationPlanStatus(
   status: string
 ) {
   try {
-    console.log(`Updating implementation plan status for ID: ${serviceRequestId} to ${status}`);
-  const existingPlan = await prisma.implementationPlan.findUnique({
-    where: { serviceRequestId },
-  });
+    const existingPlan = await prisma.implementationPlan.findUnique({
+      where: { serviceRequestId },
+    });
 
     if (!existingPlan) {
       console.error('DB Service: Plan not found:', serviceRequestId);

@@ -55,7 +55,6 @@ export default function Archives() {
   };
 
   const handleRequestClick = (request: any) => {
-    console.log("Selected request:", request);
     setSelectedRequest(request);
   };
 

@@ -93,7 +93,6 @@ export default function CreateImplementationPlan({
         serviceRequest.id,
         "Implementation plan created"
       );
-      console.log("Plan creation and assignments successful");
       refreshPage();
     } catch (error) {
       console.error("Failed to create implementation plan:", error);

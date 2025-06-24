@@ -9,7 +9,7 @@ import { useRouter } from "next/navigation";
 import validator from "validator";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
-import getUserRoleFetch from "@/domains/user-management/services/getUserRoleFetch";
+import {Session} from "next-auth";
 
 const MAX_LENGTH = {
   email: 255,
@@ -106,12 +106,18 @@ export default function Login() {
         else {
           try {
             const response = await fetch("/api/auth/session");
-            const session = await response.json();
-            const userRole = await getUserRoleFetch(session?.user.id)
+            const session = await response.json() as Session;
+            if (!session) {
+              // noinspection ExceptionCaughtLocallyJS
+              throw new Error("Session not found.");
+            }
 
-            if (userRole.userRole === "ADMIN" || userRole.userRole === "SECRETARY") {
+            // Fetch the role needed in the session to redirect to specific locations
+            const { user } = session;
+
+            if (user.role === "ADMIN" || user.role === "SECRETARY") {
               router.push("/dashboard");
-            } else if (userRole.userRole === "SUPERVISOR") {
+            } else if (user.role === "SUPERVISOR") {
               router.push("/projects");
             } else {
               router.push(callbackUrl);

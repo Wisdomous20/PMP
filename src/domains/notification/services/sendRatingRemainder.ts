@@ -5,8 +5,6 @@ import { sendServiceRequestRatingReminderEmail } from './sendServiceRequestRatin
 const prisma = new PrismaClient();
 
 cron.schedule('0 16 * * *', async () => {
-  console.log('Running rating reminder job:', new Date().toISOString());
-
   const fiveDaysAgo = new Date();
   fiveDaysAgo.setUTCDate(fiveDaysAgo.getUTCDate() - 5);
 
@@ -38,7 +36,6 @@ cron.schedule('0 16 * * *', async () => {
         requestId: req.id,
         note: latestStatus.note || undefined,
       });
-      console.log(`Reminder sent for request ${req.id}`);
     } catch (err) {
       console.error(`Failed to send reminder for ${req.id}:`, err);
     }
