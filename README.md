@@ -27,8 +27,8 @@ This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-
    ```
 
 > [!TIP]
-> If `Kind: Server selection timeout: No available servers.` while attempting to read/write to
-> the Database. With this issue, you need to modify your `/etc/hosts` (or `C:\Windows\System32\drivers\etc\hosts` on Windows)
+> If you encounter `Kind: Server selection timeout: No available servers.` while attempting to read/write to
+> the Database, you need to modify your `/etc/hosts` (or `C:\Windows\System32\drivers\etc\hosts` on Windows)
 > file with the following:
 > ```
 > 127.0.0.1 mongo1
