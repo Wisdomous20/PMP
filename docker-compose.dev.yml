@@ -1,15 +1,9 @@
-# To connect to self-hosted mongodb,
-# 1. run docker compose -f docker-compose.dev.yml up -d
-# 2. change the DATABASE_URL to: mongodb://localhost:27017/pmp?directConnection=true
-
 services:
   mongo1:
     image: mongo:8.0-noble
     container_name: mongo1
     volumes:
       - mongo1-data:/data/db
-    expose:
-      - "27017"
     ports:
       - "27017:27017"
     command: ["mongod", "--replSet", "pmpReplicaSet", "--bind_ip_all"]
@@ -22,8 +16,6 @@ services:
     container_name: mongo2
     volumes:
       - mongo2-data:/data/db
-    expose:
-      - "27017"
     ports:
       - "27018:27017"
     command: ["mongod", "--replSet", "pmpReplicaSet", "--bind_ip_all"]
@@ -36,8 +28,6 @@ services:
     container_name: mongo3
     volumes:
       - mongo3-data:/data/db
-    expose:
-      - "27017"
     ports:
       - "27019:27017"
     command: ["mongod", "--replSet", "pmpReplicaSet", "--bind_ip_all"]
