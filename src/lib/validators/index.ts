@@ -1,0 +1,445 @@
+import * as v from "validator";
+
+export type ValidationErrors<T> = Record<keyof T, {
+  /**
+   * A string variable that represents the error message from the Validator function
+   */
+  message: string;
+
+  /**
+   * Specifies the origin of the error where the check fails.
+   */
+  from: "type-check" | "formatter" | "is-required" | "unvalidated";
+}>;
+
+export interface ValidationResult<T> {
+  /**
+   * Validation Result if Passing or Not.
+   */
+  ok: boolean;
+
+  /**
+   * Validation Errors
+   */
+  errors: ValidationErrors<T>
+}
+
+/**
+ * Represents a function used for validating a value of a specific type.
+ *
+ * This function type accepts a value of type `T` and performs validation on it.
+ * The validation process is asynchronous and returns a Promise resolving to
+ * an object containing the validation result.
+ *
+ * @template T The type of the value to be validated.
+ * @typedef {function} ValidationFunction
+ * @param {T} value The value to validate.
+ * @returns {Promise<{ ok: boolean, error?: string }>}
+ */
+export type ValidationFunction<T> = (value: T) => Promise<{ ok: boolean, error?: string }>
+
+/**
+ * Represents the possible validation types that can be used for input or data validation.
+ *
+ * ValidationTypes define the type of data expected and allow for type-specific validation.
+ *
+ * Possible values include:
+ * - "string": Represents a text-based value.
+ * - "number": Represents a numeric value, either integer or floating-point.
+ * - "boolean": Represents a true or false value.
+ * - "date": Represents a date object or value.
+ * - "array": Represents a collection of elements organized in a sequential format.
+ * - "object": Represents a structured collection of key-value pairs.
+ */
+export type ValidationTypes = "string" | "number" | "boolean" | "date" | "array" | "object";
+
+export interface Schema<T> {
+  /**
+   * List of all properties to be validated
+   */
+  properties: {
+    [K in keyof T]: {
+      /**
+       * The Instance Type of the Property
+       */
+      type: ValidationTypes;
+
+      /**
+       * The Formatter to use for validation if the current property represents a format
+       * like an email or phone number.
+       *
+       * The value of the formatter is specific for each instance type.
+       */
+      formatter?: string;
+
+      /**
+       * Custom formatter function.
+       *
+       * If the formatter is defined, this will be ignored.
+       */
+      formatterFn?: ValidationFunction<T[K]>
+    }
+  }
+
+  /**
+   * List of all property names that should be required.
+   */
+  requiredProperties: Array<keyof T>;
+
+  /**
+   * Allow this object to have properties that aren't validated.
+   */
+  allowUnvalidatedProperties?: boolean;
+}
+
+export interface ValidatorFormatterMetaData<T extends ValidationTypes> {
+  /**
+   * The target type of the formatter.
+   */
+  forType: T;
+
+  /**
+   * Main Formatter function
+   */
+  formatterFn: ValidationFunction<T>;
+}
+
+/**
+ * Defines the maximum length allowed for a name.
+ * This constant specifies the upper limit on the number
+ * of characters that can be used for a name, ensuring consistency
+ * and preventing overflow or truncation in name-related operations.
+ *
+ * @constant {number} NAME_MAXIMUM_LENGTH
+ */
+const NAME_MAXIMUM_LENGTH = 50;
+
+/**
+ * Represents the maximum allowable length for a local number.
+ *
+ * This value is typically used to enforce constraints on the
+ * length of locally scoped numeric identifiers or phone numbers.
+ *
+ * @constant {number} LOCAL_NUMBER_MAXIMUM_LENGTH
+ */
+const LOCAL_NUMBER_MAXIMUM_LENGTH = 11;
+
+/**
+ * Represents the maximum allowed length for a cellphone number.
+ * This constant defines the upper limit for the total number of characters
+ * that a valid cellphone number can contain, ensuring consistency and compliance
+ * with formatting rules or standards.
+ *
+ * @constant {number} CELLPHONE_NUMBER_MAXIMUM_LENGTH
+ */
+const CELLPHONE_NUMBER_MAXIMUM_LENGTH = 15;
+
+/**
+ * Represents the maximum allowable length for a password.
+ * This variable defines the upper limit for the number of characters
+ * a password can contain to ensure compliance with security
+ * and application constraints.
+ *
+ * @constant {number} PASSWORD_MAXIMUM_LENGTH
+ */
+const PASSWORD_MAXIMUM_LENGTH = 100;
+
+/**
+ * Defines the maximum allowable length for an email address.
+ * This constant is used to ensure that email input fields and
+ * validations adhere to the specified maximum character limit.
+ *
+ * @constant {number} EMAIL_MAXIMUM_LENGTH
+ */
+const EMAIL_MAXIMUM_LENGTH = 100;
+
+class BootlegValidator {
+  private readonly _formatters: Record<string, ValidatorFormatterMetaData<ValidationTypes>> = {};
+
+  constructor() {
+    // Name formatter
+    this.addFormat("ascii-names", {
+      forType: "string",
+      formatterFn: async (value) => {
+        if (v.isEmpty(value)) {
+          return {
+            ok: false,
+            error: "Name cannot be empty"
+          }
+        }
+
+        if (value.length > NAME_MAXIMUM_LENGTH) {
+          return {
+            ok: false,
+            error: `Name cannot be longer than ${NAME_MAXIMUM_LENGTH} characters`
+          }
+        }
+
+        // Matcher
+        const regex = /^\p{L}[\p{L}\s'-]*$/u
+        if (!regex.test(value)) {
+          return {
+            ok: false,
+            error: "Name may only include letters (including ñ, é, etc.), spaces, hyphens or apostrophes."
+          }
+        }
+
+        return { ok: true }
+      }
+    });
+
+    // Non-empty string formatter
+    this.addFormat("non-empty-string", {
+      forType: "string",
+      formatterFn: async (value) => {
+        if (v.isEmpty(value)) {
+          return {
+            ok: false,
+            error: "Value cannot be empty"
+          }
+        }
+
+        return { ok: true }
+      }
+    });
+
+    // Local Number formatter
+    this.addFormat("local-number", {
+      forType: "string",
+      formatterFn: async (value) => {
+        // Optional Property
+        if (v.isEmpty(value)) {
+          return { ok: true }
+        }
+
+        if (!v.isNumeric(value)) {
+          return {
+            ok: false,
+            error: "Local number must contain only numbers."
+          }
+        }
+
+        const cond = !(v.isLength(value, { min: 7, max: LOCAL_NUMBER_MAXIMUM_LENGTH })
+          || v.isLength(value, { min: 4, max: 4 }));
+        if (cond) {
+          return {
+            ok: false,
+            error: `Local number must be 4 digits or between 7 and ${LOCAL_NUMBER_MAXIMUM_LENGTH} digits.`
+          }
+        }
+
+        return { ok: true }
+      }
+    });
+
+    // Cellphone Number formatter
+    this.addFormat("cellphone-number", {
+      forType: "string",
+      formatterFn: async (value) => {
+        if (v.isEmpty(value)) {
+          return {
+            ok: false,
+            error: "Cellphone number is required."
+          }
+        }
+
+        const phoneNumberRegex = /(\+63|0)(\d{2,4}-?\d{3,4}-?\d{4})/;
+        if (!phoneNumberRegex.test(value)) {
+          return {
+            ok: false,
+            error: "Please enter a valid cellphone number.",
+          };
+        }
+
+        if (value.length > CELLPHONE_NUMBER_MAXIMUM_LENGTH) {
+          return {
+            ok: false,
+            error: `Cellphone number cannot be longer than ${CELLPHONE_NUMBER_MAXIMUM_LENGTH} characters.`
+          };
+        }
+
+        return { ok: true };
+      }
+    });
+
+    // Strong password formatter
+    this.addFormat("strong-password", {
+      forType: "string",
+      formatterFn: async (value) => {
+        if (v.isEmpty(value)) {
+          return {
+            ok: false,
+            error: "Password is required."
+          }
+        }
+
+        if (value.length > PASSWORD_MAXIMUM_LENGTH) {
+          return {
+            ok: false,
+            error: `Password cannot be longer than ${PASSWORD_MAXIMUM_LENGTH} characters.`
+          }
+        }
+
+        if (!v.isStrongPassword(value)) {
+          return {
+            ok: false,
+            error: "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number, and one special character."
+          }
+        }
+
+        return { ok: true }
+      }
+    });
+
+    // CPU email formatter
+    this.addFormat("cpu-email", {
+      forType: "string",
+      formatterFn: async (value) => {
+        if (v.isEmpty(value)) {
+          return {
+            ok: false,
+            error: "Email is required."
+          }
+        }
+
+        if (value.length > EMAIL_MAXIMUM_LENGTH) {
+          return {
+            ok: false,
+            error: `Email cannot be longer than ${EMAIL_MAXIMUM_LENGTH} characters.`
+          }
+        }
+
+        if (!v.isEmail(value) || !value.endsWith("@cpu.edu.ph")) {
+          return {
+            ok: false,
+            error: "Please enter a valid CPU email address."
+          };
+        }
+
+        return { ok: true };
+      }
+    });
+  }
+
+  /**
+   * Adds a new format to the internal list of formatters.
+   *
+   * @param {string} name - The name of the format to be added. Must be unique.
+   * @param {ValidatorFormatterMetaData<ValidationTypes>} metadata - The metadata associated with the specified format.
+   * @return {void} This method does not return a value.
+   */
+  addFormat(name: string, metadata: ValidatorFormatterMetaData<ValidationTypes>) {
+    // Do not accept if the same name of formatter already exists
+    if (this._formatters[name]) {
+      return;
+    }
+
+    this._formatters[name] = { ...metadata };
+  }
+
+  /**
+   * Validates an object against a specified validation schema and returns the validation result.
+   *
+   * @param object The object to validate against the schema.
+   * @param schema The validation schema defining properties, requirements, and rules for the object.
+   * @return A promise that resolves to a `ValidationResult` indicating whether the object passed validation and any validation errors.
+   */
+  async validate<T extends object>(object: T, schema: Schema<T>): Promise<ValidationResult<T>> {
+    // Check if any of the properties are not part of the validation
+    if (!schema.allowUnvalidatedProperties) {
+      const validatedProperties = Object.keys(schema.properties);
+      const objectProperties = Object.keys(object);
+
+      // Find those properties that are NOT part of the validation.
+      if (validatedProperties.length !== objectProperties.length) {
+        const result: ValidationResult<T> = {
+          ok: false,
+          errors: {} as ValidationErrors<T>,
+        }
+
+        for (const extraProperty of validatedProperties.filter(x => !objectProperties.includes(x))) {
+          result.errors[extraProperty as keyof T] = {
+            message: `Property ${String(extraProperty)} is not allowed without validation.`,
+            from: "unvalidated",
+          } as ValidationErrors<T>[keyof T];
+        }
+
+        return result;
+      }
+    }
+
+    // Check for types and formatters of each property
+    for (const property in schema.properties) {
+      const current = schema.properties[property];
+
+      // Fail when one of the properties is not present especially if its part of the
+      // required properties
+      if (!object[property] && schema.requiredProperties.includes(property as keyof T)) {
+        return {
+          ok: false,
+          errors: {
+            [property]: {
+              message: `Property ${String(property)} is required`,
+              from: "is-required"
+            }
+          } as ValidationErrors<T>
+        }
+      }
+
+      // Assert the type must be equal
+      if (typeof object[property] !== current.type) {
+        return {
+          ok: false,
+          errors: {
+            [property]: {
+              message: `Property ${String(property)} must be of type ${current.type}`,
+              from: "type-check"
+            }
+          } as ValidationErrors<T>
+        }
+      }
+
+      if (current.formatter) {
+        const formatter = this._formatters[current.formatter];
+
+        // Bail when formatter doesn't exist.
+        if (!formatter) {
+          return {
+            ok: false,
+            errors: {
+              [property]: {
+                message: `Property ${String(property)} has an invalid formatter`,
+                from: "formatter"
+              }
+            } as ValidationErrors<T>
+          }
+        }
+
+        const formatterResult = await formatter
+          .formatterFn(object[property as keyof T] as ValidationTypes);
+        if (!formatterResult.ok) {
+          return {
+            ok: false,
+            errors: {
+              [property]: {
+                message: formatterResult.error,
+                from: "formatter"
+              }
+            } as ValidationErrors<T>
+          }
+        }
+      }
+    }
+
+    return { ok: true, errors: {} as ValidationErrors<T> }
+  }
+}
+
+declare global {
+  var globalValidators: BootlegValidator;
+}
+
+const validator = globalThis.globalValidators || new BootlegValidator();
+globalThis.globalValidators = validator;
+
+export default validator;

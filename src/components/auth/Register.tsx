@@ -1,29 +1,20 @@
 "use client";
-import { useState } from "react";
-import { Button } from "@/components/ui/button";
-import { Input } from "@/components/ui/input";
-import { Spinner } from "@/components/ui/spinner";
-import { Eye, EyeOff, Check, ChevronsUpDown } from "lucide-react";
-import { useRouter, useSearchParams } from "next/navigation";
+
+import * as accounts from "@/lib/accounts/register";
+import {type ChangeEvent, type FormEvent, useState} from "react";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {Spinner} from "@/components/ui/spinner";
+import {Check, ChevronsUpDown, Eye, EyeOff} from "lucide-react";
+import {useRouter, useSearchParams} from "next/navigation";
 import Image from "next/image";
-import validator from "validator";
-import { fetchVerificationToken } from "@/domains/user-management/services/fetchVerificationToken";
-import { fetchSendUserVerificationEmail } from "@/domains/notification/services/fetchSendUserVerificationEmail";
 import DEPARTMENTS from "@/lib/departments";
-import { cn } from "@/lib/utils";
-import {
-  Popover,
-  PopoverTrigger,
-  PopoverContent,
-} from "@/components/ui/popover";
-import {
-  Command,
-  CommandEmpty,
-  CommandGroup,
-  CommandInput,
-  CommandItem,
-  CommandList,
-} from "@/components/ui/command";
+import {cn} from "@/lib/utils";
+import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover";
+import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList,} from "@/components/ui/command";
+import validator from "@/lib/validators";
+import type {RegisterInputType} from "@/lib/types/RegisterInputType";
+import {ErrorCodes} from "@/lib/ErrorCodes";
 
 const MAX_LENGTH = {
   firstName: 50,
@@ -35,22 +26,38 @@ const MAX_LENGTH = {
   password: 128,
 };
 
+interface RegisterInputState extends RegisterInputType {
+  confirmPassword: string;
+}
+
+interface RegisterErrorState extends RegisterInputState {
+  submit: string;
+}
+
 export default function Register() {
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/service-request/create";
   const router = useRouter();
-  const [firstName, setFirstName] = useState("");
-  const [lastName, setLastName] = useState("");
-  const [cellphoneNumber, setCellphoneNumber] = useState("");
-  const [localNumber, setLocalNumber] = useState("");
-  const [department, setDepartment] = useState("");
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
-  const [confirmPassword, setConfirmPassword] = useState("");
+
+  // Toggles
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirmPassword, setShowConfirmPassword] = useState(false);
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({
+
+  // Registration Input states
+  const [inputs, setInputs] = useState<RegisterInputState>({
+    firstName: "",
+    lastName: "",
+    localNumber: "",
+    cellphoneNumber: "",
+    email: "",
+    password: "",
+    confirmPassword: "",
+    department: "",
+  });
+
+  // Registration Errors goes here
+  const [errors, setErrors] = useState<RegisterErrorState>({
     firstName: "",
     lastName: "",
     localNumber: "",
@@ -64,9 +71,8 @@ export default function Register() {
 
   const [deptOpen, setDeptOpen] = useState(false);
 
-  const validateForm = () => {
-    let isValid = true;
-    const newErrors = {
+  const validateForm = async () => {
+    const newErrors: RegisterErrorState = {
       firstName: "",
       lastName: "",
       localNumber: "",
@@ -78,166 +84,82 @@ export default function Register() {
       submit: "",
     };
 
-    const nameRegex = new RegExp("^\\p{L}[\\p{L}\\s'-]*$", "u");
+    const result = await validator.validate<RegisterInputState>(inputs, {
+      properties: {
+        firstName: {type: "string", formatter: "ascii-names"},
+        lastName: {type: "string", formatter: "ascii-names"},
+        department: {type: "string", formatter: "non-empty-string"},
+        localNumber: { type: "string", formatter: "local-number" },
+        cellphoneNumber: { type: "string", formatter: "cellphone-number" },
+        email: { type: "string", formatter: "cpu-email" },
+        password: { type: "string", formatter: "strong-password" },
+        confirmPassword: { type: "string", formatter: "strong-password" },
+      },
+      requiredProperties: [
+        "firstName",
+        "lastName",
+        "department",
+        "cellphoneNumber",
+        "email",
+        "password",
+        "confirmPassword"
+      ],
+      allowUnvalidatedProperties: true,
+    });
 
-    if (validator.isEmpty(firstName)) {
-      newErrors.firstName = "First name is required.";
-      isValid = false;
-    } else if (!nameRegex.test(firstName)) {
-      newErrors.firstName =
-        "First name may only include letters (including ñ, é, etc.), spaces, hyphens or apostrophes.";
-      isValid = false;
-    } else if (firstName.length > MAX_LENGTH.firstName) {
-      newErrors.firstName = `First name cannot exceed ${MAX_LENGTH.firstName} characters.`;
-      isValid = false;
-    }
-
-    if (validator.isEmpty(lastName)) {
-      newErrors.lastName = "Last name is required.";
-      isValid = false;
-    } else if (!nameRegex.test(lastName)) {
-      newErrors.lastName =
-        "Last name may only include letters (including ñ, é, etc.), spaces, hyphens or apostrophes.";
-      isValid = false;
-    } else if (lastName.length > MAX_LENGTH.lastName) {
-      newErrors.lastName = `Last name cannot exceed ${MAX_LENGTH.lastName} characters.`;
-      isValid = false;
-    }
-
-    if (validator.isEmpty(department.trim())) {
-      newErrors.department = "Department is required.";
-      isValid = false;
-    } else if (department.length > MAX_LENGTH.department) {
-      newErrors.department = `Department cannot exceed ${MAX_LENGTH.department} characters.`;
-      isValid = false;
-    }
-
-    if (!validator.isEmpty(localNumber)) {
-      if (!validator.isNumeric(localNumber)) {
-        newErrors.localNumber = "Local number must contain only numbers.";
-        isValid = false;
-      } else if (!(validator.isLength(localNumber, { min: 7, max: MAX_LENGTH.localNumber }) || validator.isLength(localNumber, { min: 4, max: 4 }))) {
-        newErrors.localNumber = `Local number must be 4 digits or between 7 and ${MAX_LENGTH.localNumber} digits.`;
-        isValid = false;
+    if (!result.ok) {
+      for (const e of Object.keys(result.errors)) {
+        newErrors[e as keyof RegisterInputState] = result.errors[e as keyof RegisterInputState].message;
       }
-    }
-
-
-    if (validator.isEmpty(cellphoneNumber)) {
-      newErrors.cellphoneNumber = "Cellphone number is required.";
-      isValid = false;
-    } else if (!validator.isMobilePhone(cellphoneNumber, 'any')) {
-      newErrors.cellphoneNumber = "Please enter a valid cellphone number.";
-      isValid = false;
-    } else if (cellphoneNumber.length > MAX_LENGTH.cellphoneNumber) {
-      newErrors.cellphoneNumber = `Cellphone number cannot exceed ${MAX_LENGTH.cellphoneNumber} characters.`;
-      isValid = false;
-    }
-
-    if (!validator.isEmail(email) || !email.endsWith("@cpu.edu.ph")) {
-      newErrors.email = "Please enter a valid CPU email address.";
-      isValid = false;
-    } else if (email.length > MAX_LENGTH.email) {
-      newErrors.email = `Email address cannot exceed ${MAX_LENGTH.email} characters.`;
-      isValid = false;
-    }
-
-    if (!validator.isStrongPassword(password)) {
-      newErrors.password =
-        "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number, and one special character.";
-      isValid = false;
-    } else if (password.length > MAX_LENGTH.password) {
-      newErrors.password = `Password cannot exceed ${MAX_LENGTH.password} characters.`;
-      isValid = false;
-    }
-
-    if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match.";
-      isValid = false;
     }
 
     setErrors(newErrors);
-    return isValid;
+    return result.ok;
   };
 
-  const handleSubmit = async (e: React.FormEvent) => {
+  const handleInputChange = (key: keyof RegisterInputState, e: ChangeEvent<HTMLInputElement>) => {
+    setInputs(l => ({
+      ...l,
+      [key]: e.target.value,
+    }));
+  }
+
+  const handleSubmit = async (e: FormEvent) => {
     e.preventDefault();
     setIsLoading(true);
 
-    if (validateForm()) {
-      try {
-        const response = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ firstName, lastName, email, password, cellphoneNumber, localNumber, department }),
-        });
-
-        const data = await response.json();
-
-        if (!response.ok) {
-          if (data.error === "Email already exists") {
-            setErrors((prevErrors) => ({
-              ...prevErrors,
-              email: "Email already exists.",
-            }));
-          } else {
-            setErrors((prevErrors) => ({
-              ...prevErrors,
-              submit: data.error || "An error occurred during registration.",
-            }));
-          }
-          setIsLoading(false);
-          return;
-        }
-
-        // const signInResult = await signIn("credentials", {
-        //   redirect: false,
-        //   email,
-        //   password,
-        // });
-
-        // if (signInResult?.error) {
-        //   setErrors((prevErrors) => ({
-        //     ...prevErrors,
-        //     submit: signInResult.error || "An error occurred during sign in.",
-        //   }));
-        //   setIsLoading(false);
-        //   return
-        // }
-
-        try {
-          const verificationToken = await fetchVerificationToken(data.newUser.id);
-          await fetchSendUserVerificationEmail(
-            email,
-            `${firstName} ${lastName}`,
-            data.newUser.id,
-            verificationToken
-          );
-
-          router.push(`/auth/verify-email?email=${encodeURIComponent(email)}`);
-
-        } catch (emailError) {
-          console.error("Failed to send verification email:", emailError);
-          setErrors((prevErrors) => ({
-            ...prevErrors,
-            submit: "Registration successful, but failed to send verification email. Please check your spam folder or contact support.",
-          }));
-          setIsLoading(false);
-        }
-
-      } catch (error) {
-        console.error("Registration process error:", error);
-        setErrors((prevErrors) => ({
-          ...prevErrors,
-          submit: "An unexpected error occurred during the registration process.",
-        }));
-        setIsLoading(false);
-      }
-    } else {
+    const validation = await validateForm();
+    if (!validation) {
       setIsLoading(false);
+      return;
     }
+
+    // Register the account
+    const result = await accounts.register(inputs);
+
+    // Account already exists
+    if (result.code === ErrorCodes.ACCOUNT_ALREADY_EXISTS) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        email: "Email already exists.",
+      }));
+
+      return;
+    }
+
+    // Success but sending mail has failed
+    if (result.code === ErrorCodes.REGISTRATION_SUCCESS_BUT_MAIL_SEND_FAILURE) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        submit: "Registration successful, but failed to send verification email. Please check your spam folder or contact support.",
+      }));
+      setIsLoading(false);
+
+      return;
+    }
+
+    setIsLoading(false);
+    router.push(`/auth/verify-email?email=${encodeURIComponent(result.data!.email)}`);
   };
 
   return (
@@ -275,8 +197,8 @@ export default function Register() {
               <Input
                 id="firstName"
                 type="text"
-                value={firstName}
-                onChange={(e) => setFirstName(e.target.value)}
+                value={inputs.firstName}
+                onChange={(e) => handleInputChange('firstName', e)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
                 placeholder="Enter your first name"
                 maxLength={MAX_LENGTH.firstName}
@@ -295,8 +217,8 @@ export default function Register() {
               <Input
                 id="lastName"
                 type="text"
-                value={lastName}
-                onChange={(e) => setLastName(e.target.value)}
+                value={inputs.lastName}
+                onChange={(e) => handleInputChange('lastName', e)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
                 placeholder="Enter your last name"
                 maxLength={MAX_LENGTH.lastName}
@@ -323,10 +245,10 @@ export default function Register() {
                   variant="outline"
                   className={cn(
                     "w-full justify-between bg-white bg-opacity-20 text-white placeholder-gray-400",
-                    !department && "text-gray-400"
+                    !inputs.department && "text-gray-400"
                   )}
                 >
-                  {department || "Select department..."}
+                  {inputs.department || "Select department..."}
                   <ChevronsUpDown className="ml-2 h-4 w-4 shrink-0 opacity-50" />
                 </Button>
               </PopoverTrigger>
@@ -341,14 +263,17 @@ export default function Register() {
                           key={dept}
                           value={dept}
                           onSelect={(current) => {
-                            setDepartment(current);
+                            setInputs(l => ({
+                              ...l,
+                              department: current,
+                            }));
                             setDeptOpen(false);
                           }}
                         >
                           <Check
                             className={cn(
                               "mr-2 h-4 w-4",
-                              department === dept ? "opacity-100" : "opacity-0"
+                              inputs.department === dept ? "opacity-100" : "opacity-0"
                             )}
                           />
                           {dept}
@@ -375,8 +300,8 @@ export default function Register() {
               <Input
                 id="localNumber"
                 type="text"
-                value={localNumber}
-                onChange={(e) => setLocalNumber(e.target.value)}
+                value={inputs.localNumber}
+                onChange={(e) => handleInputChange('localNumber', e)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
                 placeholder="Enter your local number"
                 maxLength={MAX_LENGTH.localNumber}
@@ -395,8 +320,8 @@ export default function Register() {
               <Input
                 id="cellphoneNumber"
                 type="text"
-                value={cellphoneNumber}
-                onChange={(e) => setCellphoneNumber(e.target.value)}
+                value={inputs.cellphoneNumber}
+                onChange={(e) => handleInputChange('cellphoneNumber', e)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
                 placeholder="Enter your cellphone number"
                 maxLength={MAX_LENGTH.cellphoneNumber}
@@ -417,8 +342,8 @@ export default function Register() {
             <Input
               id="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={inputs.email}
+              onChange={(e) => handleInputChange('email', e)}
               className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
               placeholder="Enter your CPU email"
               maxLength={MAX_LENGTH.email}
@@ -439,8 +364,8 @@ export default function Register() {
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={inputs.password}
+                onChange={(e) => handleInputChange('password', e)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400 pr-10"
                 placeholder="Enter your password"
                 maxLength={MAX_LENGTH.password}
@@ -474,8 +399,8 @@ export default function Register() {
               <Input
                 id="confirmPassword"
                 type={showConfirmPassword ? "text" : "password"}
-                value={confirmPassword}
-                onChange={(e) => setConfirmPassword(e.target.value)}
+                value={inputs.confirmPassword}
+                onChange={(e) => handleInputChange('confirmPassword', e)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400 pr-10"
                 placeholder="Confirm your password"
                 maxLength={MAX_LENGTH.password}
