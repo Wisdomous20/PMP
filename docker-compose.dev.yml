@@ -1,9 +1,26 @@
 services:
+
+  app:
+    build: .
+    container_name: pmp-app
+    env_file:
+      - .env
+    ports:
+      - "3000:3000"
+    command: pnpm run dev
+    depends_on:
+      - mongo1
+      - mongo2
+      - mongo3
+    networks:
+      - mongoCluster
+
   mongo1:
     image: mongo:8.0-noble
     container_name: mongo1
     volumes:
       - mongo1-data:/data/db
+      - .:/app
     ports:
       - "27017:27017"
     command: ["mongod", "--replSet", "pmpReplicaSet", "--bind_ip_all"]

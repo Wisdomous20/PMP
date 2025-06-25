@@ -24,6 +24,7 @@ import {
   CommandItem,
   CommandList,
 } from "@/components/ui/command";
+import { register } from "@/lib/user-actions";
 
 const MAX_LENGTH = {
   firstName: 50,
@@ -166,17 +167,27 @@ export default function Register() {
 
     if (validateForm()) {
       try {
-        const response = await fetch("/api/auth/register", {
-          method: "POST",
-          headers: {
-            "Content-Type": "application/json",
-          },
-          body: JSON.stringify({ firstName, lastName, email, password, cellphoneNumber, localNumber, department }),
-        });
+        // const response = await fetch("/api/auth/register", {
+        //   method: "POST",
+        //   headers: {
+        //     "Content-Type": "application/json",
+        //   },
+        //   body: JSON.stringify({ firstName, lastName, email, password, cellphoneNumber, localNumber, department }),
+        // });
 
-        const data = await response.json();
+        const data = await register(
+          firstName,
+          lastName,
+          email,
+          password,
+          cellphoneNumber,
+          department,
+          localNumber
+        )
 
-        if (!response.ok) {
+        // const data = await response.json();
+
+        if (data.status !== 201) {
           if (data.error === "Email already exists") {
             setErrors((prevErrors) => ({
               ...prevErrors,
@@ -208,6 +219,15 @@ export default function Register() {
         // }
 
         try {
+
+          if (!data.newUser || !data.newUser.id) {
+            setErrors((prevErrors) => ({
+              ...prevErrors,
+              submit: "Registration successful, but user information is incomplete. Please contact support.",
+            }));
+            setIsLoading(false);
+            return;
+          }
           const verificationToken = await fetchVerificationToken(data.newUser.id);
           await fetchSendUserVerificationEmail(
             email,

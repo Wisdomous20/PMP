@@ -22,10 +22,10 @@ ENV NEXT_TELEMETRY_DISABLED=1
 
 # Build
 COPY . ./
-RUN pnpm run build
+# RUN pnpm run build
 
 # Expose the necessary ports for the runtime
 ENV PORT=3000
 EXPOSE 3000
 
-ENTRYPOINT ["pnpm", "start"]
+CMD ["pnpm", "run", "dev"]
