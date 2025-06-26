@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { createMailer } from "@/lib/mailer/create-mailer";
 
 type CompletedEmailParams = {
   to: string;
@@ -19,13 +19,7 @@ export async function sendServiceRequestCompletedEmail({
   note,
   color = "#2c3e50",
 }: CompletedEmailParams) {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  const transporter = await createMailer();
 
   const noteSection = note
     ? `

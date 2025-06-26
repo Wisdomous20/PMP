@@ -2,6 +2,23 @@ export enum ErrorCodes {
   OK = 0,
 
   /**
+   * Represents a specific error code indicating that a recovery operation has failed.
+   *
+   * This constant can be used to identify and handle scenarios where recovery processes,
+   * such as data restoration or state recovery, do not complete successfully.
+   * It is typically used for error tracking, debugging, or triggering appropriate
+   * fallback mechanisms in an application.
+   */
+  RECOVERY_FAILED = 3419,
+
+  /**
+   * A constant variable representing the specific error code when no account is found.
+   * This code is typically used to signify that an attempted operation has failed
+   * because the account associated with the given identifier or criteria does not exist.
+   */
+  NO_ACCOUNT_FOUND = 3420,
+
+  /**
    * Represents the error code for a failure in sending mail.
    * This constant is typically used to signify that an attempt
    * to send an email has failed due to an error.

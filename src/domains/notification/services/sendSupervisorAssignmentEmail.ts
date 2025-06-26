@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { createMailer } from "@/lib/mailer/create-mailer";
 
 type SupervisorEmailParams = {
   to: string;
@@ -19,13 +19,7 @@ export async function sendSupervisorAssignmentEmail({
   details,
   color = "#2c3e50",
 }: SupervisorEmailParams) {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  const transporter = await createMailer();
 
   const requestUrl = `${baseUrl.replace(/\/$/, "")}/service-request/${serviceRequestId}`;
 

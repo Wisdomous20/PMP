@@ -1,4 +1,4 @@
-import nodemailer from "nodemailer";
+import { createMailer } from "@/lib/mailer/create-mailer";
 
 export type ImplementationPlanEmailParams = {
   to: string;
@@ -21,14 +21,7 @@ export async function sendImplementationPlanEmail({
   actionUrl = `${process.env.BASE_URL}/requests`,
   color = "#2c3e50",
 }: ImplementationPlanEmailParams) {
-  // Configure the SMTP transporter
-  const transporter = nodemailer.createTransport({
-    service: "gmail", // or your preferred SMTP
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  const mailer = await createMailer();
 
   // Build tasks list HTML
   const tasksHtml = tasks
@@ -104,7 +97,7 @@ export async function sendImplementationPlanEmail({
   };
 
   try {
-    await transporter.sendMail(mailOptions);
+    await mailer.sendMail(mailOptions);
   } catch (error) {
     console.error("Error sending implementation plan email:", error);
     throw new Error("Failed to send implementation plan email.");
