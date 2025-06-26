@@ -1,14 +1,14 @@
 "use server";
 
+import client from "@/lib/database/client";
 import {GenericFailureType} from "@/lib/types/GenericFailureType";
-import {prisma} from "@/lib/prisma";
 import crypto from "crypto";
 import {createMailer} from "@/lib/mailer/create-mailer";
 import {ErrorCodes} from "@/lib/ErrorCodes";
 
 export async function resetPassword(email: string): Promise<GenericFailureType> {
   try {
-    const user = await prisma.user.findUnique({
+    const user = await client.user.findUnique({
       where: { email },
     });
 
@@ -22,7 +22,7 @@ export async function resetPassword(email: string): Promise<GenericFailureType> 
     const token = crypto.randomBytes(32).toString('hex');
     const resetTokenExpiry = new Date(Date.now() + 3600000); // 1 hour from now
 
-    await prisma.user.update({
+    await client.user.update({
       where: { email },
       data: {
         resetPasswordToken: token,
