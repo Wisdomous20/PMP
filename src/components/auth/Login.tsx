@@ -1,61 +1,83 @@
 "use client";
-import { useState } from "react";
+
+import { type ChangeEvent, useState } from "react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Spinner } from "@/components/ui/spinner";
 import { Eye, EyeOff } from "lucide-react";
 import Image from "next/image";
 import { useRouter } from "next/navigation";
-import validator from "validator";
 import { signIn } from "next-auth/react";
 import { useSearchParams } from "next/navigation";
 import {Session} from "next-auth";
+import validator from "@/lib/validators"
 
 const MAX_LENGTH = {
   email: 255,
   password: 128,
 };
 
+interface LoginState {
+  email: string;
+  password: string;
+}
+
+interface LoginStateErrors extends LoginState {
+  submit: string;
+}
+
 export default function Login() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const callbackUrl = searchParams.get("callbackUrl") || "/";
-  const [email, setEmail] = useState("");
-  const [password, setPassword] = useState("");
   const [showPassword, setShowPassword] = useState(false);
-  const [errors, setErrors] = useState({
+
+  // Input States
+  const [inputs, setInputs] = useState<LoginState>({
+    email: "",
+    password: "",
+  });
+
+  // Errors
+  const [errors, setErrors] = useState<LoginStateErrors>({
     email: "",
     password: "",
     submit: "",
   });
   const [isLoading, setIsLoading] = useState(false);
 
-  const validateForm = () => {
-    let isValid = true;
-    const newErrors = {
+  const validateForm = async () => {
+    const newErrors: LoginStateErrors = {
       email: "",
       password: "",
       submit: "",
     };
-    if (!validator.isEmail(email)) {
-      // if (!validator.isEmail(email) || !email.endsWith("@cpu.edu.ph")) {
-      newErrors.email = "Please enter a valid CPU email address.";
-      isValid = false;
-    } else if (email.length > MAX_LENGTH.email) {
-      newErrors.email = `Email address cannot exceed ${MAX_LENGTH.email} characters.`;
-      isValid = false;
-    }
 
-    if (!validator.isLength(password, { min: 8 })) {
-      newErrors.password = "Password must be at least 8 characters long.";
-      isValid = false;
-    } else if (password.length > MAX_LENGTH.password) {
-      newErrors.password = `Password cannot exceed ${MAX_LENGTH.password} characters.`;
-      isValid = false;
+    const result = await validator.validate<LoginState>(inputs, {
+      properties: {
+        email: { type: "string", formatter: "cpu-email" },
+        password: {
+          type: "string",
+          formatterFn: async (x) => {
+            const ok = x.length >= 8 && x.length <= MAX_LENGTH.password;
+            return {
+              ok,
+              error: ok ? undefined : "Invalid password"
+            }
+          }
+        }
+      },
+      requiredProperties: ["email", "password"],
+    });
+
+    if (!result.ok) {
+      for (const e of Object.keys(result.errors)) {
+        newErrors[e as keyof LoginState] = result.errors[e as keyof LoginState].message;
+      }
     }
 
     setErrors(newErrors);
-    return isValid;
+    return result.ok;
   };
 
   const handleSubmit = async (e: React.FormEvent) => {
@@ -64,44 +86,21 @@ export default function Login() {
     const initialErrors = { ...errors, submit: "" };
     setErrors(initialErrors);
 
-
-    if (validateForm()) {
+    const check = await validateForm();
+    if (check) {
       try {
         const result = await signIn("credentials", {
           redirect: false,
-          email: email,
-          password: password,
+          email: inputs.email,
+          password: inputs.password,
         });
 
         if (result?.error) {
-          console.error("Login error:", result.error);
           setIsLoading(false);
-
-          if (
-            result.error.includes("Email not found") ||
-            result.error.includes("CredentialsSignin")
-          ) {
-            setErrors(prevErrors => ({
-              ...prevErrors,
-              submit: "Email not found. Please register first.",
-            }));
-          } else if (result.error.includes("Invalid email or password")) {
-            setErrors(prevErrors => ({
-              ...prevErrors,
-              submit: "Invalid email or password.",
-            }));
-          } else if (result.error.includes("Please verify your email before logging in.")) {
-            setErrors(prevErrors => ({
-              ...prevErrors,
-              submit: "Please verify your email before logging in.",
-            }));
-          }
-          else {
-            setErrors(prevErrors => ({
-              ...prevErrors,
-              submit: "An error occurred during login.",
-            }));
-          }
+          setErrors(l => ({
+            ...l,
+            submit: result.error as string
+          }));
         }
         else {
           try {
@@ -123,8 +122,7 @@ export default function Login() {
               router.push(callbackUrl);
             }
 
-          } catch (error) {
-            console.error("Error fetching session:", error);
+          } catch {
             setIsLoading(false);
             setErrors(prevErrors => ({
               ...prevErrors,
@@ -132,8 +130,7 @@ export default function Login() {
             }));
           }
         }
-      } catch (error) {
-        console.error("Login process error:", error);
+      } catch {
         setErrors(prevErrors => ({
           ...prevErrors,
           submit: "An unexpected error occurred during the login process.",
@@ -144,6 +141,13 @@ export default function Login() {
       setIsLoading(false);
     }
   };
+
+  const handleChange = (target: keyof LoginState, e: ChangeEvent<HTMLInputElement>) => {
+    setInputs(l => ({
+      ...l,
+      [target]: e.target.value
+    }))
+  }
 
   return (
     <div
@@ -178,8 +182,8 @@ export default function Login() {
             <Input
               id="email"
               type="email"
-              value={email}
-              onChange={(e) => setEmail(e.target.value)}
+              value={inputs.email}
+              onChange={(e) => handleChange('email', e)}
               className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
               placeholder="Enter your email"
               maxLength={MAX_LENGTH.email}
@@ -201,8 +205,8 @@ export default function Login() {
               <Input
                 id="password"
                 type={showPassword ? "text" : "password"}
-                value={password}
-                onChange={(e) => setPassword(e.target.value)}
+                value={inputs.password}
+                onChange={(e) => handleChange('password', e)}
                 className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400 pr-10"
                 placeholder="Enter your password"
                 maxLength={MAX_LENGTH.password}

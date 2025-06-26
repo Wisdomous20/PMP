@@ -11,8 +11,6 @@ declare module 'next-auth' {
     id: string;
     name: string;
     email: string;
-    // TODO: Why do we need this?
-    hashPassword?: string;
     role: string;
   }
 }

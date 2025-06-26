@@ -69,13 +69,12 @@ export interface Schema<T> {
        * like an email or phone number.
        *
        * The value of the formatter is specific for each instance type.
+       * @remarks If formatterFn is defined, this will be ignored.
        */
       formatter?: string;
 
       /**
        * Custom formatter function.
-       *
-       * If the formatter is defined, this will be ignored.
        */
       formatterFn?: ValidationFunction<T[K]>
     }
@@ -397,6 +396,24 @@ class BootlegValidator {
             }
           } as ValidationErrors<T>
         }
+      }
+
+      if (current.formatterFn) {
+        // Run the custom formatter
+        const runFormatter = await current.formatterFn(object[property]);
+        if (!runFormatter.ok) {
+          return {
+            ok: false,
+            errors: {
+              [property]: {
+                message: runFormatter.error,
+                from: "formatter"
+              }
+            } as ValidationErrors<T>
+          }
+        }
+
+        return { ok: true, errors: {} as ValidationErrors<T> }
       }
 
       if (current.formatter) {
