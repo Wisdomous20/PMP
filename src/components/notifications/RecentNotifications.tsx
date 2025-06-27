@@ -68,7 +68,7 @@ export default function RecentNotifications({
   const groupedNotifications = isLoading
     ? []
     : notifications.reduce<Record<string, AdminNotification[]>>((acc, notification) => {
-        const dateLabel = getNotificationDateGroup(notification.createdAt)
+        const dateLabel = getNotificationDateGroup(notification.createdAt.toLocaleDateString())
         if (!acc[dateLabel]) {
           acc[dateLabel] = []
         }

@@ -49,6 +49,7 @@ export async function getPendingServiceRequests(userId: string) {
    const createdOn = status.length > 0 ? status[0].timestamp : null;
    return {
      id,
+     user,
      requesterName,
      concern,
      details,

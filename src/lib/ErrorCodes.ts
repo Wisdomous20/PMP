@@ -51,4 +51,21 @@ export enum ErrorCodes {
    * functionality encounters an issue.
    */
   REGISTRATION_SUCCESS_BUT_MAIL_SEND_FAILURE = 69422,
+
+  /**
+   * Represents the status code indicating that the dashboard data fetch
+   * haas failed.
+   * 
+   * This can occur in scenarios where the user account does not exist
+   * or the given user id is somehow not valid.
+   */
+  DASHBOARD_ID_ERROR = 9000,
+
+  /**
+   * Represents a code or identifier for a dashboard failure event.
+   * This constant is used to indicate that a dashboard process has failed
+   * in the application logic. The value can be used for error handling,
+   * logging, or debugging purposes.
+   */
+  DASHBOARD_FAILURE = 9005,
 }

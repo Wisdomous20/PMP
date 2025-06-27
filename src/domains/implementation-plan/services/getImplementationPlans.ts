@@ -37,6 +37,7 @@ export default async function getImplementationPlans(userId: string) {
       select: {
         id: true,
         description: true,
+        status: true,
         tasks: true,
         files: true,
         createdAt: true,
