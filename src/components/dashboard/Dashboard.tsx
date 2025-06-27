@@ -4,9 +4,10 @@ import ImplementationPlansInProgress from "../implementation-plan/Implementation
 import RecentInventoryLogs from "../inventory-management/RecentInventoryLogs";
 import NotificationsPanel from "../notifications/RecentNotifications";
 import NewServiceRequests from "../service-request/NewServiceRequests";
-import { fetchDashboardData } from "@/domains/dashboard/services/fetchDashboardData";
+// import { fetchDashboardData } from "@/domains/dashboard/services/fetchDashboardData";
 import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
 import { useQuery } from "@tanstack/react-query";
+import { dashboardData as fetchDashboardData } from "@/lib/dashboard/dashboard-data";
 
 export default function Dashboard() {
   const { data: session } = useSession();
@@ -35,6 +36,21 @@ export default function Dashboard() {
   const errorMessage =
     dashboardError instanceof Error ? dashboardError.message : null;
 
+  // change this later
+  if (
+    !dashboardData?.data?.dashboardStats ||
+    !dashboardData?.data?.implementationPlans ||
+    !dashboardData.data.equipment ||
+    !dashboardData.data.newServiceRequests ||
+    !dashboardData.data.notifications
+  ) {
+    return (
+      <div>
+        Incomplete Data
+      </div>
+    )
+  }
+
   return (
     <div className="flex flex-col w-full min-h-screen p-6 md:p-8 overflow-y-auto bg-gradient-to-b from-yellow-50 to-blue-100">
       <div className="flex flex-col gap-2 md:flex-row md:items-center md:justify-between mb-6">
@@ -48,11 +64,13 @@ export default function Dashboard() {
         </div>
       </div>
       <div className="mb-6">
-        <DashboardStats
-          stats={dashboardData?.dashboardStats}
-          isLoading={isLoading || userRoleLoading}
-          error={errorMessage}
-        />
+        ({dashboardData?.data?.dashboardStats && (
+          <DashboardStats
+            stats={dashboardData?.data?.dashboardStats}
+            isLoading={isLoading || userRoleLoading}
+            error={errorMessage}
+          />
+        )})
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
@@ -60,7 +78,14 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <ImplementationPlansInProgress
               onUpdate={handlePlansUpdate}
-              implementationPlans={dashboardData?.implementationPlans}
+              implementationPlans={dashboardData?.data?.implementationPlans?.map((plan: any) => ({
+                ...plan,
+                serviceRequest: {
+                  requesterName: plan.serviceRequest.requesterName ?? "",
+                  createdOn: plan.serviceRequest.createdOn ?? new Date(),
+                  ...plan.serviceRequest,
+                },
+              }))}
               isLoading={isLoading || userRoleLoading}
               error={errorMessage}
               userRole={userRole as UserRole}
@@ -70,7 +95,7 @@ export default function Dashboard() {
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white rounded-lg shadow overflow-hidden h-full">
               <NewServiceRequests
-                newServiceRequests={dashboardData?.newServiceRequests?.slice(0,5)}
+                newServiceRequests={dashboardData?.data?.newServiceRequests?.slice(0, 5)}
                 isLoading={isLoading || userRoleLoading}
                 error={errorMessage}
               />
@@ -78,7 +103,7 @@ export default function Dashboard() {
 
             <div className="bg-white rounded-lg shadow overflow-hidden h-full">
               <RecentInventoryLogs
-                equipment={dashboardData?.equipment?.slice(0,6)}
+                equipment={dashboardData?.data.equipment?.slice(0, 6)}
                 isLoading={isLoading || userRoleLoading}
                 error={errorMessage}
               />
@@ -88,7 +113,7 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-lg shadow overflow-hidden h-full">
           <NotificationsPanel
-            notifications={dashboardData?.notifications?.slice(0, 8)}
+            notifications={dashboardData?.data?.notifications?.slice(0, 8)}
             isLoading={isLoading || userRoleLoading}
             error={errorMessage}
           />

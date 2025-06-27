@@ -12,6 +12,9 @@ export async function getDashboardData(userId: string) {
     newServiceRequests,
     dashboardStats,
   ] = await Promise.all([
+    // these functions might cause too much query overhead bcos
+    // each function is checking the user id.
+    // subject to change
     getImplementationPlans(userId),
     getNotifications(userId),
     getPaginatedEquipment({ page: 1, pageSize: 15, userId }),
