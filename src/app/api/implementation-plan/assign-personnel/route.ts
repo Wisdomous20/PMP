@@ -4,7 +4,6 @@ import addPersonnelToImplementationPlan from "@/domains/personnel-management/ser
 export async function POST(req: NextRequest) {
     try{
         const {taskId, personnelId} = await req.json();
-        console.log(taskId, personnelId)
         if(!taskId || !personnelId){
             return NextResponse.json(
                 {error: "Please provide implementationPlanId and personnelId"},

@@ -1,8 +1,6 @@
 import { format, isValid } from "date-fns";
 
 export default function formatTimestamp(timestamp: Date): string {
-  console.log(timestamp)
-  console.log(isValid(timestamp))
   const date = new Date(timestamp);
 
   if (!isValid(date)) {

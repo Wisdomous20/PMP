@@ -26,7 +26,6 @@ import AddEquipment from "@/components/inventory-management/addEquipment";
 import { DeleteEquipment } from "./DeleteEquipment";
 import { EditEquipment } from "./EditEquipment";
 import { useSession } from "next-auth/react";
-import getUserRoleFetch from "@/domains/user-management/services/getUserRoleFetch";
 import getUserDepartmentFetch from "@/domains/user-management/services/fetchUserDepartment";
 import {
   Select,
@@ -45,25 +44,6 @@ interface FilterState {
   office: string;
   page: number;
 }
-
-// Assuming UserRole and Equipment types are defined elsewhere
-// type UserRole = "ADMIN" | "SUPERVISOR" | "SECRETARY" | "STAFF";
-// interface Equipment {
-//   id: string; // or number
-//   quantity: number;
-//   description: string;
-//   brand: string;
-//   serialNumber: string;
-//   supplier: string;
-//   unitCost: number;
-//   totalCost: number;
-//   datePurchased: string | Date;
-//   dateReceived: string | Date;
-//   status: string; // Consider a more specific type e.g., "Good" | "Repair" | "Disposed"
-//   location: string;
-//   department: string;
-// }
-
 
 export default function InventoryManagement() {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
@@ -134,13 +114,12 @@ export default function InventoryManagement() {
   const loadUserRoleAndDepartment = useCallback(async () => {
     try {
       if (session?.user?.id) {
-        const { userRole: fetchedUserRole } = await getUserRoleFetch(session.user.id);
-        setUserRole(fetchedUserRole as UserRole);
+        setUserRole(session.user.role as UserRole);
 
         const { department } = await getUserDepartmentFetch(session.user.id);
         setUserDepartment(department);
 
-        if (fetchedUserRole === "SUPERVISOR") {
+        if (session.user.role === "SUPERVISOR") {
           setFilters({ office: department, page: 1 });
           setIsOfficeFilterDisabled(true); // Disable filter for SUPERVISOR
         } else {
@@ -151,6 +130,7 @@ export default function InventoryManagement() {
       console.error("Failed to load user role/department:", error);
       setIsOfficeFilterDisabled(false); // Ensure it's false on error
     }
+    // eslint-disable-next-line react-hooks/exhaustive-deps
   }, [session?.user?.id]);
 
   useEffect(() => {
@@ -159,13 +139,13 @@ export default function InventoryManagement() {
 
   useEffect(() => {
     if (session) {
-      // Only load equipment if user role is determined or if it's not a supervisor
+      // Only load equipment if a user role is determined or if it's not a supervisor
       // For supervisors, the loadEquipment will be triggered by the filter change in loadUserRoleAndDepartment
       if (userRole && userRole !== "SUPERVISOR") {
         loadEquipment();
       } else if (userRole === "SUPERVISOR" && filters.office !== "all") { // Ensure supervisor's department filter is set
         loadEquipment();
-      } else if (!userRole && filters.office === "all") { // Initial load for non-supervisors or if role not yet fetched
+      } else if (!userRole && filters.office === "all") { // Initial load for non-supervisors or if a role not yet fetched
          loadEquipment();
       }
     }
@@ -300,7 +280,7 @@ export default function InventoryManagement() {
           <Select
             value={filters.office}
             onValueChange={handleOfficeChange}
-            disabled={isOfficeFilterDisabled} // Disable Select if user is SUPERVISOR
+            disabled={isOfficeFilterDisabled} // Disable Select if the user is SUPERVISOR
           >
             <SelectTrigger className="w-[240px] bg-white flex items-center gap-2" disabled={isOfficeFilterDisabled}>
               <span className="flex-shrink-0">
@@ -314,7 +294,7 @@ export default function InventoryManagement() {
               {!isOfficeFilterDisabled && (
                 <SelectItem value="all">All Offices</SelectItem>
               )}
-              {/* If supervisor, only their department should be an option, or show it as selected */}
+              {/* If supervisor, only their department should be an option or show it as selected */}
               {isOfficeFilterDisabled && userDepartment ? (
                  <SelectItem value={userDepartment} disabled>
                     {userDepartment}
@@ -367,10 +347,10 @@ export default function InventoryManagement() {
                 <DialogHeader>
                 <DialogTitle>Add New Equipment</DialogTitle>
                 </DialogHeader>
-                {/* Pass userDepartment to AddEquipment if role is SUPERVISOR */}
+                {/* Pass the userDepartment to AddEquipment if a role is SUPERVISOR */}
                 <AddEquipment
                     onSuccess={handleEquipmentAdded}
-                    // Optionally pass supervisorDepartment if AddEquipment needs to pre-fill it
+                    // Optionally pass the supervisorDepartment if AddEquipment needs to pre-fill it
                     supervisorDepartment={userRole === "SUPERVISOR" ? userDepartment : undefined}
                  />
             </DialogContent>

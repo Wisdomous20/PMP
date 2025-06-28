@@ -72,15 +72,20 @@ export const authOptions: NextAuthOptions = {
     async session({ session, token }) {
       session.accessToken = token.accessToken as string;
       session.user.id = token.id as string;
+
+      // Role
+      const userRole = await prisma.user.findUnique({
+        where: { id: token.id as string },
+        select: {
+          user_type: true,
+          department: true,
+        },
+      });
+
+      session.user.role = userRole?.user_type ?? "";
+
       return session;
     },
   },
-  events: {
-    signIn: async (message) => {
-      console.log("User signed in:", message);
-    },
-    signOut: async (message) => {
-      console.log("User signed out:", message);
-    },
-  },
+  events: {},
 };

@@ -18,7 +18,6 @@ export default async function fetchImplementationPlanByServiceRequestID(
       }
   
       const responseData = await response.json();
-      console.log("Implementation Plan Data:", responseData);
       return responseData;
     } catch (error) {
       console.error(
