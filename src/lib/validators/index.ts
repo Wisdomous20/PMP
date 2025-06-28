@@ -385,6 +385,57 @@ class BootlegValidator {
         }
       }
 
+      // Continue when the property is not present. It is already checked above that if the
+      // schema.allowUnvalidatedProperties is false, it will check each property present in the
+      // schema.
+      if (!object[property]) {
+        continue;
+      }
+
+      // Check if the property is a type of Array
+      if (current.type === "array") {
+        if (!Array.isArray(object[property])) {
+          return {
+            ok: false,
+            errors: {
+              [property]: {
+                message: `Property ${String(property)} must be an array`,
+                from: "type-check"
+              }
+            } as ValidationErrors<T>
+          }
+        }
+      }
+
+      // Check if the property is a Date object
+      if (current.type === "date") {
+        // Instance check
+        if (!(object[property] instanceof Date)) {
+          return {
+            ok: false,
+            errors: {
+              [property]: {
+                message: `Property ${String(property)} must be in date format`,
+                from: "type-check"
+              }
+            } as ValidationErrors<T>
+          }
+        }
+
+        // Check if the date is Invalid Date
+        if (object[property].toString() === "Invalid Date") {
+          return {
+            ok: false,
+            errors: {
+              [property]: {
+                message: `Property ${String(property)} must be a valid date.`,
+                from: "type-check"
+              }
+            } as ValidationErrors<T>
+          }
+        }
+      }
+
       // Assert the type must be equal
       if (typeof object[property] !== current.type) {
         return {
@@ -398,6 +449,22 @@ class BootlegValidator {
         }
       }
 
+      // Additional type checks for numbers
+      if (current.type === "number") {
+        if (isNaN(object[property] as number)) {
+          return {
+            ok: false,
+            errors: {
+              [property]: {
+                message: `Property ${String(property)} should not be NaN.`,
+                from: "type-check"
+              }
+            } as ValidationErrors<T>
+          }
+        }
+      }
+
+      // Custom formatter
       if (current.formatterFn) {
         // Run the custom formatter
         const runFormatter = await current.formatterFn(object[property]);
@@ -416,6 +483,7 @@ class BootlegValidator {
         return { ok: true, errors: {} as ValidationErrors<T> }
       }
 
+      // Built-in formatter options
       if (current.formatter) {
         const formatter = this._formatters[current.formatter];
 
@@ -449,6 +517,14 @@ class BootlegValidator {
     }
 
     return { ok: true, errors: {} as ValidationErrors<T> }
+  }
+
+  toPlainErrors<T>(errors: ValidationErrors<T>): string {
+    const str = [];
+    for (const key in errors) {
+      str.push(`${key}: ${errors[key].message} (in: ${errors[key].from})`);
+    }
+    return str.join(", ");
   }
 }
 

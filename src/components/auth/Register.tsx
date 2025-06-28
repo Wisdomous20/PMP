@@ -144,6 +144,7 @@ export default function Register() {
         email: "Email already exists.",
       }));
 
+      setIsLoading(false);
       return;
     }
 
@@ -153,8 +154,8 @@ export default function Register() {
         ...prevErrors,
         submit: "Registration successful, but failed to send verification email. Please check your spam folder or contact support.",
       }));
-      setIsLoading(false);
 
+      setIsLoading(false);
       return;
     }
 
