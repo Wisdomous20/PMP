@@ -1,9 +1,12 @@
 "use server";
 
-import type { User } from "@prisma/client";
+import client from "@/lib/database/client";
+import {ErrorCodes} from "@/lib/ErrorCodes";
+import type {GenericFailureType} from "@/lib/types/GenericFailureType";
+import type {User} from "@prisma/client";
 
 export async function getImplementationPlans({ user_type, department, id }: User) {
-  const plans = await prisma.implementationPlan.findMany({
+  const plans = await client.implementationPlan.findMany({
     where: {
       serviceRequest: {
         ...(user_type === "SUPERVISOR" && department
@@ -57,4 +60,26 @@ export async function getImplementationPlans({ user_type, department, id }: User
     requesterName: `${x.serviceRequest.user.firstName} ${x.serviceRequest.user.lastName}`,
     createdOn: x.serviceRequest.status.length > 0 ? x.serviceRequest.status[0].timestamp : null,
   }))
+}
+
+export interface GetImplementationPlansByUserIdResult extends GenericFailureType {
+  data?: Awaited<ReturnType<typeof getImplementationPlans>>
+}
+
+export async function getImplementationPlansByUserId(userId: string): Promise<GetImplementationPlansByUserIdResult> {
+  const user = await client.user.findUnique({
+    where: { id: userId }
+  });
+  if (!user) {
+    return {
+      code: ErrorCodes.ACCOUNT_NOT_FOUND,
+      message: "Account not found",
+    };
+  }
+
+  const data = await getImplementationPlans(user);
+  return {
+    code: ErrorCodes.OK,
+    data
+  }
 }
