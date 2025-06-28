@@ -1,55 +1,58 @@
-import { useSession } from "next-auth/react";
+"use client";
+
+import {useSession} from "next-auth/react";
 import DashboardStats from "./DashboardStats";
 import ImplementationPlansInProgress from "../implementation-plan/ImplementationPlansInProgress";
 import RecentInventoryLogs from "../inventory-management/RecentInventoryLogs";
 import NotificationsPanel from "../notifications/RecentNotifications";
 import NewServiceRequests from "../service-request/NewServiceRequests";
-// import { fetchDashboardData } from "@/domains/dashboard/services/fetchDashboardData";
-import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
-import { useQuery } from "@tanstack/react-query";
-import { dashboardData as fetchDashboardData } from "@/lib/dashboard/dashboard-data";
+import {DashboardDataResult, getDashboardData} from "@/lib/dashboard/dashboard-data";
+import {useEffect, useState} from "react";
+import {ErrorCodes} from "@/lib/ErrorCodes";
+
+type DashboardState = DashboardDataResult["data"];
 
 export default function Dashboard() {
-  const { data: session } = useSession();
+  const session = useSession();
 
-  const { data: userRole, isLoading: userRoleLoading } = useQuery({
-    queryKey: ["userRole", session?.user.id],
-    queryFn: () => fetchUserRole(session?.user.id as string),
-    enabled: !!session?.user.id,
-  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [dashboardData, setDashboardData] = useState<DashboardState | null >(null);
+  const [error, setError] = useState<string | null>(null);
+  const [shouldRefetch, setShouldRefetch] = useState<number>(0);
 
-  const {
-    data: dashboardData,
-    isLoading,
-    error: dashboardError,
-    refetch,
-  } = useQuery({
-    queryKey: ["dashboardData", session?.user.id],
-    queryFn: () => fetchDashboardData(session?.user.id as string),
-    enabled: !!session?.user.id,
-  });
+  useEffect(() => {
+    setIsLoading(true);
+
+    if (session.data?.user && session.data.user.id) {
+      async function fetchDashboardData() {
+        const data = await getDashboardData(session.data!.user.id);
+        if (data.code !== ErrorCodes.OK) {
+          return null;
+        }
+
+        return data.data;
+      }
+
+      fetchDashboardData().then(r => {
+        if (r === null) {
+          setError("Failed to fetch dashboard data. Please try again.");
+          setIsLoading(false);
+          return;
+        }
+
+        setDashboardData(r);
+        setIsLoading(false);
+      })
+    }
+  }, [session, shouldRefetch]);
+
+  if (dashboardData === null) {
+    return (<></>)
+  }
 
   const handlePlansUpdate = async () => {
-    await refetch();
+    setShouldRefetch(l => l + 1);
   };
-
-  const errorMessage =
-    dashboardError instanceof Error ? dashboardError.message : null;
-
-  // change this later
-  if (
-    !dashboardData?.data?.dashboardStats ||
-    !dashboardData?.data?.implementationPlans ||
-    !dashboardData.data.equipment ||
-    !dashboardData.data.newServiceRequests ||
-    !dashboardData.data.notifications
-  ) {
-    return (
-      <div>
-        Incomplete Data
-      </div>
-    )
-  }
 
   return (
     <div className="flex flex-col w-full min-h-screen p-6 md:p-8 overflow-y-auto bg-gradient-to-b from-yellow-50 to-blue-100">
@@ -64,11 +67,11 @@ export default function Dashboard() {
         </div>
       </div>
       <div className="mb-6">
-        ({dashboardData?.data?.dashboardStats && (
+        ({dashboardData?.dashboardStats && (
           <DashboardStats
-            stats={dashboardData?.data?.dashboardStats}
-            isLoading={isLoading || userRoleLoading}
-            error={errorMessage}
+            stats={dashboardData?.dashboardStats}
+            isLoading={isLoading}
+            error={error}
           />
         )})
       </div>
@@ -78,34 +81,38 @@ export default function Dashboard() {
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <ImplementationPlansInProgress
               onUpdate={handlePlansUpdate}
-              implementationPlans={dashboardData?.data?.implementationPlans?.map((plan: any) => ({
-                ...plan,
+              implementationPlans={dashboardData!.implementationPlans.map(plan => ({
+                id: plan.id,
+                description: plan.description,
+                status: plan.status,
                 serviceRequest: {
-                  requesterName: plan.serviceRequest.requesterName ?? "",
-                  createdOn: plan.serviceRequest.createdOn ?? new Date(),
                   ...plan.serviceRequest,
+                  requesterName: plan.requesterName,
+                  createdOn: plan.createdOn,
                 },
+                tasks: plan.tasks,
+                createdAt: plan.createdAt,
               }))}
-              isLoading={isLoading || userRoleLoading}
-              error={errorMessage}
-              userRole={userRole as UserRole}
+              isLoading={isLoading}
+              error={error}
+              userRole={session.data!.user.role as UserRole}
             />
           </div>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
             <div className="bg-white rounded-lg shadow overflow-hidden h-full">
               <NewServiceRequests
-                newServiceRequests={dashboardData?.data?.newServiceRequests?.slice(0, 5)}
-                isLoading={isLoading || userRoleLoading}
-                error={errorMessage}
+                newServiceRequests={dashboardData!.newServiceRequests?.slice(0, 5)}
+                isLoading={isLoading}
+                error={error}
               />
             </div>
 
             <div className="bg-white rounded-lg shadow overflow-hidden h-full">
               <RecentInventoryLogs
-                equipment={dashboardData?.data.equipment?.slice(0, 6)}
-                isLoading={isLoading || userRoleLoading}
-                error={errorMessage}
+                equipment={dashboardData!.equipment?.slice(0, 6)}
+                isLoading={isLoading}
+                error={error}
               />
             </div>
           </div>
@@ -113,9 +120,9 @@ export default function Dashboard() {
 
         <div className="bg-white rounded-lg shadow overflow-hidden h-full">
           <NotificationsPanel
-            notifications={dashboardData?.data?.notifications?.slice(0, 8)}
-            isLoading={isLoading || userRoleLoading}
-            error={errorMessage}
+            notifications={dashboardData!.notifications.slice(0, 8)}
+            isLoading={isLoading}
+            error={error}
           />
         </div>
       </div>

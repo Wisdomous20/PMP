@@ -44,7 +44,7 @@ export async function PATCH(req: NextRequest, props: { params: Promise<{ id: str
   }
 
   try {
-    const newStatus = await prisma.serviceRequestStatus.create({
+    await prisma.serviceRequestStatus.create({
       data: {
         serviceRequestId: serviceRequestId,
         status: status,

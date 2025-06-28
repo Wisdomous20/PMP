@@ -1,17 +1,50 @@
 "use server";
 
 import {ajv, validate} from "@/lib/validators/ajv";
-import { ErrorCodes } from "../ErrorCodes";
-import { getDashboardData } from "@/domains/dashboard/services/getDashbaordData";
+import client from "@/lib/database/client";
+import * as dashboard from "@/lib/dashboard/dashboard";
+import {ErrorCodes} from "@/lib/ErrorCodes";
+import * as equipment from "@/lib/dashboard/equipments";
+import type {GenericFailureType} from "@/lib/types/GenericFailureType";
+import * as implementationPlans from "@/lib/dashboard/implementation-plans";
+import * as notifications from "@/lib/dashboard/notifications";
+import * as serviceRequests from "@/lib/dashboard/service-requests";
+import type {User} from "@prisma/client";
 
-export async function dashboardData(userId: string) {
+async function $getDashboardData(user: User) {
+  try {
+    const promises = await Promise.all([
+      implementationPlans.getImplementationPlans(user),
+      notifications.getNotifications(user),
+      equipment.getPaginatedEquipment(user, 1, 15),
+      serviceRequests.getPendingServiceRequests(user),
+      dashboard.getDashboardStats(user)
+    ]);
+
+    return {
+      implementationPlans: promises[0],
+      notifications: promises[1],
+      equipment: promises[2],
+      newServiceRequests: promises[3],
+      dashboardStats: promises[4],
+    };
+  } catch {
+    return null;
+  }
+}
+
+export interface DashboardDataResult extends GenericFailureType {
+  data?: Awaited<ReturnType<typeof $getDashboardData>>
+}
+
+export async function getDashboardData(userId: string): Promise<DashboardDataResult> {
   // Validation for Sanity Check
   const validationResult = validate(ajv, { userId }, {
     properties: {
       userId: { type: "string", format: "non-empty-string-value" }
     },
     required: ["userId"],
-  })
+  });
 
   if (!validationResult.ok) {
     return {
@@ -20,16 +53,26 @@ export async function dashboardData(userId: string) {
     }
   }
 
-  try {
-    const dashboardData = await getDashboardData(userId)
+  const user = await client.user.findUnique({
+    where: { id: userId }
+  });
+  if (!user) {
+    return {
+      code: ErrorCodes.ACCOUNT_NOT_FOUND,
+      message: "Account not found",
+    };
+  }
 
+  const data = await $getDashboardData(user);
+  if (data === null) {
     return {
-      code: ErrorCodes.OK,
-      data: dashboardData
-    }
-  } catch {
-    return {
-      code: ErrorCodes.DASHBOARD_FAILURE
+      code: ErrorCodes.DASHBOARD_FAILURE,
+      message: "Unable to fetch dashboard data",
     }
   }
+
+  return {
+    code: ErrorCodes.OK,
+    data,
+  };
 }

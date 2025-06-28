@@ -26,6 +26,13 @@ export enum ErrorCodes {
   MAIL_SEND_FAILURE = 3421,
 
   /**
+   * Represents the error code for an account not found scenario.
+   * This error code is typically used when an operation is attempted
+   * on an account that does not exist or cannot be located in the system.
+   */
+  ACCOUNT_NOT_FOUND = 69419,
+
+  /**
    * A constant representing a specific numeric code for the scenario where
    * an account already exists and cannot be created again.
    * Typically used in error handling or validation processes to indicate
