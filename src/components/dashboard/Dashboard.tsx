@@ -67,13 +67,13 @@ export default function Dashboard() {
         </div>
       </div>
       <div className="mb-6">
-        ({dashboardData?.dashboardStats && (
+        {dashboardData?.dashboardStats && (
           <DashboardStats
             stats={dashboardData?.dashboardStats}
             isLoading={isLoading}
             error={error}
           />
-        )})
+        )}
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-4 gap-6">
