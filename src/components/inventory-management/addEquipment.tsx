@@ -1,12 +1,12 @@
 "use client";
-import { useState, useEffect, ChangeEvent } from "react";
+
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { createEquipment } from "@/lib/equipments/create-equipment";
+import { useState, useEffect, ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-// import fetchCreateEquipment from "@/domains/inventory-management/services/fetchCreateEquipment";
-import { createEquipment } from "@/lib/equipments/create-equipment";
+import { OFFICES } from "@/lib/constants/EquipmentPageConstants";
 import {
   Select,
   SelectContent,
@@ -14,19 +14,7 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-
-const OFFICES = [
-  "Buildings Upkeep and Maintenance",
-  "Campus Traffic",
-  "Security and Safety",
-  "Electrical & Mechanical Systems",
-  "Facilities Maintenance and Services",
-  "Grounds Upkeep and Maintenance",
-  "Occupational Safety and Health Officer",
-  "Pollution Control",
-  "Swimming Pool",
-  "University Computer Services Center",
-];
+import { Separator } from "@/components/ui/separator";
 
 interface EquipmentFormData {
   quantity: number;
@@ -91,7 +79,7 @@ export default function AddEquipment({
     setFormData((prev) => ({ ...prev, totalCost: Number(total.toFixed(2)) }));
   }, [formData.quantity, formData.unitCost]);
 
-  // If supervisorDepartment changes (e.g. parent component re-renders with new prop), update formData
+  // If supervisorDepartment changes (e.g., a parent component re-renders with a new prop), update formData
   // This is more relevant if the dialog could remain open while props change.
   useEffect(() => {
     if (supervisorDepartment) {
@@ -131,7 +119,7 @@ export default function AddEquipment({
     if (receive < purchase)
       newErrors.dateReceived = "Receive date cannot be before purchase date";
     
-    // Department validation should only occur if it's not pre-filled by supervisor
+    // Department validation should only occur if it's not pre-filled by a supervisor
     if (!supervisorDepartment && !formData.department.trim()) {
         newErrors.department = "This field is required.";
     }
@@ -158,7 +146,7 @@ export default function AddEquipment({
   };
 
   const handleDepartmentChange = (value: string) => {
-    // Only allow change if not pre-filled by supervisor
+    // Only allow change if not pre-filled by a supervisor
     if (!supervisorDepartment) {
       setFormData((prev) => ({ ...prev, department: value }));
     }

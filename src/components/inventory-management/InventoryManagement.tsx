@@ -1,8 +1,34 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
-import { jsPDF } from "jspdf";
+
+import AddEquipment from "@/components/inventory-management/addEquipment";
 import autoTable from "jspdf-autotable";
+import { Button } from "@/components/ui/button";
+import { createInventoryExcel } from "@/domains/inventory-management/services/createinventoryExcel";
+import {
+  Dialog,
+  DialogContent,
+  DialogHeader,
+  DialogTitle,
+  DialogTrigger,
+} from "@/components/ui/dialog";
+import { DeleteEquipment } from "./DeleteEquipment";
+import { EditEquipment } from "./EditEquipment";
+import EquipmentPagination from "./EquipmentPagination";
+import fetchPaginatedEquipment from "@/domains/inventory-management/services/fetchPaginatedEquipment";
 import { Filter } from "lucide-react";
+import getUserDepartmentFetch from "@/domains/user-management/services/fetchUserDepartment";
+import { ITEMS_PER_PAGE, OFFICES } from "@/lib/constants/EquipmentPageConstants";
+import { Plus } from "lucide-react";
+import {
+  Select,
+  SelectContent,
+  SelectItem,
+  SelectTrigger,
+  SelectValue,
+} from "@/components/ui/select";
+import { Skeleton } from "@/components/ui/skeleton";
+import { StatusBadge } from "./StatusBadge";
+import { jsPDF } from "jspdf";
 import {
   Table,
   TableBody,
@@ -11,34 +37,8 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { StatusBadge } from "./StatusBadge";
-import { Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
-import AddEquipment from "@/components/inventory-management/addEquipment";
-import { DeleteEquipment } from "./DeleteEquipment";
-import { EditEquipment } from "./EditEquipment";
+import { useEffect, useState, useCallback } from "react";
 import { useSession } from "next-auth/react";
-import getUserDepartmentFetch from "@/domains/user-management/services/fetchUserDepartment";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import EquipmentPagination from "./EquipmentPagination";
-import fetchPaginatedEquipment from "@/domains/inventory-management/services/fetchPaginatedEquipment";
-import { createInventoryExcel } from "@/domains/inventory-management/services/createinventoryExcel";
-
-const ITEMS_PER_PAGE = 50;
 
 interface FilterState {
   office: string;
@@ -85,19 +85,7 @@ export default function InventoryManagement() {
         setTotalPages(meta.pageCount);
 
         if (effectiveFilters.page === 1 && offices.length === 0) {
-          const officeList = [
-            "Buildings Upkeep and Maintenance",
-            "Campus Traffic",
-            "Security and Safety",
-            "Electrical & Mechanical Systems",
-            "Facilities Maintenance and Services",
-            "Grounds Upkeep and Maintenance",
-            "Occupational Safety and Health Officer",
-            "Pollution Control",
-            "Swimming Pool",
-            "University Computer Services Center",
-          ];
-          setOffices(officeList);
+          setOffices(OFFICES);
         }
       } catch (error) {
         console.error("Failed to load equipment:", error);

@@ -1,4 +1,8 @@
 "use client";
+
+import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import fetchUpdateEquipment from "@/domains/inventory-management/services/fetchUpdateEquipment";
 import { useState, useEffect, ChangeEvent } from "react";
 import {
   Dialog,
@@ -7,12 +11,10 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import fetchUpdateEquipment from "@/domains/inventory-management/services/fetchUpdateEquipment";
+import { EquipmentPageConstants } from "@/lib/constants/EquipmentPageConstants";
+import { Pencil } from "lucide-react";
 import {
   Select,
   SelectContent,
@@ -20,20 +22,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
-import { Pencil } from "lucide-react";
+import { Separator } from "@/components/ui/separator";
 
-const OFFICES = [
-  "Buildings Upkeep and Maintenance",
-  "Campus Traffic",
-  "Security and Safety",
-  "Electrical & Mechanical Systems",
-  "Facilities Maintenance and Services",
-  "Grounds Upkeep and Maintenance",
-  "Occupational Safety and Health Officer",
-  "Pollution Control",
-  "Swimming Pool",
-  "University Computer Services Center",
-];
 
 // Assuming EquipmentStatus is defined as:
 type EquipmentStatus = "Operational" | "Repairable" | "Scrap";
@@ -364,7 +354,7 @@ export function EditEquipment({
                             {formData.department}
                         </SelectItem>
                     ) : (
-                        OFFICES.map((office) => (
+                        EquipmentPageConstants.map((office) => (
                         <SelectItem
                             key={office}
                             value={office}
