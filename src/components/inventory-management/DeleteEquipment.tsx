@@ -9,7 +9,7 @@ import {
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { fetchDeleteEquipmentById } from "@/domains/inventory-management/services/fetchDeleteEquipmentById";
+import { deleteEquipment } from "@/lib/equipments/delete-equipment";
 import { Trash2 } from "lucide-react";
 
 interface DeleteEquipmentDialogProps {
@@ -29,7 +29,7 @@ export function DeleteEquipment({
   const handleDelete = async () => {
     try {
       setIsDeleting(true);
-      await fetchDeleteEquipmentById(equipmentId);
+      await deleteEquipment(equipmentId);
       onDelete();
       setIsOpen(false);
     } catch (error) {
