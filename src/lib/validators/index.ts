@@ -337,6 +337,33 @@ class BootlegValidator {
   }
 
   /**
+   * Checks if the provided value matches the specified validation type.
+   *
+   * @param type The validation type to check against.
+   * @param value The value to validate.
+   * @return Returns true if the value matches the specified type, otherwise false.
+   */
+  private isTypeMatches<T>(type: ValidationTypes, value: T): boolean {
+    // Check if the property is a type of Array
+    if (type === "array") {
+      return Array.isArray(value);
+    }
+
+    // Check if the type is Date
+    if (type === "date") {
+      return (value instanceof Date) && value.toString() !== "Invalid Date";
+    }
+
+    // Check if the type is Number
+    if (type === "number") {
+      return (typeof value === "number") && !isNaN(value);
+    }
+
+    // Other types
+    return typeof value === type
+  }
+
+  /**
    * Validates an object against a specified validation schema and returns the validation result.
    *
    * @param object The object to validate against the schema.
@@ -392,52 +419,8 @@ class BootlegValidator {
         continue;
       }
 
-      // Check if the property is a type of Array
-      if (current.type === "array") {
-        if (!Array.isArray(object[property])) {
-          return {
-            ok: false,
-            errors: {
-              [property]: {
-                message: `Property ${String(property)} must be an array`,
-                from: "type-check"
-              }
-            } as ValidationErrors<T>
-          }
-        }
-      }
-
-      // Check if the property is a Date object
-      if (current.type === "date") {
-        // Instance check
-        if (!(object[property] instanceof Date)) {
-          return {
-            ok: false,
-            errors: {
-              [property]: {
-                message: `Property ${String(property)} must be in date format`,
-                from: "type-check"
-              }
-            } as ValidationErrors<T>
-          }
-        }
-
-        // Check if the date is Invalid Date
-        if (object[property].toString() === "Invalid Date") {
-          return {
-            ok: false,
-            errors: {
-              [property]: {
-                message: `Property ${String(property)} must be a valid date.`,
-                from: "type-check"
-              }
-            } as ValidationErrors<T>
-          }
-        }
-      }
-
       // Assert the type must be equal
-      if (typeof object[property] !== current.type) {
+      if (!this.isTypeMatches(current.type, object[property])) {
         return {
           ok: false,
           errors: {
@@ -446,21 +429,6 @@ class BootlegValidator {
               from: "type-check"
             }
           } as ValidationErrors<T>
-        }
-      }
-
-      // Additional type checks for numbers
-      if (current.type === "number") {
-        if (isNaN(object[property] as number)) {
-          return {
-            ok: false,
-            errors: {
-              [property]: {
-                message: `Property ${String(property)} should not be NaN.`,
-                from: "type-check"
-              }
-            } as ValidationErrors<T>
-          }
         }
       }
 
