@@ -5,7 +5,8 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import fetchCreateEquipment from "@/domains/inventory-management/services/fetchCreateEquipment";
+// import fetchCreateEquipment from "@/domains/inventory-management/services/fetchCreateEquipment";
+import { createEquipment } from "@/lib/equipments/create-equipment";
 import {
   Select,
   SelectContent,
@@ -167,13 +168,15 @@ export default function AddEquipment({
     if (!validateForm()) return;
     setIsLoading(true);
     try {
-      await fetchCreateEquipment({
+      console.log("creating equipment...")
+      const equipment = await createEquipment({
         ...{
           ...formData,
           datePurchased: new Date(formData.datePurchased),
           dateReceived: new Date(formData.dateReceived),
         },
       });
+      console.log("equipment created!", equipment)
       onSuccess?.();
     } catch (err) {
       onError?.(err as Error);

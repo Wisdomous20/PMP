@@ -2,6 +2,17 @@ export enum ErrorCodes {
   OK = 0,
 
   /**
+   * Represents a generic error to be used for catch blocks
+   */
+  GENERIC_ERROR = 4321,
+
+  /**
+   * Represents a specific error code indicating that the provided ID is not valid.
+   */
+
+  INVALID_ID = 4322,
+
+  /**
    * Represents a specific error code indicating that a recovery operation has failed.
    *
    * This constant can be used to identify and handle scenarios where recovery processes,
@@ -61,7 +72,7 @@ export enum ErrorCodes {
 
   /**
    * Represents the status code indicating that the dashboard data fetch
-   * haas failed.
+   * has failed.
    * 
    * This can occur in scenarios where the user account does not exist
    * or the given user id is somehow not valid.
@@ -75,4 +86,32 @@ export enum ErrorCodes {
    * logging, or debugging purposes.
    */
   DASHBOARD_FAILURE = 9005,
+
+  /**
+   * Represent the status code for indicating that the equipment id provided
+   * is invalid.
+   * 
+   * The value can be used for error handling, logging, or debugging purposes.
+   */
+  EQUIPMENT_ID_ERROR = 8080,
+
+  /**
+   * Represents the status code for indicating that the equipment is not found
+   * or does not exist.
+   * 
+   * The value can be used for error handling, logging, or debugging purposes.
+   */
+  EQUIPMENT_NOT_FOUND = 40000,
+
+  /**
+   * Represents the status code for indicating that the equipment creation
+   * process has failed.
+   */
+  EQUIPMENT_CREATION_ERROR = 13579,
+
+  /**
+   * Represents the status code for indicating that the equipment update
+   * process has failed.
+   */
+  EQUIPMENT_UPDATE_ERROR = 13580,
 }
