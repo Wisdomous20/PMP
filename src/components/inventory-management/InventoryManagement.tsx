@@ -16,7 +16,6 @@ import { EditEquipment } from "./EditEquipment";
 import EquipmentPagination from "./EquipmentPagination";
 import fetchPaginatedEquipment from "@/domains/inventory-management/services/fetchPaginatedEquipment";
 import { Filter } from "lucide-react";
-import getUserDepartmentFetch from "@/domains/user-management/services/fetchUserDepartment";
 import { ITEMS_PER_PAGE, OFFICES } from "@/lib/constants/EquipmentPageConstants";
 import { Plus } from "lucide-react";
 import {
@@ -49,7 +48,7 @@ export default function InventoryManagement() {
   const [equipment, setEquipment] = useState<Equipment[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { data: session } = useSession();
+  const session = useSession();
   const [userRole, setUserRole] = useState<UserRole>();
   const [userDepartment, setUserDepartment] = useState<string>("");
   const [offices, setOffices] = useState<string[]>([]);
@@ -101,14 +100,12 @@ export default function InventoryManagement() {
 
   const loadUserRoleAndDepartment = useCallback(async () => {
     try {
-      if (session?.user?.id) {
-        setUserRole(session.user.role as UserRole);
+      if (session?.data?.user.id) {
+        setUserRole(session?.data?.user.role as UserRole);
+        setUserDepartment(session?.data?.user.department);
 
-        const { department } = await getUserDepartmentFetch(session.user.id);
-        setUserDepartment(department);
-
-        if (session.user.role === "SUPERVISOR") {
-          setFilters({ office: department, page: 1 });
+        if (session?.data?.user.role === "SUPERVISOR") {
+          setFilters({ office: session?.data?.user.department, page: 1 });
           setIsOfficeFilterDisabled(true); // Disable filter for SUPERVISOR
         } else {
           setIsOfficeFilterDisabled(false); // Enable for other roles
@@ -119,7 +116,7 @@ export default function InventoryManagement() {
       setIsOfficeFilterDisabled(false); // Ensure it's false on error
     }
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.user?.id]);
+  }, [session?.data?.user.id]);
 
   useEffect(() => {
     loadUserRoleAndDepartment();

@@ -1,7 +1,7 @@
-import { NextAuthOptions, User } from "next-auth";
-import CredentialsProvider from "next-auth/providers/credentials";
-import { prisma } from "@/lib/prisma";
 import bcrypt from "bcrypt";
+import CredentialsProvider from "next-auth/providers/credentials";
+import client from "@/lib/database/client";
+import { NextAuthOptions, User } from "next-auth";
 import { PrismaAdapter } from "@next-auth/prisma-adapter";
 
 export const authOptions: NextAuthOptions = {
@@ -28,7 +28,7 @@ export const authOptions: NextAuthOptions = {
       async authorize(credentials): Promise<User | null> {
         if (!credentials) return null;
 
-        const user = await prisma.user.findUnique({
+        const user = await client.user.findUnique({
           where: { email: credentials.email },
         });
 
@@ -43,10 +43,9 @@ export const authOptions: NextAuthOptions = {
           throw new Error("Invalid email or password");
         }
 
-        if (user)
-          if (!user.isVerified) {
-            throw new Error("Please verify your email before logging in.");
-          }
+        if (!user.isVerified) {
+          throw new Error("Please verify your email before logging in.");
+        }
 
         return {
           id: user.id,
@@ -55,6 +54,7 @@ export const authOptions: NextAuthOptions = {
           lastName: user.lastName,
           email: user.email,
           role: user.user_type,
+          department: user.department,
         } as User;
       },
     }),
@@ -70,11 +70,8 @@ export const authOptions: NextAuthOptions = {
       return token;
     },
     async session({ session, token }) {
-      session.accessToken = token.accessToken as string;
-      session.user.id = token.id as string;
-
-      // Role
-      const userRole = await prisma.user.findUnique({
+      // Fetch roles and department
+      const user = await client.user.findUnique({
         where: { id: token.id as string },
         select: {
           user_type: true,
@@ -82,7 +79,10 @@ export const authOptions: NextAuthOptions = {
         },
       });
 
-      session.user.role = userRole?.user_type ?? "";
+      session.accessToken = token.accessToken as string;
+      session.user.id = token.id as string;
+      session.user.role = user?.user_type ?? "";
+      session.user.department = user?.department ?? "";
 
       return session;
     },

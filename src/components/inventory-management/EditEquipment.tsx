@@ -13,7 +13,7 @@ import {
 } from "@/components/ui/dialog";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { EquipmentPageConstants } from "@/lib/constants/EquipmentPageConstants";
+import { OFFICES } from "@/lib/constants/EquipmentPageConstants";
 import { Pencil } from "lucide-react";
 import {
   Select,
@@ -354,7 +354,7 @@ export function EditEquipment({
                             {formData.department}
                         </SelectItem>
                     ) : (
-                        EquipmentPageConstants.map((office) => (
+                        OFFICES.map((office) => (
                         <SelectItem
                             key={office}
                             value={office}
