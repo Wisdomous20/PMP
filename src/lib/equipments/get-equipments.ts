@@ -1,6 +1,7 @@
 "use server"
 
-import { ajv, validate } from "@/lib/validators/ajv";
+// import { ajv, validate } from "@/lib/validators/ajv";
+import validator from "@/lib/validators"
 import client from "@/lib/database/client";
 import { ErrorCodes } from "../ErrorCodes";
 import { GenericFailureType } from "@/lib/types/GenericFailureType";
@@ -42,17 +43,17 @@ interface EquipmentResult extends GenericFailureType {
 
 export async function getEquipmentById(serviceRequestId: string): Promise<EquipmentResult> {
 
-  const validationResult = validate(ajv, { serviceRequestId }, {
+  const validationResult = await validator.validate({ serviceRequestId }, {
     properties: {
-      serviceRequestId: { type: "string", format: "non-empty-string-value" }
+      serviceRequestId: { type: "string", formatter: "non-empty-string" }
     },
-    required: ["serviceRequestId"]
+    requiredProperties: ["serviceRequestId"]
   })
 
   if (!validationResult.ok) {
     return {
       code: ErrorCodes.EQUIPMENT_ID_ERROR,
-      message: validationResult.messages.join(", ")
+      message: validator.toPlainErrors(validationResult.errors)
     }
   }
 

@@ -108,4 +108,10 @@ export enum ErrorCodes {
    * process has failed.
    */
   EQUIPMENT_CREATION_ERROR = 13579,
+
+  /**
+   * Represents the status code for indicating that the equipment update
+   * process has failed.
+   */
+  EQUIPMENT_UPDATE_ERROR = 13580,
 }

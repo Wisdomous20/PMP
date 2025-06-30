@@ -168,13 +168,15 @@ export default function AddEquipment({
     if (!validateForm()) return;
     setIsLoading(true);
     try {
-      await createEquipment({
+      console.log("creating equipment...")
+      const equipment = await createEquipment({
         ...{
           ...formData,
           datePurchased: new Date(formData.datePurchased),
           dateReceived: new Date(formData.dateReceived),
         },
       });
+      console.log("equipment created!", equipment)
       onSuccess?.();
     } catch (err) {
       onError?.(err as Error);

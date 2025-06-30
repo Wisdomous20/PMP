@@ -1,6 +1,6 @@
 "use server"
 
-import { ajv, validate } from "@/lib/validators/ajv";
+import validator from "@/lib/validators";
 import client from "@/lib/database/client";
 import { ErrorCodes } from "../ErrorCodes";
 import { GenericFailureType } from "@/lib/types/GenericFailureType";
@@ -30,43 +30,56 @@ interface EquipmentResult extends GenericFailureType {
 
 export async function createEquipment(equipmentData: EquipmentParams): Promise<EquipmentResult> {
 
-  console.log("equipment data: ", equipmentData);
+  console.log("equipment data: ", equipmentData)
 
-  // const validationResult = validate(ajv, equipmentData, {
-  //   properties: {
-  //     description: { type: "string", format: "non-empty-string-value" },
-  //     brand: { type: "string", format: "non-empty-string-value" },
-  //     quantity: { type: "int32"},
-  //     serialNumber: { type: "string", format: "non-empty-string-value" },
-  //     supplier: { type: "string", format: "non-empty-string-value" },
-  //     unitCost: { type: "int32"},
-  //     totalCost: { type: "int32"},
-  //     datePurchased: { type: "timestamp" },
-  //     dateReceived: { type: "timestamp" },
-  //     location: { type: "string", format: "non-empty-string-value" },
-  //     department: { type: "string", format: "non-empty-string-value" },
-  //   },
-  //   required: [
-  //     "description",
-  //     "brand",
-  //     "quantity",
-  //     "serialNumber",
-  //     "supplier",
-  //     "unitCost",
-  //     "totalCost",
-  //     "datePurchased",
-  //     "dateReceived",
-  //     "location",
-  //     "department"
-  //   ]
-  // })
+  const dateTest = new Date(Date.now())
 
-  // if (!validationResult.ok) {
-  //   return {
-  //     code: ErrorCodes.EQUIPMENT_CREATION_ERROR,
-  //     message: validationResult.messages.join(", ")
-  //   }
-  // }
+  console.log("date test: ", await validator.validate({ dateTest }, {
+    properties: {
+      dateTest: { type: "date" },
+    },
+    requiredProperties: ["dateTest"]
+  }))
+
+  const validationResult = await validator.validate(equipmentData, {
+    properties: {
+      description: { type: "string", formatter: "non-empty-string" },
+      brand: { type: "string", formatter: "non-empty-string" },
+      quantity: { type: "number"},
+      serialNumber: { type: "string", formatter: "non-empty-string" },
+      supplier: { type: "string", formatter: "non-empty-string" },
+      unitCost: { type: "number"},
+      totalCost: { type: "number"},
+      datePurchased: { type: "date" },
+      dateReceived: { type: "date" },
+      location: { type: "string", formatter: "non-empty-string" },
+      department: { type: "string", formatter: "non-empty-string" },
+      status: { type: "string", formatter: "non-empty-string"},
+    },
+    requiredProperties: [
+      "description",
+      "brand",
+      "quantity",
+      "serialNumber",
+      "supplier",
+      "unitCost",
+      "totalCost",
+      "datePurchased",
+      "dateReceived",
+      "location",
+      "department",
+      "status"
+    ],
+  })
+
+  console.log("validation result: ", validationResult)
+
+  if (!validationResult.ok) {
+    return {
+      code: ErrorCodes.EQUIPMENT_CREATION_ERROR,
+      message: "Error creating equipment."
+    }
+  }
 
   const newEquipment = await client.equipment.create({
     data: equipmentData

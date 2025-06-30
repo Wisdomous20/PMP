@@ -1,16 +1,16 @@
 "use server"
 
-import { ajv, validate } from "@/lib/validators/ajv";
+import validator from "@/lib/validators";
 import client from "@/lib/database/client";
 import { ErrorCodes } from "@/lib/ErrorCodes";
 
 export async function deleteEquipment(id: string) {
 
-  const validationResult = validate(ajv, { id }, {
+  const validationResult = await validator.validate({ id }, {
     properties: {
-      id: { type: "string", format: "non-empty-string-value" }
+      id: { type: "string", formatter: "non-empty-string" }
     },
-    required: [
+    requiredProperties: [
       "id"
     ]
   })
