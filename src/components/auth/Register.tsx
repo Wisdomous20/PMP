@@ -142,6 +142,9 @@ export default function Register() {
         ...prevErrors,
         submit: "Registration failed due to an internal error. Please try again later.",
       }));
+
+      setIsLoading(false);
+      return;
     }
 
     // Account already exists
