@@ -30,17 +30,6 @@ interface EquipmentResult extends GenericFailureType {
 
 export async function createEquipment(equipmentData: EquipmentParams): Promise<EquipmentResult> {
 
-  console.log("equipment data: ", equipmentData)
-
-  const dateTest = new Date(Date.now())
-
-  console.log("date test: ", await validator.validate({ dateTest }, {
-    properties: {
-      dateTest: { type: "date" },
-    },
-    requiredProperties: ["dateTest"]
-  }))
-
   const validationResult = await validator.validate(equipmentData, {
     properties: {
       description: { type: "string", formatter: "non-empty-string" },
@@ -55,6 +44,7 @@ export async function createEquipment(equipmentData: EquipmentParams): Promise<E
       location: { type: "string", formatter: "non-empty-string" },
       department: { type: "string", formatter: "non-empty-string" },
       status: { type: "string", formatter: "non-empty-string"},
+      serviceRequestId: { type: "string", formatter: "non-empty-string" }
     },
     requiredProperties: [
       "description",
@@ -68,11 +58,10 @@ export async function createEquipment(equipmentData: EquipmentParams): Promise<E
       "dateReceived",
       "location",
       "department",
-      "status"
+      "status",
     ],
+    allowUnvalidatedProperties: true
   })
-
-  console.log("validation result: ", validationResult)
 
   if (!validationResult.ok) {
     return {
