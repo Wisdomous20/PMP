@@ -364,6 +364,17 @@ class BootlegValidator {
   }
 
   /**
+   * Checks whether the provided value is neither `undefined` nor `null`.
+   *
+   * @template T
+   * @param {T} value - The value to check for existence.
+   * @return {boolean} Returns `true` if the value is not `undefined` and not `null`, otherwise `false`.
+   */
+  private isExist<T>(value: T): boolean {
+    return value !== undefined && value !== null;
+  }
+
+  /**
    * Validates an object against a specified validation schema and returns the validation result.
    *
    * @param object The object to validate against the schema.
@@ -400,7 +411,7 @@ class BootlegValidator {
 
       // Fail when one of the properties is not present especially if its part of the
       // required properties
-      if (!object[property] && schema.requiredProperties.includes(property as keyof T)) {
+      if (!this.isExist(object[property]) && schema.requiredProperties.includes(property as keyof T)) {
         return {
           ok: false,
           errors: {
@@ -415,7 +426,7 @@ class BootlegValidator {
       // Continue when the property is not present. It is already checked above that if the
       // schema.allowUnvalidatedProperties is false, it will check each property present in the
       // schema.
-      if (!object[property]) {
+      if (!this.isExist(object[property])) {
         continue;
       }
 
