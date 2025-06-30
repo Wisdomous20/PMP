@@ -1,6 +1,5 @@
 "use server";
 
-import {ajv, validate} from "@/lib/validators/ajv";
 import client from "@/lib/database/client";
 import * as dashboard from "@/lib/dashboard/dashboard";
 import {ErrorCodes} from "@/lib/ErrorCodes";
@@ -10,6 +9,7 @@ import * as implementationPlans from "@/lib/dashboard/implementation-plans";
 import * as notifications from "@/lib/dashboard/notifications";
 import * as serviceRequests from "@/lib/dashboard/service-requests";
 import type {User} from "@prisma/client";
+import validator from "@/lib/validators";
 
 async function $getDashboardData(user: User) {
   try {
@@ -39,17 +39,17 @@ export interface DashboardDataResult extends GenericFailureType {
 
 export async function getDashboardData(userId: string): Promise<DashboardDataResult> {
   // Validation for Sanity Check
-  const validationResult = validate(ajv, { userId }, {
+  const validationResult = await validator.validate({ userId }, {
     properties: {
-      userId: { type: "string", format: "non-empty-string-value" }
+      userId: { type: "string", formatter: "non-empty-string" },
     },
-    required: ["userId"],
+    requiredProperties: ["userId"],
   });
 
   if (!validationResult.ok) {
     return {
       code: ErrorCodes.DASHBOARD_ID_ERROR,
-      message: validationResult.messages.join(", ")
+      message: validator.toPlainErrors(validationResult.errors),
     }
   }
 

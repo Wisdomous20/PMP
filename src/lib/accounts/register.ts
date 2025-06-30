@@ -1,30 +1,32 @@
 "use server";
 
-import {ajv, validate} from "@/lib/validators/ajv";
 import client from "@/lib/database/client";
 import bcrypt from "bcrypt";
 import {ErrorCodes} from "@/lib/ErrorCodes";
 import type {RegisterResult} from "@/lib/accounts/types";
 import type {RegisterInputType} from "@/lib/types/RegisterInputType";
 import {sendEmailVerification} from "@/lib/accounts/verification";
+import validator from "@/lib/validators";
 
 export async function register(user: RegisterInputType): Promise<RegisterResult> {
   // Validation for Sanity Check
-  const validationResult = validate(ajv, user, {
+  const validationResult = await validator.validate(user, {
     properties: {
-      firstName: { type: "string", format: "non-empty-string-value" },
-      lastName: { type: "string", format: "non-empty-string-value" },
-      email: { type: "string", format: "email" },
-      password: { type: "string", format: "strong-password" },
-      cellphoneNumber: { type: "string", format: "non-empty-string-value" },
-      department: { type: "string", format: "non-empty-string-value" },
+      firstName: { type: "string", formatter: "ascii-names" },
+      lastName: { type: "string", formatter: "ascii-names" },
+      email: { type: "string", formatter: "cpu-email" },
+      password: { type: "string", formatter: "strong-password" },
+      cellphoneNumber: { type: "string", formatter: "cellphone-number" },
+      department: { type: "string", formatter: "non-empty-string" },
+      localNumber: { type: "string", formatter: "local-number" },
     },
-    required: ["firstName", "lastName", "email", "password", "cellphoneNumber", "department"],
+    requiredProperties: ["firstName", "lastName", "email", "password", "cellphoneNumber", "department"],
+    allowUnvalidatedProperties: true,
   });
   if (!validationResult.ok) {
     return {
       code: ErrorCodes.REGISTRATION_FAILURE,
-      message: validationResult.messages.join(", "),
+      message: validator.toPlainErrors(validationResult.errors),
     }
   }
 
