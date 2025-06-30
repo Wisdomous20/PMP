@@ -1,3 +1,4 @@
+import { DateTime } from "luxon";
 import * as v from "validator";
 
 export type ValidationErrors<T> = Record<keyof T, {
@@ -76,7 +77,31 @@ export interface Schema<T> {
       /**
        * Custom formatter function.
        */
-      formatterFn?: ValidationFunction<T[K]>
+      formatterFn?: ValidationFunction<T[K]>;
+
+      /**
+       * Represents the minimum allowable value.
+       * This is an optional property that defines the lower bound for a numeric range or value.
+       * If undefined, no minimum constraint is applied.
+       *
+       * @remarks This will only work if type is string, number and date.
+       * @remarks If type is string, this will check the minimum length of the string.
+       * @remarks If type is number, this will check the minimum value
+       * @remarks If type is date, this will check the minimum DateTime allowed.
+       */
+      min?: number | DateTime;
+
+      /**
+       * Represents the maximum value or upper limit that can be assigned or processed.
+       * The value is optional and may remain undefined if not explicitly specified.
+       * Commonly used for setting constraints or boundaries in calculations or validations.
+       *
+       * @remarks This will only work if type is string, number and date.
+       * @remarks If type is string, this will check the maximum length of the string.
+       * @remarks If type is number, this will check the maximum value
+       * @remarks If type is date, this will check the maximum DateTime allowed.
+       */
+      max?: number | DateTime;
     }
   }
 
@@ -101,6 +126,11 @@ export interface ValidatorFormatterMetaData<T extends ValidationTypes> {
    * Main Formatter function
    */
   formatterFn: ValidationFunction<T>;
+}
+
+interface MinMaxValidator {
+  ok: boolean;
+  error?: string;
 }
 
 /**
@@ -375,6 +405,107 @@ class BootlegValidator {
   }
 
   /**
+   * Checks if the given value satisfies the specified minimum and/or maximum constraints
+   * based on its type (string or number).
+   *
+   * @param type The type of the value to validate. Allowed values are "string" or "number".
+   * @param value The value to validate against the min and max constraints.
+   * @param min The optional minimum threshold for the value. For strings, it represents the minimum length.
+   * @param max The optional maximum threshold for the value. For strings, it represents the maximum length.
+   * @return Returns true if the value complies with the specified min and max constraints, or if the type is unsupported. Returns false otherwise.
+   */
+  private checkMinMax<T>(type: ValidationTypes, value: T, min?: number, max?: number): MinMaxValidator {
+    // Unsupported types get a free pass.
+    if (type !== "string" && type !== "number") {
+      return { ok: true };
+    }
+
+    // Check for minimum values
+    if (this.isExist(min)) {
+      const minValue = min as number;
+
+      // Check for minimum length if type is string.
+      if (type === "string") {
+        if ((value as string).length < minValue) {
+          return {
+            ok: false,
+            error: `Value must be at least ${minValue} characters long.`
+          };
+        }
+      }
+
+      // Check for minimum value if type is number.
+      if (type === "number") {
+        if ((value as number) < minValue) {
+          return {
+            ok: false,
+            error: `Value must be at least ${minValue}.`
+          }
+        }
+      }
+    }
+
+    // Check for maximum values
+    if (this.isExist(max)) {
+      const maxValue = max as number;
+
+      if (type === "string") {
+        if ((value as string).length > maxValue) {
+          return {
+            ok: false,
+            error: `Value cannot be longer than ${maxValue} characters.`
+          }
+        }
+      }
+
+      // Check for minimum value if type is number.
+      if (type === "number") {
+        if ((value as number) > maxValue) {
+          return {
+            ok: false,
+            error: `Value cannot be longer than ${maxValue}.`
+          }
+        }
+      }
+    }
+
+    return { ok: true };
+  }
+
+  private checkMinMaxDate(type: ValidationTypes, value: Date, min?: DateTime, max?: DateTime): MinMaxValidator {
+    // Pass if not date. Nothing to check.
+    if (type !== "date") {
+      return { ok: true };
+    }
+
+    if (this.isExist(min)) {
+      const minValue = min as DateTime;
+      const date = DateTime.fromJSDate(value);
+
+      if (date < minValue) {
+        return {
+          ok: false,
+          error: `Value must be at least ${minValue.toISO()}.`
+        }
+      }
+    }
+
+    if (this.isExist(max)) {
+      const maxValue = max as DateTime;
+      const date = DateTime.fromJSDate(value);
+
+      if (date > maxValue) {
+        return {
+          ok: false,
+          error: `Value cannot be greater than ${maxValue.toISO()}.`
+        }
+      }
+    }
+
+    return { ok: true };
+  }
+
+  /**
    * Validates an object against a specified validation schema and returns the validation result.
    *
    * @param object The object to validate against the schema.
@@ -440,6 +571,39 @@ class BootlegValidator {
               from: "type-check"
             }
           } as ValidationErrors<T>
+        }
+      }
+
+      // Range checks
+      if (current.type === "string" || current.type === "number") {
+        const minMaxCheck = this
+          .checkMinMax(current.type, object[property], current.min as number, current.max as number);
+        if (!minMaxCheck.ok) {
+          return {
+            ok: false,
+            errors: {
+              [property]: {
+                message: minMaxCheck.error!,
+                from: "range-check"
+              }
+            } as ValidationErrors<T>
+          }
+        }
+      }
+
+      if (current.type === "date") {
+        const dateMinMax = this
+          .checkMinMaxDate(current.type, object[property] as Date, current.min as DateTime, current.max as DateTime);
+        if (!dateMinMax.ok) {
+          return {
+            ok: false,
+            errors: {
+              [property]: {
+                message: dateMinMax.error!,
+                from: "range-check"
+              }
+            } as ValidationErrors<T>
+          }
         }
       }
 
