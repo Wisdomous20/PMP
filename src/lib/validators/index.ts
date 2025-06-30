@@ -383,7 +383,7 @@ class BootlegValidator {
           errors: {} as ValidationErrors<T>,
         }
 
-        for (const extraProperty of validatedProperties.filter(x => !objectProperties.includes(x))) {
+        for (const extraProperty of objectProperties.filter(x => !validatedProperties.includes(x))) {
           result.errors[extraProperty as keyof T] = {
             message: `Property ${String(extraProperty)} is not allowed without validation.`,
             from: "unvalidated",

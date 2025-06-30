@@ -137,6 +137,13 @@ export default function Register() {
     // Register the account
     const result = await accounts.register(inputs);
 
+    if (result.code === ErrorCodes.REGISTRATION_FAILURE) {
+      setErrors((prevErrors) => ({
+        ...prevErrors,
+        submit: "Registration failed due to an internal error. Please try again later.",
+      }));
+    }
+
     // Account already exists
     if (result.code === ErrorCodes.ACCOUNT_ALREADY_EXISTS) {
       setErrors((prevErrors) => ({
