@@ -2,6 +2,16 @@ export enum ErrorCodes {
   OK = 0,
 
   /**
+   * Constant representing the state where the requirements for a specific request have not been satisfied.
+   *
+   * This variable is typically used as an indicator or error code to signify that certain conditions,
+   * prerequisites, or criteria tied to the request were not fulfilled or met.
+   *
+   * Value: 1
+   */
+  REQUEST_REQUIREMENT_NOT_MET = 1,
+
+  /**
    * Represents a generic error to be used for catch blocks
    */
   GENERIC_ERROR = 4321,
@@ -9,7 +19,6 @@ export enum ErrorCodes {
   /**
    * Represents a specific error code indicating that the provided ID is not valid.
    */
-
   INVALID_ID = 4322,
 
   /**

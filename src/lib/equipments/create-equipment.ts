@@ -29,7 +29,6 @@ interface EquipmentResult extends GenericFailureType {
 }
 
 export async function createEquipment(equipmentData: EquipmentParams): Promise<EquipmentResult> {
-
   const validationResult = await validator.validate(equipmentData, {
     properties: {
       description: { type: "string", formatter: "non-empty-string" },

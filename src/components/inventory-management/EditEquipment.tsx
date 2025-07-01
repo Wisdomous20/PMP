@@ -1,52 +1,23 @@
 "use client";
 
-import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
-import fetchUpdateEquipment from "@/domains/inventory-management/services/fetchUpdateEquipment";
-import { useState, useEffect, ChangeEvent } from "react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Input } from "@/components/ui/input";
-import { Label } from "@/components/ui/label";
-import { OFFICES } from "@/lib/constants/EquipmentPageConstants";
-import { Pencil } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Separator } from "@/components/ui/separator";
-
-
-// Assuming EquipmentStatus is defined as:
-type EquipmentStatus = "Operational" | "Repairable" | "Scrap";
-
-interface Equipment {
-  id: string;
-  quantity: number;
-  description: string;
-  brand: string;
-  serialNumber: string;
-  supplier: string;
-  unitCost: number;
-  totalCost: number;
-  datePurchased: string; // Should be string or Date consistently
-  dateReceived: string;  // Should be string or Date consistently
-  status: EquipmentStatus;
-  location: string;
-  department: string;
-}
+import {Button} from "@/components/ui/button";
+import {Card, CardContent} from "@/components/ui/card";
+import * as equipmentManager from "@/lib/equipments/update-equipment";
+import {type EquipmentObject, type EquipmentObjectForEditing} from "@/lib/types/InventoryManagementTypes";
+import * as helpers from "@/lib/types/InventoryManagementTypesHelpers";
+import {ChangeEvent, useEffect, useState} from "react";
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog";
+import {Input} from "@/components/ui/input";
+import {Label} from "@/components/ui/label";
+import {OFFICES} from "@/lib/constants/EquipmentPageConstants";
+import {Pencil} from "lucide-react";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
+import {Separator} from "@/components/ui/separator";
+import {ErrorCodes} from "@/lib/ErrorCodes";
 
 interface EditEquipmentDialogProps {
-  equipment: Equipment;
-  onUpdate: () => void;
+  equipment: EquipmentObject;
+  onUpdateAction: () => void;
   onError?: (error: Error) => void;
   supervisorDepartment?: string; // Added prop
 }
@@ -68,7 +39,7 @@ const TEXT_MAX = {
 
 export function EditEquipment({
   equipment,
-  onUpdate,
+  onUpdateAction,
   onError,
   supervisorDepartment, // Destructure the new prop
 }: EditEquipmentDialogProps) {
@@ -76,7 +47,7 @@ export function EditEquipment({
   const [isUpdating, setIsUpdating] = useState(false);
   const [errors, setErrors] = useState<FormErrors>({});
 
-  const initializeFormData = () => ({
+  const initializeFormData = (): EquipmentObjectForEditing => ({
     quantity: equipment.quantity,
     description: equipment.description,
     brand: equipment.brand,
@@ -84,17 +55,19 @@ export function EditEquipment({
     supplier: equipment.supplier,
     unitCost: equipment.unitCost,
     totalCost: equipment.totalCost, // Will be recalculated by useEffect
-    datePurchased: new Date(equipment.datePurchased)
+    datePurchased: equipment.datePurchased
       .toISOString()
       .split("T")[0],
-    dateReceived: new Date(equipment.dateReceived).toISOString().split("T")[0],
-    status: equipment.status,
+    dateReceived: equipment.dateReceived
+      .toISOString()
+      .split("T")[0],
+    status: helpers.equipmentObjectStatusToString(equipment.status),
     location: equipment.location,
-    // If supervisorDepartment is provided, use it; otherwise, use equipment's current department.
+    // If a supervisorDepartment is provided, use it; otherwise, use equipment's current department.
     department: supervisorDepartment || equipment.department,
   });
 
-  const [formData, setFormData] = useState<EquipmentInput>(initializeFormData());
+  const [formData, setFormData] = useState<EquipmentObjectForEditing>(initializeFormData());
 
   // Recalculate totalCost when quantity or unitCost changes
   useEffect(() => {
@@ -105,7 +78,7 @@ export function EditEquipment({
     }));
   }, [formData.quantity, formData.unitCost]);
 
-  // Reset form data when dialog opens/equipment prop changes, and apply supervisorDepartment
+  // Reset form data when the dialog opens/equipment prop changes, and apply supervisorDepartment
   useEffect(() => {
     if (isOpen) {
       setFormData({
@@ -118,7 +91,7 @@ export function EditEquipment({
         totalCost: equipment.totalCost,
         datePurchased: new Date(equipment.datePurchased).toISOString().split("T")[0],
         dateReceived: new Date(equipment.dateReceived).toISOString().split("T")[0],
-        status: equipment.status,
+        status: helpers.equipmentObjectStatusToString(equipment.status),
         location: equipment.location,
         department: supervisorDepartment || equipment.department,
       });
@@ -141,7 +114,7 @@ export function EditEquipment({
         newErrors[key as keyof EquipmentInput] = "This field is required.";
     });
 
-    // Department validation only if not pre-filled by supervisor
+    // Department validation only if not pre-filled by a supervisor
     if (!supervisorDepartment && !(formData.department || "").trim()) {
         newErrors.department = "This field is required.";
     }
@@ -180,12 +153,12 @@ export function EditEquipment({
     }));
   };
 
-  const handleStatusChange = (value: EquipmentStatus) => {
+  const handleStatusChange = (value: string) => {
     setFormData((prev) => ({ ...prev, status: value }));
   };
 
   const handleDepartmentChange = (value: string) => {
-    // Only allow change if not pre-filled by supervisor
+    // Only allow change if not pre-filled by a supervisor
     if (!supervisorDepartment) {
       setFormData((prev) => ({ ...prev, department: value }));
     }
@@ -194,19 +167,24 @@ export function EditEquipment({
   const handleUpdate = async () => {
     if (!validateForm()) return;
     setIsUpdating(true);
-    try {
-      await fetchUpdateEquipment(equipment.id, {
-        ...formData,
-        datePurchased: new Date(formData.datePurchased),
-        dateReceived: new Date(formData.dateReceived),
-      });
-      onUpdate();
-      setIsOpen(false);
-    } catch (err) {
-      onError?.(err as Error);
-    } finally {
-      setIsUpdating(false);
+
+    const result = await equipmentManager.updateEquipment({
+      ...formData,
+      id: equipment.id,
+      datePurchased: new Date(formData.datePurchased),
+      dateReceived: new Date(formData.dateReceived),
+      status: helpers.toEquipmentObjectStatus(formData.status),
+    });
+
+    // Don't close.
+    if (result.code !== ErrorCodes.OK) {
+      onError?.(new Error(result.message));
+      return;
     }
+
+    onUpdateAction();
+    setIsOpen(false);
+    setIsUpdating(false);
   };
 
   const isComplete =
@@ -221,7 +199,6 @@ export function EditEquipment({
     formData.datePurchased <= new Date().toISOString().split("T")[0] &&
     formData.dateReceived >= formData.datePurchased &&
     formData.dateReceived <= new Date().toISOString().split("T")[0];
-
 
   const todayISO = new Date().toISOString().split("T")[0];
   const isDepartmentDisabled = !!supervisorDepartment;
@@ -314,15 +291,9 @@ export function EditEquipment({
                     <SelectValue placeholder="Select status" />
                   </SelectTrigger>
                   <SelectContent>
-                    {(
-                      [
-                        "Operational",
-                        "Repairable",
-                        "Scrap",
-                      ] as EquipmentStatus[]
-                    ).map((s) => (
+                    {(["Operational", "Repairable", "Scrap",]).map((s, i) => (
                       <SelectItem
-                        key={s}
+                        key={i}
                         value={s}
                         className="hover:cursor-pointer border border-transparent hover:border-gray-800"
                       >

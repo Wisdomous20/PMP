@@ -1,5 +1,7 @@
 "use client";
 
+import { Button } from "@/components/ui/button";
+import { deleteEquipment } from "@/lib/equipments/delete-equipment";
 import {
   Dialog,
   DialogContent,
@@ -8,9 +10,7 @@ import {
   DialogTitle,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
 import { useState } from "react";
-import { deleteEquipment } from "@/lib/equipments/delete-equipment";
 import { Trash2 } from "lucide-react";
 
 interface DeleteEquipmentDialogProps {

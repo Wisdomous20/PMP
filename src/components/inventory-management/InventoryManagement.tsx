@@ -2,42 +2,25 @@
 
 import AddEquipment from "@/components/inventory-management/addEquipment";
 import autoTable from "jspdf-autotable";
-import { Button } from "@/components/ui/button";
-import { createInventoryExcel } from "@/domains/inventory-management/services/createinventoryExcel";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { DeleteEquipment } from "./DeleteEquipment";
-import { EditEquipment } from "./EditEquipment";
+import {Button} from "@/components/ui/button";
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog";
+import {DeleteEquipment} from "./DeleteEquipment";
+import {EditEquipment} from "./EditEquipment";
+import type {EquipmentObject} from "@/lib/types/InventoryManagementTypes";
+import * as equipmentObjectExtensions from "@/lib/types/InventoryManagementTypesHelpers";
 import EquipmentPagination from "./EquipmentPagination";
-import fetchPaginatedEquipment from "@/domains/inventory-management/services/fetchPaginatedEquipment";
-import { Filter } from "lucide-react";
-import { ITEMS_PER_PAGE, OFFICES } from "@/lib/constants/EquipmentPageConstants";
-import { Plus } from "lucide-react";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import { Skeleton } from "@/components/ui/skeleton";
-import { StatusBadge } from "./StatusBadge";
-import { jsPDF } from "jspdf";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { useEffect, useState, useCallback } from "react";
-import { useSession } from "next-auth/react";
+import * as equipmentManagement from "@/lib/equipments/get-equipments";
+import {ErrorCodes} from "@/lib/ErrorCodes";
+import * as ExcelExporters from "@/lib/exports/ExcelExporters";
+import {Filter, Plus} from "lucide-react";
+import {ITEMS_PER_PAGE, OFFICES} from "@/lib/constants/EquipmentPageConstants";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
+import {Skeleton} from "@/components/ui/skeleton";
+import {StatusBadge} from "./StatusBadge";
+import {jsPDF} from "jspdf";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table";
+import {useCallback, useEffect, useState} from "react";
+import {useSession} from "next-auth/react";
 
 interface FilterState {
   office: string;
@@ -45,7 +28,7 @@ interface FilterState {
 }
 
 export default function InventoryManagement() {
-  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [equipment, setEquipment] = useState<EquipmentObject[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
   const session = useSession();
@@ -64,36 +47,42 @@ export default function InventoryManagement() {
 
   const loadEquipment = useCallback(
     async (filterOverrides?: Partial<FilterState>) => {
-      try {
-        setLoading(true);
+      setLoading(true);
 
-        const effectiveFilters = { ...filters, ...filterOverrides };
+      const effectiveFilters = { ...filters, ...filterOverrides };
+      const result = await equipmentManagement.getAllEquipments({
+        page: effectiveFilters.page,
+        pageSize: ITEMS_PER_PAGE,
+        department:
+          effectiveFilters.office === "all"
+            ? undefined
+            : effectiveFilters.office,
+      });
 
-        const response = await fetchPaginatedEquipment({
-          page: effectiveFilters.page,
-          pageSize: ITEMS_PER_PAGE,
-          department:
-            effectiveFilters.office === "all"
-              ? undefined
-              : effectiveFilters.office,
-        });
-
-        const { data: paginatedData, meta } = response;
-        setEquipment(paginatedData);
-        setTotalItems(meta.total);
-        setTotalPages(meta.pageCount);
-
-        if (effectiveFilters.page === 1 && offices.length === 0) {
-          setOffices(OFFICES);
-        }
-      } catch (error) {
-        console.error("Failed to load equipment:", error);
+      // Check if the result is empty
+      if (result.code !== ErrorCodes.OK || !result.data) {
         setEquipment([]);
         setTotalItems(0);
         setTotalPages(1);
-      } finally {
         setLoading(false);
+
+        return;
       }
+
+      // Map these values
+      const equipments = result.data.result
+        .map(equipmentObjectExtensions.toEquipmentObjectArray);
+
+      // Assign
+      setEquipment(equipments);
+      setTotalItems(result.data.total);
+      setTotalPages(result.data.totalPages);
+
+      if (effectiveFilters.page === 1 && offices.length === 0) {
+        setOffices(OFFICES);
+      }
+
+      setLoading(false);
     },
     [filters, offices.length]
   );
@@ -306,7 +295,7 @@ export default function InventoryManagement() {
               <Button
                 className="bg-green-600 hover:bg-green-800"
                 onClick={() =>
-                  createInventoryExcel(
+                  ExcelExporters.toExcelFormat(
                     filters.office === "all" ? "ALL OFFICES" : filters.office,
                     new Date(),
                     equipment
@@ -406,7 +395,7 @@ export default function InventoryManagement() {
                   </TableCell>
                 </TableRow>
               ) : (
-                equipment.map((item: Equipment) => (
+                equipment.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="w-12">{item.quantity}</TableCell>
                     <TableCell className="w-[250px] break-words">
@@ -445,7 +434,7 @@ export default function InventoryManagement() {
                         <div className="flex flex-col space-y-1 items-center">
                           <EditEquipment
                             equipment={item}
-                            onUpdate={handleEquipmentUpdated}
+                            onUpdateAction={handleEquipmentUpdated}
                           />
                           <DeleteEquipment
                             equipmentId={item.id}

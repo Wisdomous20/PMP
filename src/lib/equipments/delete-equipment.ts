@@ -5,7 +5,6 @@ import client from "@/lib/database/client";
 import { ErrorCodes } from "@/lib/ErrorCodes";
 
 export async function deleteEquipment(id: string) {
-
   const validationResult = await validator.validate({ id }, {
     properties: {
       id: { type: "string", formatter: "non-empty-string" }
