@@ -123,4 +123,26 @@ export enum ErrorCodes {
    * process has failed.
    */
   EQUIPMENT_UPDATE_ERROR = 13580,
+
+  /**
+   * Constant representing the error code for an invalid password update token.
+   * It indicates that the token used for updating the password is either incorrect,
+   * expired, or not recognized by the system.
+   */
+  PASSWORD_UPDATE_TOKEN_INVALID = 13581,
+
+  /**
+   * Constant representing the error code for an invalid email verification token.
+   * This code is used to indicate that the provided email verification token
+   * is either expired, malformed, or does not match any existing record.
+   */
+  EMAIL_VERIFICATION_TOKEN_INVALID = 13582,
+
+  /**
+   * Represents the status code for an email verification token that has expired.
+   * This value is used to indicate that the token is no longer valid due to expiration.
+   *
+   * Typically applied in authentication or account verification workflows.
+   */
+  EMAIL_VERIFICATION_TOKEN_EXPIRED = 13583,
 }

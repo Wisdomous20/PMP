@@ -1,69 +1,117 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
 
-import { useState } from "react";
-import { useSearchParams } from 'next/navigation';
-import axios from 'axios';
-import validator from 'validator';
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
+import * as accounts from "@/lib/accounts/update-password";
+import type {ChangeEvent, FormEvent} from "react";
+import {ErrorCodes} from "@/lib/ErrorCodes";
+import {Input} from "@/components/ui/input";
+import {Button} from "@/components/ui/button";
+import {Spinner} from "@/components/ui/spinner";
+import {useState} from "react";
+import {useSearchParams} from 'next/navigation';
+import validator from "@/lib/validators";
 
-const UpdatePassword: React.FC = () => {
-  const [password, setPassword] = useState('');
-  const [confirmPassword, setConfirmPassword] = useState('');
+interface UpdatePasswordState {
+  password: string;
+  confirmPassword: string;
+}
+
+interface UpdatePasswordStateErrors extends UpdatePasswordState {
+  submit: string;
+}
+
+export default function UpdatePassword() {
+  const searchParams = useSearchParams();
+  const token = searchParams.get('token');
+
+  // State
   const [message, setMessage] = useState('');
   const [isLoading, setIsLoading] = useState(false);
-  const [errors, setErrors] = useState({
+  const [form, setForm] = useState<UpdatePasswordState>({
+    password: "",
+    confirmPassword: ""
+  });
+
+  // Errors
+  const [errors, setErrors] = useState<UpdatePasswordStateErrors>({
     password: "",
     confirmPassword: "",
     submit: "",
   });
-  const searchParams = useSearchParams();
-  const token = searchParams.get('token');
 
-  const validateForm = () => {
-    let isValid = true;
-    const newErrors = {
+  const validateForm = async (): Promise<boolean> => {
+    const newErrors: UpdatePasswordStateErrors = {
       password: "",
       confirmPassword: "",
       submit: "",
     };
 
-    if (!validator.isStrongPassword(password)) {
-      newErrors.password =
-        "Password must be at least 8 characters long, contain one uppercase letter, one lowercase letter, one number, and one special character.";
-      isValid = false;
-    }
+    const validation = await validator.validate(form, {
+      properties: {
+        password: {type: "string", formatter: "strong-password"},
+        confirmPassword: {
+          type: "string",
+          formatterFn: async (x) => {
+            if (form.password !== x) {
+              return {
+                ok: false,
+                error: "Passwords do not match",
+              };
+            }
 
-    if (password !== confirmPassword) {
-      newErrors.confirmPassword = "Passwords do not match.";
-      isValid = false;
+            return {ok: true};
+          }
+        }
+      },
+      requiredProperties: ["password", "confirmPassword"],
+    });
+    if (!validation.ok) {
+      for (const e of Object.keys(validation.errors)) {
+        newErrors[e as keyof UpdatePasswordState] = validation.errors[e as keyof UpdatePasswordState].message;
+      }
     }
 
     setErrors(newErrors);
-    return isValid;
+    return validation.ok;
   };
 
-  const handleSubmit = async (event: React.FormEvent) => {
+  const handleSubmit = async (event: FormEvent) => {
     event.preventDefault();
+
     setMessage('');
     setIsLoading(true);
 
-    if (!validateForm()) {
+    const validate = await validateForm();
+    if (validate) {
       setIsLoading(false);
       return;
     }
 
-    try {
-      const response = await axios.post('/api/auth/update-password', { token, password });
-      setMessage(response.data.message);
-    } catch (err: any) {
-      setErrors({ ...errors, submit: err.response?.data?.message || 'Failed to reset password' });
-    } finally {
+    const updateResult = await accounts.updatePassword({
+      token: token!,
+      password: form.password,
+    });
+
+    // Failed
+    if (updateResult.code !== ErrorCodes.OK) {
+      setErrors(e => ({
+        ...e,
+        submit: updateResult.message as string,
+      }));
       setIsLoading(false);
+      return;
     }
+
+    // Success
+    setMessage("Password updated successfully.");
+    setIsLoading(false);
   };
+
+  const handleChange = (t: keyof UpdatePasswordState, e: ChangeEvent<HTMLInputElement>) => {
+    setForm(l => ({
+      ...l,
+      [t]: e.target.value,
+    }));
+  }
 
   return (
     <div
@@ -88,8 +136,8 @@ const UpdatePassword: React.FC = () => {
             <Input
               id="password"
               type="password"
-              value={password}
-              onChange={(e) => setPassword(e.target.value)}
+              value={form.password}
+              onChange={(e) => handleChange('password', e)}
               className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
               placeholder="Enter your new password"
             />
@@ -107,8 +155,8 @@ const UpdatePassword: React.FC = () => {
             <Input
               id="confirmPassword"
               type="password"
-              value={confirmPassword}
-              onChange={(e) => setConfirmPassword(e.target.value)}
+              value={form.confirmPassword}
+              onChange={(e) => handleChange('password', e)}
               className="w-full bg-white bg-opacity-20 text-white placeholder-gray-400"
               placeholder="Confirm your new password"
             />
@@ -145,5 +193,3 @@ const UpdatePassword: React.FC = () => {
     </div>
   );
 };
-
-export default UpdatePassword;
