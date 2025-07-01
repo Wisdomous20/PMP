@@ -367,6 +367,29 @@ class BootlegValidator {
   }
 
   /**
+   * Retrieves the formatter function associated with the provided name and validation type.
+   *
+   * @template T
+   * @param {ValidationTypes} typeOf - The type of validation the formatter is associated with.
+   * @param {string} name - The name of the formatter to retrieve.
+   * @return {ValidationFunction<T> | null} The formatter function if found and matched with the validation type; otherwise, null.
+   */
+  getFormatterFunction<T>(typeOf: ValidationTypes, name: string): ValidationFunction<T> | null {
+    // Get the name of the registered formatter.
+    const formatter = this._formatters[name];
+    if (!formatter) {
+      return null;
+    }
+
+    // Don't allow mismatched types be used for formatter
+    if (formatter.forType !== typeOf) {
+      return null;
+    }
+
+    return formatter.formatterFn as ValidationFunction<T>;
+  }
+
+  /**
    * Checks if the provided value matches the specified validation type.
    *
    * @param type The validation type to check against.
@@ -472,6 +495,15 @@ class BootlegValidator {
     return { ok: true };
   }
 
+  /**
+   * Validates whether a given date value falls within specified minimum and maximum date boundaries.
+   *
+   * @param {ValidationTypes} type The type of validation. This method checks only when the type is "date".
+   * @param {Date} value The date value to validate.
+   * @param {DateTime} [min] The minimum allowed date. Optional.
+   * @param {DateTime} [max] The maximum allowed date. Optional.
+   * @return {MinMaxValidator} An object indicating whether the validation was successful (ok: true) or failed (ok: false with an error message).
+   */
   private checkMinMaxDate(type: ValidationTypes, value: Date, min?: DateTime, max?: DateTime): MinMaxValidator {
     // Pass if not date. Nothing to check.
     if (type !== "date") {

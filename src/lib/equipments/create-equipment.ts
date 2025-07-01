@@ -2,8 +2,8 @@
 
 import validator from "@/lib/validators";
 import client from "@/lib/database/client";
-import { ErrorCodes } from "../ErrorCodes";
-import { GenericFailureType } from "@/lib/types/GenericFailureType";
+import {ErrorCodes} from "../ErrorCodes";
+import {GenericFailureType} from "@/lib/types/GenericFailureType";
 
 type EquipmentStatus = "Operational" | "Repairable" | "Scrap";
 
@@ -69,12 +69,19 @@ export async function createEquipment(equipmentData: EquipmentParams): Promise<E
     }
   }
 
-  const newEquipment = await client.equipment.create({
-    data: equipmentData
-  })
+  try {
+    const newEquipment = await client.equipment.create({
+      data: equipmentData
+    })
 
-  return {
-    code: ErrorCodes.OK,
-    data: newEquipment
+    return {
+      code: ErrorCodes.OK,
+      data: newEquipment
+    }
+  } catch {
+    return {
+      code: ErrorCodes.EQUIPMENT_CREATION_ERROR,
+      message: "An Internal Error Occurred while creating entry of Equipment. Please try again later."
+    }
   }
 }

@@ -39,3 +39,19 @@ export interface EquipmentObjectForEditing extends Omit<EquipmentObject,  "id" |
 export interface EquipmentObjectUpdatePayload extends Omit<EquipmentObject, "serviceRequest"> {
   serviceRequestId?: string;
 }
+
+export interface EquipmentFormData {
+  quantity: number;
+  description: string;
+  brand: string;
+  serialNumber: string;
+  supplier: string;
+  unitCost: number;
+  totalCost: number;
+  datePurchased: string;
+  dateReceived: string;
+  location: string;
+  department: string;
+  status: EquipmentStatus;
+  serviceRequestId?: string | null;
+}

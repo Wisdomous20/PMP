@@ -312,7 +312,7 @@ export default function InventoryManagement() {
         {(userRole === "ADMIN" || userRole === "SECRETARY" || userRole === "SUPERVISOR") && (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-indigo-Background hover:bg-indigo-900">
+                <Button className="bg-indigo-700 hover:bg-indigo-900">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Equipment
                 </Button>

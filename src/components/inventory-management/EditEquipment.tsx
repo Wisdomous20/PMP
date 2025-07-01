@@ -14,6 +14,7 @@ import {Pencil} from "lucide-react";
 import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
 import {Separator} from "@/components/ui/separator";
 import {ErrorCodes} from "@/lib/ErrorCodes";
+import * as FormValidator from "@/components/inventory-management/commons/FormValidator";
 
 interface EditEquipmentDialogProps {
   equipment: EquipmentObject;
@@ -68,6 +69,7 @@ export function EditEquipment({
   });
 
   const [formData, setFormData] = useState<EquipmentObjectForEditing>(initializeFormData());
+  const [isComplete, setIsComplete] = useState<boolean>(false);
 
   // Recalculate totalCost when quantity or unitCost changes
   useEffect(() => {
@@ -77,6 +79,13 @@ export function EditEquipment({
       totalCost: Number(total.toFixed(2)),
     }));
   }, [formData.quantity, formData.unitCost]);
+
+  useEffect(() => {
+    FormValidator.validateForEditing(formData, supervisorDepartment)
+      .then(r => {
+        setIsComplete(r.ok);
+      });
+  }, [formData, supervisorDepartment]);
 
   // Reset form data when the dialog opens/equipment prop changes, and apply supervisorDepartment
   useEffect(() => {
@@ -98,47 +107,6 @@ export function EditEquipment({
       setErrors({}); // Clear previous errors
     }
   }, [isOpen, equipment, supervisorDepartment]);
-
-
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-    [
-      "description",
-      "brand",
-      "serialNumber",
-      "supplier",
-      "location",
-    ].forEach((key) => {
-      const val = String(formData[key as keyof EquipmentInput] || "");
-      if (!val.trim())
-        newErrors[key as keyof EquipmentInput] = "This field is required.";
-    });
-
-    // Department validation only if not pre-filled by a supervisor
-    if (!supervisorDepartment && !(formData.department || "").trim()) {
-        newErrors.department = "This field is required.";
-    }
-
-    if (formData.quantity <= 0)
-      newErrors.quantity = "Quantity must be greater than 0";
-    if (formData.unitCost < 0)
-      newErrors.unitCost = "Unit cost cannot be negative";
-    
-    const today = new Date();
-    today.setHours(0,0,0,0); // Compare dates only
-    const purchase = new Date(formData.datePurchased);
-    const receive = new Date(formData.dateReceived);
-
-    if (purchase > today)
-      newErrors.datePurchased = "Purchase date cannot be in the future";
-    if (receive > today)
-      newErrors.dateReceived = "Receive date cannot be in the future";
-    if (receive < purchase)
-      newErrors.dateReceived = "Receive date cannot be before purchase date";
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement>,
@@ -165,7 +133,21 @@ export function EditEquipment({
   };
 
   const handleUpdate = async () => {
-    if (!validateForm()) return;
+    // Validation Before Submission
+    const validate = await FormValidator.validateForEditing(formData, supervisorDepartment);
+    if (!validate.ok) {
+      const newErrors: FormErrors = {};
+
+      if (Object.keys(validate.errors).length > 0) {
+        for (const e of Object.keys(validate.errors)) {
+          newErrors[e as keyof EquipmentObjectForEditing] = validate.errors[e as keyof EquipmentObjectForEditing].message;
+        }
+      }
+
+      setErrors(newErrors);
+      return;
+    }
+
     setIsUpdating(true);
 
     const result = await equipmentManager.updateEquipment({
@@ -186,19 +168,6 @@ export function EditEquipment({
     setIsOpen(false);
     setIsUpdating(false);
   };
-
-  const isComplete =
-    formData.description.trim() &&
-    formData.brand.trim() &&
-    formData.serialNumber.trim() &&
-    formData.supplier.trim() &&
-    formData.location.trim() &&
-    (supervisorDepartment ? true : formData.department.trim()) && // Department must be valid
-    formData.quantity > 0 &&
-    formData.unitCost >= 0 &&
-    formData.datePurchased <= new Date().toISOString().split("T")[0] &&
-    formData.dateReceived >= formData.datePurchased &&
-    formData.dateReceived <= new Date().toISOString().split("T")[0];
 
   const todayISO = new Date().toISOString().split("T")[0];
   const isDepartmentDisabled = !!supervisorDepartment;
