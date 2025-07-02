@@ -18,7 +18,7 @@ import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import fetchGetImplementationPlanByServiceRequestId from "@/domains/implementation-plan/services/fetchGetImplementationPlanByServiceRequestId";
+import { getImplementationPlanByServiceRequestId } from "@/lib/implementation-plan/get-implementation-plan";
 import { createArchiveExcel } from "@/domains/service-request/services/createArchiveExcel";
 
 interface ServiceRequestDetailsModalProps {
@@ -42,7 +42,7 @@ export default function ArchiveDetailsModal({
       setError(null);
 
       try {
-        const data = await fetchGetImplementationPlanByServiceRequestId(
+        const data = await getImplementationPlanByServiceRequestId(
           request.id
         );
         setImplementationPlan(data);

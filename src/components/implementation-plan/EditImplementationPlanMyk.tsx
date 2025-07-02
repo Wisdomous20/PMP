@@ -11,15 +11,17 @@ import {
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import fetchUpdateImplementationPlan from "@/domains/implementation-plan/services/fetchUpdateImplementationPlan";
-import fetchUpdateImplementationPlanStatus from "@/domains/implementation-plan/services/fetchUpdateImplementationPlanStatus";
+import { updateImplementationPlan, updateImplementationPlanStatus } from "@/lib/implementation-plan/update-implementation-plan";
 import fetchGetPersonnelAssignments from "@/domains/personnel-management/service/fetchPersonnelAssignmentsByImplementationPlanId";
+import { getPersonnelAssignmentsByImplementationPlanId } from "@/lib/personnel/get-personnel-assignment";
 import { Progress } from "@/components/ui/progress";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
 import { useQuery } from "@tanstack/react-query";
 import fetchGetpersonnel from "@/domains/personnel-management/service/fetchGetPersonnel";
 import { Skeleton } from "@/components/ui/skeleton";
+import { addPersonnelToTask } from "@/lib/personnel/assign-personnel";
+import { removePersonnelFromTask } from "@/lib/personnel/remove-personnel";
 
 interface EditImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -50,7 +52,7 @@ export default function EditImplementationPlan({
 
   const { data: personnelAssignments, isLoading: isLoadingAssignments } = useQuery({
     queryKey: [`personnelAssignments-${plan.id}`, plan.id],
-    queryFn: () => fetchGetPersonnelAssignments(plan.id)
+    queryFn: () => getPersonnelAssignmentsByImplementationPlanId(plan.id)
   });
 
   useEffect(() => {
@@ -58,7 +60,7 @@ export default function EditImplementationPlan({
       const formattedAssignments = personnelAssignments.map(assignment => ({
         taskId: assignment.taskId,
         personnelId: assignment.personnelId,
-        assignedAt: new Date(assignment.assignedAt),
+        assignedAt: new Date(assignment.assignedAt!),
       }));
 
       setAssignments(formattedAssignments);
@@ -90,7 +92,7 @@ export default function EditImplementationPlan({
         checked: task.checked,
       }));
 
-      await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks);
+      await updateImplementationPlan(serviceRequest.id, formattedTasks);
 
       const initialAssignmentMap = new Map();
       if (personnelAssignments) {
@@ -116,14 +118,7 @@ export default function EditImplementationPlan({
 
       for (const { taskId, personnelId } of removedAssignments) {
         try {
-          await fetch("/api/implementation-plan/remove-personnel", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              taskId,
-              personnelId
-            }),
-          });
+          await removePersonnelFromTask(taskId, personnelId)
         } catch (error) {
           console.error(`Failed to remove personnel from task ${taskId}:`, error);
         }
@@ -134,14 +129,7 @@ export default function EditImplementationPlan({
         if (!task) continue;
 
         try {
-          await fetch("/api/implementation-plan/assign-personnel", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              taskId: assignment.taskId,
-              personnelId: assignment.personnelId
-            }),
-          });
+          await addPersonnelToTask(assignment.taskId, assignment.personnelId)
         } catch (error) {
           console.error(`Failed to assign personnel to task ${assignment.taskId}:`, error);
         }
@@ -149,7 +137,7 @@ export default function EditImplementationPlan({
 
       const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.checked);
       if (allTasksCompleted) {
-        await fetchUpdateImplementationPlanStatus(serviceRequest.id, "completed");
+        await updateImplementationPlanStatus(serviceRequest.id, "completed");
       }
 
     } catch (error) {

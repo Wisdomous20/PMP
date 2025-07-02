@@ -17,6 +17,12 @@ export enum ErrorCodes {
   GENERIC_ERROR = 4321,
 
   /**
+   * Represents a general error code indicating that an operation has failed.
+   */
+
+  INTERNAL_SERVER_ERROR = 500,
+
+  /**
    * Represents a specific error code indicating that the provided ID is not valid.
    */
   INVALID_ID = 4322,
@@ -145,4 +151,11 @@ export enum ErrorCodes {
    * Typically applied in authentication or account verification workflows.
    */
   EMAIL_VERIFICATION_TOKEN_EXPIRED = 13583,
+
+  /**
+   * Represents the status code for when an implementation plan is not found 
+   * with the given id.
+   */
+
+  IMPLEMENTATION_PLAN_NOT_FOUND = 13545,
 }
