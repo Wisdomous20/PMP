@@ -145,4 +145,10 @@ export enum ErrorCodes {
    * Typically applied in authentication or account verification workflows.
    */
   EMAIL_VERIFICATION_TOKEN_EXPIRED = 13583,
+
+  /**
+   * This constant represents a specific error code indicating that a service request could not be found.
+   * It is typically used in situations where a requested operation refers to a non-existent or invalid service request identifier.
+   */
+  SERVICE_REQUEST_NOT_FOUND = 13584,
 }

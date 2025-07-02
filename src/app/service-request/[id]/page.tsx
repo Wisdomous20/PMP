@@ -1,49 +1,57 @@
 "use client";
-import { useEffect, useState } from "react";
-import { useParams } from "next/navigation";
-import ServiceRequestStatus from "@/components/service-request/ServiceRequestStatus";
-import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
-import { Card } from "@/components/ui/card";
-import { ChevronLeft } from "lucide-react";
-import Link from "next/link";
-import fetchGetServiceRequestById from "@/domains/service-request/services/fetchGetServiceRequestById";
+
+import {Card} from "@/components/ui/card";
+import {ChevronLeft} from "lucide-react";
+import {ErrorCodes} from "@/lib/ErrorCodes";
 import LeftTab from "@/components/layouts/LeftTab";
-import { useQuery } from "@tanstack/react-query";
-import { useSession } from "next-auth/react";
-import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
-import { Skeleton } from "@/components/ui/skeleton";
+import Link from "next/link";
+import {useEffect, useState} from "react";
+import {useParams} from "next/navigation";
+import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
+import * as serviceRequestManager from "@/lib/service-requests/get-service-request";
+import ServiceRequestStatus from "@/components/service-request/ServiceRequestStatus";
+import {useSession} from "next-auth/react";
+import {Skeleton} from "@/components/ui/skeleton";
 
 export default function ServiceRequestDetailsPage() {
   const params = useParams();
   const serviceRequestId = params.id as string;
+  const [userRole, setUserRole] = useState<string>("");
   const [serviceRequest, setServiceRequest] = useState<ServiceRequest | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
-  const { data: session } = useSession();
-
-  const { data: userRole, isLoading: roleLoading } = useQuery({
-    queryKey: ["userRole", session?.user.id],
-    queryFn: () => fetchUserRole(session?.user.id as string),
-    enabled: !!session?.user.id,
-  });
+  const session = useSession();
 
   useEffect(() => {
-    if (!serviceRequestId) return;
-    setLoading(true);
-    setError(null);
-    fetchGetServiceRequestById(serviceRequestId)
-      .then((data) => {
-        if (data) setServiceRequest(data);
-        else setError("Service request not found or an error occurred.");
-      })
-      .catch((err) => {
-        console.error(err);
-        setError(err.message || "Could not load service request. Please try again.");
-      })
-      .finally(() => setLoading(false));
-  }, [serviceRequestId, serviceRequest, userRole]); 
+    // Set the user role
+    if (session && session.data) {
+      setUserRole(session.data.user.role);
+    }
+  }, [session]);
 
-  if (loading || roleLoading) {
+  useEffect(() => {
+    // Do not do anything if the request id is empty.
+    if (!serviceRequestId) return;
+
+    // Unset other stuff
+    setError(null);
+
+    if (session && session.data) {
+      setLoading(true);
+      serviceRequestManager.getServiceRequestById(serviceRequestId)
+        .then(d => {
+          if (d.code !== ErrorCodes.OK || !d.data) {
+            setError(d.message as string);
+            return;
+          }
+
+          setServiceRequest(d.data);
+        })
+        .finally(() => setLoading(false));
+    }
+  }, [serviceRequestId, session]);
+
+  if (loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-blue-50 to-indigo-100 px-4 py-8">
         <div className="max-w-6xl mx-auto">

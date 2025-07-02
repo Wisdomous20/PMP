@@ -1,7 +1,20 @@
 "use server";
 
 import client from "@/lib/database/client";
-import type {User} from "@prisma/client";
+import {NotificationType, type User} from "@prisma/client";
+
+function formatNotificationType(type: NotificationType): string {
+  switch (type) {
+    case "service_request":
+      return "Service Request";
+    case "inventory":
+      return "Inventory";
+    case "implementation_plan":
+      return "Implementation Plan";
+    case "personnel":
+      return "Personnel";
+  }
+}
 
 export async function getNotifications(user: User) {
   let whereClause = {};
@@ -19,5 +32,8 @@ export async function getNotifications(user: User) {
     take: 15,
   });
 
-  return notifications;
+  return notifications.map(x => ({
+    ...x,
+    typePretty: formatNotificationType(x.type),
+  }));
 }
