@@ -68,7 +68,7 @@ export default function RecentNotifications({
   const groupedNotifications = isLoading
     ? []
     : notifications.reduce<Record<string, AdminNotification[]>>((acc, notification) => {
-        const dateLabel = getNotificationDateGroup(notification.createdAt)
+        const dateLabel = getNotificationDateGroup(notification.createdAt.toLocaleDateString())
         if (!acc[dateLabel]) {
           acc[dateLabel] = []
         }
@@ -137,7 +137,7 @@ export default function RecentNotifications({
                         variant="outline"
                         className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-[10px]"
                       >
-                        {notification.type}
+                        {notification.typePretty}
                       </Badge>
                       <span className="text-xs text-gray-500">
                         {new Date(notification.createdAt).toLocaleTimeString([], {

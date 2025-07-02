@@ -1,81 +1,43 @@
 "use client";
-import { useEffect, useState, useCallback } from "react";
-import { jsPDF } from "jspdf";
-import autoTable from "jspdf-autotable";
-import { Filter } from "lucide-react";
-import {
-  Table,
-  TableBody,
-  TableCell,
-  TableHead,
-  TableHeader,
-  TableRow,
-} from "@/components/ui/table";
-import { Button } from "@/components/ui/button";
-import { StatusBadge } from "./StatusBadge";
-import { Plus } from "lucide-react";
-import {
-  Dialog,
-  DialogContent,
-  DialogHeader,
-  DialogTitle,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { Skeleton } from "@/components/ui/skeleton";
-import AddEquipment from "@/components/inventory-management/addEquipment";
-import { DeleteEquipment } from "./DeleteEquipment";
-import { EditEquipment } from "./EditEquipment";
-import { useSession } from "next-auth/react";
-import getUserRoleFetch from "@/domains/user-management/services/getUserRoleFetch";
-import getUserDepartmentFetch from "@/domains/user-management/services/fetchUserDepartment";
-import {
-  Select,
-  SelectContent,
-  SelectItem,
-  SelectTrigger,
-  SelectValue,
-} from "@/components/ui/select";
-import EquipmentPagination from "./EquipmentPagination";
-import fetchPaginatedEquipment from "@/domains/inventory-management/services/fetchPaginatedEquipment";
-import { createInventoryExcel } from "@/domains/inventory-management/services/createinventoryExcel";
 
-const ITEMS_PER_PAGE = 50;
+import AddEquipment from "@/components/inventory-management/addEquipment";
+import autoTable from "jspdf-autotable";
+import {Button} from "@/components/ui/button";
+import {Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger,} from "@/components/ui/dialog";
+import {DeleteEquipment} from "./DeleteEquipment";
+import {EditEquipment} from "./EditEquipment";
+import type {EquipmentObject} from "@/lib/types/InventoryManagementTypes";
+import * as equipmentObjectExtensions from "@/lib/types/InventoryManagementTypesHelpers";
+import EquipmentPagination from "./EquipmentPagination";
+import * as equipmentManagement from "@/lib/equipments/get-equipments";
+import {ErrorCodes} from "@/lib/ErrorCodes";
+import * as ExcelExporters from "@/lib/exports/ExcelExporters";
+import {Filter, Plus} from "lucide-react";
+import {ITEMS_PER_PAGE, OFFICES} from "@/lib/constants/EquipmentPageConstants";
+import {Select, SelectContent, SelectItem, SelectTrigger, SelectValue,} from "@/components/ui/select";
+import {Skeleton} from "@/components/ui/skeleton";
+import {StatusBadge} from "./StatusBadge";
+import {jsPDF} from "jspdf";
+import {Table, TableBody, TableCell, TableHead, TableHeader, TableRow,} from "@/components/ui/table";
+import {useCallback, useEffect, useState} from "react";
+import {useSession} from "next-auth/react";
 
 interface FilterState {
   office: string;
   page: number;
 }
 
-// Assuming UserRole and Equipment types are defined elsewhere
-// type UserRole = "ADMIN" | "SUPERVISOR" | "SECRETARY" | "STAFF";
-// interface Equipment {
-//   id: string; // or number
-//   quantity: number;
-//   description: string;
-//   brand: string;
-//   serialNumber: string;
-//   supplier: string;
-//   unitCost: number;
-//   totalCost: number;
-//   datePurchased: string | Date;
-//   dateReceived: string | Date;
-//   status: string; // Consider a more specific type e.g., "Good" | "Repair" | "Disposed"
-//   location: string;
-//   department: string;
-// }
-
-
 export default function InventoryManagement() {
-  const [equipment, setEquipment] = useState<Equipment[]>([]);
+  const [equipment, setEquipment] = useState<EquipmentObject[]>([]);
   const [isLoading, setLoading] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const { data: session } = useSession();
+  const session = useSession();
   const [userRole, setUserRole] = useState<UserRole>();
   const [userDepartment, setUserDepartment] = useState<string>("");
   const [offices, setOffices] = useState<string[]>([]);
 
   const [filters, setFilters] = useState<FilterState>({
-    office: "all",
+    office: "",
     page: 1,
   });
 
@@ -85,92 +47,74 @@ export default function InventoryManagement() {
 
   const loadEquipment = useCallback(
     async (filterOverrides?: Partial<FilterState>) => {
-      try {
-        setLoading(true);
+      setLoading(true);
 
-        const effectiveFilters = { ...filters, ...filterOverrides };
+      const effectiveFilters = { ...filters, ...filterOverrides };
+      const result = await equipmentManagement.getAllEquipments({
+        page: effectiveFilters.page,
+        pageSize: ITEMS_PER_PAGE,
+        department:
+          effectiveFilters.office === "all"
+            ? undefined
+            : effectiveFilters.office,
+      });
 
-        const response = await fetchPaginatedEquipment({
-          page: effectiveFilters.page,
-          pageSize: ITEMS_PER_PAGE,
-          department:
-            effectiveFilters.office === "all"
-              ? undefined
-              : effectiveFilters.office,
-        });
-
-        const { data: paginatedData, meta } = response;
-        setEquipment(paginatedData);
-        setTotalItems(meta.total);
-        setTotalPages(meta.pageCount);
-
-        if (effectiveFilters.page === 1 && offices.length === 0) {
-          const officeList = [
-            "Buildings Upkeep and Maintenance",
-            "Campus Traffic",
-            "Security and Safety",
-            "Electrical & Mechanical Systems",
-            "Facilities Maintenance and Services",
-            "Grounds Upkeep and Maintenance",
-            "Occupational Safety and Health Officer",
-            "Pollution Control",
-            "Swimming Pool",
-            "University Computer Services Center",
-          ];
-          setOffices(officeList);
-        }
-      } catch (error) {
-        console.error("Failed to load equipment:", error);
+      // Check if the result is empty
+      if (result.code !== ErrorCodes.OK || !result.data) {
         setEquipment([]);
         setTotalItems(0);
         setTotalPages(1);
-      } finally {
         setLoading(false);
+
+        return;
       }
+
+      // Map these values
+      const equipments = result.data.result
+        .map(equipmentObjectExtensions.toEquipmentObjectArray);
+
+      // Assign
+      setEquipment(equipments);
+      setTotalItems(result.data.total);
+      setTotalPages(result.data.totalPages);
+
+      if (effectiveFilters.page === 1 && offices.length === 0) {
+        setOffices(OFFICES);
+      }
+
+      setLoading(false);
     },
     [filters, offices.length]
   );
 
-  const loadUserRoleAndDepartment = useCallback(async () => {
-    try {
-      if (session?.user?.id) {
-        const { userRole: fetchedUserRole } = await getUserRoleFetch(session.user.id);
-        setUserRole(fetchedUserRole as UserRole);
-
-        const { department } = await getUserDepartmentFetch(session.user.id);
-        setUserDepartment(department);
-
-        if (fetchedUserRole === "SUPERVISOR") {
-          setFilters({ office: department, page: 1 });
-          setIsOfficeFilterDisabled(true); // Disable filter for SUPERVISOR
-        } else {
-          setIsOfficeFilterDisabled(false); // Enable for other roles
-        }
-      }
-    } catch (error) {
-      console.error("Failed to load user role/department:", error);
-      setIsOfficeFilterDisabled(false); // Ensure it's false on error
-    }
-  }, [session?.user?.id]);
-
   useEffect(() => {
-    loadUserRoleAndDepartment();
-  }, [loadUserRoleAndDepartment]);
+    if (session && session.data) {
+      setUserRole(session?.data?.user.role as UserRole);
+      setUserDepartment(session?.data?.user.department);
+
+      if (session?.data?.user.role === "SUPERVISOR") {
+        setFilters({ office: session?.data?.user.department, page: 1 });
+        setIsOfficeFilterDisabled(true); // Disable filter for SUPERVISOR
+      } else {
+        setFilters({ office: "all", page: 1 });
+        setIsOfficeFilterDisabled(false); // Enable for other roles
+      }
+    }
+  }, [session]);
 
   useEffect(() => {
     if (session) {
-      // Only load equipment if user role is determined or if it's not a supervisor
+      // Only load equipment if a user role is determined or if it's not a supervisor
       // For supervisors, the loadEquipment will be triggered by the filter change in loadUserRoleAndDepartment
       if (userRole && userRole !== "SUPERVISOR") {
         loadEquipment();
       } else if (userRole === "SUPERVISOR" && filters.office !== "all") { // Ensure supervisor's department filter is set
         loadEquipment();
-      } else if (!userRole && filters.office === "all") { // Initial load for non-supervisors or if role not yet fetched
+      } else if (!userRole && filters.office === "all") { // Initial load for non-supervisors or if a role not yet fetched
          loadEquipment();
       }
     }
   }, [filters, session, loadEquipment, userRole]);
-
 
   const handleOfficeChange = (value: string) => {
     if (isOfficeFilterDisabled) return; // Prevent change if disabled
@@ -300,7 +244,7 @@ export default function InventoryManagement() {
           <Select
             value={filters.office}
             onValueChange={handleOfficeChange}
-            disabled={isOfficeFilterDisabled} // Disable Select if user is SUPERVISOR
+            disabled={isOfficeFilterDisabled} // Disable Select if the user is SUPERVISOR
           >
             <SelectTrigger className="w-[240px] bg-white flex items-center gap-2" disabled={isOfficeFilterDisabled}>
               <span className="flex-shrink-0">
@@ -314,7 +258,7 @@ export default function InventoryManagement() {
               {!isOfficeFilterDisabled && (
                 <SelectItem value="all">All Offices</SelectItem>
               )}
-              {/* If supervisor, only their department should be an option, or show it as selected */}
+              {/* If supervisor, only their department should be an option or show it as selected */}
               {isOfficeFilterDisabled && userDepartment ? (
                  <SelectItem value={userDepartment} disabled>
                     {userDepartment}
@@ -341,7 +285,7 @@ export default function InventoryManagement() {
               <Button
                 className="bg-green-600 hover:bg-green-800"
                 onClick={() =>
-                  createInventoryExcel(
+                  ExcelExporters.toExcelFormat(
                     filters.office === "all" ? "ALL OFFICES" : filters.office,
                     new Date(),
                     equipment
@@ -358,7 +302,7 @@ export default function InventoryManagement() {
         {(userRole === "ADMIN" || userRole === "SECRETARY" || userRole === "SUPERVISOR") && (
             <Dialog open={isDialogOpen} onOpenChange={setIsDialogOpen}>
             <DialogTrigger asChild>
-                <Button className="bg-indigo-Background hover:bg-indigo-900">
+                <Button className="bg-indigo-700 hover:bg-indigo-900">
                 <Plus className="w-4 h-4 mr-2" />
                 Add Equipment
                 </Button>
@@ -367,10 +311,10 @@ export default function InventoryManagement() {
                 <DialogHeader>
                 <DialogTitle>Add New Equipment</DialogTitle>
                 </DialogHeader>
-                {/* Pass userDepartment to AddEquipment if role is SUPERVISOR */}
+                {/* Pass the userDepartment to AddEquipment if a role is SUPERVISOR */}
                 <AddEquipment
                     onSuccess={handleEquipmentAdded}
-                    // Optionally pass supervisorDepartment if AddEquipment needs to pre-fill it
+                    // Optionally pass the supervisorDepartment if AddEquipment needs to pre-fill it
                     supervisorDepartment={userRole === "SUPERVISOR" ? userDepartment : undefined}
                  />
             </DialogContent>
@@ -441,7 +385,7 @@ export default function InventoryManagement() {
                   </TableCell>
                 </TableRow>
               ) : (
-                equipment.map((item: Equipment) => (
+                equipment.map((item) => (
                   <TableRow key={item.id}>
                     <TableCell className="w-12">{item.quantity}</TableCell>
                     <TableCell className="w-[250px] break-words">
@@ -480,7 +424,7 @@ export default function InventoryManagement() {
                         <div className="flex flex-col space-y-1 items-center">
                           <EditEquipment
                             equipment={item}
-                            onUpdate={handleEquipmentUpdated}
+                            onUpdateAction={handleEquipmentUpdated}
                           />
                           <DeleteEquipment
                             equipmentId={item.id}

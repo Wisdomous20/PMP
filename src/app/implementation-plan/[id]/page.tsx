@@ -9,7 +9,6 @@ interface PageProps {
   }>;
 }
 
-
 export default function Page(props: PageProps) {
   const params = use(props.params);
   const { serviceRequestDetails, loading } = useGetServiceRequestDetails(params.id)

@@ -55,8 +55,6 @@ export default async function assignSupervisor(
       }
     });
 
-    console.log(`Supervisor ${supervisor.firstName} ${supervisor.lastName} successfully assigned to Service Request ${serviceRequestId}.`);
-
     try {
       await sendSupervisorAssignmentEmail({
         to: supervisor.email,
@@ -66,7 +64,6 @@ export default async function assignSupervisor(
         details: serviceRequest.details,
         color: "#2c3e50"
       });
-      console.log(`Assignment email sent to ${supervisor.email}`);
     } catch (emailError) {
       console.error('Failed to send assignment email:', emailError);
     }

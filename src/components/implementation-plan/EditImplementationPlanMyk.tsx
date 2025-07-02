@@ -53,8 +53,6 @@ export default function EditImplementationPlan({
     queryFn: () => fetchGetPersonnelAssignments(plan.id)
   });
 
-  console.log(isLoadingAssignments)
-
   useEffect(() => {
     if (personnelAssignments && !isLoadingAssignments) {
       const formattedAssignments = personnelAssignments.map(assignment => ({
@@ -152,10 +150,8 @@ export default function EditImplementationPlan({
       const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.checked);
       if (allTasksCompleted) {
         await fetchUpdateImplementationPlanStatus(serviceRequest.id, "completed");
-        console.log("Implementation Plan automatically marked as completed");
       }
 
-      console.log("Implementation Plan updated successfully");
     } catch (error) {
       console.error("Failed to update implementation plan:", error);
     } finally {
@@ -316,9 +312,6 @@ function TaskCard({
   plan
 }: TaskCardProps) {
   const currentAssignment = assignments.find(a => a.taskId === task.id);
-  console.log(assignments)
-  console.log(currentAssignment)
-
   return (
     <motion.div
       key={task.id}

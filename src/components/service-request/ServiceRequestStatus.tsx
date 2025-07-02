@@ -110,7 +110,6 @@ export default function ServiceRequestStatus({
     try {
       hasArchivedRef.current = true;
       await fetchAddArchivedStatus(id);
-      console.log("Service request archived successfully");
     } catch (error) {
       console.error("Failed to archive service request:", error);
       hasArchivedRef.current = false;

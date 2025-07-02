@@ -10,7 +10,6 @@ export default async function getUserRole(userId: string) : Promise<string> {
   });
 
   if (user?.user_type) {
-    console.log(user?.user_type)
     return user?.user_type;
   }
 

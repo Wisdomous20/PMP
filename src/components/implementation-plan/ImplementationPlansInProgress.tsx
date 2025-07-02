@@ -1,4 +1,3 @@
-// components/ImplementationPlansInProgress.tsx
 "use client";
 
 import React from "react";
@@ -70,8 +69,6 @@ export default function ImplementationPlansInProgress({ isLoading, implementatio
       </Card>
     );
   }
-
-
 
   return (
     <Card className="w-full">

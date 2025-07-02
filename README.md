@@ -1,36 +1,53 @@
+# This is CPU's Project Management System
+
 This is a [Next.js](https://nextjs.org) project bootstrapped with [`create-next-app`](https://nextjs.org/docs/app/api-reference/cli/create-next-app).
 
-## Getting Started
+## Requirements
 
-First, run the development server:
+1. Docker Engine/Docker Desktop
+2. Git
+3. Node.js 22 or later
+4. pnpm
 
-```bash
-npm run dev
-# or
-yarn dev
-# or
-pnpm dev
-# or
-bun dev
+## Setting up Development Environment
+
+1. To initialize the self-hosted mongo instance:
+   ```sh
+   sudo docker compose -f docker-compose.dev.yml up
+   ```
+
+2. Then modify your `.env` file with this value:
+   ```env
+   DATABASE_URL="mongodb://localhost:27017,localhost:27018,localhost:27019/pmp?replicaSet=pmpReplicaSet"
+   ```
+
+3. Then, start the development mode:
+   ```sh
+   pnpm run dev
+   ```
+
+> [!TIP]
+> If you encounter `Kind: Server selection timeout: No available servers.` while attempting to read/write to
+> the Database, you need to modify your `/etc/hosts` (or `C:\Windows\System32\drivers\etc\hosts` on Windows)
+> file with the following:
+> ```
+> 127.0.0.1 mongo1
+> 127.0.0.1 mongo2
+> 127.0.0.1 mongo3
+> ```
+> Then restart the Next.js server.
+
+## Deploying
+
+```
+sudo docker compose up -d
 ```
 
-Open [http://localhost:3000](http://localhost:3000) with your browser to see the result.
-
-You can start editing the page by modifying `app/page.tsx`. The page auto-updates as you edit the file.
-
-This project uses [`next/font`](https://nextjs.org/docs/app/building-your-application/optimizing/fonts) to automatically optimize and load [Geist](https://vercel.com/font), a new font family for Vercel.
-
-## Learn More
-
-To learn more about Next.js, take a look at the following resources:
-
-- [Next.js Documentation](https://nextjs.org/docs) - learn about Next.js features and API.
-- [Learn Next.js](https://nextjs.org/learn) - an interactive Next.js tutorial.
-
-You can check out [the Next.js GitHub repository](https://github.com/vercel/next.js) - your feedback and contributions are welcome!
-
-## Deploy on Vercel
-
-The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
-
-Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+> [!CAUTION]
+> If you have modified your `/etc/hosts` file to include these lines:
+> ```
+> 127.0.0.1 mongo1
+> 127.0.0.1 mongo2
+> 127.0.0.1 mongo3
+> ```
+> You may have to remove them because it might affect the DNS resolution of your databases.

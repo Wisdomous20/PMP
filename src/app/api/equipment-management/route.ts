@@ -22,8 +22,6 @@ export async function POST(req: NextRequest): Promise<NextResponse> {
       serviceRequestId,
     } = await req.json();
 
-    console.log("okay1")
-
     if (
       !description ||
       !brand ||
