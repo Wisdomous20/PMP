@@ -7,6 +7,7 @@ type NotificationType =
 type AdminNotification = {
   id: string;
   type: NotificationType;
+  typePretty: string;
   message: string;
   link: string;
   department?: string | null;

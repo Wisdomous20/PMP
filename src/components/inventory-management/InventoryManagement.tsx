@@ -37,7 +37,7 @@ export default function InventoryManagement() {
   const [offices, setOffices] = useState<string[]>([]);
 
   const [filters, setFilters] = useState<FilterState>({
-    office: "all",
+    office: "",
     page: 1,
   });
 
@@ -87,29 +87,20 @@ export default function InventoryManagement() {
     [filters, offices.length]
   );
 
-  const loadUserRoleAndDepartment = useCallback(async () => {
-    try {
-      if (session?.data?.user.id) {
-        setUserRole(session?.data?.user.role as UserRole);
-        setUserDepartment(session?.data?.user.department);
-
-        if (session?.data?.user.role === "SUPERVISOR") {
-          setFilters({ office: session?.data?.user.department, page: 1 });
-          setIsOfficeFilterDisabled(true); // Disable filter for SUPERVISOR
-        } else {
-          setIsOfficeFilterDisabled(false); // Enable for other roles
-        }
-      }
-    } catch (error) {
-      console.error("Failed to load user role/department:", error);
-      setIsOfficeFilterDisabled(false); // Ensure it's false on error
-    }
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [session?.data?.user.id]);
-
   useEffect(() => {
-    loadUserRoleAndDepartment();
-  }, [loadUserRoleAndDepartment]);
+    if (session && session.data) {
+      setUserRole(session?.data?.user.role as UserRole);
+      setUserDepartment(session?.data?.user.department);
+
+      if (session?.data?.user.role === "SUPERVISOR") {
+        setFilters({ office: session?.data?.user.department, page: 1 });
+        setIsOfficeFilterDisabled(true); // Disable filter for SUPERVISOR
+      } else {
+        setFilters({ office: "all", page: 1 });
+        setIsOfficeFilterDisabled(false); // Enable for other roles
+      }
+    }
+  }, [session]);
 
   useEffect(() => {
     if (session) {
@@ -124,7 +115,6 @@ export default function InventoryManagement() {
       }
     }
   }, [filters, session, loadEquipment, userRole]);
-
 
   const handleOfficeChange = (value: string) => {
     if (isOfficeFilterDisabled) return; // Prevent change if disabled

@@ -137,7 +137,7 @@ export default function RecentNotifications({
                         variant="outline"
                         className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-[10px]"
                       >
-                        {notification.type}
+                        {notification.typePretty}
                       </Badge>
                       <span className="text-xs text-gray-500">
                         {new Date(notification.createdAt).toLocaleTimeString([], {

@@ -1,5 +1,5 @@
 const DEPARTMENTS = [
-  "College of Engineering Engineering",
+  "College of Engineering",
   "College of Nursing",
   "Kindergarten",
   "Elementary School",

@@ -8,7 +8,7 @@ import {Spinner} from "@/components/ui/spinner";
 import {Check, ChevronsUpDown, Eye, EyeOff} from "lucide-react";
 import {useRouter, useSearchParams} from "next/navigation";
 import Image from "next/image";
-import DEPARTMENTS from "@/lib/departments";
+import DEPARTMENTS from "@/lib/constants/DEPARTMENTS";
 import {cn} from "@/lib/utils";
 import {Popover, PopoverContent, PopoverTrigger,} from "@/components/ui/popover";
 import {Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList,} from "@/components/ui/command";
