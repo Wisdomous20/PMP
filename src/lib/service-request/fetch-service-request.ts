@@ -12,11 +12,16 @@ interface ServiceRequest {
   details: string;
   status: Array<{
     id: string;
-    serviceRequestId: string;
+    serviceRequestId?: string;
     status: $Enums.status;
     timestamp: Date;
     note: string | null;
   }>;
+  user?: {
+    firstName: string;
+    lastName: string;
+    email: string;
+  }
   createdOn: Date | null;
 }
 
@@ -127,5 +132,46 @@ export async function getServiceRequests(userId: string): Promise<ServiceRequest
   return {
     code: ErrorCodes.OK,
     data: formattedRequests
+  };
+}
+
+export async function getServiceRequestById(serviceRequestId: string): Promise<ServiceRequest> {
+  const serviceRequest = await client.serviceRequest.findUnique({
+    where: { id: serviceRequestId },
+    include: {
+      user: true,
+      status: {
+        orderBy: {
+          timestamp: 'asc',
+        },
+      },
+    },
+  });
+
+  if (!serviceRequest) {
+    throw new Error("Service request not found");
+  }
+
+  const { id, user, concern, details, status } = serviceRequest;
+  const requesterName = `${user.firstName} ${user.lastName}`;
+  const createdOn = status.length > 0 ? status[0].timestamp : null;
+
+  const serviceRequestStatus: Status[] = status.map((status) => {
+    return {
+      id: status.id,
+      status: status.status,
+      timestamp: status.timestamp,
+      note: status.note,
+    };
+  })
+
+  return {
+    id,
+    requesterName,
+    concern,
+    user,
+    details,
+    createdOn,
+    status: serviceRequestStatus
   };
 }

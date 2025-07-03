@@ -7,7 +7,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { CheckIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
 import fetchGetSupervisors from "@/domains/user-management/services/fetchGetSupervisors";
-import fetchApproveServiceRequest from "@/domains/service-request/services/fetchApproveServiceRequest";
+import { approveServiceRequest } from "@/lib/service-request/approve-service-request";
 import refreshPage from "@/utils/refreshPage";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
@@ -45,7 +45,7 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
     if (!selectedSupervisor) return;
     setIsLoading(true);
     try {
-      await fetchApproveServiceRequest(
+      await approveServiceRequest(
         serviceRequestId,
         selectedSupervisor.id,
         note

@@ -11,6 +11,7 @@ import ServiceRequestRating from "@/components/service-request/ServiceRequestRat
 import { getImplementationPlanByServiceRequestId } from "@/lib/implementation-plan/get-implementation-plan";
 import { Skeleton } from "../ui/skeleton";
 import { fetchAddArchivedStatus } from "@/domains/service-request/services/status/fetchAddSatus";
+import { addArchivedStatus } from "@/lib/archive/addArchivedStatus"
 
 interface ServiceRequestStatusProps {
   serviceRequest: ServiceRequest;
@@ -107,7 +108,7 @@ export default function ServiceRequestStatus({
 
     try {
       hasArchivedRef.current = true;
-      await fetchAddArchivedStatus(id);
+      await addArchivedStatus(id);
     } catch (error) {
       console.error("Failed to archive service request:", error);
       hasArchivedRef.current = false;

@@ -1,7 +1,7 @@
 "use client";
 
 import { useState, useEffect } from "react";
-import fetchGetServiceRequestDetails from "@/domains/service-request/services/fetchGetServiceRequestById";
+import { getServiceRequestById } from "@/lib/service-request/fetch-service-request";
 
 export default function useGetServiceRequestDetails(serviceRequestId: string) {
   const [serviceRequestDetails, setServiceRequestDetails] =
@@ -11,10 +11,10 @@ export default function useGetServiceRequestDetails(serviceRequestId: string) {
 
   const fetchServiceRequestDetails = async (serviceRequestId: string) => {
     try {
-      const serviceRequestDetailsInitial = await fetchGetServiceRequestDetails(
+      const serviceRequestDetailsInitial = await getServiceRequestById(
         serviceRequestId
       );
-      setServiceRequestDetails(serviceRequestDetailsInitial);
+      setServiceRequestDetails(serviceRequestDetailsInitial as ServiceRequest);
       setLoading(false);
     } catch (err) {
       setError("Failed to load service request details.");
@@ -24,8 +24,7 @@ export default function useGetServiceRequestDetails(serviceRequestId: string) {
 
   useEffect(() => {
     fetchServiceRequestDetails(serviceRequestId);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, []);
+  }, [serviceRequestId]);
 
   return { serviceRequestDetails, error, loading };
 }

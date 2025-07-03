@@ -1,16 +1,30 @@
-import { PrismaClient } from '@prisma/client';
+"use server";
+
+import client from "@/lib/database/client";
+import { ErrorCodes } from "@/lib/ErrorCodes";
+import { GenericFailureType } from "@/lib/types/GenericFailureType";
 import { sendSupervisorAssignmentEmail } from '@/lib/mailer/sendSupervisorAssignmentEmail';
 
-const prisma = new PrismaClient();
+interface SupervisorResult extends GenericFailureType {
+  data?: {
+    success: boolean;
+    message: string;
+    supervisorAssignment: {
+      supervisorId: string;
+      supervisorName: string;
+      serviceRequestId: string;
+    };
+  }
+}
 
-export default async function assignSupervisor(
-  serviceRequestId: string, 
+export async function assignSupervisor(
+  serviceRequestId: string,
   supervisorId: string,
-) {
+): Promise<SupervisorResult> {
   try {
-    const serviceRequest = await prisma.serviceRequest.findUnique({
+    const serviceRequest = await client.serviceRequest.findUnique({
       where: { id: serviceRequestId },
-      include: { 
+      include: {
         supervisorAssignment: true,
         user: {
           select: {
@@ -29,7 +43,7 @@ export default async function assignSupervisor(
       throw new Error('Supervisor already assigned to this Service Request');
     }
 
-    const supervisor = await prisma.user.findUnique({
+    const supervisor = await client.user.findUnique({
       where: { id: supervisorId },
       select: {
         id: true,
@@ -48,7 +62,7 @@ export default async function assignSupervisor(
       throw new Error('Selected user is not a supervisor');
     }
 
-    await prisma.supervisorAssignment.create({
+    await client.supervisorAssignment.create({
       data: {
         serviceRequestId: serviceRequest.id,
         supervisorId: supervisor.id
@@ -68,7 +82,7 @@ export default async function assignSupervisor(
       console.error('Failed to send assignment email:', emailError);
     }
 
-    return {
+    const data = {
       success: true,
       message: `Supervisor ${supervisor.firstName} ${supervisor.lastName} successfully assigned`,
       supervisorAssignment: {
@@ -76,6 +90,11 @@ export default async function assignSupervisor(
         supervisorName: `${supervisor.firstName} ${supervisor.lastName}`,
         serviceRequestId: serviceRequest.id
       }
+    }
+
+    return {
+      code: ErrorCodes.OK,
+      data
     };
 
   } catch (error) {

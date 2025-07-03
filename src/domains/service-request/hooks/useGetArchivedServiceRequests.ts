@@ -1,18 +1,16 @@
 import { useState, useEffect } from "react";
 import useGetSessionData from "@/domains/user-management/hooks/useGetSessionData";
-import fetchGetArchivedServiceRequests from "@/domains/service-request/services/fetchGetArchivedServiceRequests";
+import { getArchivedServiceRequests } from "@/lib/archive/getArchivedRequests";
 
 export interface ArchivedServiceRequest {
   id: string;
   name: string;
   title: string;
   department: string;
-  requestDate: string | null;
+  requestDate: Date | null;
   status: string;
-  deleteAt: string | null;
-  concern: string;
+  deleteAt: Date | null;
   details: string;
-
   ServiceRequestRating?: {
     ratings: number;
     description: string;
@@ -33,11 +31,9 @@ export default function useGetArchivedServiceRequests() {
       if (sessionData?.user?.id) {
         try {
           setLoading(true);
-          const response = await fetchGetArchivedServiceRequests(
-            sessionData.user.id
-          );
+          const response = await getArchivedServiceRequests();
 
-          const sorted = response.sort((a: { requestDate: string | number | Date; }, b: { requestDate: string | number | Date; }) => {
+          const sorted = response.data!.sort((a: { requestDate: string | number | Date; }, b: { requestDate: string | number | Date; }) => {
             if (!a.requestDate) return 1;
             if (!b.requestDate) return -1;
             return (

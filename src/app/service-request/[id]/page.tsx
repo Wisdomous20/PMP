@@ -6,7 +6,7 @@ import ServiceRequestDetails from "@/components/service-request/ServiceRequestDe
 import { Card } from "@/components/ui/card";
 import { ChevronLeft } from "lucide-react";
 import Link from "next/link";
-import fetchGetServiceRequestById from "@/domains/service-request/services/fetchGetServiceRequestById";
+import { getServiceRequestById } from "@/lib/service-request/fetch-service-request";
 import LeftTab from "@/components/layouts/LeftTab";
 import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
@@ -31,9 +31,9 @@ export default function ServiceRequestDetailsPage() {
     if (!serviceRequestId) return;
     setLoading(true);
     setError(null);
-    fetchGetServiceRequestById(serviceRequestId)
+    getServiceRequestById(serviceRequestId)
       .then((data) => {
-        if (data) setServiceRequest(data);
+        if (data) setServiceRequest(data as ServiceRequest);
         else setError("Service request not found or an error occurred.");
       })
       .catch((err) => {
