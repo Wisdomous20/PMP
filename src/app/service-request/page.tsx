@@ -6,7 +6,7 @@ import ServiceRequestList from "@/components/service-request/ServiceRequestList"
 import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
 import UserServiceRequestList from "@/components/service-request/UserServiceRequestList";
 import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
-import fetchGetServiceRequest from "@/domains/service-request/services/fetchGetServiceRequest";
+import { getServiceRequests } from "@/lib/service-request/fetch-service-request";
 import { Skeleton } from "@/components/ui/skeleton";
 
 import { Card } from "@/components/ui/card";
@@ -30,7 +30,7 @@ export default function Page() {
     isLoading: srLoading,
   } = useQuery({
     queryKey: ["ServiceRequests", session?.user.id],
-    queryFn: () => fetchGetServiceRequest(session?.user.id as string),
+    queryFn: () => getServiceRequests(session?.user.id as string),
     enabled: !!session?.user.id,
   });
 
@@ -70,7 +70,7 @@ export default function Page() {
   }
 
   const sortedRequests = serviceRequests
-    ? [...serviceRequests].sort((a, b) => {
+    ? [...serviceRequests.data!].sort((a, b) => {
       const dateA = a.createdOn ? new Date(a.createdOn) : null;
       const dateB = b.createdOn ? new Date(b.createdOn) : null;
       if (dateA === null && dateB === null) return 0;

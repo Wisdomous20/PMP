@@ -1,4 +1,3 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
 import { useState } from "react";
@@ -17,7 +16,7 @@ import refreshPage from "@/utils/refreshPage";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
 import { useQuery } from "@tanstack/react-query";
-import fetchGetpersonnel from "@/domains/personnel-management/service/fetchGetPersonnel";
+import { getPersonnel } from "@/lib/personnel/get-personnel";
 
 interface CreateImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -33,7 +32,7 @@ export default function CreateImplementationPlan({
 
   const { data: personnel } = useQuery({
     queryKey: ["personnel"],
-    queryFn: () => fetchGetpersonnel()
+    queryFn: () => getPersonnel()
   });
 
   const handleAddTask = (task: Task) => {

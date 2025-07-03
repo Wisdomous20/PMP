@@ -17,7 +17,7 @@ import { Progress } from "@/components/ui/progress";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
 import { useQuery } from "@tanstack/react-query";
-import fetchGetpersonnel from "@/domains/personnel-management/service/fetchGetPersonnel";
+import { getPersonnel } from "@/lib/personnel/get-personnel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { addPersonnelToTask } from "@/lib/personnel/assign-personnel";
 import { removePersonnelFromTask } from "@/lib/personnel/remove-personnel";
@@ -46,7 +46,7 @@ export default function EditImplementationPlan({
 
   const { data: personnel, isLoading: isLoadingPersonnel } = useQuery({
     queryKey: ["personnel"],
-    queryFn: () => fetchGetpersonnel()
+    queryFn: () => getPersonnel()
   });
 
   const { data: personnelAssignments, isLoading: isLoadingAssignments } = useQuery({
@@ -178,7 +178,7 @@ export default function EditImplementationPlan({
           <p className="text-sm text-muted-foreground">
             Name of requester
           </p>
-          <p className="font-medium">{serviceRequest.user.firstName} {serviceRequest.user.lastName}</p>
+          <p className="font-medium">{serviceRequest.user!.firstName} {serviceRequest.user!.lastName}</p>
         </div>
         <div>
           <p className="text-sm text-muted-foreground">

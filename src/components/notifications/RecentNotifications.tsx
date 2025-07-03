@@ -13,7 +13,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
-import { markNotificationAsRead } from "@/domains/notification/services/markNotificationAsRead"
+import { updateNotification } from "@/lib/notification/update-notification"
 
 function getNotificationDateGroup(createdAt: string) {
   const now = new Date()
@@ -59,7 +59,7 @@ export default function RecentNotifications({
 
   const handleMarkAsRead = async (id: string) => {
     try {
-      await markNotificationAsRead(id)
+      await updateNotification(id, true)
     } catch (err) {
       console.error("Error marking notification as read:", err)
     }

@@ -11,7 +11,7 @@ import {
   DialogTitle,
   DialogClose
 } from "../ui/dialog";
-import updatePersonnelService from "../../domains/personnel-management/service/updatePersonnel";
+import { updatePersonnel } from "@/lib/personnel/update-personnel";
 
 interface UpdatePersonnelProps {
   onUpdate: () => void;
@@ -42,7 +42,7 @@ export default function UpdatePersonnel({ onUpdate, isOpen, onOpenChange, curren
   const handleUpdatePersonnel = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
     if (currentPersonnel) {
-      const response = await updatePersonnelService(
+      const response = await updatePersonnel(
         currentPersonnel.id,
         name,
         department,

@@ -5,7 +5,7 @@ import { Search, X, ChevronLeft, ChevronRight, Filter } from "lucide-react";
 import type { User } from "@prisma/client";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Button } from "@/components/ui/button";
-import fetchGetAllUsers from "@/domains/user-management/services/fetchGetAllUsers";
+import { getAllUsers } from "@/lib/user/get-users";
 import UserDetails from "@/components/user-management/UserDetails";
 import {
   Table,
@@ -55,7 +55,7 @@ export default function UserManagement() {
 
   useEffect(() => {
     const fetchUsers = async () => {
-      const data = await fetchGetAllUsers();
+      const data = await getAllUsers();
       if (data) {
         setUsers(data);
         setLoading(false);

@@ -1,7 +1,6 @@
 "use server";
 
 import client from '@/lib/database/client';
-import addCompletedStatus from "@/domains/service-request/services/status/addCompletedStatus";
 
 export async function updateImplementationPlan(serviceRequestId: string, tasks: Task[]) {
   const existingPlan = await client.implementationPlan.findUnique({
@@ -34,11 +33,11 @@ export async function updateImplementationPlan(serviceRequestId: string, tasks: 
           });
         }
       }
-      
+
       const existingTaskIds = existingPlan.tasks.map(t => t.id);
       const updatedTaskIds = tasks.filter(t => t.id).map(t => t.id);
       const tasksToDelete = existingTaskIds.filter(id => !updatedTaskIds.includes(id));
-      
+
       if (tasksToDelete.length > 0) {
         await tx.task.deleteMany({
           where: { id: { in: tasksToDelete } },
@@ -76,9 +75,16 @@ export async function updateImplementationPlanStatus(
     });
 
     if (status === "completed") {
-      await addCompletedStatus(existingPlan.serviceRequestId);
-    }    
-  
+      await prisma.serviceRequestStatus.create({
+        data: {
+          serviceRequestId: serviceRequestId,
+          status: "completed",
+          timestamp: new Date(),
+          note: "implementation plan completed",
+        },
+      });
+    }
+
   } catch (error) {
     console.error('DB Service: Update failed:', {
       message: error instanceof Error ? error.message : 'Unknown error'
