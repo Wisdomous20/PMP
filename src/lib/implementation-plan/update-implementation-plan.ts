@@ -62,7 +62,7 @@ export async function updateImplementationPlanStatus(
       throw new Error('Implementation plan not found');
     }
 
-    const updatedPlan = await prisma.implementationPlan.update({
+    await prisma.implementationPlan.update({
       where: {
         serviceRequestId
       },

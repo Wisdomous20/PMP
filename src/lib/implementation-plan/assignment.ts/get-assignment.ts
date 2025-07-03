@@ -2,7 +2,6 @@
 
 import client from "@/lib/database/client";
 import { ErrorCodes } from "@/lib/ErrorCodes";
-import { GenericFailureType } from "@/lib/types/GenericFailureType";
 
 // interface AssignmentResult extends GenericFailureType {
 //   data?: {

@@ -12,7 +12,6 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { updateImplementationPlan, updateImplementationPlanStatus } from "@/lib/implementation-plan/update-implementation-plan";
-import fetchGetPersonnelAssignments from "@/domains/personnel-management/service/fetchPersonnelAssignmentsByImplementationPlanId";
 import { getPersonnelAssignmentsByImplementationPlanId } from "@/lib/personnel/get-personnel-assignment";
 import { Progress } from "@/components/ui/progress";
 import AddTask from "./AddTask";

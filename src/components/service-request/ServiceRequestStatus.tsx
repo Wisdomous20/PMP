@@ -10,7 +10,6 @@ import formatTimestamp from "@/utils/formatTimestamp";
 import ServiceRequestRating from "@/components/service-request/ServiceRequestRatings";
 import { getImplementationPlanByServiceRequestId } from "@/lib/implementation-plan/get-implementation-plan";
 import { Skeleton } from "../ui/skeleton";
-import { fetchAddArchivedStatus } from "@/domains/service-request/services/status/fetchAddSatus";
 import { addArchivedStatus } from "@/lib/archive/addArchivedStatus"
 
 interface ServiceRequestStatusProps {
