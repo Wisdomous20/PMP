@@ -2,7 +2,7 @@
 
 import { useQuery } from "@tanstack/react-query";
 import useGetSessionData from "./useGetSessionData";
-import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
+import { getUserRole } from "@/lib/user/get-user-role";
 
 export default function useGetUserRole() {
   const { sessionData: session } = useGetSessionData();
@@ -10,7 +10,7 @@ export default function useGetUserRole() {
 
   const { data, isLoading, error } = useQuery({
     queryKey: ["userRole", userId],
-    queryFn: () => fetchUserRole(userId!),
+    queryFn: () => getUserRole(userId!),
     enabled: !!userId,
   });
 

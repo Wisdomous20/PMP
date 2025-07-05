@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import type { User } from "@prisma/client"
-import fetchUpdateUser from "@/domains/user-management/services/fetchUpdateUser"
+import { updateUser } from "@/lib/user/update-user"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -59,7 +59,7 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
     if (error) return
     setWorking(true)
     try {
-      await fetchUpdateUser(user.id, selectedRole, pendingLimit)
+      await updateUser(user.id, selectedRole, pendingLimit)
     } catch (e) {
       console.error(e)
     } finally {

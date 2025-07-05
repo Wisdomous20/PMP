@@ -10,12 +10,12 @@ import { Card, CardContent, CardHeader, CardTitle, CardDescription, CardFooter }
 import { Checkbox } from "@/components/ui/checkbox";
 import { useRouter, usePathname, useSearchParams } from "next/navigation";
 import { toast } from "@/hooks/use-toast";
-import fetchCreateServiceRequest from "@/domains/service-request/services/fetchCreateServiceRequest";
+import { createServiceRequest } from "@/lib/service-request/create-service-request";
 import { Spinner } from "@/components/ui/spinner";
 import { Skeleton } from "../ui/skeleton";
 import Concerns from "./Concerns";
 import useGetSessionData from "@/domains/user-management/hooks/useGetSessionData";
-import fetchCanCreateServiceRequest from "@/domains/service-request/services/fetchCanCreateServiceRequest";
+import { canCreateServiceRequest } from "@/lib/service-request/can-create-server-request";
 
 import { useSelector, useDispatch } from "react-redux";
 import {
@@ -163,7 +163,7 @@ export default function CreateServiceRequest() {
     try {
       setIsLoading(true);
 
-      const canCreateResponse = await fetchCanCreateServiceRequest(userId);
+      const canCreateResponse = await canCreateServiceRequest(userId);
 
       if (!canCreateResponse) {
         toast({
@@ -197,7 +197,7 @@ export default function CreateServiceRequest() {
         return;
       }
 
-      await fetchCreateServiceRequest(userId, concern, details);
+      await createServiceRequest(userId, concern, details);
 
       toast({
         title: "Success",

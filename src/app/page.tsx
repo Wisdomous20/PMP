@@ -10,7 +10,7 @@ import Header from "@/components/layouts/Header"
 import Link from "next/link"
 import { Clock, MessageSquare, User, Users } from "lucide-react"
 import Footer from "@/components/layouts/Footer"
-import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole"
+import { getUserRole } from "@/lib/user/get-user-role"
 import { Badge } from "@/components/ui/badge"
 import { Progress } from "@/components/ui/progress"
 
@@ -21,7 +21,7 @@ export default function Page() {
 
   const { data: userRole, isLoading: isUserRoleLoading } = useQuery({
     queryKey: ["userRole", session?.user?.id],
-    queryFn: () => fetchUserRole(session?.user?.id as string),
+    queryFn: () => getUserRole(session?.user?.id as string),
     enabled: !!session?.user?.id,
   })
 

@@ -8,6 +8,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
 import PersonnelCalendar from "./PersonnelCalendar";
+import { getPersonnel } from "@/lib/personnel/get-personnel";
+import { deletePersonnel } from "@/lib/manpower-management/delete-personnel";
 import {
   Select,
   SelectContent,
@@ -88,8 +90,7 @@ export default function PersonnelManagement() {
   const fetchPersonnel = async () => {
     setLoading(true);
     try {
-      const response = await fetch("/api/manpower-management");
-      const data = await response.json();
+      const data = await getPersonnel();
       if (Array.isArray(data)) {
         setPersonnel(data);
         setFilteredPersonnel(data);
@@ -110,7 +111,7 @@ export default function PersonnelManagement() {
 
   const handleSingleDelete = async (personId: string) => {
     try {
-      await fetch(`/api/manpower-management/${personId}`, { method: "DELETE" });
+      await deletePersonnel(personId);
       setPersonnel((prev) => prev.filter((person) => person.id !== personId));
     } catch (error) {
       console.error("Error deleting personnel:", error);

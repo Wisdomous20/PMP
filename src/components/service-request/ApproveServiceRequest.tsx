@@ -6,8 +6,8 @@ import { Select, SelectTrigger, SelectValue, SelectContent, SelectItem } from "@
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { CheckIcon } from "lucide-react";
 import { Textarea } from "@/components/ui/textarea";
-import fetchGetSupervisors from "@/domains/user-management/services/fetchGetSupervisors";
-import fetchApproveServiceRequest from "@/domains/service-request/services/fetchApproveServiceRequest";
+import { getSupervisors } from "@/lib/supervisor/get-supervisors";
+import { approveServiceRequest } from "@/lib/service-request/approve-service-request";
 import refreshPage from "@/utils/refreshPage";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
@@ -30,7 +30,7 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
     async function loadSupervisors() {
       try {
         setIsLoadingSupervisorList(true);
-        const fetched = await fetchGetSupervisors();
+        const fetched = await getSupervisors();
         setSupervisors(fetched || []);
       } catch (e) {
         console.error(e);
@@ -45,7 +45,7 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
     if (!selectedSupervisor) return;
     setIsLoading(true);
     try {
-      await fetchApproveServiceRequest(
+      await approveServiceRequest(
         serviceRequestId,
         selectedSupervisor.id,
         note

@@ -5,7 +5,7 @@ import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { XIcon } from "lucide-react";
-import fetchRejectServiceRequest from "@/domains/service-request/services/fetchRejectServiceRequest";
+import { rejectServiceRequest } from "@/lib/service-request/reject-service-request";
 import refreshPage from "@/utils/refreshPage";
 import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 
@@ -37,7 +37,7 @@ export default function RejectServiceRequest({ serviceRequestId }: RejectService
     setIsLoading(true);
 
     try {
-      await fetchRejectServiceRequest(serviceRequestId, note);
+      await rejectServiceRequest(serviceRequestId, note);
       setIsOpen(false);
       setNote("");
       refreshPage();

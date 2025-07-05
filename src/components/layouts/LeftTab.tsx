@@ -16,7 +16,7 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "../ui/skeleton";
-import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
+import { getUserRole } from "@/lib/user/get-user-role";
 import Image from "next/image";
 
 export default function LeftTab() {
@@ -24,7 +24,7 @@ export default function LeftTab() {
 
   const { data: userRole, isLoading } = useQuery({
     queryKey: ["userRole", session?.user.id],
-    queryFn: () => fetchUserRole(session?.user.id as string),
+    queryFn: () => getUserRole(session?.user.id as string),
     enabled: !!session?.user.id, // Only fetch if user ID exists
   });
 
