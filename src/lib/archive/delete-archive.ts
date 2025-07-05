@@ -1,13 +1,15 @@
-import { prisma } from "@/lib/prisma";
+"use server";
 
-export default async function deleteArchive() {
+import client from "@/lib/database/client";
+
+export async function deleteArchive() {
   try {
     const currentDate = new Date();
 
     // Delete service requests where:
     // - The status is "archived"
     // - The deleteAt date is in the past (less than or equal to the current date)
-    const result = await prisma.serviceRequest.deleteMany({
+    const result = await client.serviceRequest.deleteMany({
       where: {
         status: {
           some: {

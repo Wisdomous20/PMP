@@ -1,7 +1,7 @@
-import { prisma } from "@/lib/prisma";
+import client from "@/lib/database/client";
 
-export default async function getUserRole(userId: string) : Promise<string> {
-  const user = await prisma.user.findUnique({
+export async function getUserRole(userId: string) : Promise<string> {
+  const user = await client.user.findUnique({
     where: { id: userId },
     select: {
       user_type: true,

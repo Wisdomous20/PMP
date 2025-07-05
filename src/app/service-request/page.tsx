@@ -5,7 +5,7 @@ import LeftTab from "@/components/layouts/LeftTab";
 import ServiceRequestList from "@/components/service-request/ServiceRequestList";
 import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
 import UserServiceRequestList from "@/components/service-request/UserServiceRequestList";
-import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
+import { getUserRole } from "@/lib/user/get-user-role";
 import { getServiceRequests } from "@/lib/service-request/fetch-service-request";
 import { Skeleton } from "@/components/ui/skeleton";
 
@@ -21,7 +21,7 @@ export default function Page() {
 
   const { data: userRole, isLoading: roleLoading } = useQuery({
     queryKey: ["userRole", session?.user.id],
-    queryFn: () => fetchUserRole(session?.user.id as string),
+    queryFn: () => getUserRole(session?.user.id as string),
     enabled: !!session?.user.id,
   });
 
