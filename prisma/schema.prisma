@@ -74,6 +74,7 @@ model ServiceRequest {
   implementationPlan   ImplementationPlan?
   user                 User                   @relation(fields: [userId], references: [id], onDelete: Cascade)
   ServiceRequestRating ServiceRequestRating?
+  // Seriously, you'll be rejected in this PR bro....
   status               ServiceRequestStatus[]
   supervisorAssignment SupervisorAssignment?
 }

@@ -96,7 +96,7 @@ export default function UpdatePersonnel({ onUpdate, isOpen, onOpenChange, curren
           <DialogFooter>
             <Button
              type="submit"
-             className="bg-indigo-Background hover:bg-indigo-900"
+             className="bg-indigo-600 hover:bg-indigo-900"
             >Update
             </Button>
             <DialogClose asChild>
