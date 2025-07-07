@@ -5,7 +5,7 @@ import client from "@/lib/database/client";
 import { ErrorCodes } from "@/lib/ErrorCodes";
 import type { GenericFailureType } from "@/lib/types/GenericFailureType";
 
-interface ServiceRequest {
+export interface ServiceRequest {
   id: string;
   requesterName: string;
   concern: string;
