@@ -12,11 +12,10 @@ import {
   DialogTrigger,
 } from "@/components/ui/dialog";
 import { updateImplementationPlan, updateImplementationPlanStatus } from "@/lib/implementation-plan/update-implementation-plan";
-import { getPersonnelAssignmentsByImplementationPlanId } from "@/lib/personnel/get-personnel-assignment";
+import { getPersonnelAssignmentsByImplementationPlanId, type PersonnelAssignment } from "@/lib/personnel/get-personnel-assignment";
 import { Progress } from "@/components/ui/progress";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
-import { useQuery } from "@tanstack/react-query";
 import { getPersonnel } from "@/lib/personnel/get-personnel";
 import { Skeleton } from "@/components/ui/skeleton";
 import { addPersonnelToTask } from "@/lib/personnel/assign-personnel";
@@ -28,7 +27,7 @@ interface EditImplementationPlanProps {
   plan: ImplementationPlan;
   progress: number;
   userRole: UserRole
-  onUpdate: () => Promise<void>
+  onUpdateAction: () => Promise<void>
 }
 
 export default function EditImplementationPlan({
@@ -37,34 +36,37 @@ export default function EditImplementationPlan({
   plan,
   progress,
   userRole,
-  onUpdate
+  onUpdateAction
 }: EditImplementationPlanProps) {
   const [tasks, setTasks] = useState<Task[]>(tasksInitial);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const { data: personnel, isLoading: isLoadingPersonnel } = useQuery({
-    queryKey: ["personnel"],
-    queryFn: () => getPersonnel()
-  });
-
-  const { data: personnelAssignments, isLoading: isLoadingAssignments } = useQuery({
-    queryKey: [`personnelAssignments-${plan.id}`, plan.id],
-    queryFn: () => getPersonnelAssignmentsByImplementationPlanId(plan.id)
-  });
+  const [personnel, setPersonnel] = useState<Personnel[]>();
+  const [personnelAssignments, setPersonnelAssignments] = useState<PersonnelAssignment>();
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (personnelAssignments && !isLoadingAssignments) {
-      const formattedAssignments = personnelAssignments.map(assignment => ({
-        taskId: assignment.taskId,
-        personnelId: assignment.personnelId,
-        assignedAt: new Date(assignment.assignedAt!),
-      }));
+    async function getAllStuff(id: string) {
+      const personnel = await getPersonnel();
+      const personnelAssignments = await getPersonnelAssignmentsByImplementationPlanId(id);
 
-      setAssignments(formattedAssignments);
+      if (personnel.data && personnelAssignments.data) {
+        setPersonnel(personnel.data);
+        setPersonnelAssignments(personnelAssignments.data);
+
+        const assignments = personnelAssignments.data.map(assignment => ({
+          taskId: assignment.taskId,
+          personnelId: assignment.personnelId,
+          assignedAt: new Date(assignment.assignedAt!),
+        }));
+        setAssignments(assignments);
+      }
     }
-  }, [personnelAssignments, isLoadingAssignments]);
+
+    getAllStuff(plan.id)
+      .then(() => setLoading(false));
+  }, [plan]);
 
   const handleAddTask = (task: Task) => {
     setTasks((prev) => [...prev, task]);
@@ -142,7 +144,7 @@ export default function EditImplementationPlan({
     } catch (error) {
       console.error("Failed to update implementation plan:", error);
     } finally {
-      await onUpdate();
+      await onUpdateAction();
       setIsUpdating(false);
       setIsDialogOpen(false);
     }
@@ -190,7 +192,7 @@ export default function EditImplementationPlan({
           <div className="flex flex-row w-full items-center justify-between">
             <p className="font-semibold text-gray-800">Tasks</p>
             {/* Show loading state for AddTask button */}
-            {isLoadingAssignments || isLoadingPersonnel ? (
+            {isLoading ? (
               <Skeleton className="h-9 w-[120px]" />
             ) : (
               (userRole === "ADMIN" || userRole === "SUPERVISOR") && (
@@ -205,7 +207,7 @@ export default function EditImplementationPlan({
           </div>
           <Separator className="my-2" />
 
-          {isLoadingAssignments || isLoadingPersonnel ? (
+          {isLoading ? (
             // Loading state for tasks with skeleton components
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
@@ -251,7 +253,7 @@ export default function EditImplementationPlan({
           )}
         </div>
         {/* Improved loading state for action buttons */}
-        {isLoadingAssignments || isLoadingPersonnel ? (
+        {isLoading ? (
           <div className="flex justify-end gap-2 mt-4">
             <Skeleton className="h-10 w-[200px]" />
           </div>

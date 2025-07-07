@@ -23,7 +23,7 @@ const ImplementationPlanPreview: React.FC<ImplementationPlanPreviewProps> = ({ p
   const progress = totalTasks > 0 ? Math.round((completedTasks / totalTasks) * 100) : 0;
 
   return (
-    <EditImplementationPlan onUpdate={onUpdate} userRole={userRole} serviceRequest={sr} tasksInitial={tasksInitial} progress={progress} plan={plan}/>
+    <EditImplementationPlan onUpdateAction={onUpdate} userRole={userRole} serviceRequest={sr} tasksInitial={tasksInitial} progress={progress} plan={plan}/>
   );
 };
 

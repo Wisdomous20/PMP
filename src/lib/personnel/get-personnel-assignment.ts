@@ -1,37 +1,51 @@
 "use server";
 
 import client from "@/lib/database/client";
+import {ErrorCodes} from "@/lib/ErrorCodes";
+import {GenericFailureType} from "@/lib/types/GenericFailureType";
+import {Prisma} from "@prisma/client";
 
-export async function getPersonnelAssignmentsByImplementationPlanId(implementationPlanId: string) {
-  try {
-    const implementationPlan = await client.implementationPlan.findUnique({
-      where: { id: implementationPlanId },
-    });
+const peronnelAssignmentFindManyQuery = Prisma.validator<Prisma.PersonnelAssignmentFindManyArgs>()({
+  include: {
+    personnel: true,
+    task: true,
+  },
+});
 
-    if (!implementationPlan) {
-      throw new Error("Implementation plan not found");
-    }
+export type PersonnelAssignment = Array<Prisma.PersonnelAssignmentGetPayload<typeof peronnelAssignmentFindManyQuery>>;
 
-    const tasks = await client.task.findMany({
-      where: { implementationPlanId },
-      select: { id: true },
-    });
+interface GetPersonnelAssignmentsResult extends GenericFailureType {
+  data?: PersonnelAssignment;
+}
 
-    const taskIds = tasks.map(task => task.id);
+export async function getPersonnelAssignmentsByImplementationPlanId(implementationPlanId: string): Promise<GetPersonnelAssignmentsResult> {
+  const implementationPlan = await client.implementationPlan.findUnique({
+    where: { id: implementationPlanId },
+  });
 
-    const personnelAssignments = await client.personnelAssignment.findMany({
-      where: {
-        taskId: { in: taskIds },
-      },
-      include: {
-        personnel: true,
-        task: true,
-      },
-    });
-
-    return personnelAssignments;
-  } catch (error) {
-    console.error("Error retrieving personnel assignments:", error);
-    throw error;
+  if (!implementationPlan) {
+    return {
+      code: ErrorCodes.IMPLEMENTATION_PLAN_NOT_FOUND,
+      message: "Implementation plan not found",
+    };
   }
+
+  const tasks = await client.task.findMany({
+    where: { implementationPlanId },
+    select: { id: true },
+  });
+
+  const taskIds = tasks.map(task => task.id);
+
+  const personnelAssignments = await client.personnelAssignment.findMany({
+    where: {
+      taskId: { in: taskIds },
+    },
+    ...peronnelAssignmentFindManyQuery,
+  });
+
+  return {
+    code: ErrorCodes.OK,
+    data: personnelAssignments,
+  };
 }

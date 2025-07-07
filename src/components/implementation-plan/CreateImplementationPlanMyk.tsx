@@ -1,6 +1,6 @@
 "use client";
 
-import { useState } from "react";
+import {useEffect, useState} from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
 import { Separator } from "@/components/ui/separator";
@@ -15,8 +15,7 @@ import { addInProgressStatus } from "@/lib/service-request/add-in-progress-statu
 import refreshPage from "@/utils/refreshPage";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
-import { useQuery } from "@tanstack/react-query";
-import { getPersonnel } from "@/lib/personnel/get-personnel";
+import { getPersonnel, type Personnel } from "@/lib/personnel/get-personnel";
 
 interface CreateImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -28,12 +27,15 @@ export default function CreateImplementationPlan({
   const [tasks, setTasks] = useState<Task[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [personnel, setPersonnel] = useState<Personnel[]>();
 
-  const { data: personnel } = useQuery({
-    queryKey: ["personnel"],
-    queryFn: () => getPersonnel()
-  });
+  useEffect(() => {
+    getPersonnel().then(r => {
+      setPersonnel(r.data);
+      setIsLoading(false);
+    });
+  }, []);
 
   const handleAddTask = (task: Task) => {
     setTasks((prev) => [...prev, task]);

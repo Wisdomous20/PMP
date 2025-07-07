@@ -1,24 +1,39 @@
 "use server";
 
 import client from "@/lib/database/client";
+import {ErrorCodes} from "@/lib/ErrorCodes";
+import type {GenericFailureType} from "@/lib/types/GenericFailureType";
+import {Prisma} from "@prisma/client";
 
-export async function getPersonnel() {
-  try {
-    const personnel = await client.personnel.findMany({
+const personnelFindManyQuery = Prisma.validator<Prisma.PersonnelFindManyArgs>()({
+  include: {
+    assignments: {
       include: {
-        assignments: {
-          include: {
-            task: true,
-          },
-        },
+        task: true,
       },
-    });
+    },
+  },
+});
 
-    if (!personnel || personnel.length === 0) {
-      throw new Error("No personnel found");
-    }
+export interface Personnel extends Prisma.PersonnelGetPayload<typeof personnelFindManyQuery> {
+  tasks: Array<{
+    id: string;
+    title: string;
+    start: Date;
+    end: Date;
+  }>;
+}
 
-    const formattedPersonnel = personnel.map((person) => {
+interface GetPersonnelResult extends GenericFailureType {
+  data?: Array<Personnel>;
+}
+
+export async function getPersonnel(): Promise<GetPersonnelResult> {
+  const personnel = await client.personnel.findMany(personnelFindManyQuery);
+
+  return {
+    code: ErrorCodes.OK,
+    data: personnel.map((person) => {
       const tasks = person.assignments.map((assignment) => ({
         id: assignment.task.id,
         title: assignment.task.name,
@@ -29,15 +44,6 @@ export async function getPersonnel() {
         ...person,
         tasks,
       };
-    });
-
-    return formattedPersonnel;
-  } catch (error) {
-    if (error instanceof Error) {
-      console.error("Error fetching personnel:", error.message);
-    } else {
-      console.error("Unknown error fetching personnel:", error);
-    }
-    throw new Error("Failed to fetch personnel");
+    }),
   }
 }
