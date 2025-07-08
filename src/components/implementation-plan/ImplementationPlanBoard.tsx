@@ -8,30 +8,26 @@ import {useSession} from "next-auth/react";
 import { getImplementationPlansByUserId } from "@/lib/dashboard/implementation-plans";
 import {ErrorCodes} from "@/lib/ErrorCodes";
 
-const ImplementationPlansBoard: React.FC = () => {
+export default function ImplementationPlanBoard() {
   const [searchQuery, setSearchQuery] = useState("");
   const [planUpdate, setPlanUpdate] = useState<number>(0);
   const [plansLoading, setPlansLoading] = useState<boolean>(true);
   const [error, setError] = useState<string | null>(null);
   const session = useSession();
-  
+
   const [board, setBoard] = useState<ImplementationPlan[]>([]);
-  
+
   useEffect(() => {
     setPlansLoading(true);
-    
+
     if (session.data && session.data.user && session.data.user.id) {
-      async function getImplementationPlans() {
-        return await getImplementationPlansByUserId(session.data!.user.id);
-      }
-      
-      getImplementationPlans().then(r => {
+      getImplementationPlansByUserId(session.data.user.id).then(r => {
         if (r.code !== ErrorCodes.OK || !r.data) {
           setPlansLoading(false);
           setError(r.message ?? null);
           return;
         }
-        
+
         const m: ImplementationPlan[] = r.data.map(x => ({
           id: x.id,
           description: x.description,
@@ -46,13 +42,13 @@ const ImplementationPlansBoard: React.FC = () => {
           files: x.files,
           createdAt: x.createdAt,
         }))
-        
+
         setBoard(m);
         setPlansLoading(false);
       });
     }
   }, [session, planUpdate]);
-  
+
   if (board === null) {
     return (<></>);
   }
@@ -204,6 +200,4 @@ const ImplementationPlansBoard: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default ImplementationPlansBoard;
+}

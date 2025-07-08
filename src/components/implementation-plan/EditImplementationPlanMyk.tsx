@@ -1,25 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import {useEffect, useState} from "react";
+import {motion} from "framer-motion";
+import {Button} from "@/components/ui/button";
+import {Checkbox} from "@/components/ui/checkbox";
+import {Card, CardContent, CardHeader} from "@/components/ui/card";
+import {Separator} from "@/components/ui/separator";
+import {Dialog, DialogContent, DialogTrigger,} from "@/components/ui/dialog";
 import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import fetchUpdateImplementationPlan from "@/domains/implementation-plan/services/fetchUpdateImplementationPlan";
-import fetchUpdateImplementationPlanStatus from "@/domains/implementation-plan/services/fetchUpdateImplementationPlanStatus";
-import fetchGetPersonnelAssignments from "@/domains/personnel-management/service/fetchPersonnelAssignmentsByImplementationPlanId";
-import { Progress } from "@/components/ui/progress";
+  updateImplementationPlan,
+  updateImplementationPlanStatus
+} from "@/lib/implementation-plan/update-implementation-plan";
+import {
+  getPersonnelAssignmentsByImplementationPlanId,
+  type PersonnelAssignment
+} from "@/lib/personnel/get-personnel-assignment";
+import {Progress} from "@/components/ui/progress";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
-import { useQuery } from "@tanstack/react-query";
-import fetchGetpersonnel from "@/domains/personnel-management/service/fetchGetPersonnel";
-import { Skeleton } from "@/components/ui/skeleton";
+import {getPersonnel} from "@/lib/personnel/get-personnel";
+import {Skeleton} from "@/components/ui/skeleton";
+import {addPersonnelToTask} from "@/lib/personnel/assign-personnel";
+import {removePersonnelFromTask} from "@/lib/personnel/remove-personnel";
+import {ErrorCodes} from "@/lib/ErrorCodes";
 
 interface EditImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -27,7 +30,7 @@ interface EditImplementationPlanProps {
   plan: ImplementationPlan;
   progress: number;
   userRole: UserRole
-  onUpdate: () => Promise<void>
+  onUpdateAction: () => Promise<void>
 }
 
 export default function EditImplementationPlan({
@@ -36,34 +39,37 @@ export default function EditImplementationPlan({
   plan,
   progress,
   userRole,
-  onUpdate
+  onUpdateAction
 }: EditImplementationPlanProps) {
   const [tasks, setTasks] = useState<Task[]>(tasksInitial);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isUpdating, setIsUpdating] = useState(false);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-
-  const { data: personnel, isLoading: isLoadingPersonnel } = useQuery({
-    queryKey: ["personnel"],
-    queryFn: () => fetchGetpersonnel()
-  });
-
-  const { data: personnelAssignments, isLoading: isLoadingAssignments } = useQuery({
-    queryKey: [`personnelAssignments-${plan.id}`, plan.id],
-    queryFn: () => fetchGetPersonnelAssignments(plan.id)
-  });
+  const [personnel, setPersonnel] = useState<Personnel[]>();
+  const [personnelAssignments, setPersonnelAssignments] = useState<PersonnelAssignment>();
+  const [isLoading, setLoading] = useState(true);
 
   useEffect(() => {
-    if (personnelAssignments && !isLoadingAssignments) {
-      const formattedAssignments = personnelAssignments.map(assignment => ({
-        taskId: assignment.taskId,
-        personnelId: assignment.personnelId,
-        assignedAt: new Date(assignment.assignedAt),
-      }));
+    async function getAllStuff(id: string) {
+      const personnel = await getPersonnel();
+      const personnelAssignments = await getPersonnelAssignmentsByImplementationPlanId(id);
 
-      setAssignments(formattedAssignments);
+      if (personnel.data && personnelAssignments.data) {
+        setPersonnel(personnel.data);
+        setPersonnelAssignments(personnelAssignments.data);
+
+        const assignments = personnelAssignments.data.map(assignment => ({
+          taskId: assignment.taskId,
+          personnelId: assignment.personnelId,
+          assignedAt: new Date(assignment.assignedAt!),
+        }));
+        setAssignments(assignments);
+      }
     }
-  }, [personnelAssignments, isLoadingAssignments]);
+
+    getAllStuff(plan.id)
+      .then(() => setLoading(false));
+  }, [plan]);
 
   const handleAddTask = (task: Task) => {
     setTasks((prev) => [...prev, task]);
@@ -90,7 +96,13 @@ export default function EditImplementationPlan({
         checked: task.checked,
       }));
 
-      await fetchUpdateImplementationPlan(serviceRequest.id, formattedTasks);
+      const result = await updateImplementationPlan(serviceRequest.id, formattedTasks);
+      if (result.code !== ErrorCodes.OK) {
+        setIsUpdating(false);
+
+        // TODO: Show error on failure
+        return;
+      }
 
       const initialAssignmentMap = new Map();
       if (personnelAssignments) {
@@ -116,14 +128,7 @@ export default function EditImplementationPlan({
 
       for (const { taskId, personnelId } of removedAssignments) {
         try {
-          await fetch("/api/implementation-plan/remove-personnel", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              taskId,
-              personnelId
-            }),
-          });
+          await removePersonnelFromTask(taskId, personnelId)
         } catch (error) {
           console.error(`Failed to remove personnel from task ${taskId}:`, error);
         }
@@ -134,28 +139,30 @@ export default function EditImplementationPlan({
         if (!task) continue;
 
         try {
-          await fetch("/api/implementation-plan/assign-personnel", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              taskId: assignment.taskId,
-              personnelId: assignment.personnelId
-            }),
-          });
+          // Use the task id for creation instead
+          const taskId = result.data?.created && result?.data.id
+            ? result.data?.id
+            : assignment.taskId;
+          await addPersonnelToTask(taskId, assignment.personnelId)
         } catch (error) {
           console.error(`Failed to assign personnel to task ${assignment.taskId}:`, error);
         }
       }
 
-      const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.checked);
-      if (allTasksCompleted) {
-        await fetchUpdateImplementationPlanStatus(serviceRequest.id, "completed");
+      // Update states properly. Stop Vibe Coding :)
+      const taskCounter = tasks.filter(task => task.checked).length;
+      console.log(taskCounter);
+      if (taskCounter === 0) {
+        await updateImplementationPlanStatus(serviceRequest.id, "pending");
+      } else if (taskCounter < tasks.length) {
+        await updateImplementationPlanStatus(serviceRequest.id, "in_progress");
+      } else {
+        await updateImplementationPlanStatus(serviceRequest.id, "completed");
       }
-
     } catch (error) {
       console.error("Failed to update implementation plan:", error);
     } finally {
-      await onUpdate();
+      await onUpdateAction();
       setIsUpdating(false);
       setIsDialogOpen(false);
     }
@@ -191,7 +198,7 @@ export default function EditImplementationPlan({
           <p className="text-sm text-muted-foreground">
             Name of requester
           </p>
-          <p className="font-medium">{serviceRequest.user.firstName} {serviceRequest.user.lastName}</p>
+          <p className="font-medium">{serviceRequest.user!.firstName} {serviceRequest.user!.lastName}</p>
         </div>
         <div>
           <p className="text-sm text-muted-foreground">
@@ -203,7 +210,7 @@ export default function EditImplementationPlan({
           <div className="flex flex-row w-full items-center justify-between">
             <p className="font-semibold text-gray-800">Tasks</p>
             {/* Show loading state for AddTask button */}
-            {isLoadingAssignments || isLoadingPersonnel ? (
+            {isLoading ? (
               <Skeleton className="h-9 w-[120px]" />
             ) : (
               (userRole === "ADMIN" || userRole === "SUPERVISOR") && (
@@ -218,7 +225,7 @@ export default function EditImplementationPlan({
           </div>
           <Separator className="my-2" />
 
-          {isLoadingAssignments || isLoadingPersonnel ? (
+          {isLoading ? (
             // Loading state for tasks with skeleton components
             <div className="space-y-3">
               {[1, 2, 3].map((i) => (
@@ -264,7 +271,7 @@ export default function EditImplementationPlan({
           )}
         </div>
         {/* Improved loading state for action buttons */}
-        {isLoadingAssignments || isLoadingPersonnel ? (
+        {isLoading ? (
           <div className="flex justify-end gap-2 mt-4">
             <Skeleton className="h-10 w-[200px]" />
           </div>

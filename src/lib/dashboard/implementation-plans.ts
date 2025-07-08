@@ -3,23 +3,33 @@
 import client from "@/lib/database/client";
 import {ErrorCodes} from "@/lib/ErrorCodes";
 import type {GenericFailureType} from "@/lib/types/GenericFailureType";
-import type {User} from "@prisma/client";
+import type {User, Prisma} from "@prisma/client";
+
+function getWhereClause(user_type: UserRole, department: string, id: string): Prisma.ImplementationPlanWhereInput {
+  if (user_type === "ADMIN") {
+    return {};
+  }
+
+  if (user_type === "SUPERVISOR") {
+    return {
+      serviceRequest: {
+        user: {
+          department,
+        }
+      }
+    }
+  }
+
+  return {
+    serviceRequest: {
+      userId: id,
+    }
+  }
+}
 
 export async function getImplementationPlans({ user_type, department, id }: User) {
   const plans = await client.implementationPlan.findMany({
-    where: {
-      serviceRequest: {
-        ...(user_type === "SUPERVISOR" && department
-          ? {
-            user: {
-              department: department,
-            },
-          }
-          : {
-            userId: id,
-          })
-      }
-    },
+    where: getWhereClause(user_type, department, id),
     select: {
       id: true,
       description: true,
@@ -59,7 +69,7 @@ export async function getImplementationPlans({ user_type, department, id }: User
     ...x,
     requesterName: `${x.serviceRequest.user.firstName} ${x.serviceRequest.user.lastName}`,
     createdOn: x.serviceRequest.status.length > 0 ? x.serviceRequest.status[0].timestamp : null,
-  }))
+  }));
 }
 
 export interface GetImplementationPlansByUserIdResult extends GenericFailureType {

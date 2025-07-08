@@ -17,6 +17,12 @@ export enum ErrorCodes {
   GENERIC_ERROR = 4321,
 
   /**
+   * Represents a general error code indicating that an operation has failed.
+   */
+
+  INTERNAL_SERVER_ERROR = 500,
+
+  /**
    * Represents a specific error code indicating that the provided ID is not valid.
    */
   INVALID_ID = 4322,
@@ -147,8 +153,24 @@ export enum ErrorCodes {
   EMAIL_VERIFICATION_TOKEN_EXPIRED = 13583,
 
   /**
+   * Represents the status code for when an implementation plan is not found 
+   * with the given id.
+   */
+
+  IMPLEMENTATION_PLAN_NOT_FOUND = 13545,
+
+  /**
    * This constant represents a specific error code indicating that a service request could not be found.
    * It is typically used in situations where a requested operation refers to a non-existent or invalid service request identifier.
    */
   SERVICE_REQUEST_NOT_FOUND = 13584,
+
+  /**
+   * Error code indicating that an update to the implementation plan has failed.
+   *
+   * This variable is used to signify that an attempt to update the implementation
+   * plan encountered an issue and did not complete successfully. It serves as a
+   * specific identifier for tracking and debugging such failure scenarios.
+   */
+  IMPLEMENTATION_PLAN_UPDATE_FAILED = 13585,
 }

@@ -11,11 +11,6 @@ export async function getDashboardStats(user: User) {
   const previousWeekStart = subDays(currentWeekStart, 7);
   const previousWeekEnd = subDays(currentWeekStart, 1);
 
-  const deptFilter =
-    user.user_type === "SUPERVISOR"
-      ? { user: { department: user.department } }
-      : {};
-
   const planDeptFilter =
     user.user_type === "SUPERVISOR"
       ? { serviceRequest: { user: { department: user.department } } }
@@ -33,23 +28,18 @@ export async function getDashboardStats(user: User) {
   const completedPlans = allPlans.filter((plan) => {
     const totalTasks = plan.tasks.length;
     if (totalTasks === 0) return false;
+
     const completedTasks = plan.tasks.filter((task) => task.checked).length;
     return completedTasks === totalTasks;
   }).length;
 
-  const inProgressPlansInitial = allPlans.filter((plan) => {
+  const inProgressPlans = allPlans.filter((plan) => {
     const totalTasks = plan.tasks.length;
     if (totalTasks === 0) return false;
 
     const completedTasks = plan.tasks.filter((task) => task.checked).length;
-    const isInProgress = completedTasks > 0 && completedTasks < totalTasks;
-
-    const isPending = plan.status === "pending";
-
-    return isInProgress && isPending;
-  });
-
-  const inProgressPlans = inProgressPlansInitial.length;
+    return completedTasks > 0 && completedTasks < totalTasks;
+  }).length;
 
   const currentPlans = allPlans.filter(
     (plan) =>
@@ -95,42 +85,24 @@ export async function getDashboardStats(user: User) {
     return completedTasks > 0 && completedTasks < totalTasks;
   }).length;
 
-  const serviceRequestsWithStatus = await client.serviceRequest.findMany({
-    where: {
-      ...deptFilter,
-      ...(user.user_type === "SUPERVISOR"
-        ? {
-          supervisorAssignment: {
-            supervisorId: user.id,
-          },
-        }
-        : {}),
-    },
-    include: {
-      status: {
-        orderBy: { timestamp: "desc" },
-        take: 1,
-      },
-    },
-  });
+  const pendingRequests = allPlans.filter(plan => {
+    if (plan.tasks.length === 0) return true;
+    return plan.tasks.filter(task => task.checked).length === 0;
+  }).length;
 
-  const pendingRequestsData = serviceRequestsWithStatus.filter(
-    (req) => req.status.length > 0 && req.status[0].status === "pending"
-  );
+  const currentPendingRequests = allPlans.filter(plan => {
+    const count = plan.tasks.filter(task => task.checked).length === 0;
+    if (!count) return false;
 
-  const pendingRequests = pendingRequestsData.length;
+    return plan.updatedAt >= currentWeekStart && plan.updatedAt <= currentWeekEnd;
+  }).length;
 
-  const currentPendingRequests = pendingRequestsData.filter(
-    (req) =>
-      req.status[0]?.timestamp >= currentWeekStart &&
-      req.status[0]?.timestamp <= currentWeekEnd
-  ).length;
+  const prevPendingRequests = allPlans.filter(plan => {
+    const count = plan.tasks.filter(task => task.checked).length === 0;
+    if (!count) return false;
 
-  const prevPendingRequests = pendingRequestsData.filter(
-    (req) =>
-      req.status[0]?.timestamp >= previousWeekStart &&
-      req.status[0]?.timestamp <= previousWeekEnd
-  ).length;
+    return plan.updatedAt >= previousWeekStart && plan.updatedAt <= previousWeekEnd
+  }).length;
 
   const totalPlansDelta = currentTotalPlans - prevTotalPlans;
   const completedPlansDelta = currentCompletedPlans - prevCompletedPlans;

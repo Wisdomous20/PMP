@@ -1,6 +1,5 @@
 "use client";
 
-import { useQuery } from "@tanstack/react-query";
 import { signOut, useSession } from "next-auth/react";
 import { Button } from "../ui/button";
 import {
@@ -16,17 +15,20 @@ import {
 } from "lucide-react";
 import Link from "next/link";
 import { Skeleton } from "../ui/skeleton";
-import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
 import Image from "next/image";
+import {useEffect, useState} from "react";
 
 export default function LeftTab() {
-  const { data: session } = useSession(); // Get session data from next-auth
+  const session = useSession();
+  const [role, setRole] = useState<UserRole | null>(null);
+  const [isLoading, setIsLoading] = useState(true);
 
-  const { data: userRole, isLoading } = useQuery({
-    queryKey: ["userRole", session?.user.id],
-    queryFn: () => fetchUserRole(session?.user.id as string),
-    enabled: !!session?.user.id, // Only fetch if user ID exists
-  });
+  useEffect(() => {
+    if (session && session.data) {
+      setIsLoading(false);
+      setRole(session.data.user.role as UserRole);
+    }
+  }, [session]);
 
   const handleLogout = async () => {
     await signOut({ redirect: false });
@@ -53,7 +55,7 @@ export default function LeftTab() {
       {/* </Button> */}
 
       {/* Create Service Request */}
-      {userRole === "USER" && (
+      {role === "USER" && (
         <Link href="/service-request/create">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -66,7 +68,7 @@ export default function LeftTab() {
       )}
 
       {/* Dashboard (Admin and Secretary) */}
-      {(userRole === "ADMIN" || userRole === "SECRETARY") && (
+      {(role === "ADMIN" || role === "SECRETARY") && (
         <Link href="/dashboard">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -81,7 +83,7 @@ export default function LeftTab() {
       )}
 
       {/* Projects (For Supervisor, Admin and Secretary) */}
-      {(userRole === "SUPERVISOR" || userRole === "ADMIN" || userRole === "SECRETARY") && (
+      {(role === "SUPERVISOR" || role === "ADMIN" || role === "SECRETARY") && (
         <Link href="/projects">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -107,7 +109,7 @@ export default function LeftTab() {
       </Link>
 
       {/* Archive */}
-      {(userRole === "ADMIN" || userRole === "SECRETARY") &&
+      {(role === "ADMIN" || role === "SECRETARY") &&
         <Link href="/service-request/archive">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -120,7 +122,7 @@ export default function LeftTab() {
       }
 
 
-      {(userRole === "SUPERVISOR" || userRole === "ADMIN" || userRole === "SECRETARY") && (
+      {(role === "SUPERVISOR" || role === "ADMIN" || role === "SECRETARY") && (
         <Link href="/inventory-management">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -135,7 +137,7 @@ export default function LeftTab() {
       )}
 
       {/* Personnel Management (Admin and Secretary) */}
-      {(userRole === "ADMIN" || userRole === "SECRETARY") && (
+      {(role === "ADMIN" || role === "SECRETARY") && (
         <Link href="/personnel-management">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">
@@ -150,7 +152,7 @@ export default function LeftTab() {
       )}
 
       {/* User Management (Admin only) */}
-      {userRole === "ADMIN" && (
+      {role === "ADMIN" && (
         <Link href="/user-management">
           <div className="flex flex-col items-center gap-1">
             <Button variant="gold" size="icon" className="w-10 h-10">

@@ -1,5 +1,5 @@
 import { NextRequest, NextResponse } from "next/server";
-import deleteArchive from "@/domains/service-request/services/deleteArchive";
+import { deleteArchive } from "@/lib/archive/delete-archive";
 
 export async function DELETE(req: NextRequest) {
   // Authorization check
