@@ -49,7 +49,7 @@ export default function RejectServiceRequest({ serviceRequestId }: RejectService
       setIsOpen(false);
       setNote("");
       refreshPage();
-    } catch (e) {
+    } catch {
       setError("Failed to reject the request. Please try again.");
     } finally {
       setIsLoading(false);

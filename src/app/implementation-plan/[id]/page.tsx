@@ -10,7 +10,7 @@ interface PageProps {
 }
 
 export default function Page(props: PageProps) {
-  const _ = use(props.params);
+  use(props.params);
   return (
     <Image
       src="/images/test.jpg"
