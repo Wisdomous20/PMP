@@ -1,15 +1,93 @@
 "use server";
 
 import client from '@/lib/database/client';
+import validator from "@/lib/validators";
+import {ErrorCodes} from "@/lib/ErrorCodes";
+import type {GenericFailureType} from "@/lib/types/GenericFailureType";
 
-export async function updateImplementationPlan(serviceRequestId: string, tasks: Task[]) {
+interface UpdateImplementationPlanResult extends GenericFailureType {
+  data?: {
+    created: boolean;
+    id: string | null;
+  }
+}
+
+export async function updateImplementationPlan(serviceRequestId: string, tasks: Task[]): Promise<UpdateImplementationPlanResult> {
+  const validation = await validator.validate({ serviceRequestId, tasks }, {
+    properties: {
+      serviceRequestId: {type :"string", formatter: "non-empty-string"},
+      tasks: {
+        type: "array",
+        formatterFn: async (values) => {
+          for (const value of values) {
+            const innerValidation = await validator.validate(value, {
+              properties: {
+                id: {
+                  type: "string",
+                  formatterFn: async (id) => {
+                    if (id) {
+                      const strVal = validator.getFormatterFunction("string", "non-empty-string")!;
+                      if (strVal) {
+                        return await strVal(id);
+                      }
+
+                      if (!(/[a-f0-9]{24}/g.test(id))) {
+                        return {
+                          ok: false,
+                          error: "Invalid task ID.",
+                        }
+                      }
+                    }
+
+                    return { ok: true }
+                  }
+                },
+                name: {type: "string", formatter: "non-empty-string"},
+                startTime: {type: "date"},
+                endTime: {type: "date"},
+                checked: {type: "boolean"},
+              },
+              requiredProperties: ["name", "startTime", "endTime", "checked"],
+            });
+
+            if (!innerValidation.ok) {
+              return {
+                ok: false,
+                error: validator.toPlainErrors(innerValidation.errors),
+              }
+            }
+          }
+
+          return { ok: true }
+        }
+      }
+    },
+    requiredProperties: ["serviceRequestId", "tasks"],
+  });
+
+  if (!validation.ok) {
+    return {
+      code: ErrorCodes.REQUEST_REQUIREMENT_NOT_MET,
+      message: validator.toPlainErrors(validation.errors),
+    }
+  }
+
   const existingPlan = await client.implementationPlan.findUnique({
     where: { serviceRequestId },
     include: { tasks: { include: { assignments: true } } }
   });
 
-  if (existingPlan) {
-    await client.$transaction(async (tx) => {
+  if (!existingPlan) {
+    return {
+      code: ErrorCodes.SERVICE_REQUEST_NOT_FOUND,
+      message: "Service request ID specified does not exist.",
+    };
+  }
+
+  try {
+    const taskId = await client.$transaction(async (tx) => {
+      let taskId: string | null = null;
+
       for (const task of tasks) {
         if (task.id.length !== 13) {
           await tx.task.update({
@@ -22,7 +100,7 @@ export async function updateImplementationPlan(serviceRequestId: string, tasks: 
             },
           });
         } else {
-          await tx.task.create({
+          const created = await tx.task.create({
             data: {
               name: task.name,
               startTime: task.startTime,
@@ -31,6 +109,8 @@ export async function updateImplementationPlan(serviceRequestId: string, tasks: 
               implementationPlanId: existingPlan.id
             },
           });
+
+          taskId = created.id;
         }
       }
 
@@ -43,7 +123,22 @@ export async function updateImplementationPlan(serviceRequestId: string, tasks: 
           where: { id: { in: tasksToDelete } },
         });
       }
+
+      return taskId;
     });
+
+    return {
+      code: ErrorCodes.OK,
+      data: {
+        created: taskId !== null,
+        id: taskId,
+      }
+    };
+  } catch {
+    return {
+      code: ErrorCodes.IMPLEMENTATION_PLAN_UPDATE_FAILED,
+      message: "An error occurred while updating the implementation plan. Please try again later.",
+    }
   }
 }
 

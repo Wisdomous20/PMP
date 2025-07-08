@@ -1,25 +1,28 @@
 "use client";
 
-import { useState, useEffect } from "react";
-import { motion } from "framer-motion";
-import { Button } from "@/components/ui/button";
-import { Checkbox } from "@/components/ui/checkbox";
-import { Card, CardContent, CardHeader } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
+import {useEffect, useState} from "react";
+import {motion} from "framer-motion";
+import {Button} from "@/components/ui/button";
+import {Checkbox} from "@/components/ui/checkbox";
+import {Card, CardContent, CardHeader} from "@/components/ui/card";
+import {Separator} from "@/components/ui/separator";
+import {Dialog, DialogContent, DialogTrigger,} from "@/components/ui/dialog";
 import {
-  Dialog,
-  DialogContent,
-  DialogTrigger,
-} from "@/components/ui/dialog";
-import { updateImplementationPlan, updateImplementationPlanStatus } from "@/lib/implementation-plan/update-implementation-plan";
-import { getPersonnelAssignmentsByImplementationPlanId, type PersonnelAssignment } from "@/lib/personnel/get-personnel-assignment";
-import { Progress } from "@/components/ui/progress";
+  updateImplementationPlan,
+  updateImplementationPlanStatus
+} from "@/lib/implementation-plan/update-implementation-plan";
+import {
+  getPersonnelAssignmentsByImplementationPlanId,
+  type PersonnelAssignment
+} from "@/lib/personnel/get-personnel-assignment";
+import {Progress} from "@/components/ui/progress";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
-import { getPersonnel } from "@/lib/personnel/get-personnel";
-import { Skeleton } from "@/components/ui/skeleton";
-import { addPersonnelToTask } from "@/lib/personnel/assign-personnel";
-import { removePersonnelFromTask } from "@/lib/personnel/remove-personnel";
+import {getPersonnel} from "@/lib/personnel/get-personnel";
+import {Skeleton} from "@/components/ui/skeleton";
+import {addPersonnelToTask} from "@/lib/personnel/assign-personnel";
+import {removePersonnelFromTask} from "@/lib/personnel/remove-personnel";
+import {ErrorCodes} from "@/lib/ErrorCodes";
 
 interface EditImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -93,7 +96,15 @@ export default function EditImplementationPlan({
         checked: task.checked,
       }));
 
-      await updateImplementationPlan(serviceRequest.id, formattedTasks);
+      const result = await updateImplementationPlan(serviceRequest.id, formattedTasks);
+      if (result.code !== ErrorCodes.OK) {
+        setIsUpdating(false);
+
+        console.log(result, serviceRequest.id);
+
+        // TODO: Show error on failure
+        return;
+      }
 
       const initialAssignmentMap = new Map();
       if (personnelAssignments) {
@@ -130,7 +141,11 @@ export default function EditImplementationPlan({
         if (!task) continue;
 
         try {
-          await addPersonnelToTask(assignment.taskId, assignment.personnelId)
+          // Use the task id for creation instead
+          const taskId = result.data?.created && result?.data.id
+            ? result.data?.id
+            : assignment.taskId;
+          await addPersonnelToTask(taskId, assignment.personnelId)
         } catch (error) {
           console.error(`Failed to assign personnel to task ${assignment.taskId}:`, error);
         }
@@ -140,7 +155,6 @@ export default function EditImplementationPlan({
       if (allTasksCompleted) {
         await updateImplementationPlanStatus(serviceRequest.id, "completed");
       }
-
     } catch (error) {
       console.error("Failed to update implementation plan:", error);
     } finally {

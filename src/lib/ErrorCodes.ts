@@ -164,4 +164,13 @@ export enum ErrorCodes {
    * It is typically used in situations where a requested operation refers to a non-existent or invalid service request identifier.
    */
   SERVICE_REQUEST_NOT_FOUND = 13584,
+
+  /**
+   * Error code indicating that an update to the implementation plan has failed.
+   *
+   * This variable is used to signify that an attempt to update the implementation
+   * plan encountered an issue and did not complete successfully. It serves as a
+   * specific identifier for tracking and debugging such failure scenarios.
+   */
+  IMPLEMENTATION_PLAN_UPDATE_FAILED = 13585,
 }
