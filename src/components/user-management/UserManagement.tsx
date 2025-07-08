@@ -29,29 +29,16 @@ export default function UserManagement() {
   const [isModalOpen, setIsModalOpen] = useState(false);
   const [searchTerm, setSearchTerm] = useState("");
   const [loading, setLoading] = useState(true);
-  // const [deleteDialogUser, setDeleteDialogUser] = useState<User | null>(null);
 
   const [currentPage, setCurrentPage] = useState(1);
   const itemsPerPage = 10;
   const [userTypeFilter, setUserTypeFilter] = useState<string>("ALL");
+  const [count, setCount] = useState(0);
 
   const handleUserClick = (user: User) => {
     setSelectedUser(user);
     setIsModalOpen(true);
   };
-
-  // const handleDeleteUser = async (user: User) => {
-  //   try {
-  //     await fetchDeleteUser(user.id);
-  //     setUsers((prevUsers) => prevUsers.filter((u) => u.id !== user.id));
-  //     setSelectedUser(null);
-  //     setIsModalOpen(false);
-  //   } catch (error) {
-  //     console.error("Error deleting user:", error);
-  //   } finally {
-  //     setDeleteDialogUser(null);
-  //   }
-  // };
 
   useEffect(() => {
     const fetchUsers = async () => {
@@ -62,7 +49,7 @@ export default function UserManagement() {
       }
     };
     fetchUsers();
-  }, []);
+  }, [count]);
 
   useEffect(() => {
     setCurrentPage(1);
@@ -263,7 +250,7 @@ export default function UserManagement() {
       <UserDetails
         user={selectedUser}
         open={isModalOpen}
-        onClose={() => setIsModalOpen(false)}
+        onCloseAction={() => { setIsModalOpen(false); setCount(c => c + 1); }}
       />
     </div>
   );
