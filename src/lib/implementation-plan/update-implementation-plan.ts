@@ -4,6 +4,7 @@ import client from '@/lib/database/client';
 import validator from "@/lib/validators";
 import {ErrorCodes} from "@/lib/ErrorCodes";
 import type {GenericFailureType} from "@/lib/types/GenericFailureType";
+import {$Enums} from "@prisma/client";
 
 interface UpdateImplementationPlanResult extends GenericFailureType {
   data?: {
@@ -156,6 +157,7 @@ export async function updateImplementationPlanStatus(
       throw new Error('Implementation plan not found');
     }
 
+    // Update the implementation plan state
     await prisma.implementationPlan.update({
       where: {
         serviceRequestId
@@ -170,16 +172,15 @@ export async function updateImplementationPlanStatus(
       }
     });
 
-    if (status === "completed") {
-      await prisma.serviceRequestStatus.create({
-        data: {
-          serviceRequestId: serviceRequestId,
-          status: "completed",
-          timestamp: new Date(),
-          note: "implementation plan completed",
-        },
-      });
-    }
+    // Update service request status
+    await prisma.serviceRequestStatus.create({
+      data: {
+        serviceRequestId: serviceRequestId,
+        status: status as $Enums.status,
+        timestamp: new Date(),
+        note: "implementation plan completed",
+      },
+    });
 
   } catch (error) {
     console.error('DB Service: Update failed:', {
