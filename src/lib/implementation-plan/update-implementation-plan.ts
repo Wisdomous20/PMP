@@ -161,7 +161,8 @@ export async function updateImplementationPlanStatus(
         serviceRequestId
       },
       data: {
-        status: status
+        status: status,
+        updatedAt: new Date()
       },
       include: {
         serviceRequest: true,

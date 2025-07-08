@@ -27,6 +27,4 @@ const ImplementationPlanPreview: React.FC<ImplementationPlanPreviewProps> = ({ p
   );
 };
 
-
-
 export default ImplementationPlanPreview;

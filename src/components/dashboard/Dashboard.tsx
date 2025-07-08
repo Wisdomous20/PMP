@@ -80,7 +80,7 @@ export default function Dashboard() {
         <div className="lg:col-span-3 flex flex-col gap-6">
           <div className="bg-white rounded-lg shadow overflow-hidden">
             <ImplementationPlansInProgress
-              onUpdate={handlePlansUpdate}
+              onUpdateAction={handlePlansUpdate}
               implementationPlans={dashboardData!.implementationPlans.map(plan => ({
                 id: plan.id,
                 description: plan.description,

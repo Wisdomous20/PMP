@@ -100,8 +100,6 @@ export default function EditImplementationPlan({
       if (result.code !== ErrorCodes.OK) {
         setIsUpdating(false);
 
-        console.log(result, serviceRequest.id);
-
         // TODO: Show error on failure
         return;
       }
@@ -151,8 +149,14 @@ export default function EditImplementationPlan({
         }
       }
 
-      const allTasksCompleted = tasks.length > 0 && tasks.every((task) => task.checked);
-      if (allTasksCompleted) {
+      // Update states properly. Stop Vibe Coding :)
+      const taskCounter = tasks.filter(task => task.checked).length;
+      console.log(taskCounter);
+      if (taskCounter === 0) {
+        await updateImplementationPlanStatus(serviceRequest.id, "pending");
+      } else if (taskCounter < tasks.length) {
+        await updateImplementationPlanStatus(serviceRequest.id, "in_progress");
+      } else {
         await updateImplementationPlanStatus(serviceRequest.id, "completed");
       }
     } catch (error) {
