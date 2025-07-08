@@ -236,7 +236,7 @@ export default function CreateServiceRequest() {
   return (
     <div className="w-full max-w-2xl m-auto">
       <Card className="shadow-xl border-2 border-gray-300">
-        <CardHeader className="bg-indigo-Background text-white rounded-t-lg">
+        <CardHeader className="bg-indigo-500 text-white rounded-t-lg">
           <div className="flex items-center space-x-2">
             <FileText className="h-6 w-6" />
             <CardTitle className="text-lg sm:text-xl font-semibold">Create Service Request</CardTitle>
@@ -299,7 +299,7 @@ export default function CreateServiceRequest() {
                 <div className="flex items-start space-x-2">
                   <Checkbox
                     id="privacy"
-                    className="data-[state=checked]:bg-indigo-Background hover:cursor-pointer border-indigo-300"
+                    className="data-[state=checked]:bg-indigo-500 hover:cursor-pointer border-indigo-300"
                     checked={agreedToPrivacy}
                     onCheckedChange={(checked) => setAgreedToPrivacy(checked as boolean)}
                     disabled={isLoading}
@@ -315,7 +315,7 @@ export default function CreateServiceRequest() {
                 <div className="flex items-start space-x-2">
                   <Checkbox
                     id="terms"
-                    className=" data-[state=checked]:bg-indigo-Background hover:cursor-pointer border-indigo-300"
+                    className=" data-[state=checked]:bg-indigo-500 hover:cursor-pointer border-indigo-300"
                     checked={agreedToTerms}
                     onCheckedChange={(checked) => setAgreedToTerms(checked as boolean)}
                     disabled={isLoading}
@@ -338,7 +338,7 @@ export default function CreateServiceRequest() {
                 </p>
                 <div className="flex gap-4">
                   <Link href={`/auth/login?callbackUrl=${encodeURIComponent(callbackUrl)}`}>
-                    <Button className="bg-indigo-Background hover:bg-indigo-600 text-white">
+                    <Button className="bg-indigo-500 hover:bg-indigo-600 text-white">
                       Login
                     </Button>
                   </Link>
@@ -359,7 +359,7 @@ export default function CreateServiceRequest() {
             type="submit"
             onClick={handleSubmit}
             className={`${isFormComplete && !isLoading && !showLoginPrompt
-              ? "bg-indigo-Background hover:bg-indigo-600 text-white"
+              ? "bg-indigo-500 hover:bg-indigo-600 text-white"
               : "bg-gray-300 text-gray-500 cursor-not-allowed"
               }`}
             disabled={!isFormComplete || isLoading || showLoginPrompt}

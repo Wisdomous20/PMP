@@ -200,7 +200,7 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
             <Button onClick={onClose} disabled={working} variant="outline">
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={working || !!error} className="min-w-[100px] bg-indigo-Background">
+            <Button onClick={handleSave} disabled={working || !!error} className="min-w-[100px] bg-indigo-500">
               {working ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

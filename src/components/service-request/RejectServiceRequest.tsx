@@ -63,7 +63,7 @@ export default function RejectServiceRequest({ serviceRequestId }: RejectService
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="destructive" size="sm">
+        <Button variant="destructive" size="sm" className="bg-red-600 hover:bg-red-300">
           <XIcon className="h-4 w-4 mr-2" />
           Reject
         </Button>
