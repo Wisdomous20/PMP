@@ -1,4 +1,3 @@
-// components/ImplementationPlansInProgress.tsx
 "use client";
 
 import React from "react";
@@ -19,11 +18,10 @@ interface ImplementationPlansInProgressProps {
   implementationPlans: ImplementationPlan[],
   error: string | null
   userRole: UserRole;
-  onUpdate: () => Promise<void>
+  onUpdateAction: () => Promise<void>
 }
 
-export default function ImplementationPlansInProgress({ isLoading, implementationPlans, error, userRole, onUpdate }: ImplementationPlansInProgressProps) {
-
+export default function ImplementationPlansInProgress({ isLoading, implementationPlans, error, userRole, onUpdateAction }: ImplementationPlansInProgressProps) {
   const inProgressPlans = isLoading ? [] : implementationPlans.filter(isInProgress);
 
   if (isLoading) {
@@ -71,8 +69,6 @@ export default function ImplementationPlansInProgress({ isLoading, implementatio
     );
   }
 
-
-
   return (
     <Card className="w-full">
       <CardHeader className="flex flex-row items-center justify-between border-b p-4">
@@ -92,7 +88,7 @@ export default function ImplementationPlansInProgress({ isLoading, implementatio
         ) : (
           <div className="grid grid-cols-1 gap-4 md:grid-cols-2 lg:grid-cols-3">
             {inProgressPlans.map((plan) => (
-              <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole} onUpdate={onUpdate}/>
+              <ImplementationPlanPreview key={plan.id} plan={plan} userRole={userRole} onUpdate={onUpdateAction}/>
             ))}
           </div>
         )}

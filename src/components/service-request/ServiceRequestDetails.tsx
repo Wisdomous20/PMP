@@ -2,25 +2,27 @@ import { Card, CardContent, CardHeader } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
 import RejectServiceRequest from "./RejectServiceRequest";
 import ApproveServiceRequest from "./ApproveServiceRequest";
-import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
 import { Skeleton } from "../ui/skeleton";
 import { useState, useEffect } from "react";
 import CreateImplementationPlan from "../implementation-plan/CreateImplementationPlanMyk";
 import formatTimestamp from "@/utils/formatTimestamp";
+import { useSession } from "next-auth/react";
 
 interface ServiceRequestDetailsProps {
   serviceRequest?: ServiceRequest;
 }
 
 export default function ServiceRequestDetails({ serviceRequest }: ServiceRequestDetailsProps) {
-  const { userRole, loading: roleLoading } = useGetUserRole();
   const [loading, setLoading] = useState(true);
+  const session = useSession();
+  const [role, setRole] = useState<string | null>(null);
   
   useEffect(() => {
-    if (!roleLoading && serviceRequest) {
+    if (session && session.data && serviceRequest) {
       setLoading(false);
+      setRole(session.data.user.role);
     }
-  }, [roleLoading, serviceRequest]);
+  }, [session, serviceRequest]);
 
   if (loading || !serviceRequest) {
     return (
@@ -58,7 +60,7 @@ export default function ServiceRequestDetails({ serviceRequest }: ServiceRequest
             <h2 className="text-2xl font-bold text-gray-800">{concern}</h2>
           </div>
           
-          {userRole === "ADMIN" && (
+          {role === "ADMIN" && (
             currentStatus === "pending" ? (
               <div className="flex gap-2">
                 <RejectServiceRequest serviceRequestId={id} />
@@ -71,7 +73,7 @@ export default function ServiceRequestDetails({ serviceRequest }: ServiceRequest
             )
           )}
           
-          {userRole === "SUPERVISOR" && currentStatus === "approved" && (
+          {role === "SUPERVISOR" && currentStatus === "approved" && (
             <div>
               <CreateImplementationPlan serviceRequest={serviceRequest} />
             </div>

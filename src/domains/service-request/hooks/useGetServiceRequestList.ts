@@ -2,7 +2,7 @@
 
 import { useState, useEffect } from "react";
 import useGetSessionData from "../../user-management/hooks/useGetSessionData";
-import fetchGetServiceRequest from "@/domains/service-request/services/fetchGetServiceRequest";
+import { getServiceRequests } from "@/lib/service-request/fetch-service-request";
 
 export default function useGetServiceRequestList() {
   const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
@@ -13,9 +13,9 @@ export default function useGetServiceRequestList() {
   const fetchServiceRequests = async () => {
     if (session?.user.id) {
       try {
-        const serviceRequestsInitial = await fetchGetServiceRequest(
+        const serviceRequestsInitial = await getServiceRequests(
           session.user.id
-        );
+        ) as unknown as ServiceRequest[];
 
         const filteredRequests = serviceRequestsInitial.filter(
           (request: ServiceRequest) => !request.status.some((status) => status.status === "archived")

@@ -1,21 +1,24 @@
-'use client';
-import { useState } from "react";
-import { Button } from "../ui/button";
-import { Input } from "../ui/input";
+"use client";
+
+import {useState} from "react";
+import {Button} from "../ui/button";
+import {Input} from "../ui/input";
 import {
   Dialog,
+  DialogClose,
   DialogContent,
   DialogDescription,
   DialogFooter,
   DialogHeader,
-  DialogTitle,
-  DialogClose
+  DialogTitle
 } from "../ui/dialog";
+import {addPersonnel} from "@/lib/personnel/add-personnel";
+import {ErrorCodes} from "@/lib/ErrorCodes";
 
 interface AddPersonnelProps {
-  onAdd: () => void;
+  onAddAction: () => void;
   isOpen: boolean;
-  onOpenChange: (isOpen: boolean) => void;
+  onOpenChangeAction: (isOpen: boolean) => void;
 }
 
 const MAX_LENGTH = {
@@ -24,33 +27,33 @@ const MAX_LENGTH = {
   position: 128
 };
 
-export default function AddPersonnel({ onAdd, isOpen, onOpenChange }: AddPersonnelProps) {
+export default function AddPersonnel({ onAddAction, isOpen, onOpenChangeAction }: AddPersonnelProps) {
   const [name, setName] = useState("");
   const [department, setDepartment] = useState("");
   const [position, setPosition] = useState("");
 
   const handleAddPersonnel = async (e: React.FormEvent<HTMLFormElement>) => {
     e.preventDefault();
-    const response = await fetch("/api/manpower-management", {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-      },
-      body: JSON.stringify({ name, department, position }),
+
+    const personnel = await addPersonnel({
+      name,
+      department,
+      position
     });
-    if (response.ok) {
-      onAdd();
+
+    if (personnel.code === ErrorCodes.OK) {
+      onAddAction();
       setName("");
       setDepartment("");
       setPosition("");
-      onOpenChange(false);
+      onOpenChangeAction(false);
     }
   };
 
   const isFormValid = name.trim() && department.trim() && position.trim();
 
   return (
-    <Dialog open={isOpen} onOpenChange={onOpenChange}>
+    <Dialog open={isOpen} onOpenChange={onOpenChangeAction}>
       <DialogContent>
         <DialogHeader>
           <DialogTitle>Add New Personnel</DialogTitle>

@@ -1,11 +1,15 @@
 "use client";
-import { useState, useEffect, ChangeEvent } from "react";
+
 import { Button } from "@/components/ui/button";
+import { Card, CardContent } from "@/components/ui/card";
+import { createEquipment } from "@/lib/equipments/create-equipment";
+import type { EquipmentFormData } from "@/lib/types/InventoryManagementTypes";
+import { ErrorCodes } from "@/lib/ErrorCodes";
+import * as FormValidator from "@/components/inventory-management/commons/FormValidator";
+import { useState, useEffect, ChangeEvent } from "react";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
-import { Card, CardContent } from "@/components/ui/card";
-import { Separator } from "@/components/ui/separator";
-import fetchCreateEquipment from "@/domains/inventory-management/services/fetchCreateEquipment";
+import { OFFICES } from "@/lib/constants/EquipmentPageConstants";
 import {
   Select,
   SelectContent,
@@ -13,35 +17,8 @@ import {
   SelectTrigger,
   SelectValue,
 } from "@/components/ui/select";
+import { Separator } from "@/components/ui/separator";
 
-const OFFICES = [
-  "Buildings Upkeep and Maintenance",
-  "Campus Traffic",
-  "Security and Safety",
-  "Electrical & Mechanical Systems",
-  "Facilities Maintenance and Services",
-  "Grounds Upkeep and Maintenance",
-  "Occupational Safety and Health Officer",
-  "Pollution Control",
-  "Swimming Pool",
-  "University Computer Services Center",
-];
-
-interface EquipmentFormData {
-  quantity: number;
-  description: string;
-  brand: string;
-  serialNumber: string;
-  supplier: string;
-  unitCost: number;
-  totalCost: number;
-  datePurchased: string;
-  dateReceived: string;
-  location: string;
-  department: string;
-  status: EquipmentStatus;
-  serviceRequestId?: string | null;
-}
 interface AddEquipmentProps {
   serviceRequestId?: string;
   onSuccess?: () => void;
@@ -84,60 +61,27 @@ export default function AddEquipment({
     department: supervisorDepartment || "", // Pre-fill department if supervisorDepartment is provided
     serviceRequestId: serviceRequestId || null,
   });
+  const [isComplete, setIsComplete] = useState<boolean>(false);
 
   useEffect(() => {
     const total = formData.quantity * formData.unitCost;
     setFormData((prev) => ({ ...prev, totalCost: Number(total.toFixed(2)) }));
   }, [formData.quantity, formData.unitCost]);
 
-  // If supervisorDepartment changes (e.g. parent component re-renders with new prop), update formData
+  useEffect(() => {
+    FormValidator.validate(formData, supervisorDepartment)
+      .then(r => {
+        setIsComplete(r.ok);
+      });
+  }, [formData, supervisorDepartment]);
+
+  // If supervisorDepartment changes (e.g., a parent component re-renders with a new prop), update formData
   // This is more relevant if the dialog could remain open while props change.
   useEffect(() => {
     if (supervisorDepartment) {
       setFormData((prev) => ({ ...prev, department: supervisorDepartment }));
     }
   }, [supervisorDepartment]);
-
-  const validateForm = (): boolean => {
-    const newErrors: FormErrors = {};
-    [
-      "description",
-      "brand",
-      "serialNumber",
-      "supplier",
-      "location",
-      "department",
-    ].forEach((key) => {
-      const val = formData[key as keyof EquipmentFormData] as string;
-      if (!val.trim())
-        newErrors[key as keyof EquipmentFormData] = "This field is required.";
-    });
-    if (formData.quantity <= 0)
-      newErrors.quantity = "Quantity must be greater than 0";
-    if (formData.unitCost < 0)
-      newErrors.unitCost = "Unit cost cannot be negative";
-    if (formData.unitCost === 0 && formData.status !== "Scrap") // Allow zero cost for scrap items potentially
-      newErrors.unitCost = "Unit cost cannot be zero unless status is Scrap.";
-    const today = new Date();
-    today.setHours(0,0,0,0); // Compare dates only
-    const purchase = new Date(formData.datePurchased);
-    const receive = new Date(formData.dateReceived);
-
-    if (purchase > today)
-      newErrors.datePurchased = "Purchase date cannot be in the future";
-    if (receive > today)
-      newErrors.dateReceived = "Receive date cannot be in the future";
-    if (receive < purchase)
-      newErrors.dateReceived = "Receive date cannot be before purchase date";
-    
-    // Department validation should only occur if it's not pre-filled by supervisor
-    if (!supervisorDepartment && !formData.department.trim()) {
-        newErrors.department = "This field is required.";
-    }
-
-    setErrors(newErrors);
-    return Object.keys(newErrors).length === 0;
-  };
 
   const handleInputChange = (
     e: ChangeEvent<HTMLInputElement>,
@@ -157,44 +101,48 @@ export default function AddEquipment({
   };
 
   const handleDepartmentChange = (value: string) => {
-    // Only allow change if not pre-filled by supervisor
+    // Only allow change if not pre-filled by a supervisor
     if (!supervisorDepartment) {
       setFormData((prev) => ({ ...prev, department: value }));
     }
   };
 
   const handleSubmit = async () => {
-    if (!validateForm()) return;
-    setIsLoading(true);
-    try {
-      await fetchCreateEquipment({
-        ...{
-          ...formData,
-          datePurchased: new Date(formData.datePurchased),
-          dateReceived: new Date(formData.dateReceived),
-        },
-      });
-      onSuccess?.();
-    } catch (err) {
-      onError?.(err as Error);
-    } finally {
-      setIsLoading(false);
-    }
-  };
+    // Validation Before Submission
+    const validate = await FormValidator.validate(formData, supervisorDepartment);
+    if (!validate.ok) {
+      const newErrors: FormErrors = {};
 
-  const isComplete =
-    formData.description.trim() &&
-    formData.brand.trim() &&
-    formData.serialNumber.trim() &&
-    formData.supplier.trim() &&
-    formData.location.trim() &&
-    (supervisorDepartment ? true : formData.department.trim()) && // Department must be valid
-    formData.quantity > 0 &&
-    formData.unitCost >= 0 &&
-    (formData.unitCost > 0 || formData.status === "Scrap") && // Ensure unit cost is > 0 unless scrap
-    new Date(formData.datePurchased) <= new Date() &&
-    new Date(formData.dateReceived) >= new Date(formData.datePurchased) &&
-    new Date(formData.dateReceived) <= new Date();
+      if (Object.keys(validate.errors).length > 0) {
+        for (const e of Object.keys(validate.errors)) {
+          newErrors[e as keyof EquipmentFormData] = validate.errors[e as keyof EquipmentFormData].message;
+        }
+      }
+
+      setErrors(newErrors);
+      return;
+    }
+
+    setIsLoading(true);
+
+    // Create the equipment
+    const result = await createEquipment({
+      ...formData,
+      datePurchased: new Date(formData.datePurchased),
+      dateReceived: new Date(formData.dateReceived),
+    });
+
+    // Creation Failure
+    if (result.code !== ErrorCodes.OK) {
+      onError?.(new Error(result.message));
+      setIsLoading(false);
+
+      return;
+    }
+
+    onSuccess?.();
+    setIsLoading(false);
+  };
 
   const todayISO = new Date().toISOString().split("T")[0];
   const isDepartmentDisabled = !!supervisorDepartment;
@@ -329,7 +277,7 @@ export default function AddEquipment({
 
         <Button
           onClick={handleSubmit}
-          className="w-full bg-indigo-Background hover:bg-indigo-900"
+          className="w-full bg-indigo-700 hover:bg-indigo-900"
           disabled={!isComplete || isLoading}
         >
           {isLoading ? "Creating..." : "Create Equipment"}

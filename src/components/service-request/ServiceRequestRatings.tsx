@@ -9,7 +9,7 @@ import {
 } from "../ui/dialog";
 import { Button } from "../ui/button";
 import { Textarea } from "../ui/textarea";
-import fetchAddRating from "@/domains/rating/service/fetchAddRating";
+import { addRatingStatus } from "@/lib/rating/add-rating";
 
 interface RatingFormData {
   startOnTime: string;
@@ -70,7 +70,7 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
 
     try {
       // Pass the actual satisfaction rating value instead of hardcoded 0
-      await fetchAddRating(
+      await addRatingStatus(
         serviceRequestId,
         formState.satisfaction!, // Use the user's selected rating
         formState.feedback, // Use the feedback text as the description
@@ -82,7 +82,7 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
           satisfaction: formState.satisfaction!,
           feedback: formState.feedback,
         }
-      );
+      )
 
       setFeedbackMessage("Rating submitted successfully!");
       setIsOpen(false);
@@ -157,11 +157,10 @@ const ServiceRequestRating: React.FC<ServiceRequestRatingProps> = ({
             <button
               key={num}
               onClick={() => handleInputChange("satisfaction", num)}
-              className={`w-10 h-10 rounded-full text-sm font-medium border transition-all duration-200 ${
-                formState.satisfaction === num
+              className={`w-10 h-10 rounded-full text-sm font-medium border transition-all duration-200 ${formState.satisfaction === num
                   ? "bg-blue-500 text-white border-blue-500"
                   : "border-gray-300 text-gray-600 hover:bg-gray-100"
-              }`}
+                }`}
             >
               {num}
             </button>

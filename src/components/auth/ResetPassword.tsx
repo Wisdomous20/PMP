@@ -1,11 +1,12 @@
-/* eslint-disable @typescript-eslint/no-explicit-any */
 "use client";
-import { useState } from "react";
-import axios from "axios";
-import { Input } from "@/components/ui/input";
-import { Button } from "@/components/ui/button";
-import { Spinner } from "@/components/ui/spinner";
 
+import {ErrorCodes} from "@/lib/ErrorCodes";
+import {Button} from "@/components/ui/button";
+import {Input} from "@/components/ui/input";
+import {resetPassword} from "@/lib/accounts/reset-password";
+import {Spinner} from "@/components/ui/spinner";
+import {useState} from "react";
+import validator from "@/lib/validators"
 
 const ForgetPassword: React.FC = () => {
   const [email, setEmail] = useState('');
@@ -16,20 +17,41 @@ const ForgetPassword: React.FC = () => {
     submit: "",
   });
 
-
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
-    setMessage('');
-    setIsLoading(true)
 
-    try {
-      const response = await axios.post('/api/auth/reset-password', { email });
-      setMessage(response.data.message);
-    } catch (err: any) {
-      setErrors(err.response?.data?.message || 'Failed to send password reset email');
-    } finally {
+    setMessage('');
+    setIsLoading(true);
+
+    const validationResult = await validator.validate({ email }, {
+      properties: {
+        email: { type: "string", formatter: "cpu-email" },
+      },
+      requiredProperties: ["email"]
+    });
+    if (!validationResult.ok) {
+      setErrors(l => ({
+        ...l,
+        email: validationResult.errors.email.message,
+      }));
+
       setIsLoading(false);
+      return;
     }
+
+    const recoveryResult = await resetPassword(email);
+    if (recoveryResult.code !== ErrorCodes.OK) {
+      setErrors(l => ({
+        ...l,
+        submit: recoveryResult.message as string,
+      }));
+
+      setIsLoading(false);
+      return;
+    }
+
+    setMessage("Recovery email sent. Please check your inbox.");
+    setIsLoading(false);
   };
 
   return (
@@ -92,7 +114,6 @@ const ForgetPassword: React.FC = () => {
         </div>
       </div>
     </div>
-
   );
 };
 
