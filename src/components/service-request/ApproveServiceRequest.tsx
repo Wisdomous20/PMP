@@ -39,15 +39,18 @@ export default function ApproveServiceRequest({ serviceRequestId }: ApproveServi
     async function loadSupervisors() {
       try {
         setIsLoadingSupervisorList(true);
+        setIsLoading(true);
+
         const fetched = await getSupervisors();
         setSupervisors(fetched || []);
-      } catch (e) {
-        console.error(e);
+      } catch {
+        // Do nothing
       } finally {
         setIsLoadingSupervisorList(false);
+        setIsLoading(false);
       }
     }
-    loadSupervisors();
+    loadSupervisors().catch(console.error);
   }, []);
 
   async function handleApprove() {

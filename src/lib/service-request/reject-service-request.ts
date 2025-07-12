@@ -6,7 +6,6 @@ import { createNotification } from "@/lib/notification/create-notification";
 import { sendServiceRequestStatusEmail } from "@/lib/mailer/sendServiceRequestStatusEmail";
 
 export async function rejectServiceRequest(serviceRequestId: string, note: string) {
-
   const request = await client.serviceRequest.findUnique({
     where: { id: serviceRequestId },
     include: { user: true },
@@ -19,7 +18,7 @@ export async function rejectServiceRequest(serviceRequestId: string, note: strin
 
   await createNotification(
     "service_request",
-    `Service request ${serviceRequestId} has been rejected.`,
+    `Service request ${request.concern} has been rejected.`,
     `/admin/service-requests/${serviceRequestId}`
   );
 

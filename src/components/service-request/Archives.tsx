@@ -223,7 +223,7 @@ export default function Archives() {
       )}
   
       {selectedRequest && (
-        <ArchiveDetailsModal request={selectedRequest} onClose={closeRequestDetails} />
+        <ArchiveDetailsModal request={selectedRequest} onCloseAction={closeRequestDetails} />
       )}
     </div>
   );  

@@ -5,7 +5,7 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start",
+    "start": "next start -H mq19gkf.cpu.edu.ph",
     "lint": "next lint",
     "test": "jest --detectOpenHandles",
     "postinstall": "prisma generate"

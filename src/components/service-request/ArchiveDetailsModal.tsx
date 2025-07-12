@@ -18,19 +18,22 @@ import { format } from "date-fns";
 import { Skeleton } from "@/components/ui/skeleton";
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/button";
-import { getImplementationPlanByServiceRequestId } from "@/lib/implementation-plan/get-implementation-plan";
+import {
+  getImplementationPlanByServiceRequestId,
+  ImplementationPlanPayload
+} from "@/lib/implementation-plan/get-implementation-plan";
 import { createArchiveExcel } from "@/domains/service-request/services/createArchiveExcel";
 
 interface ServiceRequestDetailsModalProps {
   request: any;
-  onClose: () => void;
+  onCloseAction: () => void;
 }
 
 export default function ArchiveDetailsModal({
   request,
-  onClose,
+  onCloseAction,
 }: ServiceRequestDetailsModalProps) {
-  const [implementationPlan, setImplementationPlan] = useState<any>(null);
+  const [implementationPlan, setImplementationPlan] = useState<ImplementationPlanPayload | null>(null);
   const [isLoading, setIsLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
 
@@ -41,17 +44,11 @@ export default function ArchiveDetailsModal({
       setIsLoading(true);
       setError(null);
 
-      try {
-        const data = await getImplementationPlanByServiceRequestId(
-          request.id
-        );
-        setImplementationPlan(data);
-      } catch (err) {
-        console.error("Error fetching implementation plan:", err);
-        setError("Failed to load implementation plan.");
-      } finally {
-        setIsLoading(false);
-      }
+      const data = await getImplementationPlanByServiceRequestId(
+        request.id
+      );
+      setImplementationPlan(data.data!);
+      setIsLoading(false);
     }
 
     fetchImplementationPlan();
@@ -59,8 +56,23 @@ export default function ArchiveDetailsModal({
 
   if (!request) return null;
 
+  const getSupervisorName = (impl: ImplementationPlanPayload) => {
+    const supervisorObject = impl?.serviceRequest?.supervisorAssignment?.supervisor;
+    if (!supervisorObject) {
+      return {
+        name: "N/A",
+        email: "N/A"
+      };
+    }
+
+    return {
+      name: `${supervisorObject.firstName} ${supervisorObject.lastName}`,
+      email: supervisorObject.email
+    };
+  }
+
   const tasks = implementationPlan?.tasks || [];
-  const supervisor = implementationPlan?.serviceRequest?.supervisor;
+  const supervisor = getSupervisorName(implementationPlan!);
 
   return (
     <div className="fixed inset-0 bg-black/50 flex items-center justify-center z-50 p-4 animate-in fade-in">
@@ -83,7 +95,7 @@ export default function ArchiveDetailsModal({
           <Button
             variant="ghost"
             size="icon"
-            onClick={onClose}
+            onClick={onCloseAction}
             className="rounded-full h-9 w-9 hover:bg-gray-100"
           >
             <X size={18} />
@@ -120,7 +132,7 @@ export default function ArchiveDetailsModal({
                       Supervisor In Charge
                     </p>
                     <p className="font-medium">
-                      {supervisor.firstName} {supervisor.lastName}
+                      {supervisor.name}
                       <span className="text-xs text-gray-500 ml-2">
                         ({supervisor.email})
                       </span>
@@ -193,7 +205,7 @@ export default function ArchiveDetailsModal({
 
                 {tasks.length > 0 ? (
                   <div className="space-y-3">
-                    {tasks.map((task: any) => (
+                    {tasks.map(task => (
                       <div
                         key={task.id}
                         className="p-4 bg-gray-50 rounded-lg border border-gray-100"
@@ -210,24 +222,26 @@ export default function ArchiveDetailsModal({
                           <span className="text-xs text-gray-500">
                             Assigned Personnel:{" "}
                           </span>
-                          {task.personnel && task.personnel.length > 0 ? (
-                            <span>
-                              {task.personnel.map(
-                                (person: any, idx: number) => (
-                                  <span key={person.id}>
-                                    {person.name}
-                                    {idx < task.personnel.length - 1
-                                      ? ", "
-                                      : ""}
-                                  </span>
-                                )
-                              )}
-                            </span>
-                          ) : (
-                            <span className="italic text-gray-400">
-                              No personnel assigned
-                            </span>
-                          )}
+                          {
+                            task.assignments && task.assignments.length > 0 ? (
+                              <span>
+                                {task.assignments.map(
+                                  (assignment: any, idx: number) => (
+                                    <span key={assignment.id}>
+                                      {assignment.personnel.name}
+                                      {idx < task.assignments.length - 1
+                                        ? ", "
+                                        : ""}
+                                    </span>
+                                  )
+                                )}
+                              </span>
+                            ) : (
+                              <span className="italic text-gray-400">
+                                No personnel assigned
+                              </span>
+                            )
+                          }
                         </div>
                       </div>
                     ))}
