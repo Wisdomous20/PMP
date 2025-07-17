@@ -17,7 +17,7 @@ export async function sendUserVerificationEmail({
 }: VerifyUserEmailParams): Promise<void> {
   const transporter = await createMailer();
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "http://localhost:3000";
   const verifyUrl = `${baseUrl}/auth/verify-user?userId=${encodeURIComponent(
     userId
   )}&token=${encodeURIComponent(verificationToken)}`;

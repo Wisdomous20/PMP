@@ -30,7 +30,7 @@ export async function sendServiceRequestRatingReminderEmail({
     `
     : '';
 
-  const rateUrl = `${process.env.NEXT_PUBLIC_BASE_URL}/service-request/${requestId}`;
+  const rateUrl = `${process.env.NEXT_PUBLIC_CLIENT_URL}/service-request/${requestId}`;
 
   const html = `
     <div style="font-family: Arial, sans-serif; line-height: 1.6; padding: 20px; background-color: #f4f7f6; color: #333;">
