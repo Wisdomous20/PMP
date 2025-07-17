@@ -5,9 +5,10 @@
   "scripts": {
     "dev": "next dev --turbopack",
     "build": "next build",
-    "start": "next start -H mq19gkf.cpu.edu.ph",
+    "start": "next start",
     "lint": "next lint",
     "test": "jest --detectOpenHandles",
+    "db:seed": "prisma db seed",
     "postinstall": "prisma generate"
   },
   "dependencies": {
@@ -102,5 +103,8 @@
       "sharp",
       "unrs-resolver"
     ]
+  },
+  "prisma": {
+    "seed": "ts-node --compiler-options {\"module\":\"CommonJS\"} prisma/seed.ts"
   }
 }
