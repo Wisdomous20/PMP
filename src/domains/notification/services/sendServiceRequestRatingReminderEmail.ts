@@ -1,3 +1,5 @@
+"use server";
+
 import { createMailer } from "@/lib/mailer/create-mailer";
 
 type EmailParams = {
