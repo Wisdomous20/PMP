@@ -1,25 +1,33 @@
-'use client';
+"use client";
+
 import { useState, useRef, useEffect } from "react";
 import { Button } from "@/components/ui/button";
 import { Textarea } from "@/components/ui/textarea";
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle, DialogTrigger } from "@/components/ui/dialog";
 import { Label } from "@/components/ui/label";
 import { XIcon } from "lucide-react";
-import fetchRejectServiceRequest from "@/domains/service-request/services/fetchRejectServiceRequest";
+import { rejectServiceRequest } from "@/lib/service-request/reject-service-request";
 import refreshPage from "@/utils/refreshPage";
-import useGetUserRole from "@/domains/user-management/hooks/useGetUserRole";
+import {useSession} from "next-auth/react";
 
 interface RejectServiceRequestProps {
   serviceRequestId: string;
 }
 
 export default function RejectServiceRequest({ serviceRequestId }: RejectServiceRequestProps) {
-  const { userRole, loading } = useGetUserRole();
+  const session = useSession();
   const [isOpen, setIsOpen] = useState(false);
   const [note, setNote] = useState("");
   const [error, setError] = useState<string | null>(null);
   const [isLoading, setIsLoading] = useState(false);
   const textareaRef = useRef<HTMLTextAreaElement>(null);
+  const [role, setRole] = useState<string | null>(null);
+
+  useEffect(() => {
+    if (session && session.data) {
+      setRole(session.data.user.role);
+    }
+  }, [session]);
 
   useEffect(() => {
     if (textareaRef.current) {
@@ -37,24 +45,25 @@ export default function RejectServiceRequest({ serviceRequestId }: RejectService
     setIsLoading(true);
 
     try {
-      await fetchRejectServiceRequest(serviceRequestId, note);
+      await rejectServiceRequest(serviceRequestId, note);
       setIsOpen(false);
       setNote("");
       refreshPage();
-    } catch (e) {
-      console.error(e);
+    } catch {
       setError("Failed to reject the request. Please try again.");
     } finally {
       setIsLoading(false);
     }
   };
 
-  if (loading || userRole !== "ADMIN") return null;
+  if (role !== "ADMIN") {
+    return <></>
+  }
 
   return (
     <Dialog open={isOpen} onOpenChange={setIsOpen}>
       <DialogTrigger asChild>
-        <Button variant="destructive" size="sm">
+        <Button variant="destructive" size="sm" className="bg-red-600 hover:bg-red-300">
           <XIcon className="h-4 w-4 mr-2" />
           Reject
         </Button>

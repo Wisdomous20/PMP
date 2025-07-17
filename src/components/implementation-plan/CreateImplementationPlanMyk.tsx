@@ -1,24 +1,21 @@
-/* eslint-disable @typescript-eslint/no-unused-vars */
 "use client";
 
-import { useEffect, useState } from "react";
+import {useEffect, useState} from "react";
 import { motion } from "framer-motion";
 import { Button } from "@/components/ui/button";
-import { Card, CardContent } from "@/components/ui/card";
 import { Separator } from "@/components/ui/separator";
-import { Trash } from "lucide-react";
 import {
   Dialog,
   DialogContent,
   DialogTrigger,
 } from "@/components/ui/dialog";
-import fetchCreateImplementationPlan from "@/domains/implementation-plan/services/fetchCreateImplementationPlan";
-import { fetchInProgressStatus } from "@/domains/service-request/services/status/fetchAddSatus";
+import { createImplementationPlan } from "@/lib/implementation-plan/create-implementation-plan";
+import { addPersonnelToTask } from "@/lib/personnel/assign-personnel";
+import { addInProgressStatus } from "@/lib/service-request/add-in-progress-status";
 import refreshPage from "@/utils/refreshPage";
 import AddTask from "./AddTask";
 import EditTask from "./EditTask";
-import { useQuery } from "@tanstack/react-query";
-import fetchGetpersonnel from "@/domains/personnel-management/service/fetchGetPersonnel";
+import { getPersonnel, type Personnel } from "@/lib/personnel/get-personnel";
 
 interface CreateImplementationPlanProps {
   serviceRequest: ServiceRequest;
@@ -30,12 +27,15 @@ export default function CreateImplementationPlan({
   const [tasks, setTasks] = useState<Task[]>([]);
   const [assignments, setAssignments] = useState<Assignment[]>([]);
   const [isDialogOpen, setIsDialogOpen] = useState(false);
-  const [isLoading, setIsLoading] = useState(false);
+  const [isLoading, setIsLoading] = useState(true);
+  const [personnel, setPersonnel] = useState<Personnel[]>();
 
-  const { data: personnel } = useQuery({
-    queryKey: ["personnel"],
-    queryFn: () => fetchGetpersonnel()
-  });
+  useEffect(() => {
+    getPersonnel().then(r => {
+      setPersonnel(r.data);
+      setIsLoading(false);
+    });
+  }, []);
 
   const handleAddTask = (task: Task) => {
     setTasks((prev) => [...prev, task]);
@@ -63,12 +63,11 @@ export default function CreateImplementationPlan({
         checked: task.checked,
       }));
 
-      const planResponse = await fetchCreateImplementationPlan(
+      const planResponse = await createImplementationPlan(
         serviceRequest.id,
         formattedTasks
       );
-      const planId = planResponse.id;
-      const backendTasks = planResponse.tasks;
+      const backendTasks = planResponse.data!.tasks;
 
       for (const assignment of assignments) {
         const backendTask = backendTasks.find(
@@ -76,24 +75,16 @@ export default function CreateImplementationPlan({
         );
 
         if (backendTask) {
-          await fetch("/api/implementation-plan/assign-personnel", {
-            method: "POST",
-            headers: { "Content-Type": "application/json" },
-            body: JSON.stringify({
-              taskId: backendTask.id,
-              personnelId: assignment.personnelId,
-            }),
-          });
+          await addPersonnelToTask(backendTask.id, assignment.personnelId,)
         } else {
           console.warn(`Could not find backend task for assignment with client-side ID: ${assignment.taskId}`);
         }
       }
 
-      await fetchInProgressStatus(
+      await addInProgressStatus(
         serviceRequest.id,
         "Implementation plan created"
       );
-      console.log("Plan creation and assignments successful");
       refreshPage();
     } catch (error) {
       console.error("Failed to create implementation plan:", error);

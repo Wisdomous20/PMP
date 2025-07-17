@@ -1,41 +1,34 @@
 "use client"
 
-import type React from "react"
-
-import { useEffect, useRef } from "react"
-import { useQuery } from "@tanstack/react-query"
-import { useRouter } from "next/navigation"
-import { useSession } from "next-auth/react"
-import Header from "@/components/layouts/Header"
-import Link from "next/link"
-import { Clock, MessageSquare, User, Users } from "lucide-react"
-import Footer from "@/components/layouts/Footer"
-import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole"
-import { Badge } from "@/components/ui/badge"
-import { Progress } from "@/components/ui/progress"
+import React from "react";
+import { useEffect, useRef } from "react";
+import { useRouter } from "next/navigation";
+import { useSession } from "next-auth/react";
+import Header from "@/components/layouts/Header";
+import Link from "next/link";
+import { Clock, MessageSquare, User, Users } from "lucide-react";
+import Footer from "@/components/layouts/Footer";
+import { Badge } from "@/components/ui/badge";
+import { Progress } from "@/components/ui/progress";
 
 export default function Page() {
-  const router = useRouter()
-  const howItWorksRef = useRef<HTMLElement>(null)
-  const { data: session } = useSession()
+  const router = useRouter();
+  const howItWorksRef = useRef<HTMLElement>(null);
+  const session = useSession();
 
-  const { data: userRole, isLoading: isUserRoleLoading } = useQuery({
-    queryKey: ["userRole", session?.user?.id],
-    queryFn: () => fetchUserRole(session?.user?.id as string),
-    enabled: !!session?.user?.id,
-  })
+  useEffect(() => {
+    if (session && session.data) {
+      if (session.data.user.role === "ADMIN" || session.data.user.role === "SUPERVISOR") {
+        router.push("/dashboard");
+      }
+    }
+  }, [session, router]);
 
   const scrollToSection = (ref: React.RefObject<HTMLElement | null>) => {
     if (ref && ref.current) {
       ref.current.scrollIntoView({ behavior: "smooth" })
     }
   }
-
-  useEffect(() => {
-    if (!isUserRoleLoading && userRole && (userRole === "ADMIN" || userRole === "SUPERVISOR")) {
-      router.push("/dashboard")
-    }
-  }, [isUserRoleLoading, userRole, router])
 
   return (
     <div className="w-full min-h-screen flex flex-col bg-gradient-to-b from-yellow-50 to-blue-50">

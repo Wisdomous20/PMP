@@ -5,42 +5,32 @@ import LeftTab from "@/components/layouts/LeftTab";
 import ServiceRequestList from "@/components/service-request/ServiceRequestList";
 import ServiceRequestDetails from "@/components/service-request/ServiceRequestDetails";
 import UserServiceRequestList from "@/components/service-request/UserServiceRequestList";
-import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
-import fetchGetServiceRequest from "@/domains/service-request/services/fetchGetServiceRequest";
+import { type ServiceRequest, getServiceRequests } from "@/lib/service-request/fetch-service-request";
 import { Skeleton } from "@/components/ui/skeleton";
-
 import { Card } from "@/components/ui/card";
-import { useQuery } from "@tanstack/react-query";
 import { useSession } from "next-auth/react";
 
 export default function Page() {
   const [selectedIndex, setSelectedIndex] = useState(0);
-  const { data: session } = useSession();
+  const session = useSession();
   const [search, setSearch] = useState("");
-  const [isLoading, setIsLoading] = useState(true)
-
-  const { data: userRole, isLoading: roleLoading } = useQuery({
-    queryKey: ["userRole", session?.user.id],
-    queryFn: () => fetchUserRole(session?.user.id as string),
-    enabled: !!session?.user.id,
-  });
-
-  const {
-    data: serviceRequests,
-    isLoading: srLoading,
-  } = useQuery({
-    queryKey: ["ServiceRequests", session?.user.id],
-    queryFn: () => fetchGetServiceRequest(session?.user.id as string),
-    enabled: !!session?.user.id,
-  });
+  const [isLoading, setIsLoading] = useState(true);
+  const [isUser, setIsUser] = useState(false);
+  const [serviceRequests, setServiceRequests] = useState<ServiceRequest[]>([]);
 
   useEffect(() => {
-    setIsLoading(roleLoading || srLoading && !(userRole || serviceRequests))
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [roleLoading, srLoading])
-
-  console.log(isLoading)
-  const isUser = userRole === "USER";
+    setIsLoading(true);
+    if (session && session.data) {
+      setIsUser(session.data.user.role === "USER");
+      getServiceRequests(session.data.user.id as string)
+        .then(r => {
+          if (r.data) {
+            setServiceRequests(r.data);
+            setIsLoading(false);
+          }
+        });
+    }
+  }, [session]);
 
   if (isLoading) {
     return (
@@ -70,16 +60,14 @@ export default function Page() {
     );
   }
 
-  const sortedRequests = serviceRequests
-    ? [...serviceRequests].sort((a, b) => {
-      const dateA = a.createdOn ? new Date(a.createdOn) : null;
-      const dateB = b.createdOn ? new Date(b.createdOn) : null;
-      if (dateA === null && dateB === null) return 0;
-      if (dateA === null) return 1;
-      if (dateB === null) return -1;
-      return dateB.getTime() - dateA.getTime();
-    })
-    : [];
+  const sortedRequests = [...serviceRequests].sort((a, b) => {
+    const dateA = a.createdOn ? new Date(a.createdOn) : null;
+    const dateB = b.createdOn ? new Date(b.createdOn) : null;
+    if (dateA === null && dateB === null) return 0;
+    if (dateA === null) return 1;
+    if (dateB === null) return -1;
+    return dateB.getTime() - dateA.getTime();
+  });
 
   const filteredBySearch = sortedRequests.filter((request) =>
     request.concern.toLowerCase().includes(search.toLowerCase()) ||
@@ -96,13 +84,13 @@ export default function Page() {
       {!isUser && <LeftTab />}
       <div className={isUser ? "w-full" : "flex-1 flex"}>
         {isUser ? (
-          <UserServiceRequestList serviceRequests={sortedRequests} loading={srLoading} />
+          <UserServiceRequestList serviceRequests={sortedRequests} loading={isLoading} />
         ) : (
           <>
             <ServiceRequestList
               serviceRequests={filteredRequests}
               setServiceRequestIndex={setSelectedIndex}
-              loading={srLoading}
+              loading={isLoading}
               search={search}
               setSearch={setSearch}
             />

@@ -1,7 +1,7 @@
-import { use } from "react";
-import CreateImplementationPlan from "@/components/implementation-plan/CreateImplementationPlanMyk";
-import LeftTab from "@/components/layouts/LeftTab";
-import useGetServiceRequestDetails from "@/domains/service-request/hooks/useGetServiceRequestDetails";
+"use client";
+
+import {use} from "react";
+import Image from "next/image";
 
 interface PageProps {
   params: Promise<{
@@ -9,21 +9,16 @@ interface PageProps {
   }>;
 }
 
-
 export default function Page(props: PageProps) {
-  const params = use(props.params);
-  const { serviceRequestDetails, loading } = useGetServiceRequestDetails(params.id)
-
-  if (loading) {
-    return (
-      <div> loading </div>
-    )
-  }
-
+  use(props.params);
   return (
-    <div className="w-screen max-h-screen flex">
-      <LeftTab />
-      <CreateImplementationPlan serviceRequest={serviceRequestDetails as ServiceRequest}/>
-    </div>
+    <Image
+      src="/images/test.jpg"
+      alt="hee hee"
+      height={window.screen.height}
+      width={window.screen.width}
+      priority={true}
+      className="h-full w-full"
+    />
   )
 }

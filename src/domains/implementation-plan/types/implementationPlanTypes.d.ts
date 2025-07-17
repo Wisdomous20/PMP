@@ -14,7 +14,7 @@ type ServiceRequest = {
     details: string;
     createdOn: Date | null;
     status: Status[];
-    user: {
+    user?: {
         firstName: string,
         lastName: string,
         email: string
