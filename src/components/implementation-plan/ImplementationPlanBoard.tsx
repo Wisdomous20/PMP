@@ -1,36 +1,60 @@
 "use client";
-import React, { useState } from "react";
+
+import React, {useEffect, useState} from "react";
 import ImplementationPlanPreview from "./ImplementationPlanPreview";
 import ImplementationPlansHeader from "./ImplementationPlansHeader";
-import { Skeleton } from "@/components/ui/skeleton";
-import { fetchUserRole } from "@/domains/user-management/services/fetchUserRole";
-import { useQuery } from "@tanstack/react-query";
-import { useSession } from "next-auth/react";
-import fetchGetImplementationPlans from "@/domains/implementation-plan/services/fetchGetImplementationPlans";
+import {Skeleton} from "@/components/ui/skeleton";
+import {useSession} from "next-auth/react";
+import { getImplementationPlansByUserId } from "@/lib/dashboard/implementation-plans";
+import {ErrorCodes} from "@/lib/ErrorCodes";
 
-const ImplementationPlansBoard: React.FC = () => {
+export default function ImplementationPlanBoard() {
   const [searchQuery, setSearchQuery] = useState("");
-  const { data: session } = useSession();
+  const [planUpdate, setPlanUpdate] = useState<number>(0);
+  const [plansLoading, setPlansLoading] = useState<boolean>(true);
+  const [error, setError] = useState<string | null>(null);
+  const session = useSession();
 
-  const { data: userRole, isLoading: userRoleLoading } = useQuery({
-    queryKey: ["userRole", session?.user.id],
-    queryFn: () => fetchUserRole(session?.user.id as string),
-    enabled: !!session?.user.id,
-  });
+  const [board, setBoard] = useState<ImplementationPlan[]>([]);
 
-  const {
-    data: implementationPlans,
-    isLoading: plansLoading,
-    error,
-    refetch,
-  } = useQuery({
-    queryKey: ["ImplementationPlans", session?.user.id],
-    queryFn: () => fetchGetImplementationPlans(session?.user.id as string),
-    enabled: !!session?.user.id,
-  });
+  useEffect(() => {
+    setPlansLoading(true);
+
+    if (session.data && session.data.user && session.data.user.id) {
+      getImplementationPlansByUserId(session.data.user.id).then(r => {
+        if (r.code !== ErrorCodes.OK || !r.data) {
+          setPlansLoading(false);
+          setError(r.message ?? null);
+          return;
+        }
+
+        const m: ImplementationPlan[] = r.data.map(x => ({
+          id: x.id,
+          description: x.description,
+          status: x.status,
+          serviceRequestId: x.serviceRequest.id,
+          serviceRequest: {
+            ...x.serviceRequest,
+            requesterName: x.requesterName,
+            createdOn: x.createdOn,
+          },
+          tasks: x.tasks,
+          files: x.files,
+          createdAt: x.createdAt,
+        }))
+
+        setBoard(m);
+        setPlansLoading(false);
+      });
+    }
+  }, [session, planUpdate]);
+
+  if (board === null) {
+    return (<></>);
+  }
 
   const handlePlansUpdate = async () => {
-    await refetch();
+    setPlanUpdate(l => l + 1);
   };
 
   const categorizePlan = (plan: ImplementationPlan) => {
@@ -56,7 +80,7 @@ const ImplementationPlansBoard: React.FC = () => {
     );
   };
 
-  const filteredPlans = filterPlans(implementationPlans);
+  const filteredPlans = filterPlans(board);
 
   const pendingPlans = filteredPlans.filter(
     (plan) => categorizePlan(plan) === "pending"
@@ -68,7 +92,7 @@ const ImplementationPlansBoard: React.FC = () => {
     (plan) => categorizePlan(plan) === "done"
   );
 
-  if (plansLoading || userRoleLoading) {
+  if (plansLoading || !session.data) {
     return (
       <div className="p-4 w-full">
         <ImplementationPlansHeader
@@ -76,7 +100,7 @@ const ImplementationPlansBoard: React.FC = () => {
           loading={true}
         />
         <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
-          {["Pending", "In Progress", "Done"].map((status, idx) => (
+          {["Pending", "In Progress", "Done"].map((_, idx) => (
             <div key={idx} className="flex flex-col">
               <div className="mb-3 flex items-center justify-between">
                 <div className="flex items-center gap-2">
@@ -97,13 +121,13 @@ const ImplementationPlansBoard: React.FC = () => {
     );
   }
 
-  if (error) return <div>Error: {error.message}</div>;
+  if (error) return <div>Error: {error}</div>;
 
   return (
     <div className="p-4 w-full ">
       <ImplementationPlansHeader
         onSearchChange={setSearchQuery}
-        loading={plansLoading || userRoleLoading}
+        loading={plansLoading}
       />
 
       <div className="grid grid-cols-1 md:grid-cols-3 gap-6 mt-6">
@@ -123,7 +147,7 @@ const ImplementationPlansBoard: React.FC = () => {
               <ImplementationPlanPreview
                 key={plan.id}
                 plan={plan}
-                userRole={userRole as UserRole}
+                userRole={session.data!.user.role as UserRole}
                 onUpdate={handlePlansUpdate}
               />
             ))}
@@ -145,7 +169,7 @@ const ImplementationPlansBoard: React.FC = () => {
               <ImplementationPlanPreview
                 key={plan.id}
                 plan={plan}
-                userRole={userRole as UserRole}
+                userRole={session.data!.user.role as UserRole}
                 onUpdate={handlePlansUpdate}
               />
             ))}
@@ -167,7 +191,7 @@ const ImplementationPlansBoard: React.FC = () => {
               <ImplementationPlanPreview
                 key={plan.id}
                 plan={plan}
-                userRole={userRole as UserRole}
+                userRole={session.data!.user.role as UserRole}
                 onUpdate={handlePlansUpdate}
               />
             ))}
@@ -176,6 +200,4 @@ const ImplementationPlansBoard: React.FC = () => {
       </div>
     </div>
   );
-};
-
-export default ImplementationPlansBoard;
+}

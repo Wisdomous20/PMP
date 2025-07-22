@@ -55,7 +55,6 @@ export default function Archives() {
   };
 
   const handleRequestClick = (request: any) => {
-    console.log("Selected request:", request);
     setSelectedRequest(request);
   };
 
@@ -224,7 +223,7 @@ export default function Archives() {
       )}
   
       {selectedRequest && (
-        <ArchiveDetailsModal request={selectedRequest} onClose={closeRequestDetails} />
+        <ArchiveDetailsModal request={selectedRequest} onCloseAction={closeRequestDetails} />
       )}
     </div>
   );  

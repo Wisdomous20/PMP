@@ -1,4 +1,6 @@
-import nodemailer from "nodemailer";
+"use server";
+
+import { createMailer } from "@/lib/mailer/create-mailer";
 
 type VerifyUserEmailParams = {
   to: string;
@@ -15,15 +17,9 @@ export async function sendUserVerificationEmail({
   verificationToken,
   color = "#4CAF50",
 }: VerifyUserEmailParams): Promise<void> {
-  const transporter = nodemailer.createTransport({
-    service: "gmail",
-    auth: {
-      user: process.env.EMAIL_USER,
-      pass: process.env.EMAIL_PASS,
-    },
-  });
+  const transporter = await createMailer();
 
-  const baseUrl = process.env.NEXT_PUBLIC_BASE_URL || "http://localhost:3000";
+  const baseUrl = process.env.NEXT_PUBLIC_CLIENT_URL || "http://localhost:3000";
   const verifyUrl = `${baseUrl}/auth/verify-user?userId=${encodeURIComponent(
     userId
   )}&token=${encodeURIComponent(verificationToken)}`;

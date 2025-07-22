@@ -5,7 +5,7 @@ import RequesterDetails from './ImplementationPlanRequesterDetails';
 // import TaskList from './ImplementationPlanTaskList';
 // import FileUpload from './ImplementationPlanFileUpload';
 // import AdditionalDetails from './ImplementationPlanAdditionalDetails';
-import fetchGetServiceRequestDetails from '@/domains/service-request/services/fetchGetServiceRequestById';
+import { getServiceRequestById } from '@/lib/service-request/fetch-service-request';
 // import fetchCreateImplementationPlan from '@/domains/implementation-plan/services/fetchCreateImplementationPlan';
 import { toast } from "@/hooks/use-toast";
 
@@ -29,7 +29,7 @@ const ImplementationPlanForm: React.FC<ImplementationPlanFormProps> = ({ service
   useEffect(() => {
     const fetchDetails = async () => {
       try {
-        const serviceRequest = await fetchGetServiceRequestDetails(serviceRequestId);
+        const serviceRequest = await getServiceRequestById(serviceRequestId);
         if (serviceRequest) {
           setRequesterDetails({
             requesterName: serviceRequest.requesterName,

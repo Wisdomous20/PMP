@@ -5,7 +5,7 @@ import type React from "react"
 import { useState, useEffect } from "react"
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog"
 import type { User } from "@prisma/client"
-import fetchUpdateUser from "@/domains/user-management/services/fetchUpdateUser"
+import { updateUser } from "@/lib/user/update-user"
 import { Button } from "@/components/ui/button"
 import { Input } from "@/components/ui/input"
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select"
@@ -19,13 +19,13 @@ type LimitedUserRole = Exclude<User["user_type"], "ADMIN" | null>
 interface UserDetailsModalProps {
   user: User | null
   open: boolean
-  onClose: () => void
+  onCloseAction: () => void
 }
 
 const MAX_PENDING_LIMIT = 50
 const roles: LimitedUserRole[] = ["USER", "SUPERVISOR", "SECRETARY"]
 
-export default function UserDetailsModal({ user, open, onClose }: UserDetailsModalProps) {
+export default function UserDetailsModal({ user, open, onCloseAction }: UserDetailsModalProps) {
   const [selectedRole, setSelectedRole] = useState<LimitedUserRole>((user?.user_type || "USER") as LimitedUserRole)
   const [pendingLimit, setPendingLimit] = useState<number>(5)
   const [error, setError] = useState<string>("")
@@ -59,12 +59,12 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
     if (error) return
     setWorking(true)
     try {
-      await fetchUpdateUser(user.id, selectedRole, pendingLimit)
+      await updateUser(user.id, selectedRole, pendingLimit)
     } catch (e) {
       console.error(e)
     } finally {
       setWorking(false)
-      onClose()
+      onCloseAction()
     }
   }
 
@@ -80,7 +80,7 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
   }
 
   return (
-    <Dialog open={open} onOpenChange={onClose} >
+    <Dialog open={open} onOpenChange={onCloseAction} >
       <DialogContent className="max-w-md p-0 bg-white rounded-xl shadow-xl overflow-hidden">
         <DialogHeader className="p-6 border-b">
           <DialogTitle className="text-xl font-semibold text-gray-900 flex items-center">
@@ -197,10 +197,10 @@ export default function UserDetailsModal({ user, open, onClose }: UserDetailsMod
 
         <DialogFooter className="p-6 border-t bg-gray-50">
           <div className="flex justify-end gap-3 w-full">
-            <Button onClick={onClose} disabled={working} variant="outline">
+            <Button onClick={onCloseAction} disabled={working} variant="outline">
               Cancel
             </Button>
-            <Button onClick={handleSave} disabled={working || !!error} className="min-w-[100px] bg-indigo-Background">
+            <Button onClick={handleSave} disabled={working || !!error} className="min-w-[100px] bg-indigo-500">
               {working ? (
                 <>
                   <Loader2 className="mr-2 h-4 w-4 animate-spin" />

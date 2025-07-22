@@ -1,12 +1,12 @@
 "use client";
 
-import dynamic from 'next/dynamic';
-
-const Login = dynamic(
-  () => import('@/components/auth/Login'),
-  { ssr: false }
-);
+import Login from "@/components/auth/Login";
+import { Suspense } from "react";
 
 export default function Page() {
-  return <Login />;
+  return (
+    <Suspense>
+      <Login />
+    </Suspense>
+  );
 }

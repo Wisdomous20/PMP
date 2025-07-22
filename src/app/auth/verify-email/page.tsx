@@ -1,10 +1,12 @@
 "use client";
+
 import { Button } from "@/components/ui/button";
 import { useRouter, useSearchParams } from "next/navigation";
 import Image from "next/image";
 import { Mail, ArrowLeft } from "lucide-react";
+import { Suspense } from "react";
 
-export default function VerifyEmail() {
+function VerifyEmailInner() {
   const router = useRouter();
   const searchParams = useSearchParams();
   const email = searchParams.get("email") || "";
@@ -87,4 +89,12 @@ export default function VerifyEmail() {
       </div>
     </div>
   );
+}
+
+export default function VerifyEmail() {
+  return (
+    <Suspense>
+      <VerifyEmailInner />
+    </Suspense>
+  )
 }

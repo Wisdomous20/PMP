@@ -7,10 +7,11 @@ type NotificationType =
 type AdminNotification = {
   id: string;
   type: NotificationType;
+  typePretty: string;
   message: string;
   link: string;
-  department?: string;
-  supervisorId?: string;
+  department?: string | null;
+  supervisorId?: string | null;
   isRead: boolean;
-  createdAt: string;
+  createdAt: Date;
 }

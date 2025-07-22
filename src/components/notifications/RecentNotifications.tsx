@@ -13,7 +13,7 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog"
 import { Skeleton } from "@/components/ui/skeleton"
-import { markNotificationAsRead } from "@/domains/notification/services/markNotificationAsRead"
+import { updateNotification } from "@/lib/notification/update-notification"
 
 function getNotificationDateGroup(createdAt: string) {
   const now = new Date()
@@ -59,7 +59,7 @@ export default function RecentNotifications({
 
   const handleMarkAsRead = async (id: string) => {
     try {
-      await markNotificationAsRead(id)
+      await updateNotification(id, true)
     } catch (err) {
       console.error("Error marking notification as read:", err)
     }
@@ -68,7 +68,7 @@ export default function RecentNotifications({
   const groupedNotifications = isLoading
     ? []
     : notifications.reduce<Record<string, AdminNotification[]>>((acc, notification) => {
-        const dateLabel = getNotificationDateGroup(notification.createdAt)
+        const dateLabel = getNotificationDateGroup(notification.createdAt.toLocaleDateString())
         if (!acc[dateLabel]) {
           acc[dateLabel] = []
         }
@@ -137,7 +137,7 @@ export default function RecentNotifications({
                         variant="outline"
                         className="bg-amber-100 text-amber-800 hover:bg-amber-100 text-[10px]"
                       >
-                        {notification.type}
+                        {notification.typePretty}
                       </Badge>
                       <span className="text-xs text-gray-500">
                         {new Date(notification.createdAt).toLocaleTimeString([], {

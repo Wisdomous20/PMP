@@ -1,11 +1,13 @@
 "use client";
 
-import { useEffect, useState, useCallback } from "react";
-import { useRouter, useSearchParams } from "next/navigation";
-import { Suspense } from "react";
+import * as accounts from "@/lib/accounts/validate-user";
+import {Button} from "@/components/ui/button";
+import {CheckCircle, Loader2} from "lucide-react";
+import {ErrorCodes} from "@/lib/ErrorCodes";
 import Image from "next/image";
-import { Button } from "@/components/ui/button";
-import { CheckCircle, Loader2 } from "lucide-react";
+import {Suspense, useCallback, useEffect, useState} from "react";
+import {useRouter, useSearchParams} from "next/navigation";
+import validator from "@/lib/validators";
 
 type VerifyStatus = "idle" | "loading" | "success" | "error";
 
@@ -21,9 +23,6 @@ function VerifyUserPage() {
   useEffect(() => {
     const userIdQuery = searchParams.get("userId");
     const tokenQuery = searchParams.get("token");
-
-    console.log(userIdQuery)
-    console.log(tokenQuery)
 
     if (userIdQuery) {
       setUserId(userIdQuery);
@@ -41,52 +40,41 @@ function VerifyUserPage() {
   }, [searchParams]);
 
   const handleVerify = useCallback(async () => {
-    if (!userId || !token) {
-      setMessage("Missing verification parameters.");
+    const validate = await validator.validate({ userId, token }, {
+      properties: {
+        userId: {type: "string", formatter: "non-empty-string"},
+        token: {type: "string", formatter: "non-empty-string"},
+      },
+      requiredProperties: ["userId", "token"],
+    });
+    if (!validate.ok) {
+      setMessage(validator.toPlainErrors(validate.errors));
       setVerifyStatus("error");
       return;
     }
 
     setVerifyStatus("loading");
 
-    try {
-      const response = await fetch("/api/auth/validate-user", {
-        method: "POST",
-        headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ userId, token }),
-      });
-
-      const data = await response.json();
-
-      console.log(data)
-
-      if (response.ok && data.success) {
-        setVerifyStatus("success");
-        setMessage(data.message || "Email verified successfully!");
-      } else {
-        setVerifyStatus("error");
-        setMessage(data.error || "Verification failed. The link may have expired or is invalid.");
-      }
-    } catch (error) {
-      console.error("Error verifying email:", error);
+    const verification = await accounts.validateUser({ userId, token });
+    if (verification.code !== ErrorCodes.OK) {
+      setMessage(verification.message as string);
       setVerifyStatus("error");
-      setMessage("An error occurred while verifying your email. Please try again.");
+      return;
     }
+
+    setMessage("Email verified successfully!");
+    setVerifyStatus("success");
   }, [userId, token]);
 
   useEffect(() => {
     if (userId && token && verifyStatus === "idle") {
-      handleVerify();
+      handleVerify().catch(console.error);
     }
   }, [userId, token, verifyStatus, handleVerify]);
 
   const handleGoToLogin = () => {
     router.push("/auth/login");
   };
-
-  // const handleResendVerification = () => {
-  //   router.push("/auth/register");
-  // };
 
   return (
     <div
@@ -153,39 +141,6 @@ function VerifyUserPage() {
               </Button>
             </>
           )}
-
-          {/* {verifyStatus === "error" && (
-            <>
-              <div className="flex justify-center">
-                <div className="w-16 h-16 bg-red-500 rounded-full flex items-center justify-center">
-                  <XCircle className="w-8 h-8 text-white" />
-                </div>
-              </div>
-              <div className="space-y-3">
-                <h2 className="text-xl font-semibold text-white">
-                  Verification Failed
-                </h2>
-                <p className="text-gray-300 text-sm">
-                  {message}
-                </p>
-              </div>
-              <div className="space-y-3">
-                <Button
-                  onClick={handleGoToLogin}
-                  className="w-full bg-yellow-400 text-black hover:bg-yellow-500"
-                >
-                  Go to Login
-                </Button>
-                <Button
-                  onClick={handleResendVerification}
-                  variant="outline"
-                  className="w-full bg-transparent border-gray-400 text-gray-300 hover:bg-gray-700 hover:text-white"
-                >
-                  Register Again
-                </Button>
-              </div>
-            </>
-          )} */}
         </div>
 
         <div className="mt-8 text-center text-xs text-gray-400">

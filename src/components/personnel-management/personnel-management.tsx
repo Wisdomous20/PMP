@@ -1,4 +1,5 @@
 "use client";
+
 import React from "react";
 import { useEffect, useState } from "react";
 import { Button } from "@/components/ui/button";
@@ -8,6 +9,8 @@ import { Skeleton } from "@/components/ui/skeleton";
 import AddPersonnel from "./AddPersonnel";
 import UpdatePersonnel from "./updatePersonnel";
 import PersonnelCalendar from "./PersonnelCalendar";
+import { getPersonnel } from "@/lib/personnel/get-personnel";
+import { deletePersonnel } from "@/lib/manpower-management/delete-personnel";
 import {
   Select,
   SelectContent,
@@ -23,7 +26,6 @@ import {
   TableHeader,
   TableRow,
 } from "@/components/ui/table";
-// import { Input } from "@/components/ui/input";
 
 interface Personnel {
   id: string;
@@ -47,6 +49,7 @@ export default function PersonnelManagement() {
   const [loading, setLoading] = useState(false);
 
   const [currentPage, setCurrentPage] = useState(1);
+  const [counter, setCounter] = useState(0);
   const itemsPerPage = 10;
 
   useEffect(() => {
@@ -61,8 +64,21 @@ export default function PersonnelManagement() {
   );
 
   useEffect(() => {
-    fetchPersonnel();
-  }, []);
+    setLoading(true);
+
+    getPersonnel().then(r => {
+      if (r.data) {
+        setPersonnel(r.data);
+        setFilteredPersonnel(r.data);
+
+        const uniqueDepartments = Array.from(
+          new Set(r.data.map((person) => person.department).filter(Boolean))
+        ) as string[];
+
+        setDepartments(uniqueDepartments);
+      }
+    }).finally(() => setLoading(false));
+  }, [counter]);
 
   useEffect(() => {
     let filtered = personnel;
@@ -85,32 +101,9 @@ export default function PersonnelManagement() {
     setFilteredPersonnel(filtered);
   }, [searchTerm, personnel, selectedDepartment]);
 
-  const fetchPersonnel = async () => {
-    setLoading(true);
-    try {
-      const response = await fetch("/api/manpower-management");
-      const data = await response.json();
-      if (Array.isArray(data)) {
-        setPersonnel(data);
-        setFilteredPersonnel(data);
-        const uniqueDepartments = Array.from(
-          new Set(data.map((person) => person.department).filter(Boolean))
-        ) as string[];
-
-        setDepartments(uniqueDepartments);
-      } else {
-        console.error("Fetched data is not an array:", data);
-      }
-    } catch (error) {
-      console.error("Error fetching personnel:", error);
-    } finally {
-      setLoading(false);
-    }
-  };
-
   const handleSingleDelete = async (personId: string) => {
     try {
-      await fetch(`/api/manpower-management/${personId}`, { method: "DELETE" });
+      await deletePersonnel(personId);
       setPersonnel((prev) => prev.filter((person) => person.id !== personId));
     } catch (error) {
       console.error("Error deleting personnel:", error);
@@ -237,20 +230,20 @@ export default function PersonnelManagement() {
         <Button
           variant={"default"}
           onClick={() => setIsDialogOpen(true)}
-          className="bg-indigo-Background text-white w-full sm:w-auto hover:bg-indigo-900"
+          className="bg-indigo-600 text-white w-full sm:w-auto hover:bg-indigo-900"
         >
           <Plus className="mr-2 h-4 w-4 font" /> Add Personnel
         </Button>
       </div>
 
       <AddPersonnel
-        onAdd={fetchPersonnel}
+        onAddAction={() => setCounter((prev) => prev + 1)}
         isOpen={isDialogOpen}
-        onOpenChange={setIsDialogOpen}
+        onOpenChangeAction={setIsDialogOpen}
       />
 
       <UpdatePersonnel
-        onUpdate={fetchPersonnel}
+        onUpdate={() => setCounter((prev) => prev + 1)}
         isOpen={isUpdateDialogOpen}
         onOpenChange={setIsUpdateDialogOpen}
         currentPersonnel={currentPersonnel}
